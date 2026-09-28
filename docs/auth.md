@@ -332,3 +332,32 @@ Before completing a significant authentication-related change, Claude should ver
 * Does the change remain consistent with `/docs/architecture-rules.md`?
 
 If a significant authentication decision cannot be resolved from the existing documentation, Claude should identify the decision rather than silently inventing a new authentication architecture.
+
+---
+
+## Appendix: Web Clerk Implementation
+
+Implemented in `apps/web` with `@clerk/nextjs` v7 (Clerk Core 3), Next.js 16 App Router. Mobile authentication, database user storage, and API token handling are not yet implemented.
+
+### Files
+
+* `apps/web/proxy.ts`: `clerkMiddleware()`. Next.js 16 uses `proxy.ts` (formerly `middleware.ts`). Protects `/dashboard(.*)` with `auth.protect()`; all other routes are public.
+* `apps/web/app/layout.tsx`: wraps the app in `<ClerkProvider>` (sign-in URL `/sign-in`, sign-up URL `/sign-up`) and renders `AuthHeader`.
+* `apps/web/components/auth/auth-header.tsx`: header using `<Show when="signed-in">` / `<Show when="signed-out">` (Core 3 replacement for `SignedIn`/`SignedOut`), `SignInButton`, `SignUpButton`, `UserButton`.
+* `apps/web/app/sign-in/[[...sign-in]]/page.tsx` and `apps/web/app/sign-up/[[...sign-up]]/page.tsx`: Clerk `<SignIn />` / `<SignUp />` with path routing.
+* `apps/web/app/page.tsx`: public home page showing signed-in/signed-out state.
+* `apps/web/app/dashboard/page.tsx`: protected page. Server-side `currentUser()` displays the user's name, email, and avatar; `SignOutButton` signs out and redirects to `/`.
+* `apps/web/lib/clerk-appearance.ts`: maps Clerk's `appearance.variables` to the shadcn/ui CSS variables in `globals.css`, so Clerk UI follows the Signal One theme.
+* `apps/web/components/ui/card.tsx`, `avatar.tsx`: added via the shadcn CLI.
+
+### Environment variables
+
+* `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`: client-safe.
+* `CLERK_SECRET_KEY`: server-only. Never commit it.
+
+Locally, set both in `apps/web/.env.local` (gitignored). On Vercel, set both for Development, Preview, and Production. Preview deployments use the same variables; a Clerk development instance (`pk_test_`/`sk_test_` keys) works on `*.vercel.app` preview URLs, while production keys require a production Clerk instance on a configured domain.
+
+### Notes
+
+* Route protection in `proxy.ts` does not replace server-side checks. Future API routes and mutations must call `auth()` from `@clerk/nextjs/server` and reject unauthenticated requests.
+* The build succeeds without Clerk env vars because all routes are dynamically rendered; runtime requests need the keys.
