@@ -17,6 +17,10 @@ node_modules/
 out/
 next-env.d.ts
 
+# Next.js agent-rule auto-generation (disabled via agentRules: false; see /docs/web.md)
+apps/web/AGENTS.md
+apps/web/CLAUDE.md
+
 # React Native / Expo
 
 .expo/
