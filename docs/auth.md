@@ -332,3 +332,33 @@ Before completing a significant authentication-related change, Claude should ver
 * Does the change remain consistent with `/docs/architecture-rules.md`?
 
 If a significant authentication decision cannot be resolved from the existing documentation, Claude should identify the decision rather than silently inventing a new authentication architecture.
+
+---
+
+## Appendix: Web Implementation (`apps/web`)
+
+Web authentication is implemented with `@clerk/nextjs` (Clerk Core 3, v7) and `@clerk/ui` (for the `shadcn` theme). Only Web authentication exists so far. There is no database user storage and no mobile authentication yet.
+
+* `app/layout.tsx`: wraps the app in `<ClerkProvider appearance={{ theme: shadcn }}>` and renders `components/site-header.tsx`.
+* `proxy.ts`: `clerkMiddleware()`. Next.js 16 uses `proxy.ts` (formerly `middleware.ts`). Routes matching `/account(.*)` call `auth.protect()`; add further protected routes to `isProtectedRoute`.
+* `app/sign-in/[[...sign-in]]` and `app/sign-up/[[...sign-up]]`: Clerk `<SignIn />` / `<SignUp />` components.
+* `components/site-header.tsx`: uses `<Show when="signed-in" | "signed-out">` (`SignedIn`/`SignedOut` were removed in Core 3), shadcn `Button`, `SignOutButton`, and `UserButton`.
+* `app/account/page.tsx`: server component that derives identity from `auth.protect()` / `currentUser()` (server-side, per section 4).
+* Styling: Clerk components use the `shadcn` theme from `@clerk/ui/themes`, with `@clerk/ui/dist/themes/shadcn.css` imported in `app/globals.css` so they follow the project's shadcn CSS variables.
+
+### Environment variables
+
+| Variable | Scope | Notes |
+| --- | --- | --- |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Client-safe | Clerk Dashboard → API keys |
+| `CLERK_SECRET_KEY` | Server-only | Never commit or expose |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_URL` / `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | Client-safe | `/sign-in`, `/sign-up` |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL` / `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` | Client-safe | `/` |
+
+* Local: copy `apps/web/.env.example` to `apps/web/.env.local` (gitignored) and fill in the keys.
+* Vercel: set the same variables in the Vercel project's Environment Variables for each environment.
+* The production build succeeds without keys, but running the app and authenticating requires them.
+
+### Verifying a user
+
+Create the first test user via `/sign-up`, then confirm the user appears in the Signal One Clerk Dashboard → Users. `/account` shows the Clerk user ID as seen by the server.

@@ -9,7 +9,7 @@ The Web application lives in `apps/web`.
 * shadcn/ui (see `/docs/ui.md`)
 * Deployed on Vercel
 
-Clerk, Drizzle, and Neon are not yet added to the Web app.
+Clerk is integrated for Web authentication (see `/docs/auth.md`). Drizzle and Neon are not yet added to the Web app.
 
 ## Agent instructions
 
