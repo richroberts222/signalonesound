@@ -9,7 +9,7 @@ The Web application lives in `apps/web`.
 * shadcn/ui (see `/docs/ui.md`)
 * Deployed on Vercel
 
-Clerk is integrated in the Web app (see `/docs/auth.md`). Drizzle and Neon are not yet added.
+Clerk is integrated in the Web app (see `/docs/auth.md`). Drizzle ORM and Neon are set up as a server-only foundation in `apps/web/db` (no application tables yet). Set `DATABASE_URL` in `apps/web/.env.local` (see `.env.example`).
 
 ## Agent instructions
 
@@ -24,4 +24,7 @@ pnpm dev        # start the web dev server
 pnpm lint       # eslint
 pnpm typecheck  # next typegen && tsc --noEmit
 pnpm build      # next build
+
+pnpm --filter web db:generate   # generate a SQL migration from db/schema.ts
+pnpm --filter web db:migrate    # apply committed migrations (requires DATABASE_URL)
 ```
