@@ -2,35 +2,60 @@
 
 ## Status: NOT "BOILERPLATE V1 READY"
 
-The repository tooling and documentation are written, but **nothing was executed or validated**, and the standalone repository **was not created**. In this automation session every command that runs Node/pnpm (`node --test`, `node scripts/...`, `pnpm`) and `gh repo create` required approval and was not granted. Treat all code below as untested until the commands in "Human steps" pass.
+The export and the fresh-app proof were executed and passed. The standalone repository has **not** been populated: the automation session could not run `git init`, `git ls-remote`, or any push to the existing target repository (each required approval that was not granted). So the proof ran against a local export, not the pushed repository, and the "V1 READY" claim is withheld.
 
-## What was added
+## Source
 
-* `scripts/boilerplate/export-template.mjs` + `pnpm export:boilerplate --out=<dir>`: generates the standalone generic tree from this repo (proof slice removed via shared `stripProofSlice`, neutral identity "App Boilerplate" / `app-boilerplate` / `com.example.appboilerplate`, standalone `docs/boilerplate.md` and `docs/notes.md` from `scripts/boilerplate/templates/standalone/`, README template banner).
-* `init-app.mjs`: `applyIdentity` now rewrites both source identities (Signal One and the template identity); `validateIdentity` rejects both; proof stripping extracted into exported `stripProofSlice`; `stripMarkedRegions` takes optional kinds; `package.json` cleanup also drops `export:boilerplate`.
-* `check-boilerplate.mjs`: identity rule also detects the template identity.
-* `manifest.mjs`: `EXPORT_EXCLUDED_PATHS`.
-* `boilerplate.test.mjs`: negative-control now adapts to the standalone (no proof rules there); one new test for export-then-init (skipped in the standalone); one new assertion rejecting the template name.
-* New docs kept by every generated app: `docs/customization-map.md` (every identity/external-project location, auto vs manual, secret vs public, per environment) and `docs/stack.md` (stack roles, data flow, auth, environments, migrations, testing, CI, Vercel, EAS). `docs/new-app-setup.md` links to both; `docs/boilerplate.md` documents export and the publishing step.
+* Signal One source commit used for the export: `0eae6e3144bd320f83ce785f50687889d0f9a59f` (branch `claude/issue-53-20261001-2046`).
+* Standalone repository: target is the existing, empty repository `richroberts222/fullstack-boilerplate` (not contacted). The generated tree is at `/home/runner/work/fullstack-boilerplate` on the CI runner. That path is ephemeral and lost when the job ends.
+* Standalone boilerplate commit: none (nothing committed or pushed).
 
-## Test Value Review (new tests)
+## Commands actually executed (in the Signal One checkout unless noted)
 
-* Export test: protects the one property the standalone repo exists for (no Signal One/proof leftovers, still initializes). Kept.
-* Template-name rejection assertion: one line in an existing test. Kept.
-* No framework-only tests added.
+Note: `pnpm` was not on PATH, so `corepack pnpm` was used. Nested `pnpm` calls inside scripts needed `corepack enable --install-directory node_modules/.bin` (a git-ignored directory created in the checkout). `pnpm validate` itself could not be run as one command for the same reason, so its parts were run individually.
 
-## Success criteria status
+1. `corepack pnpm install --frozen-lockfile`: passed.
+2. `corepack pnpm test:boilerplate`: 6 tests, 6 pass (including the new export-then-init test).
+3. `corepack pnpm -r --if-present lint`: passed.
+4. `corepack pnpm -r --if-present typecheck`: passed.
+5. `corepack pnpm -r --if-present test`: shared 39, validation 24, mobile 10, web 124 passed.
+6. `corepack pnpm --filter web build`: passed.
+7. `corepack pnpm check:boilerplate` (Signal One itself): exits 1 with 521 findings. This is expected, because Signal One is the reference app, not an initialized app.
+8. `corepack pnpm export:boilerplate --out=/home/runner/work/fullstack-boilerplate`: copied 195 files, removed the proof slice, applied the neutral identity to 67 files.
+9. In the export: `corepack pnpm --dir <export> install --frozen-lockfile`: passed. This resolves the open question about the lockfile after identity substitution.
+10. In the export: `test:boilerplate`: 5 pass, 1 skipped (the export test is skipped in the standalone by design).
+11. In the export: `check:boilerplate`: exits 1 with 225 findings (template-only paths plus the template/Signal One identifier rule). This is expected for an uninitialized template; see "Open observation".
+12. `corepack pnpm exec node /home/runner/work/fullstack-boilerplate/scripts/boilerplate/prove-init.mjs --full`: **PROOF OK (full)**.
 
-1 standalone repo exists: **NO** (not created; human step below). 2 Signal One still separate: yes (nothing converted). 3 init of a different identity: implemented, **unverified**. 4 domain-clean start: by design (#51), unverified for export. 5-7 customization map, external boundaries, stack docs: written. 8-9, 12-14 preserved by construction (files copied unchanged). 10-11 unchanged. 15 leak check extended, unrun. 16 fresh fictional app generated and validated: **NO, not executed**.
+No code fixes were needed: none of the new export/init/check tooling failed.
 
-## Human steps (exact)
+## Fictional application used
 
-1. In this branch: `node --test scripts/boilerplate/boilerplate.test.mjs` (or `pnpm test:boilerplate`) and fix anything the new code breaks; run `pnpm validate`.
-2. `pnpm export:boilerplate --out=../<boilerplate-dir>`, then publish per `/docs/boilerplate.md` ("Human step to publish"). Pick a neutral repo name.
-3. In the new repo: `pnpm install`, `pnpm test:boilerplate`, `pnpm prove:init --full` (initializes a fictional "Harbor Notes", installs, lint, typecheck, test, build, offline first migration). Record the real results and the source/boilerplate commits in that repo's `docs/notes.md`.
+"Harbor Notes", initialized into a temporary directory under `/tmp` by `prove-init.mjs`. No external resources were created or contacted.
 
-## Not done / limitations
+## What was actually proven (from the export, via prove-init --full)
 
-* Source commit used: `f96b1eb` (main after #51/#52). Boilerplate commit: none (repo not created).
-* Possible issue to check first: the export applies the neutral identity by text substitution to files such as `pnpm-lock.yaml`; a fresh `pnpm install --frozen-lockfile` in the export is unverified.
-* Mobile, E2E, and CI limitations from #51 are unchanged. No external resources were created or contacted; no secrets were written.
+* Install from the rewritten lockfile with `--frozen-lockfile`: passed.
+* Init succeeded; the new identity replaced the template identity (67 files rewritten); template-only docs and `scripts/boilerplate` removed.
+* Post-init leak/configuration check: "clean". This covers absent Signal One identity, absent template identity, absent proof-item references, and absent placeholder store IDs.
+* The exported tree contains no proof-item artifacts, no proof-only migrations (`apps/web/drizzle` removed), and the proof routes are absent from the build.
+* In the initialized app: lint, typecheck, unit tests (shared 39, validation 18, mobile 7, web 108), and `next build` passed.
+* Offline `db:generate` from the clean schema created `0000_*.sql`; web tests passed again afterwards.
+* The export contains (by file listing of `docs/`, plus the proof running): `customization-map.md`, `stack.md`, `new-app-setup.md`, `automation/` docs including `test-value-review.md`, `architecture-rules.md`, `database.md`, `environment.md`, `mobile.md`, `web.md`, `api.md`, `services.md`, `shared-code.md`; init and leak-check tooling; web, mobile and shared/validation packages; DB tooling (migrate/seed/reset guards) with its tests.
+
+## What was NOT proven
+
+* The proof ran against a local export, not the pushed standalone repository.
+* Reusable Claude workflow/rules: `.claude-pr/CLAUDE.md` and `CLAUDE.md` appear in the check output of the export, but I did not separately inspect `.claude/` contents.
+* Playwright E2E, mobile builds (EAS), real Clerk/Neon/Vercel behaviour, and live-database integration tests were not run (no external resources were touched, by instruction).
+* Signal One STAGE/PROD were not accessed.
+
+## Open observation
+
+The uninitialized export still mentions "Signal One" in many docs and comments (the leak check flags them before init; init rewrites them). A reader of the template repo before running init will see Signal One wording. If a Signal One-free template is wanted, the export should also rewrite these; this was not changed.
+
+## Remaining human steps
+
+1. Re-run `pnpm export:boilerplate --out=<dir>` locally from this branch (the runner's directory is gone).
+2. In `<dir>`: `git init -b main`, commit, add remote `git@github.com:richroberts222/fullstack-boilerplate.git`, push.
+3. In a fresh clone: `pnpm install`, `pnpm test:boilerplate`, `pnpm prove:init --full`. Only then record the standalone commit here and call it BOILERPLATE V1 READY.
