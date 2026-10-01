@@ -1,56 +1,53 @@
-# Notes: Issue 25 "Build Reusable Testing Foundation"
+# Notes: Issue 26 "Harden Reusable Security Foundation"
 
-1. Issue: #25 "Build Reusable Testing Foundation"
-2. PR: #31 (open). Not merged; the human is the merge gate.
-3. Canonical branch: `claude/issue-25-20261001-0632`, base `main`. Conflict with `main` resolved by the human (merge commit `ff76131`).
-4. Latest commit: the commit containing this file; see `git log -1` on the branch.
+1. Issue: #26 "Harden Reusable Security Foundation"
+2. PR: none yet at time of writing (open one from this branch; further @claude requests should come from that PR).
+3. Canonical branch: `claude/issue-26-20261001-0633`, base `main`. Not merged.
+4. Latest commit: the commit containing this file (base `5a0b76a`); see `git log -1`.
 
 ## 5. Work completed
 
-- Vitest configs for `packages/shared`, `packages/validation` (new vitest devDependency + lockfile update), `apps/web` (`vitest.config.mts`).
-- Test-only helpers `@signalone/shared/testing` (not in package index): `setup.ts` (clears APP_ENV/DATABASE_ENV/DATABASE_URL/Clerk/VERCEL_ENV before each test, unstubs env after), `fakeServerEnv`, `clearIsolatedEnv`, with self-tests.
-- New behavior tests: shared `utils`, validation `common` schemas.
-- Root scripts: `test`, `test:run`, `test:watch`, `validate`; `test:watch` added to each workspace.
-- `docs/testing.md` rewritten with permanent architecture; `docs/environment.md` Testing section updated.
-- Existing env and boundary tests preserved.
+- Security audit (no secret values read or printed): env example, `lib/env/*`, `db/*`, `next.config.ts`, `proxy.ts`, `.gitignore` files, both workflows, dependency audit. No Vercel config file is committed. Existing env validation and production guards were found sound and left unchanged.
+- Added `apps/web/lib/security.test.ts`: static checks for public-variable naming, client env allow-list, `next.config` `env` forwarding, server-only/client import boundaries (including `'use client'` files and shared packages), placeholder-only `.env.example`, key/credential-shaped secrets in committed text files, gitignore coverage, and workflow safety (no prod credentials, no merge/force/reset/branch-delete, review workflow read-only).
+- `docs/security.md`: added the permanent security architecture (trust boundaries, secrets, public vs private config, client/server, authN vs authZ, production safety, DB credentials, CI expectations and workflow audit findings, future API/mobile, integration points).
 
 ## 6. Files changed
 
-`package.json`, `pnpm-lock.yaml`, `apps/web/package.json`, `apps/web/vitest.config.mts`, `packages/shared/package.json`, `packages/shared/vitest.config.ts`, `packages/shared/src/testing/{index,setup,testing.test}.ts`, `packages/shared/src/utils.test.ts`, `packages/validation/package.json`, `packages/validation/vitest.config.ts`, `packages/validation/src/common.test.ts`, `docs/testing.md`, `docs/environment.md`, `docs/notes.md`.
+`apps/web/lib/security.test.ts` (new), `docs/security.md`, `docs/notes.md`.
 
 ## 7. Architecture decisions
 
-- Vitest only; no new tooling. Helpers live in a test-only subpath of `@signalone/shared` rather than a new package; web/validation reference its setup file by relative path.
-- Setup file strips credentials/environment identity so unit tests cannot reach Neon; guards in `env.ts` untouched.
-- Component/E2E/API/DB/mobile test tooling intentionally not added; documented in `docs/testing.md`.
+- No new runtime abstractions or dependencies; protections are tests plus documented rules.
+- `APP_ENV`/`DATABASE_ENV` stay separate; no guard was changed.
+- Workflow findings are documented, not applied (humans edit workflows).
 
-## 8. CI workflow: NOT PRESENT (human action required)
+## 8. Security verification actually performed
 
-`.github/workflows/ci.yml` is **not on this branch**. The Claude GitHub App cannot create or modify files under `.github/workflows/`, so it was not attempted (no workarounds). Earlier versions of this file wrongly listed it as completed; it was never committed. The human must add it manually. Its intended jobs: secret-free `validate` (frozen install, lint, typecheck, test:run, build), and optionally an actionlint job. A suggested definition is in the PR comment. The workflow is unvalidated and has never run on GitHub.
+- The new tests pass (see 9); they inspect source text only.
+- Manual inspection of workflows and configs. `pnpm audit --prod`: no known vulnerabilities.
 
-## 9. Functional verification performed
+## 9. Results (latest run)
 
-Run in the sandbox on the current branch head after `corepack pnpm install --frozen-lockfile` (the `corepack pnpm -r --if-present <script>` form, which is what the root scripts execute):
-
-- test: shared 31 passed (3 files), validation 8 passed (1 file), web 17 passed (2 files); all pass.
-- typecheck: shared, validation, web all Done.
-- lint: eslint completed with no errors reported.
-- build: `pnpm --filter web build` succeeded with no env/secrets configured.
-- Vercel preview deployment for the PR reported Ready.
+- `pnpm -r --if-present test`: shared 22/22 passed (1 file); web 17/17 passed (2 files).
+- `pnpm --filter web lint`: no output, passed.
+- `pnpm --filter web typecheck`: passed.
+- `pnpm --filter web build`: succeeded.
 
 ## 10. Not tested, and why
 
-- `ci.yml` does not exist, so nothing CI-related was validated.
-- Root scripts `pnpm test:run`, `pnpm test:watch`, `pnpm validate` were not invoked directly (the `corepack pnpm` equivalents were).
-- Hostile-shell check (tests with `DATABASE_URL`/`APP_ENV=prod` exported) was not run; isolation is covered by the setup self-tests only.
+- The new tests were not mutation-checked (no deliberate violation was introduced to see them fail), except that two initial false positives from comment text were observed and fixed.
+- Textual import checks do not follow transitive imports.
+- Vercel project settings, GitHub secret scoping, and Neon roles are not verifiable from code.
+- No production data or infrastructure was touched.
 
 ## 11. Unresolved concerns
 
-- No CI runs the validation commands until the human adds `ci.yml`.
-- Component/E2E/API/DB/mobile tooling remains undecided.
+See "GitHub / CI expectations" in `docs/security.md`: job-level `DATABASE_URL` in `claude.yml`, broad `pnpm *`/`npx *`, `id-token: write`, unpinned action tags. All need a human workflow edit.
+Rate limiting, CSP/security headers, and CI dependency scanning remain unimplemented.
 
 ## 12. Recommended next steps
 
-1. Human adds `.github/workflows/ci.yml` and confirms it runs green.
-2. Review; human merges.
-3. Later issues: database integration tests (separate `test:integration`, qa-only), component tests, mobile tests per `docs/testing.md`.
+1. Open the PR and review.
+2. Human applies the `claude.yml` hardening listed in `docs/security.md`.
+3. Verify Vercel Preview/Production variables manually.
+4. Add security headers/CSP and rate limiting as separate issues.
