@@ -98,7 +98,7 @@ feature branch -> PR
 
 ## 8. Mobile deployment boundary (not built)
 
-Mobile is not scaffolded and no mobile deployment infrastructure exists. Intended mapping, to be implemented when Expo is scaffolded (`/docs/mobile.md`):
+Mobile is scaffolded (`/docs/mobile.md`) and `apps/mobile/eas.json` defines the profiles below, but no EAS project is linked, no build has been run, and no mobile deployment infrastructure exists. Mapping:
 
 | EAS build profile | Environment | API base URL target |
 | --- | --- | --- |
@@ -107,7 +107,7 @@ Mobile is not scaffolded and no mobile deployment infrastructure exists. Intende
 | `staging` | `stage` | stage API |
 | `production` | `prod` | production API |
 
-Rules: mobile builds receive only `EXPO_PUBLIC_*` client-safe values per profile; mobile never receives `DATABASE_URL` or `CLERK_SECRET_KEY`; no production API URL is the default in non-production profiles. Store submission, signing credentials, and OTA update policy are undecided. `eas.json` and `app.config.ts` are not created yet.
+Rules: mobile builds receive only `EXPO_PUBLIC_*` client-safe values per profile; mobile never receives `DATABASE_URL` or `CLERK_SECRET_KEY`; no production API URL is the default in non-production profiles. Store submission, signing credentials, and OTA update policy are undecided. `eas.json` sets only `EXPO_PUBLIC_APP_ENV` per profile; `app.config.ts` holds placeholder identifiers.
 
 ## 9. Production safeguards (summary)
 

@@ -42,7 +42,8 @@ Report results in the pull request. If a check fails, say so; do not claim succe
 | API / Server Action tests | `apps/web` | Future (see API foundation). Cover unauthenticated, unauthorized, invalid-input, success. |
 | Database-backed integration | `apps/web` (or a db package) | Future (see below). |
 | End-to-end | TBD | Future; critical flows (sign-in, protected routes). Tooling undecided. |
-| Mobile | `apps/mobile` | Future (see below). |
+| Mobile config/boundary (pure TypeScript) | `apps/mobile/src/*.test.ts` | Implemented (Vitest) |
+| Mobile component/device | `apps/mobile` | Future (see below). |
 
 ## Test helpers
 
@@ -69,9 +70,9 @@ Not implemented (depends on database helpers). When added they must:
 * start from a known state via the reset/seed process in `/docs/database.md` section 12, never destroying migration history;
 * run in CI only in a separate job using a dedicated qa secret (`NEON_QA_DATABASE_URL`), never in the secret-free unit job.
 
-## Future: mobile tests
+## Mobile tests
 
-Added when Expo is scaffolded. Mobile tests run in their own workspace with the React Native/Expo runner appropriate to that scaffold (decide then; Vitest may not fit), must exercise the same API contracts as Web, and reuse `@signalone/shared` and `@signalone/validation` tests for shared logic rather than duplicating them. Mobile never receives `DATABASE_URL` or `CLERK_SECRET_KEY`.
+`apps/mobile` runs Vitest for pure TypeScript only (env parsing and static boundary checks); it is included in `pnpm test`. React Native component and device tests are not set up. Future mobile tests run in their own workspace with the React Native/Expo runner appropriate to that scaffold (decide then; Vitest may not fit), must exercise the same API contracts as Web, and reuse `@signalone/shared` and `@signalone/validation` tests for shared logic rather than duplicating them. Mobile never receives `DATABASE_URL` or `CLERK_SECRET_KEY`.
 
 ## CI
 

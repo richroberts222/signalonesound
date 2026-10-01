@@ -161,6 +161,56 @@ export function parseClientEnv(source: EnvSource): ClientEnv {
   return { clerkPublishableKey, appEnv };
 }
 
+export type MobileClientEnv = {
+  /** Environment of the build profile; explicit, never inferred. */
+  appEnv: AppEnv;
+  /** Base URL of the Signal One API, without a trailing slash. */
+  apiBaseUrl: string;
+  /** Optional until the Clerk mobile integration is added. */
+  clerkPublishableKey: string | undefined;
+};
+
+/**
+ * Validate values safe for the Expo app bundle (public). Callers pass explicit
+ * literal `process.env.EXPO_PUBLIC_*` reads, since Expo inlines only literal
+ * accesses. Never accepts database or Clerk secret values.
+ */
+export function parseMobileClientEnv(source: EnvSource): MobileClientEnv {
+  const issues: string[] = [];
+  const appEnv = readEnum(source, "EXPO_PUBLIC_APP_ENV", issues);
+
+  let apiBaseUrl = "";
+  const rawUrl = source.EXPO_PUBLIC_API_BASE_URL;
+  if (rawUrl === undefined || rawUrl.trim() === "") {
+    issues.push("EXPO_PUBLIC_API_BASE_URL is not set.");
+  } else {
+    // Regex rather than `new URL`: React Native's URL support is partial.
+    const match = /^(https?):\/\/[^\s/?#]+(\/[^\s?#]*)?$/i.exec(rawUrl.trim());
+    if (!match) {
+      issues.push("EXPO_PUBLIC_API_BASE_URL must be an http(s) URL without query or fragment.");
+    } else if (match[1].toLowerCase() === "http" && appEnv !== undefined && appEnv !== "dev") {
+      issues.push("EXPO_PUBLIC_API_BASE_URL must use https outside the dev environment.");
+    } else {
+      apiBaseUrl = rawUrl.trim().replace(/\/+$/, "");
+    }
+  }
+
+  let clerkPublishableKey: string | undefined;
+  const rawKey = source.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  if (rawKey !== undefined && rawKey.trim() !== "") {
+    if (!rawKey.startsWith("pk_")) {
+      issues.push("EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY must be a publishable key (pk_...).");
+    } else if (appEnv !== undefined && appEnv !== "prod" && rawKey.startsWith("pk_live_")) {
+      issues.push("A live Clerk publishable key is not allowed outside the prod environment.");
+    } else {
+      clerkPublishableKey = rawKey;
+    }
+  }
+
+  if (issues.length > 0 || !appEnv) throw new EnvValidationError(issues);
+  return { appEnv, apiBaseUrl, clerkPublishableKey };
+}
+
 /**
  * Guard for destructive tooling (reset, seed, bulk test data). Fails closed:
  * the target must be explicitly allowed, and protected environments are
