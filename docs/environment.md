@@ -57,7 +57,7 @@ Validation fails (throws) when:
 * `DATABASE_URL` is not a URL with a `postgres:`/`postgresql:` protocol (the value is never echoed);
 * `APP_ENV` and `DATABASE_ENV` disagree about being `prod` (non-prod app on prod DB, or the reverse);
 * `VERCEL_ENV` is set to anything other than `production` (Preview, `vercel dev`) and the app or database is `prod`;
-* `VERCEL_ENV=preview` is combined with `stage`;
+* `VERCEL_ENV=preview` and either `APP_ENV` or `DATABASE_ENV` is not `qa` (Preview must be qa; deployment architecture in `/docs/deployment.md`);
 * a live Clerk secret key (`sk_live_`) is used outside `prod`.
 
 Code cannot detect a `DATABASE_URL` that points at the wrong Neon branch while `DATABASE_ENV` claims otherwise; Vercel Preview variables must be configured carefully.
@@ -74,7 +74,7 @@ Copy `apps/web/.env.example` to `apps/web/.env.local` (gitignored) and fill in d
 
 ## Vercel
 
-Set per Vercel environment (see `/docs/deployment.md`): `DATABASE_ENV`, `DATABASE_URL`, `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, and optionally `APP_ENV`. Production must set `DATABASE_ENV=prod` (and `APP_ENV=prod` if set); Preview must not. Existing Vercel configuration works unchanged because `APP_ENV` is optional.
+Set per Vercel environment (see `/docs/deployment.md`): `DATABASE_ENV`, `DATABASE_URL`, `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, and optionally `APP_ENV`. Production must set `DATABASE_ENV=prod` (and `APP_ENV=prod` if set); Preview must set `DATABASE_ENV=qa` (and `APP_ENV=qa` if set), otherwise validation fails on the first server request. Existing Vercel configuration works unchanged because `APP_ENV` is optional.
 
 ## Future Expo/EAS (not built)
 
@@ -82,7 +82,7 @@ Mobile uses the same `parseClientEnv` shape, fed from `EXPO_PUBLIC_*` variables 
 
 ## Testing
 
-`pnpm test` runs Vitest in `packages/shared` (`src/env.test.ts`, validation and guards) and `apps/web` (`lib/env/boundary.test.ts`, static checks that server env/db modules are `server-only`, client modules read no secrets, and no raw secret reads occur outside `lib/env`). Tests use fake values only.
+`pnpm test` runs Vitest in `packages/shared` (`src/env.test.ts`, validation and guards) and `apps/web` (`lib/env/boundary.test.ts`, static checks that server env/db modules are `server-only`, client modules read no secrets, and no raw secret reads occur outside `lib/env`). Tests use fake values only. A shared Vitest setup file clears `APP_ENV`, `DATABASE_ENV`, `DATABASE_URL`, and Clerk keys before each test so unit tests cannot reach Neon; see `/docs/testing.md`. `ci.yml` runs these without secrets.
 
 ## Decision: APP_ENV and DATABASE_ENV stay separate
 

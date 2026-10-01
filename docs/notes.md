@@ -27,7 +27,7 @@
 - Errors are generic and carry a stable `code`; mapping to standard application errors is deferred to the logging/error-handling work.
 - No DB, schema, migrations, API routes, or mobile changes. No new dependencies. Existing pages were not changed to use the helpers.
 
-## 8. Functional verification performed
+## 8. Security verification actually performed
 
 - Unit tests with Clerk mocked (`vi.mock`): authenticated accepted, unauthenticated and empty ID rejected, extra caller-supplied ID ignored, ownership allow/deny, missing owner, throwing rule, composition, error semantics, static boundary checks.
 - `next build` succeeded.

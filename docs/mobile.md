@@ -28,5 +28,5 @@ The mobile app lives in `apps/mobile` (React Native, Expo, TypeScript; Android a
 2. Confirm pnpm workspace/Metro compatibility with `packages/*`.
 3. Add `@clerk/expo`, secure token storage, and an API client.
 4. Add `lint` and `typecheck` scripts so `pnpm lint`/`pnpm typecheck` cover mobile.
-5. Decide build/release tooling (EAS) and document it in `/docs/deployment.md`.
+5. Decide build/release tooling (EAS); the intended profile-to-environment mapping is in `/docs/deployment.md` section 8.
 6. Decide the mobile test approach in `/docs/testing.md`.
