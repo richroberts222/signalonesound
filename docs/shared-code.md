@@ -26,6 +26,7 @@ Domain-agnostic, runtime-agnostic code usable by every client and the server:
 * `constants.ts`: universal constants (`APP_ENVS`, page-size defaults)
 * `env.ts`: pure environment validation and production guards over a caller-supplied record (never reads `process.env`); see `/docs/environment.md`
 * `result.ts`: `Result<T>`, `AppError`, `ErrorCode`, `ok()`, `fail()` (see `/docs/data-mutations.md`)
+* `errors.ts`: `AppException`, `toAppError()`, classification helpers; `redact.ts`: log redaction (see `/docs/logging.md`)
 * `utils.ts`: pure helpers
 
 ### `@signalone/validation`

@@ -27,6 +27,7 @@ This document consolidates security rules; detailed rules live in `/docs/auth.md
 
 ## Errors
 
+* Logging and error architecture (`AppException`, `toAppError`, redaction, server-only logger) is in `/docs/logging.md`.
 * Return `Result`/`AppError` (`@signalone/shared`) for expected failures with safe messages.
 * Unexpected errors are logged server-side and surfaced to clients as `internal` with a generic message. Never leak stack traces, SQL, or internals.
 * Do not reveal whether a resource exists to callers not authorized to see it, where that matters (prefer `not_found`).
