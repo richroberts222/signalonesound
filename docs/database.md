@@ -379,9 +379,7 @@ Staging deployments intended as production-like validation must use `stage`.
 
 Preview deployments MUST NOT silently use the production database.
 
-The exact Preview-to-database policy should be documented before database-backed Preview deployments become part of normal development.
-
-Until that policy is established, Claude must not assume that every Vercel Preview should automatically connect to `dev`, `qa`, `stage`, or `prod`.
+Preview-to-database policy (decided for Issue 19): feature/PR Vercel Previews map to `qa`; local development maps to `dev`; `stage` is the protected final production-like verification environment and is not used for ordinary PR previews; production maps to `prod`. See `/docs/environment.md` and `/docs/deployment.md`.
 
 ---
 

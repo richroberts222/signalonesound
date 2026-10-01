@@ -49,6 +49,24 @@ function readRequired(source: EnvSource, name: string, issues: string[]): string
   return value;
 }
 
+/** Never echoes the value: connection strings contain credentials. */
+function readDatabaseUrl(source: EnvSource, issues: string[]): string {
+  const value = readRequired(source, "DATABASE_URL", issues);
+  if (value === "") return value;
+  // Regex rather than `new URL`: this module avoids runtime/DOM-specific globals.
+  const match = /^([a-z][a-z0-9+.-]*):\/\/\S+$/i.exec(value);
+  if (!match) {
+    issues.push("DATABASE_URL is not a valid URL.");
+    return "";
+  }
+  const protocol = match[1].toLowerCase();
+  if (protocol !== "postgres" && protocol !== "postgresql") {
+    issues.push("DATABASE_URL must use the postgres: or postgresql: protocol.");
+    return "";
+  }
+  return value;
+}
+
 export type DatabaseEnvConfig = {
   /** Logical environment that `databaseUrl` points at. */
   databaseEnv: AppEnv;
@@ -63,7 +81,7 @@ export type DatabaseEnvConfig = {
 export function parseDatabaseEnv(source: EnvSource): DatabaseEnvConfig {
   const issues: string[] = [];
   const databaseEnv = readEnum(source, "DATABASE_ENV", issues);
-  const databaseUrl = readRequired(source, "DATABASE_URL", issues);
+  const databaseUrl = readDatabaseUrl(source, issues);
   if (issues.length > 0 || !databaseEnv) throw new EnvValidationError(issues);
   return { databaseEnv, databaseUrl };
 }
@@ -90,7 +108,7 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
   const databaseEnv = readEnum(source, "DATABASE_ENV", issues);
   const rawApp = source.APP_ENV;
   const appEnv = rawApp === undefined || rawApp === "" ? databaseEnv : readEnum(source, "APP_ENV", issues);
-  const databaseUrl = readRequired(source, "DATABASE_URL", issues);
+  const databaseUrl = readDatabaseUrl(source, issues);
   const clerkSecretKey = readRequired(source, "CLERK_SECRET_KEY", issues);
   const clerkPublishableKey = readRequired(source, "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", issues);
 
@@ -100,9 +118,21 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
       issues.push("APP_ENV and DATABASE_ENV must both be 'prod' or both be non-prod.");
     }
   }
-  // Vercel Preview deployments must never point at prod (docs/deployment.md).
-  if (source.VERCEL_ENV === "preview" && (appEnv === "prod" || databaseEnv === "prod")) {
-    issues.push("Vercel Preview deployments must not use the prod environment or database.");
+  // prod is only valid on a real Vercel production deployment. VERCEL_ENV is
+  // unset locally and in CI, and "development" only for `vercel dev`.
+  const vercelEnv = source.VERCEL_ENV;
+  if (vercelEnv !== undefined && vercelEnv !== "" && vercelEnv !== "production") {
+    if (appEnv === "prod" || databaseEnv === "prod") {
+      issues.push("Vercel Preview and development deployments must not use the prod environment or database (prod is only allowed on a Vercel production deployment).");
+    }
+  }
+  // Preview maps to qa; stage is the protected pre-production environment.
+  if (vercelEnv === "preview" && (appEnv === "stage" || databaseEnv === "stage")) {
+    issues.push("Vercel Preview deployments must use qa, not stage.");
+  }
+  // Live Clerk keys belong to prod only.
+  if (appEnv && appEnv !== "prod" && clerkSecretKey.startsWith("sk_live_")) {
+    issues.push("A live Clerk secret key is not allowed outside the prod environment.");
   }
 
   if (issues.length > 0 || !appEnv || !databaseEnv) throw new EnvValidationError(issues);
@@ -147,6 +177,14 @@ export function assertDestructiveAllowed(
   }
   if (!allowed.includes(target)) {
     throw new EnvValidationError([`${operation}: environment '${target}' is not in the allowed set (${allowed.join(", ")}).`]);
+  }
+}
+
+/** Guard for non-destructive tooling that must never target prod. */
+export function assertNotProd(target: AppEnv | undefined, operation: string): asserts target is AppEnv {
+  if (!target) throw new EnvValidationError([`${operation}: target environment is unknown; refusing.`]);
+  if (isProd(target)) {
+    throw new EnvValidationError([`${operation}: refusing to run against '${target}'.`]);
   }
 }
 

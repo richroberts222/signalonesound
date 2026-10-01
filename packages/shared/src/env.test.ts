@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   EnvValidationError,
   assertDestructiveAllowed,
+  assertNotProd,
   isClientExposedName,
   parseClientEnv,
   parseDatabaseEnv,
@@ -71,14 +72,49 @@ describe("parseServerEnv", () => {
     ).toThrow(/Preview/);
     expect(parseServerEnv({ ...valid, VERCEL_ENV: "preview" }).appEnv).toBe("dev");
   });
+
+  it("refuses prod on any non-production Vercel deployment", () => {
+    const prod = { ...valid, DATABASE_ENV: "prod", APP_ENV: "prod" };
+    for (const v of ["preview", "development"]) {
+      expect(() => parseServerEnv({ ...prod, VERCEL_ENV: v })).toThrow(/only allowed on a Vercel production/);
+    }
+    expect(parseServerEnv({ ...prod, VERCEL_ENV: "production" }).appEnv).toBe("prod");
+    expect(parseServerEnv(prod).appEnv).toBe("prod");
+  });
+
+  it("maps Preview to qa and refuses stage", () => {
+    const qa = { ...valid, DATABASE_ENV: "qa", APP_ENV: "qa", VERCEL_ENV: "preview" };
+    expect(parseServerEnv(qa).appEnv).toBe("qa");
+    expect(() => parseServerEnv({ ...qa, DATABASE_ENV: "stage", APP_ENV: "stage" })).toThrow(/qa, not stage/);
+  });
+
+  it("refuses live Clerk keys outside prod", () => {
+    const live = { ...valid, CLERK_SECRET_KEY: "sk_live_x" };
+    expect(() => parseServerEnv(live)).toThrow(/live Clerk/);
+    expect(parseServerEnv({ ...live, DATABASE_ENV: "prod", APP_ENV: "prod" }).appEnv).toBe("prod");
+  });
 });
 
 describe("parseDatabaseEnv", () => {
+  const url = "postgresql://u:SECRETPW@host/db";
   it("needs only DATABASE_ENV and DATABASE_URL", () => {
-    expect(parseDatabaseEnv({ DATABASE_ENV: "qa", DATABASE_URL: "x" })).toEqual({
+    expect(parseDatabaseEnv({ DATABASE_ENV: "qa", DATABASE_URL: url })).toEqual({
       databaseEnv: "qa",
-      databaseUrl: "x",
+      databaseUrl: url,
     });
+  });
+  it("rejects malformed and non-postgres URLs without echoing them", () => {
+    expect(() => parseDatabaseEnv({ DATABASE_ENV: "dev", DATABASE_URL: "not a url" })).toThrow(/not a valid URL/);
+    for (const bad of ["mysql://u:SECRETPW@h/db", "https://u:SECRETPW@h/db"]) {
+      try {
+        parseDatabaseEnv({ DATABASE_ENV: "dev", DATABASE_URL: bad });
+        expect.unreachable();
+      } catch (e) {
+        expect((e as Error).message).toMatch(/postgres/);
+        expect((e as Error).message).not.toContain("SECRETPW");
+      }
+    }
+    expect(() => parseServerEnv({ ...valid, DATABASE_URL: "mysql://h/db" })).toThrow(/postgres/);
   });
   it("fails clearly when missing", () => {
     expect(() => parseDatabaseEnv({})).toThrow(/DATABASE_ENV is not set/);
@@ -111,6 +147,14 @@ describe("assertDestructiveAllowed", () => {
   });
   it("allows listed non-protected environments", () => {
     expect(() => assertDestructiveAllowed("qa", ["dev", "qa"], "seed")).not.toThrow();
+  });
+});
+
+describe("assertNotProd", () => {
+  it("refuses prod and unknown, allows the rest", () => {
+    expect(() => assertNotProd("prod", "x")).toThrow(/refusing/);
+    expect(() => assertNotProd(undefined, "x")).toThrow(/unknown/);
+    for (const e of ["dev", "qa", "stage"] as const) expect(() => assertNotProd(e, "x")).not.toThrow();
   });
 });
 

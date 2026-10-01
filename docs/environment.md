@@ -34,15 +34,35 @@ Application code asks these helpers for the environment instead of comparing raw
 
 Rules: server-only values are never prefixed `NEXT_PUBLIC_`/`EXPO_PUBLIC_`; database credentials never reach browser or mobile code.
 
+## APP_ENV vs DATABASE_ENV
+
+Separate concepts. `APP_ENV` is the application/runtime environment; `DATABASE_ENV` is the environment `DATABASE_URL` targets. They should normally be equal. Validation rejects the unsafe mismatch (a non-prod application using the prod database, or a prod application using a non-prod database). `APP_ENV` defaults to `DATABASE_ENV` when unset. Neither is ever inferred from hostnames.
+
+## Environment mapping
+
+| Context | Environment |
+| --- | --- |
+| Local development | `dev` |
+| Feature/PR Vercel Preview | `qa` |
+| Final pre-production verification | `stage` (protected, not for ordinary previews) |
+| Production | `prod` |
+
+Future Expo/EAS build profiles `development`, `qa`, `staging`, `production` map to `dev`, `qa`, `stage`, `prod`.
+
 ## Production protections
 
 Validation fails (throws) when:
 
 * a variable is missing, blank, or not one of the four environments;
+* `DATABASE_URL` is not a URL with a `postgres:`/`postgresql:` protocol (the value is never echoed);
 * `APP_ENV` and `DATABASE_ENV` disagree about being `prod` (non-prod app on prod DB, or the reverse);
-* `VERCEL_ENV=preview` is combined with `prod`.
+* `VERCEL_ENV` is set to anything other than `production` (Preview, `vercel dev`) and the app or database is `prod`;
+* `VERCEL_ENV=preview` is combined with `stage`;
+* a live Clerk secret key (`sk_live_`) is used outside `prod`.
 
-Tooling uses `assertDestructiveAllowed`: unknown target is refused, protected environments are refused even if listed, and the target must be in the allowed set. `drizzle-kit` allows `dev`/`qa`/`stage`; `db:check` allows `dev` only. Future reset/seed (not implemented) must use the same guard with an allow-list of `dev`/`qa`.
+Code cannot detect a `DATABASE_URL` that points at the wrong Neon branch while `DATABASE_ENV` claims otherwise; Vercel Preview variables must be configured carefully.
+
+Tooling uses `assertDestructiveAllowed`: unknown target is refused, protected environments are refused even if listed, and the target must be in the allowed set. `assertNotProd` is the lighter guard for non-destructive tooling. `drizzle-kit` allows `dev`/`qa`/`stage`; `db:check` allows `dev` only. Future reset/seed (not implemented) must use the same guard with an allow-list of `dev`/`qa`.
 
 ## Local configuration
 
@@ -62,4 +82,9 @@ Mobile uses the same `parseClientEnv` shape, fed from `EXPO_PUBLIC_*` variables 
 
 ## Testing
 
-`pnpm test` runs Vitest in `packages/shared` (`src/env.test.ts`). Tests use fake values only.
+`pnpm test` runs Vitest in `packages/shared` (`src/env.test.ts`, validation and guards) and `apps/web` (`lib/env/boundary.test.ts`, static checks that server env/db modules are `server-only`, client modules read no secrets, and no raw secret reads occur outside `lib/env`). Tests use fake values only.
+
+## Open follow-ups
+
+* Whether `APP_ENV` should eventually become the single canonical name with `DATABASE_ENV` deprecated is undecided.
+* Existing Vercel Preview variables must be switched to `qa` values (not verifiable from code).
