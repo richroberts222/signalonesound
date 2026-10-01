@@ -1,61 +1,56 @@
-# Notes: Issue 28 "Build Reusable Authentication and Authorization Helpers"
+# Notes: Issue 37 "Complete Reusable Shared Contracts Foundation"
 
-1. Issue: #28 "Build Reusable Authentication and Authorization Helpers"
+1. Issue: #37 "Complete Reusable Shared Contracts Foundation"
 2. PR: none yet at time of writing (open one from this branch; further @claude requests should come from that PR).
-3. Canonical branch: `claude/issue-28-20261001-0635`, base `main` (`5a0b76a`). Not merged.
+3. Canonical branch: `claude/issue-37-20261001-1232`, base `main` (`6ed0608`). Not merged.
 4. Latest commit: the commit containing this file; see `git log -1` on the branch.
 
 ## 5. Work completed
 
-- Added `apps/web/lib/auth/`:
-  - `server.ts` (server-only): `getUserId()`, `requireUserId()` wrapping Clerk `auth()`.
-  - `authorize.ts` (pure): `Actor`, `Rule`, `can`, `authorize`, `isOwner`, `anyOf`, `allOf`.
-  - `errors.ts`: `UnauthenticatedError` (401), `ForbiddenError` (403), `isAuthError`.
-  - `index.ts`: client-safe barrel (no server helpers).
-  - `auth.test.ts`: 13 tests.
-- Documented the helpers, conventions, and future API/mobile/error/database integration in `docs/auth.md` (Appendix, new "Server-side auth and authorization helpers" subsection).
+- `@signalone/shared`: new `contracts.ts` with `ApiError` (alias of `AppError`), `Paginated<T>`, `paginated()`, `API_VERSIONS`/`ApiVersion`/`CURRENT_API_VERSION`. Exported from the barrel. No new dependencies.
+- `@signalone/validation`: new `contracts.ts` with `idSchema`, `apiErrorSchema`, `resultSchema(data)`, `paginatedSchema(item)`, `parseInput(schema, input)` (returns `Result`, `validation_failed` + path-keyed `fieldErrors`, never echoes input). Exported from the barrel.
+- Tests: `packages/shared/src/contracts.test.ts` (3 tests), `packages/validation/src/contracts.test.ts` (13 tests, including JSON round-trip of `Result`, schema/`Paginated` type assignability, and non-echo of submitted values).
+- `docs/shared-code.md`: new "Contract conventions" section (transport / domain / database / UI model boundaries, building blocks, naming, schema-first, identifiers, errors, pagination, additive-only versioning, serialization, portability).
 
 ## 6. Files changed
 
-`apps/web/lib/auth/{server,authorize,errors,index}.ts`, `apps/web/lib/auth/auth.test.ts`, `docs/auth.md`, `docs/notes.md`.
+`packages/shared/src/{contracts.ts,contracts.test.ts,index.ts}`, `packages/validation/src/{contracts.ts,contracts.test.ts,index.ts}`, `docs/shared-code.md`, `docs/notes.md`.
 
-## 7. Architecture decisions
+## 7. Architectural decisions
 
-- Identity helpers take no arguments; identity only from Clerk server context.
-- Authorization is pure, deny-by-default rules `(actor, resource) => boolean`; a throwing rule denies; only strict `true` allows. No domain roles/permissions defined.
-- Clerk-dependent code is isolated in `server.ts` behind `server-only`; the barrel exports only client-safe code.
-- Errors are generic and carry a stable `code`; mapping to standard application errors is deferred to the logging/error-handling work.
-- No DB, schema, migrations, API routes, or mobile changes. No new dependencies. Existing pages were not changed to use the helpers.
+- The issue mentions existing `ApiError` and `Paginated`; they did not exist (only `Result`/`AppError`). `ApiError` is an alias of `AppError` so a failed `Result` is sent as-is; `Paginated<T>` is cursor-based, matching existing `paginationSchema`.
+- Pure envelope types stay in `shared` (no zod dependency); runtime schemas stay in `validation`. Dependency direction unchanged.
+- API versioning is documented as additive-only per version with `v1` as the only version; routing/HTTP mapping is deliberately left to the API foundation (`docs/api.md` is empty).
+- Contract documentation was added to `docs/shared-code.md`, not `docs/api.md`, to avoid pre-empting the API foundation.
+- No domain entities, API routes, DB, mobile, root, or package.json changes.
 
-## 8. Security verification actually performed
+## 8. Functional verification performed
 
-- Unit tests with Clerk mocked (`vi.mock`): authenticated accepted, unauthenticated and empty ID rejected, extra caller-supplied ID ignored, ownership allow/deny, missing owner, throwing rule, composition, error semantics, static boundary checks.
-- `next build` succeeded.
+Unit tests for the new schemas/helpers (see 9). Both packages import only each other and `zod`; no server-only or infrastructure imports.
 
 ## 9. Test/lint/typecheck/build results (latest run)
 
-Root `pnpm` scripts could not be used because `pnpm` is not on PATH in the sandbox (`corepack pnpm install --frozen-lockfile` worked); the equivalent package-level commands were run instead:
+Root `pnpm` scripts (`pnpm validate`) fail in this sandbox with `pnpm: not found` (scripts shell out to `pnpm`; only `corepack pnpm` is available), so package-level equivalents were run after `corepack pnpm install --frozen-lockfile`:
 
-- `npx vitest run` in `apps/web`: 2 files, 17 tests passed.
-- `npx vitest run` in `packages/shared`: 1 file, 22 tests passed.
-- `npx eslint` in `apps/web`: no output (clean).
-- `npx next typegen && npx tsc --noEmit` in `apps/web`: no errors.
-- `npx next build` in `apps/web`: compiled successfully, TypeScript passed, 5 routes generated.
+- `packages/validation`: `npx vitest run` 2 files, 18 tests passed; `npx tsc --noEmit` clean.
+- `packages/shared`: `npx vitest run` 4 files, 34 tests passed; `npx tsc --noEmit` clean.
+- `apps/web`: `npx eslint` clean; `npx next typegen && npx tsc --noEmit` clean; `npx next build` succeeded (5 routes).
+- `apps/web`: `npx vitest run` **2 failed, 41 passed (4 files)**. Both failures are in `lib/security.test.ts` and are caused by `packages/shared/src/testing/index.ts` (a file this branch did not modify; it contains `process.env` access and a fake `postgresql://test:fake-password@...` URL that the repo's static security scan flags). I did not run the suite on a clean `main` checkout to confirm, but the file is untouched here and the offending lines are in it.
 
 ## 10. Not tested, and why
 
-- Real Clerk end-to-end authentication: no real Clerk accounts/keys used; Clerk is mocked.
-- `server-only` import enforcement inside a real client bundle: checked statically and via the Next build only; no deliberate violating import was built.
-- No production data accessed.
+- Root `pnpm validate` as a single command (pnpm not on PATH).
+- Mobile (`apps/mobile` has no scaffold/scripts); consumption of the contracts from React Native/Expo was not exercised.
+- Web consumption: `next.config.ts` `transpilePackages` was not changed and no web code imports the new exports yet.
 
 ## 11. Unresolved concerns
 
-- The helpers are not yet used by any route/service (none exists yet); the first protected mutation/API should adopt them.
-- `Rule` returning non-boolean is denied at runtime but typed as boolean only.
-- Mobile/API token-based request authentication path is documented, not verified.
+- The 2 `lib/security.test.ts` failures above need a fix (allow-list or relocate the testing helper) by whoever owns `packages/shared/src/testing`; out of scope here.
+- `ERROR_CODES` is part of the contract; clients must tolerate unknown codes (documented, not enforced by a test).
+- No HTTP status mapping or version routing yet.
 
 ## 12. Recommended next steps
 
-1. Open the PR from this branch and review.
-2. Adopt `requireUserId()` + `authorize()` in the first protected server mutation.
-3. When logging/error handling merges, map the two errors to standard application errors.
+1. Resolve the pre-existing security-test failures.
+2. Open the PR from this branch and review.
+3. Build the API foundation on `Result`/`resultSchema`/`parseInput`/`Paginated`.
