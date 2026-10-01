@@ -44,12 +44,12 @@ No database, schema, migration, reset/seed, auth, API, workflow, or root `packag
 - `corepack pnpm install --frozen-lockfile`: lockfile up to date.
 - `corepack pnpm -r --if-present lint`: clean (mobile and web).
 - `corepack pnpm -r --if-present typecheck`: clean (shared, validation, mobile, web).
-- `corepack pnpm -r --if-present test`: shared 36/36, validation 8/8, mobile 7/7 passed. **web: 41 passed, 2 FAILED** (below).
+- `corepack pnpm -r --if-present test`: shared 39/39, validation 8/8, mobile 7/7, web 56/56 passed (including `apps/web/lib/security.test.ts`).
 - `corepack pnpm --filter web build`: succeeded, 5 routes.
 
-### Pre-existing failure (not caused by this branch)
+### Security test note
 
-`apps/web/lib/security.test.ts` fails 2 tests, both flagged on `packages/shared/src/testing/index.ts` (unmodified by this branch): the "shared packages never import server-only or read process.env" check (the file reads `process.env` via `globalThis`) and the "credentialed postgres url" secret scan (the fake `postgresql://test:fake-password@db.invalid/test`). These two features came from separate merged branches (testing foundation vs security foundation) and conflict on `main`. I could not run the tests on a clean `main` (`git stash` is not permitted), but the file and test are untouched here and the failing paths are outside my diff. `pnpm validate`/CI will fail until the security test allow-lists the testing helper or the helper changes. I did not fix it, to avoid scope creep.
+An earlier revision of this file embedded a credentialed connection string, which tripped the "credentialed postgres url" check in `apps/web/lib/security.test.ts`. It was replaced with a placeholder (`<DEV_DATABASE_URL>`-style wording). The security test was not modified and now passes with the rest of the suite.
 
 ## 10. Not tested, and why
 
@@ -61,7 +61,6 @@ No database, schema, migration, reset/seed, auth, API, workflow, or root `packag
 
 ## 11. Unresolved concerns
 
-- The pre-existing `security.test.ts` failure above.
 - CI (`ci.yml`) runs `pnpm install --frozen-lockfile`; the lockfile was regenerated here and is consistent locally. TypeScript 6 for mobile alongside 5 elsewhere is intentional but worth a glance.
 - `@signalone/shared` ships server/database env parsers into the mobile bundle as unused code (names only). Splitting them behind a subpath export would remove this; deferred as a shared-package change.
 - Identifiers/name/slug/scheme are placeholders.
