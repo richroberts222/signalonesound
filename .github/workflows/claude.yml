@@ -48,4 +48,4 @@ jobs:
 
           # Allow project tooling plus read-oriented Git commands needed
           # to inspect repository history and other branches.
-          claude_args: '--allowed-tools "Bash(gh pr *),Bash(pnpm *),Bash(npx *),Bash(corepack *),Bash(git fetch:*),Bash(git branch:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*)"'
+                    claude_args: '--allowed-tools "Bash(gh pr *),Bash(pnpm *),Bash(npx *),Bash(corepack *),Bash(git fetch:*),Bash(git branch:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git checkout:*),Bash(git cherry-pick:*),Bash(git add:*),Bash(git commit:*),Bash(git status:*)"'
