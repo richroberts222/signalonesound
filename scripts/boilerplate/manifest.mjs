@@ -33,6 +33,16 @@ export const TEMPLATE_ONLY_PATHS = [
   "scripts/boilerplate",
 ];
 
+/** Reference-app-only tooling and files; never copied into the standalone boilerplate. */
+export const EXPORT_EXCLUDED_PATHS = [
+  "scripts/boilerplate/export-template.mjs",
+  "scripts/boilerplate/templates/standalone",
+  "docs/boilerplate.md",
+  "docs/boilerplate-gap-report.md",
+  "docs/boilerplate-references-report.md",
+  "docs/notes.md",
+];
+
 /** Directories never scanned or copied. */
 export const SKIP_DIRS = new Set(["node_modules", ".git", ".next", ".expo", "dist", ".turbo", "playwright-report", "test-results"]);
 

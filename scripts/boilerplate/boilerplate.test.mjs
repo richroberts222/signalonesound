@@ -15,6 +15,7 @@ import { walk } from "./manifest.mjs";
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const identity = { name: "Harbor Notes", slug: "harbor-notes", scope: "harbor", bundleId: "com.harbornotes.app" };
 const temps = [];
+const isReference = existsSync(path.join(repo, "scripts/boilerplate/export-template.mjs"));
 
 function copyTemplate() {
   const dir = mkdtempSync(path.join(tmpdir(), "boilerplate-"));
@@ -32,7 +33,9 @@ after(() => temps.forEach((d) => rmSync(d, { recursive: true, force: true })));
 describe("boilerplate tooling", () => {
   it("detector flags the unmodified template (negative control)", () => {
     const rules = new Set(checkBoilerplate(repo).map((f) => f.rule));
-    for (const rule of ["identity", "proof-artifact", "proof-reference", "template-only", "placeholder-id"]) {
+    // The standalone boilerplate has no proof slice; only the reference app (which can export) does.
+    const expected = ["identity", "template-only", "placeholder-id", ...(isReference ? ["proof-artifact", "proof-reference"] : [])];
+    for (const rule of expected) {
       assert.ok(rules.has(rule), `expected a ${rule} finding`);
     }
   });
@@ -64,10 +67,37 @@ describe("boilerplate tooling", () => {
     assert.throws(() => initApp({ root, ...identity, log: () => {} }), /already initialized/);
   });
 
+  it("export yields a Signal One-free, proof-free boilerplate that still initializes", { skip: !isReference }, async () => {
+    const { exportTemplate } = await import("./export-template.mjs");
+    const out = path.join(mkdtempSync(path.join(tmpdir(), "boilerplate-export-")), "out");
+    temps.push(path.dirname(out));
+    exportTemplate({ source: repo, out, log: () => {} });
+
+    const content = walk(out)
+      .filter((f) => !f.startsWith("scripts/boilerplate/"))
+      .map((f) => readFileSync(path.join(out, f), "latin1"))
+      .join("\n");
+    assert.ok(!/signal[\s_-]?one/i.test(content), "no Signal One identity outside the tooling");
+    assert.ok(!existsSync(path.join(out, "apps/web/drizzle")) && !existsSync(path.join(out, "apps/web/app/proof")));
+    assert.ok(!existsSync(path.join(out, "scripts/boilerplate/export-template.mjs")));
+    assert.equal(JSON.parse(read(out, "package.json")).name, "app-boilerplate");
+    assert.ok(!("export:boilerplate" in JSON.parse(read(out, "package.json")).scripts));
+    assert.match(read(out, "README.md"), /Template repository/);
+    // Only template identity findings remain; no proof or reference-app leftovers.
+    const rules = new Set(checkBoilerplate(out).map((f) => f.rule));
+    assert.deepEqual([...rules].sort(), ["identity", "placeholder-id", "template-only"]);
+
+    initApp({ root: out, ...identity, log: () => {} });
+    assert.deepEqual(checkBoilerplate(out), []);
+    assert.equal(JSON.parse(read(out, "package.json")).name, "harbor-notes");
+    assert.match(read(out, "pnpm-lock.yaml"), /'@harbor\/shared'/);
+  });
+
   it("rejects identities that would leak the reference app or a placeholder", () => {
     assert.deepEqual(validateIdentity(identity), []);
     assert.ok(validateIdentity({ ...identity, name: "Signal One Clone" }).length > 0);
     assert.ok(validateIdentity({ ...identity, slug: "signalone-two" }).length > 0);
+    assert.ok(validateIdentity({ ...identity, name: "App Boilerplate" }).length > 0);
     assert.ok(validateIdentity({ ...identity, bundleId: "com.example.app" }).length > 0);
     assert.ok(validateIdentity({ ...identity, bundleId: "notabundleid" }).length > 0);
   });
