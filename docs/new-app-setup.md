@@ -4,6 +4,8 @@ What a human must do after the application has been initialized from the boilerp
 
 Placeholders only: never commit real database URLs, credential-shaped URLs, Clerk keys, tokens, or passwords, and never write them in `docs/notes.md` (`/CLAUDE.md` section 18).
 
+Related: `/docs/customization-map.md` (every naming/identity location and whether it is automatic, manual, secret, or environment-specific) and `/docs/stack.md` (how the stack fits together).
+
 ## 1. Local verification (no external services)
 
 ```text

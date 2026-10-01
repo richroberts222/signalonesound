@@ -43,22 +43,34 @@ export function validateIdentity({ name, slug, scope, bundleId }) {
     problems.push("--bundle-id: reverse-DNS identifier valid for iOS and Android, e.g. com.yourco.app (lowercase, 2+ segments).");
   }
   for (const [k, v] of Object.entries({ name, slug, scope, bundleId })) {
-    if (v && /signal[\s_-]?one/i.test(v)) problems.push(`--${k}: must not contain the Signal One identity.`);
+    if (v && /signal[\s_-]?one|app[\s_-]?boilerplate/i.test(v)) problems.push(`--${k}: must not contain the Signal One or template identity.`);
   }
   if (bundleId && /^com\.example\./.test(bundleId)) problems.push("--bundle-id: com.example.* is a placeholder; choose your real identifier.");
   return problems;
 }
 
+/**
+ * Identities that must never survive into a new application: the Signal One
+ * reference app and the neutral identity the standalone boilerplate ships with.
+ */
+export const SOURCE_IDENTITIES = [
+  { name: "Signal One", slug: "signalone", bundleId: "com.example.signalone" },
+  { name: "App Boilerplate", slug: "app-boilerplate", bundleId: "com.example.appboilerplate" },
+];
+
 /** Applies the identity to text. Order matters: most specific tokens first. */
-export function applyIdentity(text, { name, slug, scope, bundleId }) {
-  const slugUnderscore = slug.replace(/-/g, "_");
-  return text
-    .replaceAll("@signalone/", () => `@${scope}/`)
-    .replaceAll("com.example.signalone", () => bundleId)
-    .replaceAll("signalone_", () => `${slugUnderscore}_`)
-    .replaceAll("SIGNAL ONE", () => name.toUpperCase())
-    .replaceAll("Signal One", () => name)
-    .replaceAll("signalone", () => slug);
+export function applyIdentity(text, { name, slug, scope, bundleId }, sources = SOURCE_IDENTITIES) {
+  let out = text;
+  for (const source of sources) {
+    out = out
+      .replaceAll(`@${source.slug}/`, () => `@${scope}/`)
+      .replaceAll(source.bundleId, () => bundleId)
+      .replaceAll(`${source.slug.replace(/-/g, "_")}_`, () => `${slug.replace(/-/g, "_")}_`)
+      .replaceAll(source.name.toUpperCase(), () => name.toUpperCase())
+      .replaceAll(source.name, () => name)
+      .replaceAll(source.slug, () => slug);
+  }
+  return out;
 }
 
 /**
@@ -66,10 +78,11 @@ export function applyIdentity(text, { name, slug, scope, bundleId }) {
  * Markers alone on their own lines delimit whole sections (the blank line after
  * the end marker goes too); markers inside a line remove exactly the enclosed text.
  */
-export function stripMarkedRegions(text) {
+export function stripMarkedRegions(text, kinds = ["proof", "template"]) {
+  const kind = `(${kinds.join("|")})`;
   return text
-    .replace(/^<!-- boilerplate:(proof|template):start -->\n[\s\S]*?^<!-- boilerplate:\1:end -->\n\n?/gm, "")
-    .replace(/<!-- boilerplate:(proof|template):start -->[\s\S]*?<!-- boilerplate:\1:end -->/g, "");
+    .replace(new RegExp(`^<!-- boilerplate:${kind}:start -->\\n[\\s\\S]*?^<!-- boilerplate:\\1:end -->\\n\\n?`, "gm"), "")
+    .replace(new RegExp(`<!-- boilerplate:${kind}:start -->[\\s\\S]*?<!-- boilerplate:\\1:end -->`, "g"), "");
 }
 
 const NOTES_STUB = `# Handoff notes
@@ -78,19 +91,13 @@ No work has been recorded yet. Per \`/docs/issues.md\`, overwrite this file on e
 Never include real or credential-shaped secrets here.
 `;
 
-export function initApp({ root, name, slug, scope = slug, bundleId, dryRun = false, log = console.log }) {
-  const identity = { name, slug, scope, bundleId };
-  const problems = validateIdentity(identity);
-  if (problems.length > 0) throw new Error(`Invalid identity:\n${problems.join("\n")}`);
-  if (!existsSync(path.join(root, "scripts/boilerplate/init-app.mjs"))) {
-    throw new Error("scripts/boilerplate/init-app.mjs not found under --dir: already initialized, or not a template copy.");
-  }
+/**
+ * Removes the proof slice and resets the three wiring files to their domain-free
+ * versions. Shared by `init:app` and the Signal One-only `export:boilerplate`,
+ * so the standalone boilerplate and an initialized app can never drift.
+ */
+export function stripProofSlice({ root, step }) {
   const abs = (p) => path.join(root, p);
-  const step = (message, fn) => {
-    log(`${dryRun ? "[dry-run] would " : ""}${message}`);
-    if (!dryRun) fn();
-  };
-
   for (const p of PROOF_PATHS) if (existsSync(abs(p))) step(`remove proof-only ${p}`, () => rmSync(abs(p), { recursive: true, force: true }));
 
   const templates = path.join(root, "scripts/boilerplate/templates");
@@ -106,11 +113,27 @@ export function initApp({ root, name, slug, scope = slug, bundleId, dryRun = fal
   edit("apps/web/proxy.ts", (t) => t.replace(', "/proof(.*)"', ""));
   edit("packages/validation/src/index.ts", (t) =>
     t.split("\n").filter((l) => !/proof-item|proof-only/.test(l)).join("\n"));
-  edit("package.json", (t) => {
-    const pkg = JSON.parse(t);
-    for (const k of ["init:app", "check:boilerplate", "test:boilerplate", "prove:init"]) delete pkg.scripts[k];
+}
+
+export function initApp({ root, name, slug, scope = slug, bundleId, dryRun = false, log = console.log }) {
+  const identity = { name, slug, scope, bundleId };
+  const problems = validateIdentity(identity);
+  if (problems.length > 0) throw new Error(`Invalid identity:\n${problems.join("\n")}`);
+  if (!existsSync(path.join(root, "scripts/boilerplate/init-app.mjs"))) {
+    throw new Error("scripts/boilerplate/init-app.mjs not found under --dir: already initialized, or not a template copy.");
+  }
+  const abs = (p) => path.join(root, p);
+  const step = (message, fn) => {
+    log(`${dryRun ? "[dry-run] would " : ""}${message}`);
+    if (!dryRun) fn();
+  };
+
+  stripProofSlice({ root, step });
+  step("edit package.json", () => {
+    const pkg = JSON.parse(readFileSync(abs("package.json"), "utf8"));
+    for (const k of ["init:app", "check:boilerplate", "test:boilerplate", "prove:init", "export:boilerplate"]) delete pkg.scripts[k];
     pkg.scripts.validate = pkg.scripts.validate.replace(" && pnpm test:boilerplate", "");
-    return `${JSON.stringify(pkg, null, 2)}\n`;
+    writeFileSync(abs("package.json"), `${JSON.stringify(pkg, null, 2)}\n`);
   });
   step("reset docs/notes.md", () => writeFileSync(abs("docs/notes.md"), NOTES_STUB));
 

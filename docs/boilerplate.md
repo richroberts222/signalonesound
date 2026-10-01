@@ -47,6 +47,23 @@ Not automated, deliberately: creating Clerk, Neon, Vercel, GitHub, Expo/EAS, App
 
 `<!-- boilerplate:proof:start -->...<!-- boilerplate:proof:end -->` wraps prose about the proof slice; `boilerplate:template` wraps template-only prose. Init removes both. Markers on their own lines delimit a whole section; inline markers remove exactly the enclosed text.
 
+## Standalone boilerplate repository (Issue 53)
+
+`pnpm export:boilerplate --out=<empty-dir>` (Signal One only; `scripts/boilerplate/export-template.mjs`) generates the standalone, generic "cookie cutter" tree from this repository: it removes the proof slice with the same code `init:app` uses (`stripProofSlice`), applies the neutral identity "App Boilerplate" (`app-boilerplate`, `com.example.appboilerplate`), and replaces `README.md` header, `docs/boilerplate.md` and `docs/notes.md` with standalone versions from `scripts/boilerplate/templates/standalone/`. Signal One-only files are listed in `EXPORT_EXCLUDED_PATHS`. The output keeps `scripts/boilerplate/` (init, check, tests, prove) so a new application is created exactly as above; init and the leak check treat both Signal One and "App Boilerplate" as identities that must not survive.
+
+Signal One stays the real application; it is never converted. Re-export whenever the foundation changes.
+
+**Human step to publish (the Claude automation cannot create repositories):**
+
+```text
+pnpm export:boilerplate --out=../<boilerplate-repo-dir>
+cd ../<boilerplate-repo-dir>
+git init -b main && git add -A && git commit -m "Initial boilerplate export"
+gh repo create <owner>/<neutral-repo-name> --private --source=. --push   # then mark it a template repository in GitHub settings
+```
+
+Then verify there: `pnpm install`, `pnpm test:boilerplate`, `pnpm prove:init --full`. Related: `/docs/customization-map.md`, `/docs/stack.md`.
+
 ## Classification
 
 | Class | Content |

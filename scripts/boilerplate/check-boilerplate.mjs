@@ -9,7 +9,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { PROOF_PATHS, TEMPLATE_ONLY_PATHS, isLocalEnvFile, walk } from "./manifest.mjs";
 
-const IDENTITY = /signal[\s_-]?one/i;
+// Signal One (reference app) and "App Boilerplate" (the standalone template's own neutral identity).
+const IDENTITY = /signal[\s_-]?one|app[\s_-]?boilerplate/i;
 const PROOF_CONTENT = /proof[-_ ]?items?|migration_proof/i;
 // Same shapes the repository security test enforces (apps/web/lib/security.test.ts).
 const SECRETS = [
@@ -42,7 +43,7 @@ export function checkBoilerplate(root) {
     const isTest = /\.test\.tsx?$/.test(base) || file.startsWith("packages/shared/src/testing/");
     const lines = readFileSync(full, "utf8").split("\n");
     lines.forEach((text, i) => {
-      if (IDENTITY.test(text)) add("identity", file, "Signal One identifier", i + 1);
+      if (IDENTITY.test(text)) add("identity", file, "Signal One / template identifier", i + 1);
       if (PROOF_CONTENT.test(text)) add("proof-reference", file, "proof-item / migration_proof reference", i + 1);
       if (!isTest) for (const [name, re] of SECRETS) if (re.test(text)) add("secret", file, name, i + 1);
       if (file === "apps/mobile/app.config.ts" && /com\.example\./.test(text)) {
@@ -72,7 +73,7 @@ function main() {
   const root = path.resolve(dirArg ? dirArg.slice("--dir=".length) : path.join(path.dirname(fileURLToPath(import.meta.url)), "../.."));
   const findings = checkBoilerplate(root);
   if (findings.length === 0) {
-    console.log("check:boilerplate: clean (no Signal One identity, proof artifacts, or credential-shaped content).");
+    console.log("check:boilerplate: clean (no Signal One or template identity, proof artifacts, or credential-shaped content).");
     return;
   }
   const lines = formatFindings(findings);
