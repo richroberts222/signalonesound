@@ -49,7 +49,7 @@ Unit tests (fakes): success, validation failure with field errors, not found, fo
 
 ## 11. Unresolved concerns
 
-1. **Failing tests not caused by this change:** `lib/security.test.ts` flags `packages/shared/src/testing/index.ts` (it reads `process.env` via `globalThis` and contains the fake URL `postgresql://test:fake-password@db.invalid/test`). This file is untouched here; it appears to be an interaction between the testing-foundation and security-foundation merges. I did not modify it. CI `pnpm test:run` will fail until it is resolved. I did not run the suite on a clean `main` checkout to confirm, but the files named are not changed by this branch.
+1. **Resolved:** the `lib/security.test.ts` failure was this file containing a credential-shaped database URL; it was replaced with a description. Latest run (all package tests, lint, typecheck, `next build`) passes. Original note, kept for history: `lib/security.test.ts` flags `packages/shared/src/testing/index.ts` (it reads `process.env` via `globalThis` and contains a fake database URL, <DEV_DATABASE_URL>-style placeholder, not reproduced here). This file is untouched here; it appears to be an interaction between the testing-foundation and security-foundation merges. I did not modify it. CI `pnpm test:run` will fail until it is resolved. I did not run the suite on a clean `main` checkout to confirm, but the files named are not changed by this branch.
 2. No composition root or logging wiring yet; `onUnexpected` is the integration point.
 3. `AtomicRunner` batch statement type is derived from Drizzle's `batch` signature and tested only with fakes.
 
