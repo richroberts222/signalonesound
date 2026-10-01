@@ -47,6 +47,8 @@ or another clear project-appropriate naming convention.
 
 Do not create unnecessary branches.
 
+**One issue = one canonical feature branch and one PR.** Once a PR exists for an issue, its branch is canonical and all further work happens there; never create a second implementation branch for the same issue. Before modifying files in continued work, verify the current branch, the expected canonical branch, the issue/PR, and that history is available; if they disagree, stop and report. Blocked Git operations fail fast and are not retried. See `/docs/issues.md`.
+
 ---
 
 # 3. One Work Item Per Branch
@@ -232,7 +234,7 @@ Human decides whether to merge
 Human merges Pull Request
 ```
 
-Claude may continue working on the Pull Request if the human requests changes or if review feedback is provided.
+Claude may continue working on the Pull Request if the human requests changes or if review feedback is provided. Further `@claude` implementation requests should be made from the PR, not the original issue.
 
 ---
 

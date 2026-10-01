@@ -84,7 +84,10 @@ Mobile uses the same `parseClientEnv` shape, fed from `EXPO_PUBLIC_*` variables 
 
 `pnpm test` runs Vitest in `packages/shared` (`src/env.test.ts`, validation and guards) and `apps/web` (`lib/env/boundary.test.ts`, static checks that server env/db modules are `server-only`, client modules read no secrets, and no raw secret reads occur outside `lib/env`). Tests use fake values only.
 
+## Decision: APP_ENV and DATABASE_ENV stay separate
+
+Decided: `APP_ENV` (application/runtime environment) and `DATABASE_ENV` (database environment) intentionally remain separate concepts. Their separation is what allows unsafe mismatches to be detected. This is no longer an open question.
+
 ## Open follow-ups
 
-* Whether `APP_ENV` should eventually become the single canonical name with `DATABASE_ENV` deprecated is undecided.
 * Existing Vercel Preview variables must be switched to `qa` values (not verifiable from code).

@@ -1,79 +1,50 @@
-# Notes: Issue 19 consolidation (final state of this branch)
+# Notes: Issue 21 "harden workflow"
 
-- Issue / PR: Issue 19 environment/configuration, PR #20 "Add issue/PR handoff workflow (docs/issues.md, docs/notes.md)"
-- Branch: `claude/issue-19-20261001-0302`, base `main`. Not merged. No other branch created.
+1. Issue: #21 "harden workflow"
+2. PR: none yet at time of writing (open one from this branch; further @claude requests should come from that PR).
+3. Canonical branch: `claude/issue-21-20261001-0559`, base `main`. Not merged.
+4. Latest commit: the commit containing this file (base was `b8eaed7`); see `git log -1` on the branch.
 
-## 1. Work completed
+## 5. Work completed
 
-- Discarded the unintended uncommitted removal from `CLAUDE.md` (`git checkout CLAUDE.md`); the committed `/docs/issues.md` reference is preserved.
-- Cherry-picked the 0225 implementation (`ef7c1da`, now `f966f3f`) as the foundation. It applied with no conflicts.
-- Ported from 0226 (commit `ef7c1da` + working changes, see section 2):
-  - `DATABASE_URL` validation: must be a `postgres:`/`postgresql:` URL; the value is never echoed. Implemented with a regex rather than `new URL` because `@signalone/shared` has no DOM/Node typings and must run in React Native.
-  - Live Clerk key (`sk_live_`) rejected outside `prod`.
-  - `assertNotProd(target, operation)` added to `@signalone/shared`.
-  - Broadened Vercel guard: `prod` (app or database) is rejected whenever `VERCEL_ENV` is set and is not `production`.
-  - Static client/server boundary tests in `apps/web` (Vitest added there).
-  - Docs: environment mapping table, EAS profile mapping, wrong-`DATABASE_URL` caveat.
-- Applied owner decisions: `APP_ENV` and `DATABASE_ENV` stay separate; Vercel Preview maps to `qa`; `stage` is protected and not for ordinary previews. New rule: Preview + `stage` is rejected.
+- `docs/issues.md`: added the one-issue/one-branch/one-PR rule, continue-from-PR rule, branch safety check, fail-fast rule, PR safety (no merge), the normal lifecycle, and workflow configuration constraints. Updated required notes.md contents to the 12-item list.
+- `docs/git-workflow.md`: added the canonical-branch rule in section 2 and "request further work from the PR" in section 11.
+- `docs/environment.md`: recorded the decision that `APP_ENV` and `DATABASE_ENV` stay separate (separation lets unsafe mismatches be detected); removed the "undecided" follow-up.
+- `CLAUDE.md` already references `/docs/issues.md` (line 59); no change needed.
+- `.github/workflows/claude.yml` was intentionally NOT modified: it already has `fetch-depth: 0`, the required git/pnpm/npx/corepack allow-list, and existing permissions, with no force-push/reset/branch-delete/merge permission. The GitHub App cannot edit workflow files anyway.
 
-## 2. Files changed (relative to the branch before this run)
+## 6. Files changed
 
-Cherry-picked from 0225 (23 files): `apps/web/.env.example`, `db/env.ts`, `db/index.ts`, `drizzle.config.ts`, `lib/env/client.ts`, `lib/env/server.ts`, `next.config.ts`, `package.json`, `scripts/db-check.mjs` (deleted) -> `scripts/db-check.ts`; `docs/{database,deployment,environment,mobile,security,shared-code,testing}.md`; root `package.json`; `packages/shared/{package.json,src/env.ts,src/env.test.ts,src/index.ts}`; `pnpm-lock.yaml`.
+`docs/issues.md`, `docs/git-workflow.md`, `docs/environment.md`, `docs/notes.md`.
 
-Edited or added on top of it:
-- `packages/shared/src/env.ts` (URL check, live-key check, Vercel guard, Preview/stage rule, `assertNotProd`)
-- `packages/shared/src/env.test.ts` (22 tests)
-- `apps/web/lib/env/boundary.test.ts` (new, 4 tests)
-- `apps/web/package.json` (`test` script, `vitest` dev dependency), `pnpm-lock.yaml`
-- `docs/environment.md`, `docs/deployment.md`, `docs/database.md` (section 15 Preview policy now decided), `docs/testing.md`
-- `docs/notes.md` (this file)
+## 7. Architecture decisions
 
-## 3. Final architectural decisions
+- One issue = one canonical branch and PR; the PR branch is canonical once it exists.
+- `APP_ENV` (runtime) and `DATABASE_ENV` (database) remain separate (recorded in `docs/environment.md`).
 
-- Validation lives in `@signalone/shared` as pure functions over a plain record (usable by web and future Expo).
-- `APP_ENV` (runtime) and `DATABASE_ENV` (database target) are separate; `APP_ENV` defaults to `DATABASE_ENV`. A prod/non-prod mismatch is rejected in both directions.
-- Mapping: local = `dev`, Preview = `qa`, pre-production = `stage`, production = `prod`.
-- Guards: `assertDestructiveAllowed(target, allowList, op)` (prod always refused); `assertNotProd`. `drizzle.config.ts` keeps A's stricter allow-list (`dev`/`qa`/`stage`) rather than B's looser `assertNotProd`. `db:check` allows `dev` only.
-- All issues are reported together (A), not first-error (B).
-- Kept `docs/environment.md` (singular; already referenced from code and other docs) instead of renaming to B's `environments.md`. This deviates from the earlier suggestion in the old notes.
-- Kept `db/env.ts` wrapper (not deleted as in B).
-- `VERCEL_ENV=preview` with `dev` is not rejected, to avoid breaking existing Preview config during transition; docs say Preview should use `qa`.
+## 8. Functional verification performed
 
-## 4. Functional verification and results
+- Read the resulting `claude.yml` and confirmed the settings above are intact (file unchanged).
+- Confirmed `CLAUDE.md` references `docs/issues.md`.
+- Re-read the edited docs for consistency (lifecycle matches `git-workflow.md` sections 11 and 23).
 
-All run on this branch after the final code change. `pnpm` was not on PATH in this runner, so commands were run via `corepack pnpm --dir <package> <script>`.
+## 9. Test/lint/typecheck/build results
 
-| Check | Result |
-| --- | --- |
-| `packages/shared` test | 22/22 passed |
-| `apps/web` test | 4/4 passed |
-| `packages/shared` typecheck | passed |
-| `apps/web` typecheck | passed |
-| `apps/web` lint | passed (no output) |
-| `apps/web` build | passed (5 routes) |
-| `apps/web` `db:check` | `OK: connected to Neon (DATABASE_ENV=dev), SELECT 1 succeeded.` |
+None run: documentation-only change, no application code touched.
 
-Functional checks of the guards (prod/Preview/live-key/URL cases) are covered by the unit tests only.
+## 10. Not tested, and why
 
-## 5. Not tested, and why
+- YAML syntax validation: the workflow file is unchanged, and the sandbox did not permit running a YAML parser.
+- Actual enforcement: the rules are documented instructions; the workflow cannot technically prevent a new branch from an issue-triggered run.
+- No production data was accessed.
 
-- Root `pnpm test`/`pnpm typecheck`/`pnpm lint`/`pnpm build`: the root scripts call nested `pnpm`, which is not on PATH here (`pnpm: not found`). The equivalent per-package scripts were run instead and are the same commands the root scripts fan out to.
-- Ad-hoc runs of `db:check` with a fake `prod` value or a `mysql://` URL: the shell sandbox would not allow env-prefixed commands. Covered by unit tests instead.
-- Vercel Preview behaviour with real Vercel variables: not verifiable here.
-- Nothing touched qa/stage/prod. No production data was accessed. No migrate, seed, or reset was run.
+## 11. Unresolved concerns
 
-## 6. Unresolved concerns
+- Issue-triggered runs by design create a new `claude/issue-N-<timestamp>` branch; the PR-first rule relies on the human commenting on the PR.
+- Enforcement in the workflow YAML (e.g., a prompt/branch check) would need a human edit of `claude.yml`.
 
-- Existing Vercel Preview variables must be switched to `qa` values; code cannot detect a `DATABASE_URL` that points at the wrong Neon branch.
-- A Preview using `dev` is currently tolerated, not rejected. Tighten to "Preview must be `qa`" once Vercel is configured.
-- The workflow `claude.yml` sets only `DATABASE_ENV=dev` (no `APP_ENV`); that works because `APP_ENV` is optional.
-- Whether `APP_ENV` becomes the single canonical name (deprecating `DATABASE_ENV`) is still undecided.
-- `pnpm-lock.yaml` was regenerated with `--no-frozen-lockfile` after adding `vitest` to `apps/web`; it should be reviewed by CI with `--frozen-lockfile`.
+## 12. Recommended next steps
 
-## 7. Recommended next steps
-
-1. Review and merge this PR (owner decision; not done here).
-2. Set Vercel Preview variables to `qa` (`DATABASE_ENV=qa`, `APP_ENV=qa`, qa Neon URL, Clerk development keys).
-3. Make `pnpm` available on PATH in the Claude Actions runner so root scripts work.
-4. After merge, delete obsolete branches `-0225`, `-0226`, `-0321`, `-0338` on explicit instruction.
-5. Then build reset/seed on `assertDestructiveAllowed` with a `dev`/`qa` allow-list (out of scope here).
+1. Open the PR from this branch and review.
+2. Optionally add a branch-continuity instruction to `claude.yml` via a human edit.
+3. Human merges when satisfied.
