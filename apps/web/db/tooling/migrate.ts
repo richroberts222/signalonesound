@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import {
@@ -62,7 +62,10 @@ export type JournalEntry = { idx: number; tag: string; when: number };
 
 /** Reads the committed Drizzle journal (`<folder>/meta/_journal.json`). */
 export function readJournal(migrationsFolder: string): JournalEntry[] {
-  const raw = readFileSync(path.join(migrationsFolder, "meta", "_journal.json"), "utf8");
+  const file = path.join(migrationsFolder, "meta", "_journal.json");
+  // A new application has no migrations until its first `db:generate`.
+  if (!existsSync(file)) return [];
+  const raw = readFileSync(file, "utf8");
   const parsed = JSON.parse(raw) as { entries?: JournalEntry[] };
   return parsed.entries ?? [];
 }
@@ -100,16 +103,19 @@ export async function readAppliedCreatedAt(exec: SqlExecutor): Promise<number[]>
   return rows.map((r) => Number(r.created_at));
 }
 
-/** Read-only check that the proof table from the first migration exists as expected. */
-export async function verifyMigrationProofSchema(exec: SqlExecutor): Promise<string[]> {
-  const rows = await exec.query(
-    `SELECT column_name, data_type, is_nullable FROM information_schema.columns
-     WHERE table_schema = 'public' AND table_name = 'migration_proof' ORDER BY column_name`,
-  );
+/**
+ * Read-only verification that the database is exactly at the committed
+ * migrations: nothing pending, and no applied history unknown to the journal.
+ * Application-agnostic, so it works unchanged for any schema (a new app starts
+ * with an empty journal). Returns problems; empty means verified.
+ */
+export function verifyMigrationState(status: MigrationStatus): string[] {
   const problems: string[] = [];
-  const byName = new Map(rows.map((r) => [String(r.column_name), r]));
-  if (byName.get("id")?.data_type !== "integer") problems.push("migration_proof.id missing or not integer");
-  if (byName.get("note")?.data_type !== "text") problems.push("migration_proof.note missing or not text");
-  if (byName.get("note")?.is_nullable !== "NO") problems.push("migration_proof.note should be NOT NULL");
+  if (status.pending.length > 0) {
+    problems.push(`${status.pending.length} pending migration(s): ${status.pending.map((e) => e.tag).join(", ")}`);
+  }
+  if (status.unknownInDatabase > 0) {
+    problems.push(`${status.unknownInDatabase} applied migration(s) are not in the committed journal`);
+  }
   return problems;
 }

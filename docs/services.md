@@ -77,7 +77,7 @@ The folder has no Signal One domain code and depends only on `@signalone/shared`
 
 ## Composition root
 
-`apps/web/lib/composition.ts` (`server-only`) is the only place that wires `getDb()` to data access and data access to services (`getProofItemService()` today). It is lazy so `next build` needs no database environment. A generic example, `lib/services/proof-items.ts`, shows the conventions end to end (`/docs/api.md`).
+`apps/web/lib/composition.ts` (`server-only`) is the only place that wires `getDb()` to data access and data access to services. It is lazy so `next build` needs no database environment.<!-- boilerplate:proof:start --> Today it wires `getProofItemService()`, and a generic example, `lib/services/proof-items.ts`, shows the conventions end to end (`/docs/api.md`).<!-- boilerplate:proof:end -->
 
 ## Not decided yet
 

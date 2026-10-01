@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createApiClient, createProofItemClient, type FetchLike } from "./api-client";
+import { createApiClient, type FetchLike } from "./api-client";
+import { createProofItemClient } from "./proof-item-client";
 import {
   PROOF_ITEM_LABEL_MAX,
   createProofItemSchema,
