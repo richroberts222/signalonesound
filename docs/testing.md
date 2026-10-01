@@ -2,7 +2,7 @@
 
 ## Status
 
-No test runner is installed yet. Choosing one is an open decision (see `/docs/boilerplate-gap-report.md`); until then the required validation is lint, typecheck, and build. This document sets expectations so the choice and later tests are consistent. It does not mandate a specific tool.
+Vitest is installed in `packages/shared` only (`pnpm test`), covering environment validation (`/docs/environment.md`). The runner choice for the web app, mobile, and integration tests is still open (see `/docs/boilerplate-gap-report.md`); for now the required validation is lint, typecheck, build, and `pnpm test`. This document sets expectations so the choice and later tests are consistent. It does not mandate a specific tool.
 
 ## Required validation for every change
 

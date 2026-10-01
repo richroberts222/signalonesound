@@ -1,0 +1,156 @@
+// Pure environment/configuration logic. This module never reads `process.env`
+// itself: callers pass in a plain record, so it runs unchanged in Node, the
+// browser, and React Native/Expo. See /docs/environment.md.
+import { APP_ENVS, type AppEnv } from "./constants";
+
+/** Environments that tooling and tests are never allowed to mutate. */
+export const PROTECTED_APP_ENVS: readonly AppEnv[] = ["prod"];
+
+export type EnvSource = Readonly<Record<string, string | undefined>>;
+
+/** Thrown for every configuration problem; messages never contain values. */
+export class EnvValidationError extends Error {
+  readonly issues: readonly string[];
+  constructor(issues: readonly string[]) {
+    super("Invalid environment configuration:\n- " + issues.join("\n- "));
+    this.name = "EnvValidationError";
+    this.issues = issues;
+  }
+}
+
+export function isAppEnv(value: unknown): value is AppEnv {
+  return typeof value === "string" && (APP_ENVS as readonly string[]).includes(value);
+}
+
+export function isProd(env: AppEnv): boolean {
+  return env === "prod";
+}
+
+/** Values are reported by name only, never echoed, since they may be secrets. */
+function readEnum(source: EnvSource, name: string, issues: string[]): AppEnv | undefined {
+  const value = source[name];
+  if (value === undefined || value === "") {
+    issues.push(`${name} is not set (expected one of ${APP_ENVS.join(", ")}).`);
+    return undefined;
+  }
+  if (!isAppEnv(value)) {
+    issues.push(`${name} is invalid (expected exactly one of ${APP_ENVS.join(", ")}).`);
+    return undefined;
+  }
+  return value;
+}
+
+function readRequired(source: EnvSource, name: string, issues: string[]): string {
+  const value = source[name];
+  if (value === undefined || value.trim() === "") {
+    issues.push(`${name} is not set.`);
+    return "";
+  }
+  return value;
+}
+
+export type DatabaseEnvConfig = {
+  /** Logical environment that `databaseUrl` points at. */
+  databaseEnv: AppEnv;
+  /** SERVER ONLY. */
+  databaseUrl: string;
+};
+
+/**
+ * Minimal configuration for database tooling (db:check, drizzle-kit, future
+ * reset/seed): needs no Clerk keys.
+ */
+export function parseDatabaseEnv(source: EnvSource): DatabaseEnvConfig {
+  const issues: string[] = [];
+  const databaseEnv = readEnum(source, "DATABASE_ENV", issues);
+  const databaseUrl = readRequired(source, "DATABASE_URL", issues);
+  if (issues.length > 0 || !databaseEnv) throw new EnvValidationError(issues);
+  return { databaseEnv, databaseUrl };
+}
+
+export type ServerEnv = {
+  /** Logical environment of the running application. */
+  appEnv: AppEnv;
+  /** Logical environment that `databaseUrl` points at. */
+  databaseEnv: AppEnv;
+  /** SERVER ONLY. */
+  databaseUrl: string;
+  /** SERVER ONLY. */
+  clerkSecretKey: string;
+  clerkPublishableKey: string;
+};
+
+/**
+ * Validate server-side configuration. Every problem is collected and reported
+ * together. APP_ENV is optional for backward compatibility and defaults to the
+ * explicit DATABASE_ENV; it is never inferred from hostnames.
+ */
+export function parseServerEnv(source: EnvSource): ServerEnv {
+  const issues: string[] = [];
+  const databaseEnv = readEnum(source, "DATABASE_ENV", issues);
+  const rawApp = source.APP_ENV;
+  const appEnv = rawApp === undefined || rawApp === "" ? databaseEnv : readEnum(source, "APP_ENV", issues);
+  const databaseUrl = readRequired(source, "DATABASE_URL", issues);
+  const clerkSecretKey = readRequired(source, "CLERK_SECRET_KEY", issues);
+  const clerkPublishableKey = readRequired(source, "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", issues);
+
+  if (appEnv && databaseEnv) {
+    // A prod app must use the prod database and nothing else may touch it.
+    if ((appEnv === "prod") !== (databaseEnv === "prod")) {
+      issues.push("APP_ENV and DATABASE_ENV must both be 'prod' or both be non-prod.");
+    }
+  }
+  // Vercel Preview deployments must never point at prod (docs/deployment.md).
+  if (source.VERCEL_ENV === "preview" && (appEnv === "prod" || databaseEnv === "prod")) {
+    issues.push("Vercel Preview deployments must not use the prod environment or database.");
+  }
+
+  if (issues.length > 0 || !appEnv || !databaseEnv) throw new EnvValidationError(issues);
+  return { appEnv, databaseEnv, databaseUrl, clerkSecretKey, clerkPublishableKey };
+}
+
+export type ClientEnv = {
+  clerkPublishableKey: string;
+  /** Optional display/diagnostic hint; not authoritative. */
+  appEnv: AppEnv | undefined;
+};
+
+/**
+ * Validate values safe for browsers/mobile. Accepts only client-safe names
+ * (callers pass explicit literal reads, e.g. `process.env.NEXT_PUBLIC_X`, since
+ * bundlers inline only literal accesses). Mobile maps `EXPO_PUBLIC_*` names
+ * onto the same shape.
+ */
+export function parseClientEnv(source: EnvSource): ClientEnv {
+  const issues: string[] = [];
+  const clerkPublishableKey = readRequired(source, "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", issues);
+  let appEnv: AppEnv | undefined;
+  const rawApp = source.NEXT_PUBLIC_APP_ENV;
+  if (rawApp !== undefined && rawApp !== "") appEnv = readEnum(source, "NEXT_PUBLIC_APP_ENV", issues);
+  if (issues.length > 0) throw new EnvValidationError(issues);
+  return { clerkPublishableKey, appEnv };
+}
+
+/**
+ * Guard for destructive tooling (reset, seed, bulk test data). Fails closed:
+ * the target must be explicitly allowed, and protected environments are
+ * refused even if a caller lists them.
+ */
+export function assertDestructiveAllowed(
+  target: AppEnv | undefined,
+  allowed: readonly AppEnv[],
+  operation: string,
+): asserts target is AppEnv {
+  if (!target) throw new EnvValidationError([`${operation}: target environment is unknown; refusing.`]);
+  if (PROTECTED_APP_ENVS.includes(target)) {
+    throw new EnvValidationError([`${operation}: refusing to run against protected environment '${target}'.`]);
+  }
+  if (!allowed.includes(target)) {
+    throw new EnvValidationError([`${operation}: environment '${target}' is not in the allowed set (${allowed.join(", ")}).`]);
+  }
+}
+
+/** Names that must never be exposed to browser/mobile bundles. */
+export function isClientExposedName(name: string): boolean {
+  return name.startsWith("NEXT_PUBLIC_") || name.startsWith("EXPO_PUBLIC_");
+}

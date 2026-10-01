@@ -24,7 +24,7 @@ Preview deployments must never point at `prod`.
 
 ## Environment variables
 
-Set in Vercel per environment; never commit values. Required today: `DATABASE_ENV`, `DATABASE_URL`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`. Only variables that must reach the browser use `NEXT_PUBLIC_`.
+Full variable reference, validation, and production guards: `/docs/environment.md`. Set in Vercel per environment; never commit values. `APP_ENV` is optional (defaults to `DATABASE_ENV`); a Preview deployment configured with `prod` fails validation. Required today: `DATABASE_ENV`, `DATABASE_URL`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`. Only variables that must reach the browser use `NEXT_PUBLIC_`.
 
 ## Release flow
 

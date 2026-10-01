@@ -17,6 +17,7 @@ The mobile app lives in `apps/mobile` (React Native, Expo, TypeScript; Android a
 
 ## Configuration
 
+* Environment validation uses the shared `parseClientEnv` (`/docs/environment.md`).
 * Environment config uses `EXPO_PUBLIC_*` variables, which are public in the app bundle. Only client-safe values (Clerk publishable key, API base URL) belong there.
 * The API base URL is per environment (`dev`, `qa`, `stage`, `prod`); no production URL is the default in development builds.
 * App name, slug, and bundle/application identifiers must come from a single config (`app.config.ts`) and be treated as boilerplate placeholders (`/docs/boilerplate-references-report.md`).

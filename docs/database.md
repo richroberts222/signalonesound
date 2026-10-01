@@ -533,7 +533,7 @@ At the time this document is established:
 - Drizzle is the selected ORM/schema/migration layer.
 - Detailed Signal One application schema design is still to be developed.
 
-Code status: `apps/web/db` contains `env.ts`, `index.ts` (server-only Drizzle client on `neon-http`), and an empty `schema.ts`. `apps/web/drizzle.config.ts` refuses `prod`. No migrations exist. `pnpm --filter web db:check` runs a read-only `SELECT 1` against `dev` only. Reset/seed tooling, a transaction helper, and a production migration procedure do not exist yet; see `/docs/boilerplate-gap-report.md`.
+Code status (environment validation lives in `@signalone/shared`, see `/docs/environment.md`): `apps/web/db` contains `env.ts`, `index.ts` (server-only Drizzle client on `neon-http`), and an empty `schema.ts`. `apps/web/drizzle.config.ts` refuses `prod`. No migrations exist. `pnpm --filter web db:check` runs a read-only `SELECT 1` against `dev` only. Reset/seed tooling, a transaction helper, and a production migration procedure do not exist yet; see `/docs/boilerplate-gap-report.md`.
 
 The existence of this document does not imply that every described database capability has already been implemented.
 
