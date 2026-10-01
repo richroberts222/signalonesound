@@ -28,6 +28,7 @@ Example: "submitting the form shows a success message" is not sufficient if the 
 * Cover failure and denial criteria, not only the happy path.
 * Verify outcomes at the layer where they are observable (response, persisted state, visible UI), not just that a handler ran.
 * Use the lowest layer that can faithfully verify the criterion (service/API-level acceptance tests are often enough); use the browser only when the criterion is about user-facing behavior.
+* Acceptance criteria feed the Test Value Review (`test-value-review.md`): choose the smallest valuable test set that proves them; one test may cover a closely related group of assertions.
 * Acceptance tests obey the environment safety rules in `integration.md`.
 
 ## Relationship to E2E

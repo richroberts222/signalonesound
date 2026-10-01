@@ -5,6 +5,7 @@ E2E tests exercise critical, real user journeys through the running application 
 ## Rules
 
 * Focus on important workflows. Do not duplicate every unit, integration, or acceptance test in the browser.
+* Be especially selective: E2E is the most expensive layer. Every E2E test needs a Test Value Review (`test-value-review.md`) showing the end-to-end interaction adds value lower layers cannot.
 * Keep the suite small, stable, and meaningful; a slow or flaky E2E suite loses value.
 * Tests are independent, set up their own state, and clean up.
 * Run only against `dev`/`qa`-class environments with test accounts (Clerk development/test instances); never `prod` or real users.

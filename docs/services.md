@@ -75,6 +75,10 @@ Unit test services with fake data-access and a fake `AtomicRunner`; cover succes
 
 The folder has no Signal One domain code and depends only on `@signalone/shared` (`Result`, `AppError`), `lib/auth` (`Actor`, errors, `authorize`), and `db/errors.ts` + the `Database` type. It can move into a boilerplate unchanged.
 
+## Composition root
+
+`apps/web/lib/composition.ts` (`server-only`) is the only place that wires `getDb()` to data access and data access to services (`getProofItemService()` today). It is lazy so `next build` needs no database environment. A generic example, `lib/services/proof-items.ts`, shows the conventions end to end (`/docs/api.md`).
+
 ## Not decided yet
 
-Logging integration, a real composition root, and whether services should later move to a shared package for non-Next consumers.
+A real logging system (unexpected API errors currently go through `reportUnexpectedError`, `/docs/api.md`) and whether services should later move to a shared package for non-Next consumers.

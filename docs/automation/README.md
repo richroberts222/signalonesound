@@ -6,6 +6,7 @@ These documents are **rules**: what Claude and developers must follow when imple
 
 | Document | Covers |
 | --- | --- |
+| `test-value-review.md` | Test Value Review: justify tests before adding them; smallest valuable suite |
 | `unit.md` | Isolated, deterministic logic tests |
 | `integration.md` | Tests across meaningful boundaries (services, API, auth, data access, contracts, external integrations) |
 | `acceptance.md` | Acceptance criteria and executable acceptance tests |
@@ -16,7 +17,7 @@ These documents are **rules**: what Claude and developers must follow when imple
 
 ## Status
 
-Rules here describe how tests are written when a layer is in use. They do not mean the tooling exists. Playwright, coverage tooling, and integration/acceptance/E2E commands are not installed yet; add each only when a real test needs it and an issue authorizes it (see `/docs/testing.md`).
+Rules here describe how tests are written when a layer is in use. Installed (Issue 49): Playwright (`@playwright/test`, `@clerk/testing`), `pnpm --filter web test:integration` (real DEV database), `pnpm --filter web test:e2e`, and an acceptance suite (`apps/web/lib/api/proof-items.acceptance-suite.ts`) that runs in memory by default and against the DEV database in the integration run. Coverage tooling is not installed; add it only when a real need is authorized (see `/docs/testing.md`).
 
 ## Layers at a glance
 
@@ -31,10 +32,10 @@ Each layer has a distinct job. A higher layer does not replace a lower one, and 
 
 ## Feature completion rule
 
-Claude must derive tests from the issue's acceptance criteria. Before declaring feature work complete, Claude must report:
+Claude must derive tests from the issue's acceptance criteria, then apply the Test Value Review (`test-value-review.md`) to choose the smallest valuable test set. Workflow: requirements -> acceptance criteria -> Test Value Review -> smallest valuable test set -> implement tests -> validation/CI. Before declaring feature work complete, Claude must report:
 
 1. Acceptance criteria implemented.
-2. Tests added.
+2. Tests added, with the Test Value Review result (what they protect, why worth adding, layer chosen and why, what was intentionally not automated).
 3. Testing layers used.
 4. Acceptance criteria actually verified (and how).
 5. Validation commands executed, with real results.
@@ -46,4 +47,5 @@ Never claim a criterion is verified unless a test or command actually exercised 
 
 * Environment safety (`/docs/environment.md`, `/docs/security.md`) always applies. No test touches `prod`; guards are tested, never bypassed.
 * No secrets, real database URLs, or credential-shaped URLs in tests, docs, or fixtures (`CLAUDE.md` section 18).
+* Tests are added only where the Test Value Review shows meaningful value; none to raise test count or coverage.
 * Existing tests and `pnpm validate` must keep passing.

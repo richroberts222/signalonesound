@@ -12,3 +12,4 @@ Unit tests verify one piece of logic in isolation. Vitest is the current runner 
 * **Regression tests:** every bug fix adds a test that fails without the fix, where practical.
 * **Mocks sparingly:** fake the boundary you are isolating from. Do not mock the unit under test, and do not mock so much that the test only proves the mocks.
 * Tests live next to the code they cover, named `*.test.ts(x)`.
+* Before adding tests, apply the Test Value Review (`test-value-review.md`); do not test trivial code or framework behavior.

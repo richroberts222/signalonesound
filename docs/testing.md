@@ -6,7 +6,7 @@ Vitest is the unit-test runner for every workspace that has tests (`packages/sha
 
 ## Philosophy and detailed rules
 
-This document is the high-level testing philosophy: tests protect the whole platform, verify behavior rather than implementation, are deterministic, and respect environment safety. Detailed per-layer rules live in `/docs/automation/` (`unit.md`, `integration.md`, `acceptance.md`, `e2e.md`, `playwright.md`, `coverage.md`, `reporting.md`).
+This document is the high-level testing philosophy: tests protect the whole platform, verify behavior rather than implementation, are deterministic, and respect environment safety. Detailed per-layer rules live in `/docs/automation/` (`test-value-review.md` (every new test or test group is justified before it is added), `unit.md`, `integration.md`, `acceptance.md`, `e2e.md`, `playwright.md`, `coverage.md`, `reporting.md`).
 
 Every feature has explicit acceptance criteria, derived tests, and an honest completion report (`/docs/automation/README.md`). Playwright is the preferred E2E framework but is not installed yet. Code coverage is a diagnostic signal; 100% is not required.
 
@@ -69,9 +69,14 @@ Add a helper only when at least two tests need it.
 * No test may read or write `prod`, and no real secrets live in source control. Production/environment guards (`assertNotProd`, `assertDestructiveAllowed`, the prod/preview/live-key checks) must not be weakened or bypassed for tests; test them instead.
 * Authentication in tests uses a faked auth boundary or Clerk development/test instances, never production users.
 
-## Future: database-backed integration tests
+## Database-backed integration tests and E2E (implemented, Issue 49)
 
-Not implemented (depends on database helpers). When added they must:
+* `pnpm --filter web test:integration` runs `*.integration.test.ts` with `vitest.integration.config.mts` (it loads `apps/web/.env.local` but not the env-clearing setup). Tests refuse unless `DATABASE_ENV` is `dev`/`qa` (via `assertDestructiveAllowed`), `APP_ENV` matches, and Vercel is unset. Migrations must be applied first (`db:migrate -- --env=dev`). Test data uses unique `proof_it_*` owner ids and is removed afterwards.
+* `pnpm --filter web test:e2e` runs Playwright (`/docs/automation/playwright.md`).
+* The acceptance criteria of the proof feature (AC1 to AC9, listed in `lib/api/proof-items.acceptance-suite.ts`) run in memory in `pnpm test` and against the real database in the integration run.
+* Neither command is in `pnpm test`/`validate`, and neither runs in CI yet (the secret-free `validate` job is unchanged; a separate job with a dev/qa secret is a human workflow change).
+
+Original requirements, still binding for any new database-backed tests:
 
 * live in a separate category/command (for example `test:integration`) that is NOT part of `pnpm test`/`validate` by default;
 * set `DATABASE_ENV` explicitly to `dev` or `qa` and go through `assertDestructiveAllowed` with an allow-list of `dev`/`qa`; refuse when unset or `prod`/`stage`;

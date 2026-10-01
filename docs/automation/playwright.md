@@ -1,6 +1,6 @@
 # Playwright
 
-Playwright is the preferred browser automation/E2E framework for Signal One. It is not installed yet; installation requires an issue that authorizes it (and an update to `/docs/testing.md`).
+Playwright is the preferred browser automation/E2E framework for Signal One. It is installed in `apps/web` (Issue 49): `playwright.config.ts`, specs in `apps/web/e2e/`, run with `pnpm --filter web test:e2e` (after `playwright install chromium`). It uses native Playwright plus `@clerk/testing` for Clerk development-instance sign-in. The config is fail-closed (dev/qa database, Clerk `sk_test_`/`pk_test_` keys, not on Vercel) and sets `E2E_READY=1`; without the required environment (`DATABASE_*`, Clerk dev keys, `E2E_CLERK_USER_USERNAME`/`E2E_CLERK_USER_PASSWORD` for a dedicated test user) specs skip with a visible reason. Artifacts (`playwright-report/`, `test-results/`) are gitignored. E2E is not part of `pnpm test`/`validate` and not in CI yet (workflow files are human-owned).
 
 ## Do not restrict native Playwright
 
@@ -24,6 +24,10 @@ Native capabilities that may be used where appropriate:
 ## Use capabilities intentionally
 
 Choose a capability because the test requires it, not to add complexity. Examples: intercept the network only to simulate a failure or assert a request; capture traces/screenshots on failure rather than always; use device emulation for tests about responsive behavior.
+
+## Selectivity
+
+Playwright is capable of testing almost anything; that is not a reason to. Apply the Test Value Review (`test-value-review.md`) and `e2e.md` before adding a spec or test.
 
 ## Safety
 

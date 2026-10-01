@@ -99,8 +99,14 @@ export function createApiRoute(deps: ApiDeps) {
           return options.handle(ctx as Parameters<typeof options.handle>[0], input);
         }, deps.onUnexpected);
         return toResponse(result);
-      } catch {
-        // Last resort (e.g. serialization failure): never let an error escape raw.
+      } catch (error) {
+        // Last resort (e.g. serialization failure): never let an error escape raw,
+        // and still report it (a throwing hook must not break the response).
+        try {
+          deps.onUnexpected?.(error);
+        } catch {
+          // ignore
+        }
         return toResponse(fail("internal", "Something went wrong"));
       }
     };
