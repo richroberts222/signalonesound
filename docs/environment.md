@@ -62,7 +62,7 @@ Validation fails (throws) when:
 
 Code cannot detect a `DATABASE_URL` that points at the wrong Neon branch while `DATABASE_ENV` claims otherwise; Vercel Preview variables must be configured carefully.
 
-Tooling uses `assertDestructiveAllowed`: unknown target is refused, protected environments are refused even if listed, and the target must be in the allowed set. `assertNotProd` is the lighter guard for non-destructive tooling. `drizzle-kit` allows `dev`/`qa`/`stage`; `db:check` allows `dev` only. Future reset/seed (not implemented) must use the same guard with an allow-list of `dev`/`qa`.
+Tooling uses `assertDestructiveAllowed`: unknown target is refused, protected environments are refused even if listed, and the target must be in the allowed set. `assertNotProd` is the lighter guard for non-destructive tooling. `drizzle-kit` allows `dev`/`qa`/`stage`; `db:check` allows `dev` only. Reset/seed (`db:reset`, `db:seed`, `db:refresh`) use the same guard with an allow-list of `dev`/`qa`, additionally requiring `APP_ENV` (if set) to equal `DATABASE_ENV`, `VERCEL_ENV` unset, and an explicit matching `--env=` flag; see `/docs/database.md` section 12.2.
 
 ## Local configuration
 
