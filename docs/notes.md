@@ -21,7 +21,7 @@
 
 No database, schema, migration, reset/seed, auth, API, workflow, or root `package.json` changes.
 
-## 7. Architecture decisions
+## 7. Architectural decisions
 
 - Mobile is an API client only; the boundary is enforced by a static test, not just documented.
 - Added `parseMobileClientEnv` to `@signalone/shared` (the docs said the API-URL field would be added at scaffold time) instead of reusing `parseClientEnv`, whose error messages name `NEXT_PUBLIC_*`. Required: `EXPO_PUBLIC_APP_ENV`, `EXPO_PUBLIC_API_BASE_URL` (`https` outside `dev`). Optional: Clerk publishable key (must be `pk_`; `pk_live_` only in `prod`), because Clerk is not integrated yet.
