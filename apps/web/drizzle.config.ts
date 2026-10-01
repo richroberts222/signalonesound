@@ -9,7 +9,9 @@ config({ path: ".env.local" });
 const { databaseEnv, databaseUrl } = loadDatabaseEnv();
 
 // Local tooling must never touch prod. Production migrations are a deliberate,
-// reviewable process that is not yet documented (see /docs/database.md section 10).
+// reviewable process (see /docs/database.md sections 10 and 12.3). This config
+// is used by `db:generate` only; migrations are applied by `db:migrate`, and
+// `drizzle-kit push` is never used (no script exposes it).
 assertDestructiveAllowed(databaseEnv, ["dev", "qa", "stage"], "drizzle-kit");
 
 export default defineConfig({
