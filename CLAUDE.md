@@ -380,7 +380,23 @@ If something has not yet been decided, it should be treated as **undecided**, no
 
 ---
 
-# 18. Final Rule
+# 18. Secrets in Committed Files
+
+Claude MUST NEVER put any of the following into `docs/notes.md`, other documentation, examples, comments, test descriptions, or any other committed file:
+
+* Real database URLs
+* Credential-shaped database URLs (any `scheme://user:password@host/...` form, even if fake)
+* API keys, tokens, passwords, private keys, or other secrets
+
+Use obvious placeholders instead, such as `<DEV_DATABASE_URL>`, `<API_KEY>`, or `<TOKEN>`.
+
+When reporting results or concerns, describe a value (for example, "a fake database URL") rather than reproducing it.
+
+The repository's security tests enforce this. Never change or weaken them to make a failure pass; remove the offending content instead.
+
+---
+
+# 19. Final Rule
 
 Before implementing anything substantial, ask:
 

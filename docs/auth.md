@@ -394,7 +394,7 @@ Future integration (not implemented):
 
 * **API:** protected endpoints call the same `requireUserId()` (Clerk supports token-based request authentication) and the same services. Endpoint conventions belong to the API foundation (`docs/api.md`).
 * **Mobile:** Expo clients send a Clerk session token; the server verifies it and reaches the same services. Mobile never holds server credentials.
-* **Errors/logging:** when the logging/error-handling work is merged, map the two errors onto its standard application errors. This work does not depend on it.
+* **Errors/logging:** `runService()` in `lib/services` already maps the two errors to the shared `unauthenticated`/`forbidden` `AppError` codes (see `/docs/services.md`). Logging integration is not implemented.
 * **Database:** when domain tables reference users, store the Clerk user ID as the external identity reference (section 6).
 
 Tests: `apps/web/lib/auth/auth.test.ts` mocks Clerk and covers authenticated/unauthenticated, ownership allow/deny, composition, error semantics, and static boundary checks. Real Clerk end-to-end authentication was not tested.

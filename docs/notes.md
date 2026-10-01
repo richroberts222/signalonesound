@@ -1,74 +1,61 @@
-# Notes: Issue 36 "Build Reusable Mobile Application Foundation"
+# Notes: Issue 38 "Build Reusable Business and Service Layer Foundation"
 
-1. Issue: #36 "Build Reusable Mobile Application Foundation"
+1. Issue: #38 "Build Reusable Business and Service Layer Foundation"
 2. PR: none yet at time of writing (open one from this branch; further @claude requests should come from that PR).
-3. Canonical branch: `claude/issue-36-20261001-1233`, base `main` (`6ed0608`). Not merged.
+3. Canonical branch: `claude/issue-38-20261001-1233`, base `main` (`6ed0608`). Not merged.
 4. Latest commit: the commit containing this file; see `git log -1` on the branch.
 
 ## 5. Work completed
 
-- Scaffolded `apps/mobile` as an Expo SDK 57 + React Native 0.86 + TypeScript app (pnpm workspace member, `@signalone/shared` via `workspace:*`).
-- Minimal shell only (`src/App.tsx`): title plus validated environment status. No navigation, screens, domain models, roles, auth UI, or API client.
-- Mobile-safe config: `src/config/env.ts` (`getMobileEnv()`, literal `EXPO_PUBLIC_*` reads) over a new shared pure parser `parseMobileClientEnv` in `packages/shared/src/env.ts`.
-- `app.config.ts` (single source of identity, placeholder identifiers `com.example.signalone`, iOS/Android only), `eas.json` (profiles development/qa/staging/production setting only `EXPO_PUBLIC_APP_ENV`), `.env.example`, `.gitignore`.
-- Scripts in `apps/mobile`: `start`, `android`, `ios`, `lint`, `typecheck`, `test`, `test:watch`, `check:deps`, `export`. `lint`/`typecheck`/`test` are picked up by the existing root `pnpm -r --if-present` scripts.
-- Tests: `src/config/env.test.ts`, `src/boundary.test.ts` (static boundary checks), plus 5 new `parseMobileClientEnv` tests in shared.
-- Docs: rewrote `docs/mobile.md` (architecture position, sharing matrix, config, commands, builds); updated `docs/environment.md`, `docs/deployment.md` section 8, `docs/testing.md`, `docs/shared-code.md`, `README.md`.
+- Added `apps/web/lib/services/` (framework-free service-layer foundation):
+  - `context.ts`: `ServiceContext` (`{ actor }`), `createServiceContext(userId)`.
+  - `errors.ts`: `ServiceError`, `notFound()`, `conflict()`, `validationFailed()`.
+  - `run.ts`: `toAppError()`, `runService()` mapping thrown failures to the shared `Result<T>`/`AppError`.
+  - `atomic.ts`: `AtomicRunner` + `createAtomicRunner(db)` wrapping `db.batch` with `withDbErrors`.
+  - `index.ts` barrel; `services.test.ts` (generic placeholder "Item" example with fakes, error mapping, atomic runner, static boundary checks).
+- Added `docs/services.md` (where logic belongs, conventions, transactions, web/API/mobile consumption, testing, undecided items); cross-references in `docs/web.md` and `docs/auth.md`.
 
 ## 6. Files changed
 
-`apps/mobile/{package.json,app.config.ts,eas.json,tsconfig.json,eslint.config.js,vitest.config.ts,index.ts,.env.example,.gitignore}`, `apps/mobile/src/{App.tsx,boundary.test.ts,config/env.ts,config/env.test.ts}`, `packages/shared/src/{env.ts,env.test.ts}`, `pnpm-lock.yaml`, `README.md`, `docs/{mobile,environment,deployment,testing,shared-code,notes}.md`.
+`apps/web/lib/services/{context,errors,run,atomic,index}.ts`, `apps/web/lib/services/services.test.ts`, `docs/services.md`, `docs/web.md`, `docs/auth.md`, `docs/notes.md`.
 
 No database, schema, migration, reset/seed, auth, API, workflow, or root `package.json` changes.
 
-## 7. Architectural decisions
-
-- Mobile is an API client only; the boundary is enforced by a static test, not just documented.
-- Added `parseMobileClientEnv` to `@signalone/shared` (the docs said the API-URL field would be added at scaffold time) instead of reusing `parseClientEnv`, whose error messages name `NEXT_PUBLIC_*`. Required: `EXPO_PUBLIC_APP_ENV`, `EXPO_PUBLIC_API_BASE_URL` (`https` outside `dev`). Optional: Clerk publishable key (must be `pk_`; `pk_live_` only in `prod`), because Clerk is not integrated yet.
-- Clerk (`@clerk/expo`), secure storage, and an API client were deliberately NOT added: `docs/api.md` is empty and the auth contract for mobile is not defined; adding them would invent architecture.
-- Metro needs no custom config (SDK 57 handles the monorepo; confirmed by bundling).
-- Dependency versions follow `expo install --check` (React 19.2.3, RN 0.86.3, TypeScript ~6.0.3 for mobile only; web/shared stay on TypeScript 5).
-- Mobile is not part of root `pnpm build` (builds Web only), left unchanged to avoid root edits.
+- Services are plain functions/factories taking `(ctx: ServiceContext, input)`; identity only from `ctx`, never input. No FormData/Request/Next/React/Clerk/Drizzle-client imports in service code (type-only `Database` import allowed; enforced by test).
+- Dependencies injected via factory arguments (data-access, `AtomicRunner`, clock/ID). No DI framework.
+- Errors: expected failures throw `ServiceError`/`ForbiddenError`; `runService()` converts to shared `Result`. `DatabaseError` `unique_violation` maps to `conflict`; everything else to generic `internal`. Original error goes only to an optional `onUnexpected` hook (no logging foundation exists to integrate).
+- Transactions: because `neon-http` has no interactive transactions, atomic work is a `db.batch` supplied as an injected `AtomicRunner`; consistent with `docs/database.md` section 18. Read-then-write transactions remain an undecided driver question.
+- No new dependencies, no root/shared package changes, no API routes, no DB/seed/reset or mobile changes, no domain features.
 
 ## 8. Functional verification performed
 
-- `expo export --platform android --platform ios` with `EXPO_PUBLIC_APP_ENV=dev` and `EXPO_PUBLIC_API_BASE_URL=http://localhost:3000` (via a temporary, since-deleted `.env.local`): Metro bundled iOS (585 modules) and Android (586 modules) from `index.ts`, resolving `@signalone/shared` through the workspace link. The inlined `localhost:3000` value was present in the Android bundle.
-- Searched the Android bundle for `drizzle`, `neondatabase`, `DATABASE_URL`: only two string literals from shared's pure env parsers (variable names in error messages, no values, never called by mobile). No Drizzle/Neon code.
-- `expo config --type public` resolves `app.config.ts` (platforms ios/android only).
-- `expo install --check`: "Dependencies are up to date".
+Unit tests (fakes): success, validation failure with field errors, not found, forbidden for non-owner, ownership derived from context, statements run through the atomic runner once, DB errors not leaked, `toAppError` mappings, `createAtomicRunner` batch call and `DatabaseError` wrapping, static import/boundary checks.
 
 ## 9. Test/lint/typecheck/build results (latest run)
 
-`pnpm` is not on PATH in the sandbox, so root scripts (`pnpm validate`) could not be invoked directly; the equivalent was run via `corepack pnpm`:
+`pnpm` is not on PATH; `corepack pnpm install --frozen-lockfile` succeeded and package-level commands were run instead (root `pnpm validate` was not run):
 
-- `corepack pnpm install --frozen-lockfile`: lockfile up to date.
-- `corepack pnpm -r --if-present lint`: clean (mobile and web).
-- `corepack pnpm -r --if-present typecheck`: clean (shared, validation, mobile, web).
-- `corepack pnpm -r --if-present test`: shared 39/39, validation 8/8, mobile 7/7, web 56/56 passed (including `apps/web/lib/security.test.ts`).
-- `corepack pnpm --filter web build`: succeeded, 5 routes.
-
-### Security test note
-
-An earlier revision of this file embedded a credentialed connection string, which tripped the "credentialed postgres url" check in `apps/web/lib/security.test.ts`. It was replaced with a placeholder (`<DEV_DATABASE_URL>`-style wording). The security test was not modified and now passes with the rest of the suite.
+- `npx vitest run` in `apps/web`: 5 files; 56 passed, **2 failed** (both in `lib/security.test.ts`, see concern 1). All new `services.test.ts` tests pass.
+- `npx vitest run` in `packages/shared`: 3 files, 31 passed.
+- `npx vitest run` in `packages/validation`: 1 file, 8 passed.
+- `npx eslint` in `apps/web`: clean.
+- `npx next typegen && npx tsc --noEmit` in `apps/web`: no errors. `tsc --noEmit` in `packages/shared` and `packages/validation`: no errors.
+- `npx next build` in `apps/web`: succeeded, 5 routes.
 
 ## 10. Not tested, and why
 
-- App not run on an iOS simulator, Android emulator, or physical device (none available); no `expo start` session was driven. Only Metro bundling/compilation for both platforms was verified.
-- No EAS build, signing, or store submission.
-- No Clerk or API interaction (not implemented).
-- No React Native component tests (no runner set up; documented in `docs/testing.md`).
-- `expo-doctor` not run.
+- Database-backed behavior of `createAtomicRunner` against real Neon (no DB integration test tooling exists; only a fake `batch`).
+- Real Clerk, API routes, and mobile consumption (none exist in scope).
 
 ## 11. Unresolved concerns
 
-- CI (`ci.yml`) runs `pnpm install --frozen-lockfile`; the lockfile was regenerated here and is consistent locally. TypeScript 6 for mobile alongside 5 elsewhere is intentional but worth a glance.
-- `@signalone/shared` ships server/database env parsers into the mobile bundle as unused code (names only). Splitting them behind a subpath export would remove this; deferred as a shared-package change.
-- Identifiers/name/slug/scheme are placeholders.
-- `pnpm build` does not cover mobile; `export` is a manual script, not in CI.
+1. **Resolved:** the `lib/security.test.ts` failure was this file containing a credential-shaped database URL; it was replaced with a description. Latest run (all package tests, lint, typecheck, `next build`) passes. Original note, kept for history: `lib/security.test.ts` flags `packages/shared/src/testing/index.ts` (it reads `process.env` via `globalThis` and contains a fake database URL, <DEV_DATABASE_URL>-style placeholder, not reproduced here). This file is untouched here; it appears to be an interaction between the testing-foundation and security-foundation merges. I did not modify it. CI `pnpm test:run` will fail until it is resolved. I did not run the suite on a clean `main` checkout to confirm, but the files named are not changed by this branch.
+2. No composition root or logging wiring yet; `onUnexpected` is the integration point.
+3. `AtomicRunner` batch statement type is derived from Drizzle's `batch` signature and tested only with fakes.
+4. Resolved: Claude Code Review now allows only the `claude` bot (`allowed_bots: 'claude'`, not `'*'`) on `main`, so commits pushed by Claude can be reviewed.
 
 ## 12. Recommended next steps
 
-1. Open the PR and resolve the `security.test.ts` conflict separately.
-2. Define `docs/api.md` and the mobile auth contract, then add `@clerk/expo`, secure storage, and an API client.
-3. Verify on an emulator/simulator and decide whether `expo export` belongs in CI.
-4. Decide store identifiers, EAS project, and navigation approach.
+1. Resolve the pre-existing `security.test.ts` failures (separate fix).
+2. Open the PR and review.
+3. Build the first real domain service on these conventions together with its data-access helpers, and add an API route convention in `docs/api.md`.
