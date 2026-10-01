@@ -361,3 +361,40 @@ Locally, set both in `apps/web/.env.local` (gitignored). On Vercel, set both for
 
 * Route protection in `proxy.ts` does not replace server-side checks. Future API routes and mutations must call `auth()` from `@clerk/nextjs/server` and reject unauthenticated requests.
 * The build succeeds without Clerk env vars because all routes are dynamically rendered; runtime requests need the keys.
+
+### Server-side auth and authorization helpers
+
+Implemented in `apps/web/lib/auth/`. Clerk remains the sole identity authority; nothing is stored in PostgreSQL and there is no application user/role table (that belongs to future domain work).
+
+Flow:
+
+```text
+requireUserId()  -> trusted Clerk user ID (throws UnauthenticatedError)
+  -> { userId } as Actor
+  -> authorize(actor, rule, resource)  (throws ForbiddenError; deny by default)
+  -> perform the operation
+```
+
+Modules:
+
+* `lib/auth/server.ts`: **server-only** (`import "server-only"`). `getUserId()` (null when signed out) and `requireUserId()`, wrapping Clerk's `auth()`. They take no arguments, so identity can never come from request input.
+* `lib/auth/authorize.ts`: pure, client-safe primitives: `Actor`, `Rule<R>`, `can()`, `authorize()`, `isOwner()`, `anyOf()`, `allOf()`. No Clerk, database, or environment access.
+* `lib/auth/errors.ts`: `UnauthenticatedError` (401 semantics) and `ForbiddenError` (403 semantics) with generic messages and stable `code` values; `isAuthError()`.
+* `lib/auth/index.ts`: client-safe barrel. Server helpers are imported from `@/lib/auth/server` only.
+
+Conventions:
+
+* Server code uses these helpers rather than raw `auth()` for identity checks. UI may still use `currentUser()` for display data.
+* Never accept a user ID from a body, query, header, or form as proof of identity. Resource IDs from input are compared to the trusted actor through a rule.
+* A rule is `(actor, resource) => boolean | Promise<boolean>`. Domain services define their own rules (ownership, membership, organizer, admin) by composing the primitives. Only a strict `true` allows; a rule that throws denies.
+* Authorization lives in services/business logic, not UI components. `proxy.ts` route protection does not replace these checks.
+* Error messages stay generic; boundaries translate `UnauthenticatedError` to 401 and `ForbiddenError` to 403.
+
+Future integration (not implemented):
+
+* **API:** protected endpoints call the same `requireUserId()` (Clerk supports token-based request authentication) and the same services. Endpoint conventions belong to the API foundation (`docs/api.md`).
+* **Mobile:** Expo clients send a Clerk session token; the server verifies it and reaches the same services. Mobile never holds server credentials.
+* **Errors/logging:** when the logging/error-handling work is merged, map the two errors onto its standard application errors. This work does not depend on it.
+* **Database:** when domain tables reference users, store the Clerk user ID as the external identity reference (section 6).
+
+Tests: `apps/web/lib/auth/auth.test.ts` mocks Clerk and covers authenticated/unauthenticated, ownership allow/deny, composition, error semantics, and static boundary checks. Real Clerk end-to-end authentication was not tested.
