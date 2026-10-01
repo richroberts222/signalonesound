@@ -4,6 +4,14 @@
 
 Vitest is the unit-test runner for every workspace that has tests (`packages/shared`, `packages/validation`, `apps/web`). It satisfies current needs; no other test tooling has been added. Categories that cannot yet be exercised (database-backed, API, component/E2E, mobile) are documented below, not faked.
 
+## Philosophy and detailed rules
+
+This document is the high-level testing philosophy: tests protect the whole platform, verify behavior rather than implementation, are deterministic, and respect environment safety. Detailed per-layer rules live in `/docs/automation/` (`unit.md`, `integration.md`, `acceptance.md`, `e2e.md`, `playwright.md`, `coverage.md`, `reporting.md`).
+
+Every feature has explicit acceptance criteria, derived tests, and an honest completion report (`/docs/automation/README.md`). Playwright is the preferred E2E framework but is not installed yet. Code coverage is a diagnostic signal; 100% is not required.
+
+Possible future quality capabilities (analytics, session replay, observability, usage-informed test prioritization) are in `/docs/ideas/`. They are NOT current requirements and must not be implemented without an explicit issue.
+
 ## Commands
 
 Run from the repository root:
@@ -41,7 +49,7 @@ Report results in the pull request. If a check fails, say so; do not claim succe
 | Web component tests | `apps/web` | Not yet set up. Needs a DOM environment and Testing Library; add when the first interactive component warrants it (document the decision). |
 | API / Server Action tests | `apps/web` | Future (see API foundation). Cover unauthenticated, unauthorized, invalid-input, success. |
 | Database-backed integration | `apps/web` (or a db package) | Future (see below). |
-| End-to-end | TBD | Future; critical flows (sign-in, protected routes). Tooling undecided. |
+| End-to-end | TBD | Future; critical flows (sign-in, protected routes). Playwright is the preferred framework (`/docs/automation/playwright.md`); not yet installed. |
 | Mobile config/boundary (pure TypeScript) | `apps/mobile/src/*.test.ts` | Implemented (Vitest) |
 | Mobile component/device | `apps/mobile` | Future (see below). |
 
