@@ -20,7 +20,8 @@ const read = (path: string) => readFileSync(path, "utf8");
 const code = (path: string) =>
   read(path).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 const rel = (p: string) => relative(repo, p);
-const isTest = (f: string) => /\.test\.tsx?$/.test(f);
+// Test support code (shared Vitest helpers with fake fixtures) counts as test code.
+const isTest = (f: string) => /\.test\.tsx?$/.test(f) || /packages\/shared\/src\/testing\//.test(f);
 const sources = (dir: string) => walk(dir).filter((f) => /\.(tsx?|mjs)$/.test(f));
 
 // Scanned text files: source, config, docs, workflows, env examples.
@@ -68,8 +69,7 @@ describe("server-only modules", () => {
   it("any module reading DATABASE_URL or CLERK_SECRET_KEY is server-only or tooling", () => {
     // db/env.ts and drizzle.config.ts/scripts are Node tooling; they are not
     // importable from client code (checked below).
-    const allowed = ["lib/env/server.ts", "db/index.ts", "db/env.ts", "drizzle.config.ts", "scripts/db-check.ts"];
-    const offenders = sources(web)
+    const allowed = ["lib/env/server.ts", "db/index.ts", "db/env.ts", "drizzle.config.ts", "scripts/db-check.ts"];    const offenders = sources(web)
       .filter((f) => !isTest(f))
       .filter((f) => /process\.env\.(DATABASE_URL|CLERK_SECRET_KEY)|["']DATABASE_URL["']/.test(read(f)))
       .map((f) => relative(web, f))
