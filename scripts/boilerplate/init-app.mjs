@@ -108,7 +108,7 @@ export function initApp({ root, name, slug, scope = slug, bundleId, dryRun = fal
     t.split("\n").filter((l) => !/proof-item|proof-only/.test(l)).join("\n"));
   edit("package.json", (t) => {
     const pkg = JSON.parse(t);
-    for (const k of ["init:app", "check:boilerplate", "test:boilerplate"]) delete pkg.scripts[k];
+    for (const k of ["init:app", "check:boilerplate", "test:boilerplate", "prove:init"]) delete pkg.scripts[k];
     pkg.scripts.validate = pkg.scripts.validate.replace(" && pnpm test:boilerplate", "");
     return `${JSON.stringify(pkg, null, 2)}\n`;
   });

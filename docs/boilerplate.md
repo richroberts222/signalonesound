@@ -12,6 +12,9 @@ scripts/boilerplate/init-app.mjs          pnpm init:app          (one-shot, no d
 scripts/boilerplate/check-boilerplate.mjs pnpm check:boilerplate (read-only leak detector)
 scripts/boilerplate/templates/            domain-free replacements for the 3 files that wire proof code
 scripts/boilerplate/boilerplate.test.mjs  pnpm test:boilerplate  (runs init in a temp copy; part of `pnpm validate`)
+scripts/boilerplate/prove-init.mjs        pnpm prove:init [--full] [--keep]  (init a "Harbor Notes" example in a temp dir;
+                                          --full also installs from the rewritten lockfile, lint, typecheck, test, build,
+                                          and generates a first migration offline; needs network only for install)
 ```
 
 ### Create a new application
@@ -66,7 +69,7 @@ A new application starts with **no migrations and an empty schema**: the proof t
 
 * New proof-only files go in `PROOF_PATHS`; prose about them goes in `proof` markers. A leak found by the detector means init and the manifest disagree: fix the template, not the generated app.
 * Do not add Signal One domain code to files the init rewrites by text substitution without checking `pnpm test:boilerplate`.
-* The self-test copies the repository to a temp directory, runs the real init with a non-Signal-One identity, and asserts the detector is clean and negative controls fire. It does not run `pnpm install` or a build (network, minutes); that proof is done manually and recorded in `docs/notes.md` when the template changes materially.
+* The self-test copies the repository to a temp directory, runs the real init with a non-Signal-One identity, and asserts the detector is clean and negative controls fire. It does not run `pnpm install` or a build (network, minutes); run `pnpm prove:init --full` for that when the template changes materially and record the result in `docs/notes.md`.
 
 ## Known gaps
 

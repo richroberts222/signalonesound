@@ -12,6 +12,7 @@
     "test:watch": "pnpm -r --parallel --if-present test:watch",
     "init:app": "node scripts/boilerplate/init-app.mjs",
     "check:boilerplate": "node scripts/boilerplate/check-boilerplate.mjs",
+    "prove:init": "node scripts/boilerplate/prove-init.mjs",
     "test:boilerplate": "node --test scripts/boilerplate/boilerplate.test.mjs",
     "validate": "pnpm lint && pnpm typecheck && pnpm test:run && pnpm test:boilerplate && pnpm build"
   }
