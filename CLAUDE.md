@@ -56,6 +56,7 @@ Expected documentation includes:
 * `/docs/data-mutations.md`
 * `/docs/routing.md`
 * `/docs/server-components.md`
+* `/docs/issues.md` (required whenever working on a GitHub issue or PR; defines the `docs/notes.md` handoff rule)
 
 Not all of these documents may exist yet.
 
