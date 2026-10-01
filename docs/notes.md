@@ -26,7 +26,7 @@ Documentation only.
 
 No code, dependency, workflow, database, or telemetry changes.
 
-## 8. Functional verification performed
+## 8. Functional verification performed (DEV only)
 
 Documentation only; verified by repository validation (including the static security tests that scan docs for secrets and credential-shaped URLs). No database or environment was accessed.
 
