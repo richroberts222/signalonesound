@@ -13,4 +13,5 @@ Code coverage is a **diagnostic quality signal**, not a goal in itself. Coverage
 * A coverage percentage never substitutes for meaningful behavioral testing. A line can be executed without its behavior being verified.
 * Do not write tests whose only purpose is to raise a number (assertion-free tests, tests of trivial getters, implementation-detail tests).
 * If a threshold is ever adopted, an authorizing issue must document it here; it should guard against meaningful regressions rather than demand a fixed percentage.
+* Coverage gaps are weighed with the Test Value Review (`test-value-review.md`): add a test only when it provides meaningful value.
 * Untested code is a prompt for judgment: add a test, accept the risk with a stated reason, or remove dead code.

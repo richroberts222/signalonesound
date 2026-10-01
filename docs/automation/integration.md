@@ -16,6 +16,7 @@ Integration tests verify meaningful boundaries with real interactions where appr
 * Prefer real collaborators inside the boundary under test; fake only what is outside it or non-deterministic/costly.
 * Each test sets up its own known state and does not depend on test order.
 * Do not duplicate what unit tests already prove; test the interaction.
+* Apply the Test Value Review (`test-value-review.md`) before adding tests; these tests are costlier than unit tests.
 
 ## Environment safety (always)
 

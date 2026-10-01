@@ -95,3 +95,31 @@ Commands run through `corepack pnpm` (`pnpm` is not on PATH, so the root `pnpm v
 3. Add `@clerk/expo`, then replace `noToken` and verify bearer auth against the API.
 4. Choose a logging system and swap the `reportUnexpectedError` sink.
 5. Remove the proof feature once real domain work begins.
+
+## 17. Test Value Review (retrospective) and test completion report
+
+New permanent rule: `docs/automation/test-value-review.md` (cross-referenced from `automation/README.md`, each layer doc, and `testing.md`). It is applied below to the tests added by this PR. No tests were removed or weakened; no test code changed.
+
+| Group | Layer | Behavior protected and why it matters | Criteria | Priority |
+| --- | --- | --- | --- | --- |
+| Acceptance suite (`proof-items.acceptance-suite.ts`, 9 tests; in memory by default, real DEV DB in integration run) | Acceptance (API level, lowest layer that can prove the criteria) | Authentication, input validation, no owner-field leak, per-user isolation, ownership authorization, conflict/cap rules, generic 500s. Security and data-integrity regressions here are customer-trust failures. | AC1 to AC9 | Critical |
+| Service tests (`services/proof-items.test.ts`, 6) | Unit | Business rules (cap boundary, ownership, lost-race delete, no delete when denied) with precise boundary cases that are cheap to pin down here. | AC4 to AC8 | High |
+| Shared contract/client tests (`validation/proof-item.test.ts`, 6) | Unit | One contract used by Web and Mobile: length bounds, uuid, no database-shaped extras, client never throws and validates responses. Drift here breaks every client. | AC2, AC3 | High |
+| Error-reporting tests (`api/report.test.ts`, 5) | Unit | Failures are reported server-side without message, cause, or stack (data-leak and observability guard), including the last-resort path. | AC9 | High |
+| DB integration (`db/proof-items.integration.test.ts`, 4, real DEV DB, fail-closed) | Integration | What fakes cannot show: real migration/schema, the unique constraint mapped to a sanitized error, owner-scoped delete in SQL. | AC3, AC5, AC8 | High |
+| E2E: signed-in journey (1) | E2E | The only test of the real browser + Clerk session + UI + API + DB together (the React panel has no component tests). | UI flow over AC2, AC3, AC5, AC7 | High; never executed yet (no Clerk test user) |
+| E2E: unauthenticated (2) | E2E | Real Clerk middleware protects `/proof` and the API answers the standard 401 envelope; fakes elsewhere cannot show the middleware wiring. | AC1 | Normal |
+| Mobile client tests (`proofClient.test.ts`, 3) | Unit | Mobile calls the absolute API URL with a bearer token and surfaces the standard error envelope. | AC3 | Normal |
+
+Layer choice: business rules and authorization sit in unit/acceptance because they are fast, deterministic, and exact. Integration is reserved for the database boundary. E2E is limited to three tests that need a real browser and middleware.
+
+Candidates for trimming (not removed; a human decision, and only worth acting on if maintenance cost bites):
+
+- E2E "API refuses anonymous callers": largely overlaps AC1 and `routes.test.ts`. It stays because it exercises the real Clerk middleware; Low-to-Normal.
+- Integration "a row created through the API exists in proof_item": overlaps the acceptance suite run against the DEV DB (AC3). It adds only an independent direct read of the table. Low; the first removal candidate.
+- Mobile "sends no Authorization header (noToken)": covers a temporary placeholder and should be deleted or replaced when Clerk is added to mobile. Low.
+- Partial overlap on duplicate-label (service test, AC5, DB unique test) is intentional: three different layers prove three different things (rule mapping, API result, real constraint). Kept.
+
+Intentionally not automated: React panel component tests (no DOM environment; the E2E journey covers the flow and the logic is thin), visual/styling checks, mobile device E2E, real bearer-token verification (needs Clerk for mobile). See section 13.
+
+Validation for this change: docs-only. See the PR comment for the commands run and results.

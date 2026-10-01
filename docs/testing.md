@@ -6,7 +6,7 @@ Vitest is the unit-test runner for every workspace that has tests (`packages/sha
 
 ## Philosophy and detailed rules
 
-This document is the high-level testing philosophy: tests protect the whole platform, verify behavior rather than implementation, are deterministic, and respect environment safety. Detailed per-layer rules live in `/docs/automation/` (`unit.md`, `integration.md`, `acceptance.md`, `e2e.md`, `playwright.md`, `coverage.md`, `reporting.md`).
+This document is the high-level testing philosophy: tests protect the whole platform, verify behavior rather than implementation, are deterministic, and respect environment safety. Detailed per-layer rules live in `/docs/automation/` (`test-value-review.md` (every new test or test group is justified before it is added), `unit.md`, `integration.md`, `acceptance.md`, `e2e.md`, `playwright.md`, `coverage.md`, `reporting.md`).
 
 Every feature has explicit acceptance criteria, derived tests, and an honest completion report (`/docs/automation/README.md`). Playwright is the preferred E2E framework but is not installed yet. Code coverage is a diagnostic signal; 100% is not required.
 

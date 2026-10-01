@@ -25,6 +25,10 @@ Native capabilities that may be used where appropriate:
 
 Choose a capability because the test requires it, not to add complexity. Examples: intercept the network only to simulate a failure or assert a request; capture traces/screenshots on failure rather than always; use device emulation for tests about responsive behavior.
 
+## Selectivity
+
+Playwright is capable of testing almost anything; that is not a reason to. Apply the Test Value Review (`test-value-review.md`) and `e2e.md` before adding a spec or test.
+
 ## Safety
 
 * Authentication state files and traces may contain tokens; never commit them. Keep them gitignored.
