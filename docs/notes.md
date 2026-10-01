@@ -52,6 +52,7 @@ Unit tests (fakes): success, validation failure with field errors, not found, fo
 1. **Resolved:** the `lib/security.test.ts` failure was this file containing a credential-shaped database URL; it was replaced with a description. Latest run (all package tests, lint, typecheck, `next build`) passes. Original note, kept for history: `lib/security.test.ts` flags `packages/shared/src/testing/index.ts` (it reads `process.env` via `globalThis` and contains a fake database URL, <DEV_DATABASE_URL>-style placeholder, not reproduced here). This file is untouched here; it appears to be an interaction between the testing-foundation and security-foundation merges. I did not modify it. CI `pnpm test:run` will fail until it is resolved. I did not run the suite on a clean `main` checkout to confirm, but the files named are not changed by this branch.
 2. No composition root or logging wiring yet; `onUnexpected` is the integration point.
 3. `AtomicRunner` batch statement type is derived from Drizzle's `batch` signature and tested only with fakes.
+4. **Pending manual change (not applied):** Claude Code Review fails on commits pushed by the Claude bot ("Workflow initiated by non-human actor: claude (type: Bot)"). The GitHub App used by Claude cannot edit `.github/workflows/`, so a maintainer must edit `.github/workflows/claude-code-review.yml` and add `allowed_bots: 'claude'` to the `with:` block of the "Run Claude Code Review" step (never `'*'`). Nothing else in the workflow changes. Remove this item once applied.
 
 ## 12. Recommended next steps
 
