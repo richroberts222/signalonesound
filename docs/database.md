@@ -433,6 +433,23 @@ Do not leave partially completed application state when atomic behavior is requi
 
 Transaction use should be driven by real consistency requirements rather than applied unnecessarily to every operation.
 
+Driver decision (Issue 23): Signal One keeps the `neon-http` driver. It is stateless and suited to Vercel serverless/edge. Its limitation is that it does **not** support interactive transactions (`db.transaction(...)` throws "No transactions support in neon-http driver"; this is asserted in `db/db.test.ts`). It does support `db.batch([...])`, which sends several statements in one HTTP request and executes them atomically in a single transaction. Rules:
+
+- Use `db.batch([...])` for atomic multi-statement writes whose statements do not depend on each other's results at runtime.
+- Do not call `db.transaction`. If a real requirement needs read-then-write logic inside one transaction, that is an architectural decision: switch that path (or the driver) to Neon's WebSocket `Pool` driver (`drizzle-orm/neon-serverless`), and document it here first. No such requirement exists today, so no driver change was made.
+
+Data-access helpers that accept a database handle should type it as `Database` (from `db/client.ts`) so they can be tested with a fake and reused if the driver later changes.
+
+## Database layer layout (`apps/web/db`)
+
+- `client.ts` - `createDb(url)` and the `Database` type; driver wiring only, not server-only (used by tooling and tests).
+- `index.ts` - **server-only** entry point. `getDb()` returns the lazily created, cached Drizzle instance from the validated environment (`db/env.ts`). Application code imports from here; it also re-exports `Database`, `DatabaseError`, `withDbErrors`, `checkDatabaseConnection`.
+- `errors.ts` - `DatabaseError` (sanitized message, categorized `kind` such as `unique_violation`, original error kept only as `cause`) and `withDbErrors(operation, fn)`. Data-access helpers wrap queries in it; business/service code maps `DatabaseError.kind` to application errors. Raw driver errors, SQL, and connection details must never reach clients.
+- `health.ts` - `checkDatabaseConnection(db)`, a read-only `SELECT 1`.
+- `schema.ts` - Drizzle schema (still domain-free).
+
+Domain data-access modules (for example `db/events.ts`, added with their schema) should be small functions taking no arguments beyond their inputs, calling `getDb()` and `withDbErrors`. No generic repository base class is provided or wanted.
+
 ---
 
 # 19. Database Portability
@@ -531,7 +548,7 @@ At the time this document is established:
 - Drizzle is the selected ORM/schema/migration layer.
 - Detailed Signal One application schema design is still to be developed.
 
-Code status (environment validation lives in `@signalone/shared`, see `/docs/environment.md`): `apps/web/db` contains `env.ts`, `index.ts` (server-only Drizzle client on `neon-http`), and an empty `schema.ts`. `apps/web/drizzle.config.ts` refuses `prod`. No migrations exist. `pnpm --filter web db:check` runs a read-only `SELECT 1` against `dev` only. Reset/seed tooling, a transaction helper, and a production migration procedure do not exist yet; see `/docs/boilerplate-gap-report.md`.
+Code status (environment validation lives in `@signalone/shared`, see `/docs/environment.md`): `apps/web/db` contains `env.ts`, `client.ts`, `index.ts` (server-only `getDb()` on `neon-http`), `errors.ts`, `health.ts`, and an empty `schema.ts` (see the layout in section 18). `apps/web/drizzle.config.ts` refuses `prod`. No migrations exist. `pnpm --filter web db:check` runs the read-only `SELECT 1` helper against `dev` only. Transactions are `db.batch` only (section 18). Reset/seed tooling and a production migration procedure do not exist yet; see `/docs/boilerplate-gap-report.md`.
 
 The existence of this document does not imply that every described database capability has already been implemented.
 

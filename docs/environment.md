@@ -82,7 +82,7 @@ Mobile uses the same `parseClientEnv` shape, fed from `EXPO_PUBLIC_*` variables 
 
 ## Testing
 
-`pnpm test` runs Vitest in `packages/shared` (`src/env.test.ts`, validation and guards) and `apps/web` (`lib/env/boundary.test.ts`, static checks that server env/db modules are `server-only`, client modules read no secrets, and no raw secret reads occur outside `lib/env`). Tests use fake values only.
+`pnpm test` runs Vitest in `packages/shared` (`src/env.test.ts`, validation and guards) and `apps/web` (`lib/env/boundary.test.ts`, static checks that server env/db modules are `server-only`, client modules read no secrets, and no raw secret reads occur outside `lib/env`). Tests use fake values only. A shared Vitest setup file clears `APP_ENV`, `DATABASE_ENV`, `DATABASE_URL`, and Clerk keys before each test so unit tests cannot reach Neon; see `/docs/testing.md`. `ci.yml` runs these without secrets.
 
 ## Decision: APP_ENV and DATABASE_ENV stay separate
 

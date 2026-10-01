@@ -22,7 +22,7 @@
 - No `vercel.json`; dashboard settings remain the source of Vercel config.
 - Stage hosting mechanism and promotion mechanism are left undecided and documented as such.
 
-## 8. Functional verification performed
+## 8. Security verification actually performed
 
 - Unit tests exercising Preview/QA rules, prod mismatch, prod-on-non-production-Vercel, live Clerk key guards.
 - Production `next build` with no environment variables set (confirms lazy validation; build does not need secrets).
