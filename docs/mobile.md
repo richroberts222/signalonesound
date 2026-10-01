@@ -74,6 +74,10 @@ Mobile is intentionally not part of `pnpm build` (that builds Web); `pnpm valida
 
 Vitest covers pure TypeScript only. React Native component tests are not set up (see `/docs/testing.md`). The app has not been run on a simulator/device in CI; only Metro bundling for both platforms has been verified.
 
+## API client (generic proof, Issue 49)
+
+Mobile calls the API through the same shared client as Web (`createApiClient` / `createProofItemClient` in `@signalone/validation`), configured in `src/proof/proofClient.ts` with `EXPO_PUBLIC_API_BASE_URL` and a token provider. `App.tsx` renders a minimal `ProofItemsScreen`. Until `@clerk/expo` is added the token provider is `noToken`, so a live call is answered `unauthenticated`. Verified: unit tests with a fake fetch (URL, bearer header, envelope validation), static boundary tests, and Metro bundling for Android and iOS. Not verified: running on a device/emulator and an authenticated call to a live server.
+
 ## Remaining scaffolding work
 
 1. Add `@clerk/expo`, secure token storage, and an API client once `/docs/api.md` and the auth contract exist.

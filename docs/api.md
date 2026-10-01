@@ -42,7 +42,7 @@ Every `/api` response is the shared `Result<T>` envelope as JSON (`@signalone/sh
 | `rate_limited` | 429 | Reserved; rate limiting is not implemented |
 | `internal` | 500 | Unexpected; always `"Something went wrong"` |
 
-Clients switch on `error.code`, not on message text or only on the status. Unexpected errors (including a failing identity provider) never expose stack traces, SQL, driver text, or secrets; the original error goes only to the `onUnexpected` hook (logging is not built yet, so it is currently a no-op). Do not return database row types; services map rows to stable output types (`/docs/services.md`).
+Clients switch on `error.code`, not on message text or only on the status. Unexpected errors (including a failing identity provider) never expose stack traces, SQL, driver text, or secrets; the original error goes only to the `onUnexpected` hook (wired to `reportUnexpectedError`, see below). Do not return database row types; services map rows to stable output types (`/docs/services.md`).
 
 ## Versioning
 
@@ -84,6 +84,33 @@ Add a unit/integration test through `createApiRoute` with a fake `getUserId` and
 
 `GET /api/v1/status` is a generic public endpoint (`{ status, version }`). `lib/api/api.test.ts` drives requests through the adapter with a generic test-only service (success, invalid/malformed/oversized input, 401, 403, 404, 409, unexpected 500, error serialization); `app/api/routes.test.ts` covers the real wiring and routing convention.
 
+## Vertical-slice proof: generic "proof item" (Issue 49)
+
+`/api/v1/proof-items` (`GET` list, `POST` create, `DELETE ?id=<uuid>`) is a deliberately generic, disposable feature proving Web/Mobile -> API -> auth -> validation -> service -> data access -> Drizzle -> Postgres. It is not a Signal One concept.
+
+| Layer | File |
+| --- | --- |
+| Contracts + shared client (client-safe) | `packages/validation/src/proof-item.ts`, `api-client.ts` |
+| Route definitions (reused by tests) | `apps/web/lib/api/proof-items.ts`; Next route `app/api/v1/proof-items/route.ts` |
+| Service (cap, ownership, authorization) | `apps/web/lib/services/proof-items.ts` |
+| Composition root | `apps/web/lib/composition.ts` |
+| Data access, table | `apps/web/db/proof-items.ts`, `db/schema.ts` (`proof_item`), migration `drizzle/0001_proof_item.sql` |
+| Web UI | `app/proof/page.tsx`, `components/proof/proof-items-panel.tsx` |
+| Mobile | `apps/mobile/src/proof/` |
+| Tests | `proof-items.acceptance-suite.ts` (+ `.acceptance.test.ts`, `db/proof-items.integration.test.ts`), `services/proof-items.test.ts`, `report.test.ts`, `e2e/proof-items.spec.ts` |
+
+Rules proven: caller-owned data only (list scoped; deleting another user's item is `403`, unknown `404`, malformed id `400`); per-user cap (`409`); unique `(owner, label)` (`409` generic `Conflict` from the database constraint); public item shape `{ id, label, createdAt }` independent of the row type.
+
+The shared client (`createApiClient`) is used identically by Web (`baseUrl: ""`, cookie session) and Mobile (absolute base URL, bearer token). It validates every response against the contract and never throws.
+
+### Removing the proof feature
+
+Delete the files above, the `proof_item` export in `db/schema.ts`, the `/proof(.*)` matcher in `proxy.ts`, the mobile `ProofItemsScreen` wiring in `App.tsx`, and add a migration that drops `proof_item`. The generic infrastructure (adapter, `createApiClient`, `reportUnexpectedError`, composition root pattern, Playwright/integration setup) stays.
+
+## Unexpected-error reporting
+
+`apiRoute` passes `reportUnexpectedError` (`lib/api/report.ts`) as the adapter's `onUnexpected` hook. It writes one structured stderr line with the error class and, for `DatabaseError`, the operation and kind only (never message, cause, stack, request data, or identity). This is a stopgap sink, not a logging system; replace the sink when one is chosen. The adapter also reports failures that escape the normal path (for example response serialization).
+
 ## Not decided yet
 
-Mobile token verification has not been exercised end to end (no Clerk-authenticated live call in CI); rate limiting; CORS; request IDs and logging; idempotency keys; pagination conventions beyond `Paginated<T>`; OpenAPI generation; a composition root for services.
+Mobile token verification has not been exercised end to end (no Clerk-authenticated live call in CI); rate limiting; CORS; request IDs and a real logging system; idempotency keys; pagination conventions beyond `Paginated<T>`; OpenAPI generation; path parameters in the adapter (the proof uses a query-string `id`).
