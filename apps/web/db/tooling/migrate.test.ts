@@ -9,7 +9,7 @@ import {
   readAppliedCreatedAt,
   readJournal,
   resolveMigrationTarget,
-  verifyMigrationProofSchema,
+  verifyMigrationState,
 } from "./migrate";
 
 const URL = "postgresql://example.invalid/db";
@@ -75,13 +75,15 @@ describe("database readers", () => {
     const exec = fakeExec((s) => (s.includes("information_schema") ? [{ "?column?": 1 }] : [{ created_at: "100" }]));
     expect(await readAppliedCreatedAt(exec)).toEqual([100]);
   });
-  it("verifies the proof schema and reports problems", async () => {
-    const good = fakeExec(() => [
-      { column_name: "id", data_type: "integer", is_nullable: "NO" },
-      { column_name: "note", data_type: "text", is_nullable: "NO" },
-    ]);
-    expect(await verifyMigrationProofSchema(good)).toEqual([]);
-    expect((await verifyMigrationProofSchema(fakeExec(() => []))).length).toBeGreaterThan(0);
+});
+
+describe("verifyMigrationState", () => {
+  const journal = [{ idx: 0, tag: "0000_a", when: 100 }];
+  it("passes only when nothing is pending and no history is unknown", () => {
+    expect(verifyMigrationState(computeStatus(journal, [100]))).toEqual([]);
+    expect(verifyMigrationState(computeStatus([], []))).toEqual([]);
+    expect(verifyMigrationState(computeStatus(journal, []))[0]).toMatch(/pending/);
+    expect(verifyMigrationState(computeStatus(journal, [100, 999]))[0]).toMatch(/not in the committed journal/);
   });
 });
 
@@ -89,7 +91,6 @@ describe("committed migration foundation", () => {
   it("has a committed journal whose SQL files exist", () => {
     const folder = path.join(webRoot, "drizzle");
     const journal = readJournal(folder);
-    expect(journal.length).toBeGreaterThan(0);
     for (const entry of journal) expect(existsSync(path.join(folder, `${entry.tag}.sql`))).toBe(true);
   });
   it("never exposes drizzle-kit push as a package script", () => {

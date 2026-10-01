@@ -109,4 +109,4 @@ The API foundation (`/docs/api.md`) implements the authenticate, validate, autho
 
 ## Gaps (not yet implemented)
 
-Rate limiting, security headers/CSP, audit logging, and automated dependency scanning in CI are not configured. See `/docs/boilerplate-gap-report.md`.
+Rate limiting, security headers/CSP, audit logging, and automated dependency scanning in CI are not configured.<!-- boilerplate:template:start --> See `/docs/boilerplate-gap-report.md`.<!-- boilerplate:template:end -->

@@ -71,9 +71,9 @@ Add a helper only when at least two tests need it.
 
 ## Database-backed integration tests and E2E (implemented, Issue 49)
 
-* `pnpm --filter web test:integration` runs `*.integration.test.ts` with `vitest.integration.config.mts` (it loads `apps/web/.env.local` but not the env-clearing setup). Tests refuse unless `DATABASE_ENV` is `dev`/`qa` (via `assertDestructiveAllowed`), `APP_ENV` matches, and Vercel is unset. Migrations must be applied first (`db:migrate -- --env=dev`). Test data uses unique `proof_it_*` owner ids and is removed afterwards.
-* `pnpm --filter web test:e2e` runs Playwright (`/docs/automation/playwright.md`).
-* The acceptance criteria of the proof feature (AC1 to AC9, listed in `lib/api/proof-items.acceptance-suite.ts`) run in memory in `pnpm test` and against the real database in the integration run.
+* `pnpm --filter web test:integration` runs `*.integration.test.ts` with `vitest.integration.config.mts` (it loads `apps/web/.env.local` but not the env-clearing setup). Tests refuse unless `DATABASE_ENV` is `dev`/`qa` (via `assertDestructiveAllowed`), `APP_ENV` matches, and Vercel is unset. Migrations must be applied first (`db:migrate -- --env=dev`). Test data must use unique owner ids and be removed afterwards.
+* `pnpm --filter web test:e2e` runs Playwright (`/docs/automation/playwright.md`).<!-- boilerplate:proof:start -->
+* The acceptance criteria of the proof feature (AC1 to AC9, listed in `lib/api/proof-items.acceptance-suite.ts`) run in memory in `pnpm test` and against the real database in the integration run.<!-- boilerplate:proof:end -->
 * Neither command is in `pnpm test`/`validate`, and neither runs in CI yet (the secret-free `validate` job is unchanged; a separate job with a dev/qa secret is a human workflow change).
 
 Original requirements, still binding for any new database-backed tests:

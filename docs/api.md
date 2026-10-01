@@ -84,6 +84,7 @@ Add a unit/integration test through `createApiRoute` with a fake `getUserId` and
 
 `GET /api/v1/status` is a generic public endpoint (`{ status, version }`). `lib/api/api.test.ts` drives requests through the adapter with a generic test-only service (success, invalid/malformed/oversized input, 401, 403, 404, 409, unexpected 500, error serialization); `app/api/routes.test.ts` covers the real wiring and routing convention.
 
+<!-- boilerplate:proof:start -->
 ## Vertical-slice proof: generic "proof item" (Issue 49)
 
 `/api/v1/proof-items` (`GET` list, `POST` create, `DELETE ?id=<uuid>`) is a deliberately generic, disposable feature proving Web/Mobile -> API -> auth -> validation -> service -> data access -> Drizzle -> Postgres. It is not a Signal One concept.
@@ -106,6 +107,8 @@ The shared client (`createApiClient`) is used identically by Web (`baseUrl: ""`,
 ### Removing the proof feature
 
 Delete the files above, the `proof_item` export in `db/schema.ts`, the `/proof(.*)` matcher in `proxy.ts`, the mobile `ProofItemsScreen` wiring in `App.tsx`, and add a migration that drops `proof_item`. The generic infrastructure (adapter, `createApiClient`, `reportUnexpectedError`, composition root pattern, Playwright/integration setup) stays.
+
+<!-- boilerplate:proof:end -->
 
 ## Unexpected-error reporting
 

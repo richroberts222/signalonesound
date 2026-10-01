@@ -7,13 +7,13 @@ import { reportUnexpectedError } from "./report";
 describe("reportUnexpectedError", () => {
   it("records only the error class and database operation/kind, never message, cause, or stack", () => {
     const write = vi.fn();
-    const error = new DatabaseError("connection", "proofItem.insert", new Error("postgres://user:pw@host/db"));
+    const error = new DatabaseError("connection", "item.insert", new Error("postgres://user:pw@host/db"));
     reportUnexpectedError(error, write);
     const line = write.mock.calls[0][0] as string;
     expect(JSON.parse(line)).toEqual({
       event: "api.unexpected_error",
       errorName: "DatabaseError",
-      dbOperation: "proofItem.insert",
+      dbOperation: "item.insert",
       dbKind: "connection",
     });
     expect(line).not.toMatch(/postgres|pw|host|at /);

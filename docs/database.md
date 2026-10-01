@@ -369,7 +369,7 @@ Commands (run from the repo root; `--env` is mandatory for the ones that connect
 pnpm --filter web db:generate --name=<slug>          # schema.ts -> new SQL migration (no DB changes)
 pnpm --filter web db:migrate --env=dev|qa|stage      # apply pending migrations (idempotent)
 pnpm --filter web db:migrate:status --env=...        # read-only: applied vs pending
-pnpm --filter web db:migrate:verify --env=...        # read-only: schema check (currently the proof table)
+pnpm --filter web db:migrate:verify --env=...        # read-only: nothing pending, no unknown history
 ```
 
 Guard (`resolveMigrationTarget`) mirrors the reset/seed guard and fails closed before any connection: `DATABASE_ENV`/`DATABASE_URL` must validate; `APP_ENV`, if set, equals `DATABASE_ENV`; `VERCEL_ENV` unset; target in `dev|qa|stage` (`prod` always refused); `--env` equals `DATABASE_ENV`. Safety is never inferred from `DATABASE_URL`. The runner also refuses to apply when the database history contains migrations unknown to the committed journal.
@@ -618,7 +618,7 @@ At the time this document is established:
 - Drizzle is the selected ORM/schema/migration layer.
 - Detailed Signal One application schema design is still to be developed.
 
-Code status (environment validation lives in `@signalone/shared`, see `/docs/environment.md`): `apps/web/db` contains `env.ts`, `client.ts`, `index.ts` (server-only `getDb()` on `neon-http`), `errors.ts`, `health.ts`, and `schema.ts` (domain-free; contains only the generic `migration_proof` table used to prove migrations; see the layout in section 18). `apps/web/drizzle.config.ts` refuses `prod`. One migration exists (`0000_migration_proof`), applied to `dev` only; qa, stage and prod have not been migrated. `pnpm --filter web db:check` runs the read-only `SELECT 1` helper against `dev` only. Transactions are `db.batch` only (section 18). Reset/seed tooling exists (sections 12.1-12.2, `db/tooling`, `db:reset|seed|refresh`); migration tooling exists (section 12.3) but the production application procedure is not automated; see `/docs/boilerplate-gap-report.md`.
+Code status (environment validation lives in `@signalone/shared`, see `/docs/environment.md`): `apps/web/db` contains `env.ts`, `client.ts`, `index.ts` (server-only `getDb()` on `neon-http`), `errors.ts`, `health.ts`, and `schema.ts` (domain-free; see the layout in section 18).<!-- boilerplate:proof:start --> It currently contains only the generic proof tables `migration_proof` and `proof_item` (migrations `0000_migration_proof`, `0001_proof_item`), applied to `dev` only; qa, stage and prod have not been migrated.<!-- boilerplate:proof:end --> `apps/web/drizzle.config.ts` refuses `prod`. `pnpm --filter web db:check` runs the read-only `SELECT 1` helper against `dev` only. Transactions are `db.batch` only (section 18). Reset/seed tooling exists (sections 12.1-12.2, `db/tooling`, `db:reset|seed|refresh`); migration tooling exists (section 12.3) but the production application procedure is not automated.<!-- boilerplate:template:start --> See `/docs/boilerplate-gap-report.md`.<!-- boilerplate:template:end -->
 
 The existence of this document does not imply that every described database capability has already been implemented.
 

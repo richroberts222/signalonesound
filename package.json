@@ -10,6 +10,9 @@
     "test": "pnpm -r --if-present test",
     "test:run": "pnpm -r --if-present test",
     "test:watch": "pnpm -r --parallel --if-present test:watch",
-    "validate": "pnpm lint && pnpm typecheck && pnpm test:run && pnpm build"
+    "init:app": "node scripts/boilerplate/init-app.mjs",
+    "check:boilerplate": "node scripts/boilerplate/check-boilerplate.mjs",
+    "test:boilerplate": "node --test scripts/boilerplate/boilerplate.test.mjs",
+    "validate": "pnpm lint && pnpm typecheck && pnpm test:run && pnpm test:boilerplate && pnpm build"
   }
 }

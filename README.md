@@ -69,7 +69,11 @@ pnpm --filter web db:generate   # generate SQL migrations from apps/web/db/schem
 pnpm --filter web db:migrate    # apply committed migrations
 ```
 
-No application tables exist yet. See [`docs/database.md`](docs/database.md) for the migration workflow.
+See [`docs/database.md`](docs/database.md) for the migration workflow.<!-- boilerplate:template:start -->
+
+## Starting a new application from this boilerplate
+
+Signal One is the reference implementation. To create a different application from it, follow [`docs/boilerplate.md`](docs/boilerplate.md) (`pnpm init:app`), then [`docs/new-app-setup.md`](docs/new-app-setup.md) for the Clerk, Neon, Vercel, and Expo/EAS steps that need a human.<!-- boilerplate:template:end -->
 
 ## Development workflow
 
@@ -90,4 +94,4 @@ docs                Architecture and project rules (source of truth)
 
 ## Documentation index
 
-[`architecture-rules`](docs/architecture-rules.md) · [`auth`](docs/auth.md) · [`database`](docs/database.md) · [`data-fetching`](docs/data-fetching.md) · [`data-mutations`](docs/data-mutations.md) · [`shared-code`](docs/shared-code.md) · [`security`](docs/security.md) · [`testing`](docs/testing.md) · [`deployment`](docs/deployment.md) · [`mobile`](docs/mobile.md) · [`web`](docs/web.md) · [`ui`](docs/ui.md) · [`git-workflow`](docs/git-workflow.md) · [`boilerplate-gap-report`](docs/boilerplate-gap-report.md) · [`boilerplate-references-report`](docs/boilerplate-references-report.md)
+[`architecture-rules`](docs/architecture-rules.md) · [`auth`](docs/auth.md) · [`database`](docs/database.md) · [`data-fetching`](docs/data-fetching.md) · [`data-mutations`](docs/data-mutations.md) · [`shared-code`](docs/shared-code.md) · [`security`](docs/security.md) · [`testing`](docs/testing.md) · [`deployment`](docs/deployment.md) · [`mobile`](docs/mobile.md) · [`web`](docs/web.md) · [`ui`](docs/ui.md) · [`git-workflow`](docs/git-workflow.md) · [`new-app-setup`](docs/new-app-setup.md)<!-- boilerplate:template:start --> · [`boilerplate`](docs/boilerplate.md) · [`boilerplate-gap-report`](docs/boilerplate-gap-report.md) · [`boilerplate-references-report`](docs/boilerplate-references-report.md)<!-- boilerplate:template:end -->

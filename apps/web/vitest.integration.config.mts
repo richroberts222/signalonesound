@@ -15,5 +15,7 @@ export default defineConfig({
     testTimeout: 30_000,
     // One file at a time: tests share one database.
     fileParallelism: false,
+    // A new application has none until it adds a database-backed boundary test.
+    passWithNoTests: true,
   },
 });

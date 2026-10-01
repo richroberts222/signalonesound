@@ -48,7 +48,7 @@ Note: `@signalone/shared` includes pure server/database env parsers. They are bu
 * Only client-safe values belong in `EXPO_PUBLIC_*`. Never put `DATABASE_URL`, `CLERK_SECRET_KEY`, or any secret in the Expo config, `eas.json`, or `.env` files shipped with the app.
 * Local setup: copy `apps/mobile/.env.example` to `apps/mobile/.env.local` (gitignored).
 * The API base URL is per environment (`dev`, `qa`, `stage`, `prod`); no production URL is the default in development builds.
-* App name, slug, scheme, and bundle/application identifiers come from a single config (`app.config.ts`) and are boilerplate placeholders (`com.example.signalone`; `/docs/boilerplate-references-report.md`).
+* App name, slug, scheme, and bundle/application identifiers come from a single config (`app.config.ts`) and are set when the application is initialized (`/docs/new-app-setup.md`).
 
 ## Commands
 
@@ -74,9 +74,12 @@ Mobile is intentionally not part of `pnpm build` (that builds Web); `pnpm valida
 
 Vitest covers pure TypeScript only. React Native component tests are not set up (see `/docs/testing.md`). The app has not been run on a simulator/device in CI; only Metro bundling for both platforms has been verified.
 
+<!-- boilerplate:proof:start -->
 ## API client (generic proof, Issue 49)
 
 Mobile calls the API through the same shared client as Web (`createApiClient` / `createProofItemClient` in `@signalone/validation`), configured in `src/proof/proofClient.ts` with `EXPO_PUBLIC_API_BASE_URL` and a token provider. `App.tsx` renders a minimal `ProofItemsScreen`. Until `@clerk/expo` is added the token provider is `noToken`, so a live call is answered `unauthenticated`. Verified: unit tests with a fake fetch (URL, bearer header, envelope validation), static boundary tests, and Metro bundling for Android and iOS. Not verified: running on a device/emulator and an authenticated call to a live server.
+
+<!-- boilerplate:proof:end -->
 
 ## Remaining scaffolding work
 
