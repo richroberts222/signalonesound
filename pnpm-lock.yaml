@@ -217,6 +217,9 @@ importers:
       '@signalone/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@signalone/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -253,6 +256,9 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
+      zod:
+        specifier: ^4
+        version: 4.6.5
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4

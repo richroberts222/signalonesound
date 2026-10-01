@@ -95,7 +95,9 @@ Only the server holds a connection string, one per environment, matching `DATABA
   * `actions/checkout@v4` and `anthropics/claude-code-action@v1` use floating tags; pinning to commit SHAs is recommended.
   * `claude-code-review.yml` correctly has read-only contents/PR/issue permissions.
 
-### Future API and mobile expectations
+### API and mobile expectations
+
+The API foundation (`/docs/api.md`) implements the authenticate, validate, authorize-in-service, safe-`Result` sequence below for `/api/v1`. Not yet in place: rate limiting, CORS, request logging.
 
 * API endpoints and Server Actions: authenticate, validate input with Zod, authorize per resource, return safe `Result`/`AppError` failures, fail closed (deny on error/unknown). Never trust client-supplied user IDs, roles, or environment.
 * Mobile: bundles are public; `EXPO_PUBLIC_*` only for publishable values; no secrets in Expo config; tokens in secure storage; mobile talks to the API only.

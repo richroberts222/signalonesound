@@ -1,55 +1,62 @@
-# Notes: Issue 44 "Establish Automation Testing Architecture and Future Quality Ideas"
+# Notes: Issue 47 "Build and Prove Reusable API Foundation"
 
-1. Issue: #44 "Establish Automation Testing Architecture and Future Quality Ideas"
-2. PR: none yet at time of writing (open one from this branch; further @claude requests should come from that PR).
-3. Canonical branch: `claude/issue-44-20261001-1805`, base `main`. Not merged.
+1. Issue: #47 "Build and Prove Reusable API Foundation"
+2. PR: none yet at time of writing (open one from this branch).
+3. Canonical branch: `claude/issue-47-20261001-1847`, base `main`. Not merged.
 4. Latest commit: the commit containing this file; see `git log -1` on the branch.
 
 ## 5. Work completed
 
-Documentation only.
-
-- Added `docs/automation/` (rules): `README.md` (index, layers, feature completion rule, non-negotiables), `unit.md`, `integration.md`, `acceptance.md`, `e2e.md`, `playwright.md`, `coverage.md`, `reporting.md`.
-- Added `docs/ideas/` (future ideas, not requirements): `README.md` (states ideas are NOT requirements and need an explicit issue), `product-analytics.md`, `heatmaps-and-session-replay.md`, `automation-prioritization.md` (includes the possible future quality report), `observability.md` (vendor-neutral).
-- Updated `docs/testing.md`: added a philosophy/pointer section to `/docs/automation/` and `/docs/ideas/`; E2E row now names Playwright as preferred but not installed.
+- `apps/web/lib/api/handler.ts`: framework-free HTTP adapter `createApiRoute({ getUserId, onUnexpected })`. Lifecycle: authenticate, parse and validate (body JSON or query, size-capped), call service through `runService`, serialize the shared `Result` envelope with mapped HTTP status, `Cache-Control: no-store`, and `X-API-Version`.
+- `apps/web/lib/api/route.ts`: `server-only` production wiring to Clerk `getUserId`.
+- `GET /api/v1/status`: generic public endpoint (`{ status, version }`).
+- `app/api/[...path]/route.ts`: unknown paths/versions under `/api` return the standard `not_found` envelope.
+- `apps/web` now depends on `@signalone/validation` and `zod` (workspace/lockfile updated); `transpilePackages` includes `@signalone/validation`.
+- Docs: wrote `docs/api.md` (was empty); updated `docs/services.md` and `docs/security.md` pointers.
 
 ## 6. Files changed
 
-`docs/automation/*.md` (8 new), `docs/ideas/*.md` (5 new), `docs/testing.md`, `docs/notes.md`.
+`apps/web/lib/api/{handler,route,api.test}.ts`, `apps/web/app/api/v1/status/route.ts`, `apps/web/app/api/[...path]/route.ts`, `apps/web/app/api/routes.test.ts`, `apps/web/package.json`, `apps/web/next.config.ts`, `pnpm-lock.yaml`, `docs/api.md`, `docs/services.md`, `docs/security.md`, `docs/notes.md`.
 
 ## 7. Architectural decisions
 
-- Rules (`docs/automation`) are kept separate from ideas (`docs/ideas`); ideas never authorize implementation.
-- Playwright is the preferred E2E framework, with native capabilities not hidden behind a restrictive wrapper. Not installed.
-- Coverage is diagnostic; 100% is not required.
-- Observability and analytics stay vendor-neutral; no vendor chosen.
+- Reused `runService`/`toAppError`, `Result`/`AppError`, `parseInput`, `CURRENT_API_VERSION`; no competing abstractions.
+- Authentication runs before validation; authorization stays in services (adapter only maps `ForbiddenError`).
+- `/api/v1/` folder versioning, additive-only within a version; new `/api/v2` for breaking changes.
+- HTTP statuses map from `ErrorCode` (`STATUS_BY_CODE`); clients switch on `error.code`.
+- The adapter takes `getUserId` as a dependency so it is testable and Clerk/Next-free; Clerk wiring is isolated in `route.ts`.
+- No database schema change, no domain roles/permissions, no domain endpoints.
 
-No code, dependency, workflow, database, or telemetry changes.
+## 8. Functional proof performed
 
-## 8. Functional verification performed (DEV only)
+Tests drive real `Request` objects through the adapter into a generic test-only service (no domain entity) and assert on real `Response` objects, plus the real `status` and fallback route modules with Clerk mocked. No live HTTP server and no database were used.
 
-Documentation only; verified by repository validation (including the static security tests that scan docs for secrets and credential-shaped URLs). No database or environment was accessed.
+## 9. Test/lint/typecheck/build results
 
-## 9. Test/lint/typecheck/build results (latest run)
+Commands run through `corepack pnpm` (`pnpm` is not on PATH):
 
-`pnpm` is not on PATH, so commands were run through `corepack pnpm`:
-
-- `corepack pnpm install --frozen-lockfile`: succeeded.
-- `corepack pnpm -r --if-present test`: apps/web 6 files, 71 passed; packages/validation 2 files, 18 passed; apps/mobile 2 files, 7 passed; all workspaces reported Done (the shared package's output was cut off by `tail`, but no failure was reported).
-- `corepack pnpm -r --if-present lint`: clean.
-- `corepack pnpm -r --if-present typecheck`: clean.
-- `build`: NOT run (docs-only change; the root `pnpm validate` script also fails here because the nested `pnpm` is not on PATH).
+- `apps/web` tests: 9 files, 103 passed (32 new tests across `api.test.ts` and `routes.test.ts` are included; the figure was taken before the final full-repo run below).
+- `pnpm -r --if-present typecheck`: clean.
+- `pnpm -r --if-present lint`: clean.
+- `next build` in `apps/web`: succeeded; routes `/api/[...path]` and `/api/v1/status` listed.
 
 ## 10. Not tested, and why
 
-- `next build` was not run; no code changed.
-- Root `pnpm validate` was not run as a single command (PATH issue above).
+- Live HTTP against `next start`: started it, but `curl` was not permitted in this environment, so it was stopped.
+- Real Clerk authentication (session or mobile bearer token): needs real keys; Clerk is mocked in tests.
+- Root `pnpm validate` as one command (nested `pnpm` not on PATH).
+- Database access: the proof does not touch a database; no DEV/STAGE/PROD data was modified.
 
 ## 11. Unresolved concerns
 
-None specific to this change. Documented tooling (Playwright, coverage, integration/acceptance commands) does not exist yet by design.
+- Mobile bearer-token verification through `auth()` is expected but not proven end to end.
+- `onUnexpected` is a no-op until a logging foundation exists, so unexpected errors are currently not recorded anywhere.
+- No rate limiting, CORS, or request IDs.
+- Route files use relative imports because Vitest has no `@/` alias.
 
 ## 12. Recommended next steps
 
 1. Open the PR and review.
-2. When authorized by separate issues: install Playwright, add coverage tooling, and add `test:integration`.
+2. Add a logging foundation and wire it to `onUnexpected`.
+3. Verify mobile bearer-token auth against a real Clerk dev instance.
+4. Add the first real domain endpoint only under its own issue.

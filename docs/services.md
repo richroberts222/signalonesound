@@ -65,7 +65,7 @@ const result = await runService(() => someService.op(createServiceContext(userId
 // then revalidate/redirect based on result
 ```
 
-A future API route or mobile endpoint does the same with a JSON body and the Clerk token-verified user ID, then maps `result.error.code` to HTTP status. The service and its tests are identical for both. Conventions for routes belong in `/docs/api.md`.
+A future API route or mobile endpoint does the same with a JSON body and the Clerk token-verified user ID, then maps `result.error.code` to HTTP status. The service and its tests are identical for both. Route conventions (adapter, lifecycle, status mapping, versioning) are in `/docs/api.md`; `createApiRoute` in `lib/api/` performs the steps above.
 
 ## Testing
 
@@ -77,4 +77,4 @@ The folder has no Signal One domain code and depends only on `@signalone/shared`
 
 ## Not decided yet
 
-Logging integration, a real composition root, an API route convention, and whether services should later move to a shared package for non-Next consumers.
+Logging integration, a real composition root, and whether services should later move to a shared package for non-Next consumers.
