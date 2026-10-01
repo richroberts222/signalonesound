@@ -13,6 +13,10 @@ Clerk is integrated in the Web app (see `/docs/auth.md`). Drizzle ORM and the Ne
 
 Shared packages (`packages/shared`, `packages/validation`) exist but are not yet imported by the Web app. Add them to `transpilePackages` in `next.config.ts` at first import (see `/docs/shared-code.md`).
 
+## Service layer
+
+Business rules live in `apps/web/lib/services/` conventions (typed inputs, `ServiceContext`, `runService()` result mapping, injected data access and atomic runner), not in components, route handlers, or Server Actions. See `/docs/services.md`.
+
 ## Agent instructions
 
 Next.js 16's automatic `AGENTS.md`/`CLAUDE.md` generation (`next dev`) is intentionally disabled via `agentRules: false` in `apps/web/next.config.ts`. Those files are not authoritative for this project: the root `CLAUDE.md` and `/docs` are the sole source of project guidance. `apps/web/AGENTS.md` and `apps/web/CLAUDE.md` are gitignored as a safety net in case this is ever re-enabled.

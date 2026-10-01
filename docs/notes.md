@@ -1,61 +1,60 @@
-# Notes: Issue 28 "Build Reusable Authentication and Authorization Helpers"
+# Notes: Issue 38 "Build Reusable Business and Service Layer Foundation"
 
-1. Issue: #28 "Build Reusable Authentication and Authorization Helpers"
+1. Issue: #38 "Build Reusable Business and Service Layer Foundation"
 2. PR: none yet at time of writing (open one from this branch; further @claude requests should come from that PR).
-3. Canonical branch: `claude/issue-28-20261001-0635`, base `main` (`5a0b76a`). Not merged.
+3. Canonical branch: `claude/issue-38-20261001-1233`, base `main` (`6ed0608`). Not merged.
 4. Latest commit: the commit containing this file; see `git log -1` on the branch.
 
 ## 5. Work completed
 
-- Added `apps/web/lib/auth/`:
-  - `server.ts` (server-only): `getUserId()`, `requireUserId()` wrapping Clerk `auth()`.
-  - `authorize.ts` (pure): `Actor`, `Rule`, `can`, `authorize`, `isOwner`, `anyOf`, `allOf`.
-  - `errors.ts`: `UnauthenticatedError` (401), `ForbiddenError` (403), `isAuthError`.
-  - `index.ts`: client-safe barrel (no server helpers).
-  - `auth.test.ts`: 13 tests.
-- Documented the helpers, conventions, and future API/mobile/error/database integration in `docs/auth.md` (Appendix, new "Server-side auth and authorization helpers" subsection).
+- Added `apps/web/lib/services/` (framework-free service-layer foundation):
+  - `context.ts`: `ServiceContext` (`{ actor }`), `createServiceContext(userId)`.
+  - `errors.ts`: `ServiceError`, `notFound()`, `conflict()`, `validationFailed()`.
+  - `run.ts`: `toAppError()`, `runService()` mapping thrown failures to the shared `Result<T>`/`AppError`.
+  - `atomic.ts`: `AtomicRunner` + `createAtomicRunner(db)` wrapping `db.batch` with `withDbErrors`.
+  - `index.ts` barrel; `services.test.ts` (generic placeholder "Item" example with fakes, error mapping, atomic runner, static boundary checks).
+- Added `docs/services.md` (where logic belongs, conventions, transactions, web/API/mobile consumption, testing, undecided items); cross-references in `docs/web.md` and `docs/auth.md`.
 
 ## 6. Files changed
 
-`apps/web/lib/auth/{server,authorize,errors,index}.ts`, `apps/web/lib/auth/auth.test.ts`, `docs/auth.md`, `docs/notes.md`.
+`apps/web/lib/services/{context,errors,run,atomic,index}.ts`, `apps/web/lib/services/services.test.ts`, `docs/services.md`, `docs/web.md`, `docs/auth.md`, `docs/notes.md`.
 
 ## 7. Architecture decisions
 
-- Identity helpers take no arguments; identity only from Clerk server context.
-- Authorization is pure, deny-by-default rules `(actor, resource) => boolean`; a throwing rule denies; only strict `true` allows. No domain roles/permissions defined.
-- Clerk-dependent code is isolated in `server.ts` behind `server-only`; the barrel exports only client-safe code.
-- Errors are generic and carry a stable `code`; mapping to standard application errors is deferred to the logging/error-handling work.
-- No DB, schema, migrations, API routes, or mobile changes. No new dependencies. Existing pages were not changed to use the helpers.
+- Services are plain functions/factories taking `(ctx: ServiceContext, input)`; identity only from `ctx`, never input. No FormData/Request/Next/React/Clerk/Drizzle-client imports in service code (type-only `Database` import allowed; enforced by test).
+- Dependencies injected via factory arguments (data-access, `AtomicRunner`, clock/ID). No DI framework.
+- Errors: expected failures throw `ServiceError`/`ForbiddenError`; `runService()` converts to shared `Result`. `DatabaseError` `unique_violation` maps to `conflict`; everything else to generic `internal`. Original error goes only to an optional `onUnexpected` hook (no logging foundation exists to integrate).
+- Transactions: because `neon-http` has no interactive transactions, atomic work is a `db.batch` supplied as an injected `AtomicRunner`; consistent with `docs/database.md` section 18. Read-then-write transactions remain an undecided driver question.
+- No new dependencies, no root/shared package changes, no API routes, no DB/seed/reset or mobile changes, no domain features.
 
-## 8. Security verification actually performed
+## 8. Functional verification performed
 
-- Unit tests with Clerk mocked (`vi.mock`): authenticated accepted, unauthenticated and empty ID rejected, extra caller-supplied ID ignored, ownership allow/deny, missing owner, throwing rule, composition, error semantics, static boundary checks.
-- `next build` succeeded.
+Unit tests (fakes): success, validation failure with field errors, not found, forbidden for non-owner, ownership derived from context, statements run through the atomic runner once, DB errors not leaked, `toAppError` mappings, `createAtomicRunner` batch call and `DatabaseError` wrapping, static import/boundary checks.
 
 ## 9. Test/lint/typecheck/build results (latest run)
 
-Root `pnpm` scripts could not be used because `pnpm` is not on PATH in the sandbox (`corepack pnpm install --frozen-lockfile` worked); the equivalent package-level commands were run instead:
+`pnpm` is not on PATH; `corepack pnpm install --frozen-lockfile` succeeded and package-level commands were run instead (root `pnpm validate` was not run):
 
-- `npx vitest run` in `apps/web`: 2 files, 17 tests passed.
-- `npx vitest run` in `packages/shared`: 1 file, 22 tests passed.
-- `npx eslint` in `apps/web`: no output (clean).
-- `npx next typegen && npx tsc --noEmit` in `apps/web`: no errors.
-- `npx next build` in `apps/web`: compiled successfully, TypeScript passed, 5 routes generated.
+- `npx vitest run` in `apps/web`: 5 files; 56 passed, **2 failed** (both in `lib/security.test.ts`, see concern 1). All new `services.test.ts` tests pass.
+- `npx vitest run` in `packages/shared`: 3 files, 31 passed.
+- `npx vitest run` in `packages/validation`: 1 file, 8 passed.
+- `npx eslint` in `apps/web`: clean.
+- `npx next typegen && npx tsc --noEmit` in `apps/web`: no errors. `tsc --noEmit` in `packages/shared` and `packages/validation`: no errors.
+- `npx next build` in `apps/web`: succeeded, 5 routes.
 
 ## 10. Not tested, and why
 
-- Real Clerk end-to-end authentication: no real Clerk accounts/keys used; Clerk is mocked.
-- `server-only` import enforcement inside a real client bundle: checked statically and via the Next build only; no deliberate violating import was built.
-- No production data accessed.
+- Database-backed behavior of `createAtomicRunner` against real Neon (no DB integration test tooling exists; only a fake `batch`).
+- Real Clerk, API routes, and mobile consumption (none exist in scope).
 
 ## 11. Unresolved concerns
 
-- The helpers are not yet used by any route/service (none exists yet); the first protected mutation/API should adopt them.
-- `Rule` returning non-boolean is denied at runtime but typed as boolean only.
-- Mobile/API token-based request authentication path is documented, not verified.
+1. **Failing tests not caused by this change:** `lib/security.test.ts` flags `packages/shared/src/testing/index.ts` (it reads `process.env` via `globalThis` and contains the fake URL `postgresql://test:fake-password@db.invalid/test`). This file is untouched here; it appears to be an interaction between the testing-foundation and security-foundation merges. I did not modify it. CI `pnpm test:run` will fail until it is resolved. I did not run the suite on a clean `main` checkout to confirm, but the files named are not changed by this branch.
+2. No composition root or logging wiring yet; `onUnexpected` is the integration point.
+3. `AtomicRunner` batch statement type is derived from Drizzle's `batch` signature and tested only with fakes.
 
 ## 12. Recommended next steps
 
-1. Open the PR from this branch and review.
-2. Adopt `requireUserId()` + `authorize()` in the first protected server mutation.
-3. When logging/error handling merges, map the two errors to standard application errors.
+1. Resolve the pre-existing `security.test.ts` failures (separate fix).
+2. Open the PR and review.
+3. Build the first real domain service on these conventions together with its data-access helpers, and add an API route convention in `docs/api.md`.
