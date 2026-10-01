@@ -1,61 +1,56 @@
-# Notes: Issue 23 "Build Reusable Database Helpers Foundation"
+# Notes: Issue 25 "Build Reusable Testing Foundation"
 
-1. Issue: #23 "Build Reusable Database Helpers Foundation"
-2. PR: none yet at time of writing (open one from this branch; further @claude requests should come from that PR).
-3. Canonical branch: `claude/issue-23-20261001-0628`, base `main`. Not merged.
-4. Latest commit: the commit containing this file (base was `5a0b76a`); see `git log -1` on the branch.
+1. Issue: #25 "Build Reusable Testing Foundation"
+2. PR: #31 (open). Not merged; the human is the merge gate.
+3. Canonical branch: `claude/issue-25-20261001-0632`, base `main`. Conflict with `main` resolved by the human (merge commit `ff76131`).
+4. Latest commit: the commit containing this file; see `git log -1` on the branch.
 
 ## 5. Work completed
 
-- Split the DB layer in `apps/web/db`: `client.ts` (`createDb`, `Database` type), `index.ts` (server-only lazy cached `getDb()`; replaces the eager `db` export, which nothing imported), `errors.ts` (`DatabaseError`, `withDbErrors`, Postgres-code categorization, sanitized messages), `health.ts` (`checkDatabaseConnection`, read-only `SELECT 1`).
-- `scripts/db-check.ts` now uses `createDb` + `checkDatabaseConnection` (still dev-only guard).
-- Driver review: kept `neon-http`. Confirmed in drizzle source and a test that `db.transaction` throws; `db.batch` provides atomic non-interactive transactions. No driver change; no requirement for interactive transactions exists yet.
-- Tests added: `db/db.test.ts` (error mapping, no leakage, health check with fake db, driver transaction limitation); extra static check in `lib/env/boundary.test.ts`.
-- Docs: `docs/database.md` section 18 (driver decision, batch rule, layer layout) and section 23 (status).
-- No domain schema, no migrations, no reset/seed, no API work.
+- Vitest configs for `packages/shared`, `packages/validation` (new vitest devDependency + lockfile update), `apps/web` (`vitest.config.mts`).
+- Test-only helpers `@signalone/shared/testing` (not in package index): `setup.ts` (clears APP_ENV/DATABASE_ENV/DATABASE_URL/Clerk/VERCEL_ENV before each test, unstubs env after), `fakeServerEnv`, `clearIsolatedEnv`, with self-tests.
+- New behavior tests: shared `utils`, validation `common` schemas.
+- Root scripts: `test`, `test:run`, `test:watch`, `validate`; `test:watch` added to each workspace.
+- `docs/testing.md` rewritten with permanent architecture; `docs/environment.md` Testing section updated.
+- Existing env and boundary tests preserved.
 
 ## 6. Files changed
 
-`apps/web/db/client.ts` (new), `db/errors.ts` (new), `db/health.ts` (new), `db/db.test.ts` (new), `db/index.ts`, `scripts/db-check.ts`, `lib/env/boundary.test.ts`, `docs/database.md`, `docs/notes.md`.
+`package.json`, `pnpm-lock.yaml`, `apps/web/package.json`, `apps/web/vitest.config.mts`, `packages/shared/package.json`, `packages/shared/vitest.config.ts`, `packages/shared/src/testing/{index,setup,testing.test}.ts`, `packages/shared/src/utils.test.ts`, `packages/validation/package.json`, `packages/validation/vitest.config.ts`, `packages/validation/src/common.test.ts`, `docs/testing.md`, `docs/environment.md`, `docs/notes.md`.
 
 ## 7. Architecture decisions
 
-- Keep `neon-http`; use `db.batch` for atomic writes; moving to the WebSocket driver is a documented future decision if a read-then-write transaction is needed.
-- `getDb()` is lazy so builds do not need secrets; `server-only` stays on `index.ts` only. `client.ts`/`errors.ts`/`health.ts` are not server-only so tooling and tests can use them; they hold no secrets.
-- Errors: `DatabaseError` carries a category and keeps the raw error as `cause` only.
-- No generic repository abstraction.
-- `APP_ENV` and `DATABASE_ENV` remain separate; env loading unchanged.
+- Vitest only; no new tooling. Helpers live in a test-only subpath of `@signalone/shared` rather than a new package; web/validation reference its setup file by relative path.
+- Setup file strips credentials/environment identity so unit tests cannot reach Neon; guards in `env.ts` untouched.
+- Component/E2E/API/DB/mobile test tooling intentionally not added; documented in `docs/testing.md`.
 
-## 8. Functional verification performed
+## 8. CI workflow: NOT PRESENT (human action required)
 
-- `db:check` (tsx `scripts/db-check.ts`) ran against Neon with `DATABASE_ENV=dev`: output "OK: connected to Neon (DATABASE_ENV=dev), SELECT 1 succeeded." It exercises `createDb` and `checkDatabaseConnection`. Read-only; no data written. The process environment already supplied the variables (dotenv injected 0 from `.env.local`); I did not inspect them.
-- Client import prevention: `index.ts` keeps `import "server-only"`, asserted by the boundary test; `next build` succeeded.
+`.github/workflows/ci.yml` is **not on this branch**. The Claude GitHub App cannot create or modify files under `.github/workflows/`, so it was not attempted (no workarounds). Earlier versions of this file wrongly listed it as completed; it was never committed. The human must add it manually. Its intended jobs: secret-free `validate` (frozen install, lint, typecheck, test:run, build), and optionally an actionlint job. A suggested definition is in the PR comment. The workflow is unvalidated and has never run on GitHub.
 
-## 9. Test/lint/typecheck/build results (latest run)
+## 9. Functional verification performed
 
-Run via `corepack pnpm exec ...` in each package, because the `pnpm` scripts spawn a bare `pnpm` that is not on PATH in this runner.
-- `apps/web` vitest: 2 files, 17 tests passed.
-- `packages/shared` vitest (existing env tests): 1 file, 22 tests passed.
-- `next typegen` + `tsc --noEmit`: no output (no errors).
-- `eslint`: no output (no problems).
-- `next build`: succeeded (5 routes).
-- `db:check` against dev: succeeded (above).
+Run in the sandbox on the current branch head after `corepack pnpm install --frozen-lockfile` (the `corepack pnpm -r --if-present <script>` form, which is what the root scripts execute):
+
+- test: shared 31 passed (3 files), validation 8 passed (1 file), web 17 passed (2 files); all pass.
+- typecheck: shared, validation, web all Done.
+- lint: eslint completed with no errors reported.
+- build: `pnpm --filter web build` succeeded with no env/secrets configured.
+- Vercel preview deployment for the PR reported Ready.
 
 ## 10. Not tested, and why
 
-- `getDb()` itself is not unit-tested: it imports `server-only`, which throws under vitest. It is covered by typecheck, build, and a static test only.
-- `db.batch` was not run against Neon: it would need a table, and no schema is allowed in this task.
-- Real Postgres error codes (unique violation, etc.) were not triggered against a database; the mapping is tested with synthetic errors.
-- Root `pnpm test|lint|typecheck` scripts were not run as written (PATH issue above).
-- QA/STAGE/PROD were not touched.
+- `ci.yml` does not exist, so nothing CI-related was validated.
+- Root scripts `pnpm test:run`, `pnpm test:watch`, `pnpm validate` were not invoked directly (the `corepack pnpm` equivalents were).
+- Hostile-shell check (tests with `DATABASE_URL`/`APP_ENV=prod` exported) was not run; isolation is covered by the setup self-tests only.
 
 ## 11. Unresolved concerns
 
-- The `DatabaseError` kind to application error mapping belongs to the future service layer.
-- Driver choice should be revisited when the first feature needs read-then-write transactional logic.
+- No CI runs the validation commands until the human adds `ci.yml`.
+- Component/E2E/API/DB/mobile tooling remains undecided.
 
 ## 12. Recommended next steps
 
-1. Open the PR from this branch and review.
-2. Next foundation tasks: reset/seed tooling (dev/qa only), then the API foundation.
-3. Human merges when satisfied.
+1. Human adds `.github/workflows/ci.yml` and confirms it runs green.
+2. Review; human merges.
+3. Later issues: database integration tests (separate `test:integration`, qa-only), component tests, mobile tests per `docs/testing.md`.
