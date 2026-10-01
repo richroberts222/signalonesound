@@ -379,9 +379,7 @@ Staging deployments intended as production-like validation must use `stage`.
 
 Preview deployments MUST NOT silently use the production database.
 
-The exact Preview-to-database policy should be documented before database-backed Preview deployments become part of normal development.
-
-Until that policy is established, Claude must not assume that every Vercel Preview should automatically connect to `dev`, `qa`, `stage`, or `prod`.
+Preview-to-database policy (decided for Issue 19): feature/PR Vercel Previews map to `qa`; local development maps to `dev`; `stage` is the protected final production-like verification environment and is not used for ordinary PR previews; production maps to `prod`. See `/docs/environment.md` and `/docs/deployment.md`.
 
 ---
 
@@ -533,7 +531,7 @@ At the time this document is established:
 - Drizzle is the selected ORM/schema/migration layer.
 - Detailed Signal One application schema design is still to be developed.
 
-Code status: `apps/web/db` contains `env.ts`, `index.ts` (server-only Drizzle client on `neon-http`), and an empty `schema.ts`. `apps/web/drizzle.config.ts` refuses `prod`. No migrations exist. `pnpm --filter web db:check` runs a read-only `SELECT 1` against `dev` only. Reset/seed tooling, a transaction helper, and a production migration procedure do not exist yet; see `/docs/boilerplate-gap-report.md`.
+Code status (environment validation lives in `@signalone/shared`, see `/docs/environment.md`): `apps/web/db` contains `env.ts`, `index.ts` (server-only Drizzle client on `neon-http`), and an empty `schema.ts`. `apps/web/drizzle.config.ts` refuses `prod`. No migrations exist. `pnpm --filter web db:check` runs a read-only `SELECT 1` against `dev` only. Reset/seed tooling, a transaction helper, and a production migration procedure do not exist yet; see `/docs/boilerplate-gap-report.md`.
 
 The existence of this document does not imply that every described database capability has already been implemented.
 

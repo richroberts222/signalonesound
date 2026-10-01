@@ -17,14 +17,15 @@ Logical environments are `dev`, `qa`, `stage`, and `prod` (`APP_ENVS` in `@signa
 | Vercel environment | Database target | Clerk instance |
 | --- | --- | --- |
 | Development (local) | `dev` | development |
-| Preview | non-production (`qa`/`stage` as decided per project) | development |
+| Preview (feature/PR) | `qa` | development |
+| Final pre-production verification | `stage` (protected; not used for ordinary PR previews) | development |
 | Production | `prod` | production |
 
-Preview deployments must never point at `prod`.
+Preview deployments must never point at `prod` or `stage`. This is enforced at runtime by validation (see `/docs/environment.md`), but code cannot detect a wrong `DATABASE_URL` value that points at the wrong Neon branch, so Vercel Preview variables must be set carefully.
 
 ## Environment variables
 
-Set in Vercel per environment; never commit values. Required today: `DATABASE_ENV`, `DATABASE_URL`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`. Only variables that must reach the browser use `NEXT_PUBLIC_`.
+Full variable reference, validation, and production guards: `/docs/environment.md`. Set in Vercel per environment; never commit values. `APP_ENV` is optional (defaults to `DATABASE_ENV`); a Vercel deployment other than Production configured with `prod`, or a Preview configured with `stage`, fails validation. Preview should set `DATABASE_ENV=qa` (and `APP_ENV=qa` if set). Required today: `DATABASE_ENV`, `DATABASE_URL`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`. Only variables that must reach the browser use `NEXT_PUBLIC_`.
 
 ## Release flow
 

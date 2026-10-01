@@ -6,6 +6,7 @@ This document consolidates security rules; detailed rules live in `/docs/auth.md
 
 * Secrets are never committed. `.env*` is gitignored except `.env.example`, which contains names and placeholders only.
 * Server-only values (`DATABASE_URL`, `CLERK_SECRET_KEY`) must never be prefixed `NEXT_PUBLIC_`, imported into client components, or placed in shared packages.
+* Environment validation and production guards are described in `/docs/environment.md`; read configuration through those helpers, not raw `process.env`.
 * Server-only modules import `server-only` (as `apps/web/db/index.ts` does).
 * Mobile bundles are public: never embed server secrets in Expo config or `EXPO_PUBLIC_*` variables.
 * Never log secrets, tokens, or connection strings; report error messages only.
