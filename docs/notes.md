@@ -1,50 +1,53 @@
-# Notes: Issue 21 "harden workflow"
+# Notes: Issue 26 "Harden Reusable Security Foundation"
 
-1. Issue: #21 "harden workflow"
+1. Issue: #26 "Harden Reusable Security Foundation"
 2. PR: none yet at time of writing (open one from this branch; further @claude requests should come from that PR).
-3. Canonical branch: `claude/issue-21-20261001-0559`, base `main`. Not merged.
-4. Latest commit: the commit containing this file (base was `b8eaed7`); see `git log -1` on the branch.
+3. Canonical branch: `claude/issue-26-20261001-0633`, base `main`. Not merged.
+4. Latest commit: the commit containing this file (base `5a0b76a`); see `git log -1`.
 
 ## 5. Work completed
 
-- `docs/issues.md`: added the one-issue/one-branch/one-PR rule, continue-from-PR rule, branch safety check, fail-fast rule, PR safety (no merge), the normal lifecycle, and workflow configuration constraints. Updated required notes.md contents to the 12-item list.
-- `docs/git-workflow.md`: added the canonical-branch rule in section 2 and "request further work from the PR" in section 11.
-- `docs/environment.md`: recorded the decision that `APP_ENV` and `DATABASE_ENV` stay separate (separation lets unsafe mismatches be detected); removed the "undecided" follow-up.
-- `CLAUDE.md` already references `/docs/issues.md` (line 59); no change needed.
-- `.github/workflows/claude.yml` was intentionally NOT modified: it already has `fetch-depth: 0`, the required git/pnpm/npx/corepack allow-list, and existing permissions, with no force-push/reset/branch-delete/merge permission. The GitHub App cannot edit workflow files anyway.
+- Security audit (no secret values read or printed): env example, `lib/env/*`, `db/*`, `next.config.ts`, `proxy.ts`, `.gitignore` files, both workflows, dependency audit. No Vercel config file is committed. Existing env validation and production guards were found sound and left unchanged.
+- Added `apps/web/lib/security.test.ts`: static checks for public-variable naming, client env allow-list, `next.config` `env` forwarding, server-only/client import boundaries (including `'use client'` files and shared packages), placeholder-only `.env.example`, key/credential-shaped secrets in committed text files, gitignore coverage, and workflow safety (no prod credentials, no merge/force/reset/branch-delete, review workflow read-only).
+- `docs/security.md`: added the permanent security architecture (trust boundaries, secrets, public vs private config, client/server, authN vs authZ, production safety, DB credentials, CI expectations and workflow audit findings, future API/mobile, integration points).
 
 ## 6. Files changed
 
-`docs/issues.md`, `docs/git-workflow.md`, `docs/environment.md`, `docs/notes.md`.
+`apps/web/lib/security.test.ts` (new), `docs/security.md`, `docs/notes.md`.
 
 ## 7. Architecture decisions
 
-- One issue = one canonical branch and PR; the PR branch is canonical once it exists.
-- `APP_ENV` (runtime) and `DATABASE_ENV` (database) remain separate (recorded in `docs/environment.md`).
+- No new runtime abstractions or dependencies; protections are tests plus documented rules.
+- `APP_ENV`/`DATABASE_ENV` stay separate; no guard was changed.
+- Workflow findings are documented, not applied (humans edit workflows).
 
-## 8. Functional verification performed
+## 8. Security verification actually performed
 
-- Read the resulting `claude.yml` and confirmed the settings above are intact (file unchanged).
-- Confirmed `CLAUDE.md` references `docs/issues.md`.
-- Re-read the edited docs for consistency (lifecycle matches `git-workflow.md` sections 11 and 23).
+- The new tests pass (see 9); they inspect source text only.
+- Manual inspection of workflows and configs. `pnpm audit --prod`: no known vulnerabilities.
 
-## 9. Test/lint/typecheck/build results
+## 9. Results (latest run)
 
-None run: documentation-only change, no application code touched.
+- `pnpm -r --if-present test`: shared 22/22 passed (1 file); web 17/17 passed (2 files).
+- `pnpm --filter web lint`: no output, passed.
+- `pnpm --filter web typecheck`: passed.
+- `pnpm --filter web build`: succeeded.
 
 ## 10. Not tested, and why
 
-- YAML syntax validation: the workflow file is unchanged, and the sandbox did not permit running a YAML parser.
-- Actual enforcement: the rules are documented instructions; the workflow cannot technically prevent a new branch from an issue-triggered run.
-- No production data was accessed.
+- The new tests were not mutation-checked (no deliberate violation was introduced to see them fail), except that two initial false positives from comment text were observed and fixed.
+- Textual import checks do not follow transitive imports.
+- Vercel project settings, GitHub secret scoping, and Neon roles are not verifiable from code.
+- No production data or infrastructure was touched.
 
 ## 11. Unresolved concerns
 
-- Issue-triggered runs by design create a new `claude/issue-N-<timestamp>` branch; the PR-first rule relies on the human commenting on the PR.
-- Enforcement in the workflow YAML (e.g., a prompt/branch check) would need a human edit of `claude.yml`.
+See "GitHub / CI expectations" in `docs/security.md`: job-level `DATABASE_URL` in `claude.yml`, broad `pnpm *`/`npx *`, `id-token: write`, unpinned action tags. All need a human workflow edit.
+Rate limiting, CSP/security headers, and CI dependency scanning remain unimplemented.
 
 ## 12. Recommended next steps
 
-1. Open the PR from this branch and review.
-2. Optionally add a branch-continuity instruction to `claude.yml` via a human edit.
-3. Human merges when satisfied.
+1. Open the PR and review.
+2. Human applies the `claude.yml` hardening listed in `docs/security.md`.
+3. Verify Vercel Preview/Production variables manually.
+4. Add security headers/CSP and rate limiting as separate issues.
