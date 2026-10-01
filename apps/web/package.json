@@ -12,7 +12,10 @@
     "test:watch": "vitest",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:check": "tsx scripts/db-check.ts"
+    "db:check": "tsx scripts/db-check.ts",
+    "db:reset": "tsx scripts/db-reset.ts",
+    "db:seed": "tsx scripts/db-seed.ts",
+    "db:refresh": "tsx scripts/db-refresh.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

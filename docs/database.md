@@ -317,6 +317,46 @@ Resetting test data must not destroy migration history or required database conf
 
 The eventual reset workflow should make the intended target obvious and should fail safely when environment identity is uncertain.
 
+## 12.1 Database lifecycle across environments
+
+Schema/code promotion and application data movement are separate things and are never conflated.
+
+| Environment | Schema arrives by | Data | Reset / seed |
+| --- | --- | --- | --- |
+| `dev` | Drizzle migrations (first target) | Disposable, developer-controlled | Allowed |
+| `qa` | Same migrations, promoted after dev | Predictable, repeatable test scenarios | Allowed |
+| `stage` | Same migrations, promoted after qa | Production-like; not disposable | **Never** reset/seeded by these tools |
+| `prod` | Same migrations, deliberate reviewed promotion last | Real data | **Never** reset/seeded; never touched by tooling or tests |
+
+* **Schema promotion**: the committed Drizzle migration files move `dev -> qa -> stage -> prod` (section 10). `drizzle-kit push` is never the strategy for qa/stage/prod. Migration execution/promotion procedure is not yet implemented (separate issue).
+* **Data is never promoted.** Data is not copied between environments by these tools. dev and qa data is created by seeds; stage data is controlled validation data; prod data is real and only changed by the application.
+* **Reset** removes data only (rows in `public` plus the tooling ledger). It keeps the schema, the `drizzle` migration-history schema, and the database. It never drops tables or schemas.
+* **Seed** applies named, idempotent seeds recorded in a ledger (`signalone_tooling.seed_runs`, created by the tooling, not application schema). Re-running seed is a no-op; `db:refresh` (reset then seed) returns an environment to its known state.
+
+## 12.2 Reset/seed tooling (`apps/web/db/tooling`)
+
+Commands (run from the repo root; `--env` is mandatory):
+
+```text
+pnpm --filter web db:reset   --env=dev|qa   # truncate data
+pnpm --filter web db:seed    --env=dev|qa   # apply pending seeds
+pnpm --filter web db:refresh --env=dev|qa   # reset, then seed
+```
+
+Fail-closed guard (`resolveToolingTarget`), every condition must hold or the command exits non-zero before any connection is opened:
+
+1. `DATABASE_ENV` and `DATABASE_URL` validate (`parseDatabaseEnv`); missing or invalid identity is refused.
+2. `APP_ENV`, if set, equals `DATABASE_ENV`.
+3. `VERCEL_ENV` is unset (never runs on Vercel).
+4. Target is in the allow-list `dev`, `qa` (`assertDestructiveAllowed`); `prod` is refused as protected, `stage` as not allowed.
+5. `--env=<name>` is passed and equals `DATABASE_ENV`, so the operator states the target.
+
+Safety is never inferred from `DATABASE_URL`; the guard does not parse it beyond protocol validation. Errors never echo connection strings.
+
+Adding seed data: add a `Seed` (id, description, deterministic statements) to `SEEDS` in `db/tooling/seed.ts` together with the migration that creates its tables. Seeds must be idempotent per ledger id and use fake/test-safe data only. Raw SQL stays inside `db/tooling` (tooling-only, not application code). No domain seed data exists yet; the only seed is the generic `tooling-smoke` ledger marker.
+
+qa credentials: use a separate `DATABASE_ENV=qa` configuration (see `/docs/environment.md`). The qa reset/seed path is implemented identically but has not been exercised against a real qa database.
+
 ---
 
 # 13. Neon Branching
@@ -548,7 +588,7 @@ At the time this document is established:
 - Drizzle is the selected ORM/schema/migration layer.
 - Detailed Signal One application schema design is still to be developed.
 
-Code status (environment validation lives in `@signalone/shared`, see `/docs/environment.md`): `apps/web/db` contains `env.ts`, `client.ts`, `index.ts` (server-only `getDb()` on `neon-http`), `errors.ts`, `health.ts`, and an empty `schema.ts` (see the layout in section 18). `apps/web/drizzle.config.ts` refuses `prod`. No migrations exist. `pnpm --filter web db:check` runs the read-only `SELECT 1` helper against `dev` only. Transactions are `db.batch` only (section 18). Reset/seed tooling and a production migration procedure do not exist yet; see `/docs/boilerplate-gap-report.md`.
+Code status (environment validation lives in `@signalone/shared`, see `/docs/environment.md`): `apps/web/db` contains `env.ts`, `client.ts`, `index.ts` (server-only `getDb()` on `neon-http`), `errors.ts`, `health.ts`, and an empty `schema.ts` (see the layout in section 18). `apps/web/drizzle.config.ts` refuses `prod`. No migrations exist. `pnpm --filter web db:check` runs the read-only `SELECT 1` helper against `dev` only. Transactions are `db.batch` only (section 18). Reset/seed tooling exists (sections 12.1-12.2, `db/tooling`, `db:reset|seed|refresh`); a production migration procedure does not exist yet; see `/docs/boilerplate-gap-report.md`.
 
 The existence of this document does not imply that every described database capability has already been implemented.
 
