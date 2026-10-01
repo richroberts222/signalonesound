@@ -117,6 +117,71 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/*
+ * Signal One home concept (issue #57, experimental).
+ * Scoped token override: only applies while the home page's `.signal-home`
+ * element is mounted, so other routes keep the default theme.
+ */
+body:has(.signal-home) {
+  --background: oklch(0.14 0.02 40);
+  --foreground: oklch(0.96 0.02 85);
+  --card: oklch(0.2 0.03 40 / 70%);
+  --card-foreground: oklch(0.96 0.02 85);
+  --popover: oklch(0.2 0.03 40);
+  --popover-foreground: oklch(0.96 0.02 85);
+  --primary: oklch(0.82 0.16 75);
+  --primary-foreground: oklch(0.2 0.04 50);
+  --secondary: oklch(0.27 0.04 45);
+  --secondary-foreground: oklch(0.96 0.02 85);
+  --muted: oklch(0.27 0.04 45);
+  --muted-foreground: oklch(0.8 0.04 75);
+  --accent: oklch(0.3 0.06 50);
+  --accent-foreground: oklch(0.96 0.02 85);
+  --border: oklch(0.75 0.14 70 / 22%);
+  --input: oklch(0.75 0.14 70 / 30%);
+  --ring: oklch(0.82 0.16 75);
+  background-color: var(--background);
+}
+
+body:has(.signal-home) > header {
+  background: oklch(0.14 0.02 40 / 60%);
+  backdrop-filter: blur(8px);
+}
+
+.signal-gold-text {
+  background-image: linear-gradient(
+    100deg,
+    oklch(0.92 0.12 90),
+    oklch(0.8 0.17 70) 45%,
+    oklch(0.68 0.2 45)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.signal-flame {
+  animation: signal-breathe 7s ease-in-out infinite;
+}
+
+@keyframes signal-breathe {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-flame {
+    animation: none;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
