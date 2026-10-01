@@ -21,6 +21,15 @@ describe("client/server boundary", () => {
     expect(read(join(root, "db/index.ts"))).toMatch(/^import "server-only";/m);
   });
 
+  it("db entrypoint is the only place that reads DATABASE_URL into a client", () => {
+    const offenders = files(join(root, "db"))
+      .filter((f) => /createDb\(/.test(read(f)) && !/db\/(client|index)\.ts$/.test(f))
+      .filter((f) => !/loadDatabaseEnv/.test(read(f)));
+    expect(offenders).toEqual([]);
+    expect(read(join(root, "db/index.ts"))).toMatch(/export function getDb/);
+    expect(read(join(root, ".env.example"))).not.toMatch(/NEXT_PUBLIC_DATABASE/);
+  });
+
   it("client env module reads no secrets and imports no server module", () => {
     const src = read(join(root, "lib/env/client.ts"));
     expect(src).not.toMatch(/DATABASE_|CLERK_SECRET|process\.env\.APP_ENV|\/server|\/db/);
