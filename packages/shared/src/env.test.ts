@@ -70,7 +70,6 @@ describe("parseServerEnv", () => {
     expect(() =>
       parseServerEnv({ ...valid, DATABASE_ENV: "prod", APP_ENV: "prod", VERCEL_ENV: "preview" }),
     ).toThrow(/Preview/);
-    expect(parseServerEnv({ ...valid, VERCEL_ENV: "preview" }).appEnv).toBe("dev");
   });
 
   it("refuses prod on any non-production Vercel deployment", () => {
@@ -85,7 +84,12 @@ describe("parseServerEnv", () => {
   it("maps Preview to qa and refuses stage", () => {
     const qa = { ...valid, DATABASE_ENV: "qa", APP_ENV: "qa", VERCEL_ENV: "preview" };
     expect(parseServerEnv(qa).appEnv).toBe("qa");
-    expect(() => parseServerEnv({ ...qa, DATABASE_ENV: "stage", APP_ENV: "stage" })).toThrow(/qa, not stage/);
+    expect(() => parseServerEnv({ ...qa, DATABASE_ENV: "stage", APP_ENV: "stage" })).toThrow(/must use qa/);
+    expect(() => parseServerEnv({ ...valid, VERCEL_ENV: "preview" })).toThrow(/must use qa/);
+    expect(() => parseServerEnv({ ...qa, APP_ENV: "dev" })).toThrow(/must use qa/);
+    expect(() => parseServerEnv({ ...qa, DATABASE_ENV: "dev" })).toThrow(/must use qa/);
+    // Production and unset VERCEL_ENV (local/CI) are unaffected.
+    expect(parseServerEnv({ ...valid, VERCEL_ENV: "production" }).appEnv).toBe("dev");
   });
 
   it("refuses live Clerk keys outside prod", () => {

@@ -57,7 +57,7 @@ Validation fails (throws) when:
 * `DATABASE_URL` is not a URL with a `postgres:`/`postgresql:` protocol (the value is never echoed);
 * `APP_ENV` and `DATABASE_ENV` disagree about being `prod` (non-prod app on prod DB, or the reverse);
 * `VERCEL_ENV` is set to anything other than `production` (Preview, `vercel dev`) and the app or database is `prod`;
-* `VERCEL_ENV=preview` is combined with `stage`;
+* `VERCEL_ENV=preview` and either `APP_ENV` or `DATABASE_ENV` is not `qa` (Preview must be qa; deployment architecture in `/docs/deployment.md`);
 * a live Clerk secret key (`sk_live_`) is used outside `prod`.
 
 Code cannot detect a `DATABASE_URL` that points at the wrong Neon branch while `DATABASE_ENV` claims otherwise; Vercel Preview variables must be configured carefully.
@@ -74,7 +74,7 @@ Copy `apps/web/.env.example` to `apps/web/.env.local` (gitignored) and fill in d
 
 ## Vercel
 
-Set per Vercel environment (see `/docs/deployment.md`): `DATABASE_ENV`, `DATABASE_URL`, `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, and optionally `APP_ENV`. Production must set `DATABASE_ENV=prod` (and `APP_ENV=prod` if set); Preview must not. Existing Vercel configuration works unchanged because `APP_ENV` is optional.
+Set per Vercel environment (see `/docs/deployment.md`): `DATABASE_ENV`, `DATABASE_URL`, `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, and optionally `APP_ENV`. Production must set `DATABASE_ENV=prod` (and `APP_ENV=prod` if set); Preview must set `DATABASE_ENV=qa` (and `APP_ENV=qa` if set), otherwise validation fails on the first server request. Existing Vercel configuration works unchanged because `APP_ENV` is optional.
 
 ## Future Expo/EAS (not built)
 

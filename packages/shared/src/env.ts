@@ -126,9 +126,9 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
       issues.push("Vercel Preview and development deployments must not use the prod environment or database (prod is only allowed on a Vercel production deployment).");
     }
   }
-  // Preview maps to qa; stage is the protected pre-production environment.
-  if (vercelEnv === "preview" && (appEnv === "stage" || databaseEnv === "stage")) {
-    issues.push("Vercel Preview deployments must use qa, not stage.");
+  // Preview maps to qa (stage is the protected pre-production environment).
+  if (vercelEnv === "preview" && ((appEnv && appEnv !== "qa") || (databaseEnv && databaseEnv !== "qa"))) {
+    issues.push("Vercel Preview deployments must use qa for both APP_ENV and DATABASE_ENV (not dev, stage, or prod).");
   }
   // Live Clerk keys belong to prod only.
   if (appEnv && appEnv !== "prod" && clerkSecretKey.startsWith("sk_live_")) {

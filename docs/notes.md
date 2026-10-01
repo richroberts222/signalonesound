@@ -1,53 +1,61 @@
-# Notes: Issue 26 "Harden Reusable Security Foundation"
+# Notes: Issue 27 "Build Reusable Deployment Foundation"
 
-1. Issue: #26 "Harden Reusable Security Foundation"
+1. Issue: #27 "Build Reusable Deployment Foundation"
 2. PR: none yet at time of writing (open one from this branch; further @claude requests should come from that PR).
-3. Canonical branch: `claude/issue-26-20261001-0633`, base `main`. Not merged.
-4. Latest commit: the commit containing this file (base `5a0b76a`); see `git log -1`.
+3. Canonical branch: `claude/issue-27-20261001-0634`, base `main` (`5a0b76a`). Not merged.
+4. Latest commit: the commit containing this file; see `git log -1` on the branch.
 
 ## 5. Work completed
 
-- Security audit (no secret values read or printed): env example, `lib/env/*`, `db/*`, `next.config.ts`, `proxy.ts`, `.gitignore` files, both workflows, dependency audit. No Vercel config file is committed. Existing env validation and production guards were found sound and left unchanged.
-- Added `apps/web/lib/security.test.ts`: static checks for public-variable naming, client env allow-list, `next.config` `env` forwarding, server-only/client import boundaries (including `'use client'` files and shared packages), placeholder-only `.env.example`, key/credential-shaped secrets in committed text files, gitignore coverage, and workflow safety (no prod credentials, no merge/force/reset/branch-delete, review workflow read-only).
-- `docs/security.md`: added the permanent security architecture (trust boundaries, secrets, public vs private config, client/server, authN vs authZ, production safety, DB credentials, CI expectations and workflow audit findings, future API/mobile, integration points).
+- `docs/deployment.md` rewritten as the authoritative deployment architecture: env mapping table (Local->dev, Preview->qa, Stage, Prod), Vercel behavior, Preview->QA decision, configuration/secret ownership, Stage vs Preview, Production safeguards, promotion flow, CI/CD relationship (automated now vs manual vs planned), future mobile/EAS profile mapping, verified vs not verified.
+- Code reinforcement in the existing validation foundation (`parseServerEnv`): when `VERCEL_ENV=preview`, both `APP_ENV` and `DATABASE_ENV` must be `qa` (previously only `stage` was refused, so a Preview could run with `dev`). Tests updated.
+- `docs/environment.md` and `docs/mobile.md` adjusted for consistency.
 
 ## 6. Files changed
 
-`apps/web/lib/security.test.ts` (new), `docs/security.md`, `docs/notes.md`.
+`docs/deployment.md`, `docs/environment.md`, `docs/mobile.md`, `docs/notes.md`, `packages/shared/src/env.ts`, `packages/shared/src/env.test.ts`.
 
 ## 7. Architecture decisions
 
-- No new runtime abstractions or dependencies; protections are tests plus documented rules.
-- `APP_ENV`/`DATABASE_ENV` stay separate; no guard was changed.
-- Workflow findings are documented, not applied (humans edit workflows).
+- Vercel Preview -> QA, enforced in code (both env vars must be `qa` on `VERCEL_ENV=preview`).
+- `APP_ENV`/`DATABASE_ENV` stay separate.
+- No `vercel.json`; dashboard settings remain the source of Vercel config.
+- Stage hosting mechanism and promotion mechanism are left undecided and documented as such.
 
 ## 8. Security verification actually performed
 
-- The new tests pass (see 9); they inspect source text only.
-- Manual inspection of workflows and configs. `pnpm audit --prod`: no known vulnerabilities.
+- Unit tests exercising Preview/QA rules, prod mismatch, prod-on-non-production-Vercel, live Clerk key guards.
+- Production `next build` with no environment variables set (confirms lazy validation; build does not need secrets).
+- Inspected: no `vercel.json`, `.env.example` is placeholder-only, `.gitignore` excludes `.env*`.
 
-## 9. Results (latest run)
+## 9. Test/lint/typecheck/build results (this branch)
 
-- `pnpm -r --if-present test`: shared 22/22 passed (1 file); web 17/17 passed (2 files).
-- `pnpm --filter web lint`: no output, passed.
-- `pnpm --filter web typecheck`: passed.
-- `pnpm --filter web build`: succeeded.
+Root scripts (`pnpm test` etc.) could not be used as-is: `pnpm` is not on PATH in this runner (installed via `corepack pnpm`), and the scripts call `pnpm` internally. The equivalent tools were run per package through `corepack pnpm --filter <pkg> exec ...`:
+
+- `vitest run` in `packages/shared`: 1 file, 22 tests passed.
+- `vitest run` in `apps/web`: 1 file, 4 tests passed.
+- `eslint` in `apps/web`: no output (no problems).
+- `next typegen` + `tsc --noEmit` in `apps/web`: clean.
+- `tsc --noEmit` in `packages/shared` and `packages/validation`: clean.
+- `next build` in `apps/web` (no env vars set): succeeded; 5 routes, all dynamic.
 
 ## 10. Not tested, and why
 
-- The new tests were not mutation-checked (no deliberate violation was introduced to see them fail), except that two initial false positives from comment text were observed and fixed.
-- Textual import checks do not follow transitive imports.
-- Vercel project settings, GitHub secret scoping, and Neon roles are not verifiable from code.
-- No production data or infrastructure was touched.
+- Any cloud deployment, Vercel project settings, real Preview/Production variable values, Neon branches, Clerk instances: no cloud/production access, and none was required or attempted.
+- Stage and mobile/EAS: not provisioned/scaffolded; documented as planned only.
+- Root `pnpm lint|typecheck|test|build` wrappers verbatim (PATH issue above).
+- Production data was not accessed.
 
 ## 11. Unresolved concerns
 
-See "GitHub / CI expectations" in `docs/security.md`: job-level `DATABASE_URL` in `claude.yml`, broad `pnpm *`/`npx *`, `id-token: write`, unpinned action tags. All need a human workflow edit.
-Rate limiting, CSP/security headers, and CI dependency scanning remain unimplemented.
+- The tightened Preview guard will make existing Vercel Preview deployments fail on first server request if their variables are not `qa` (e.g. still `dev`). Verify Preview variables in Vercel before merging.
+- Validation is lazy, so misconfiguration is not caught at build time.
+- The `VERCEL_ENV` guard does not cover non-Vercel environments with prod values.
+- No CI validation workflow exists; Stage hosting and promotion are undecided.
 
 ## 12. Recommended next steps
 
-1. Open the PR and review.
-2. Human applies the `claude.yml` hardening listed in `docs/security.md`.
-3. Verify Vercel Preview/Production variables manually.
-4. Add security headers/CSP and rate limiting as separate issues.
+1. Open the PR; confirm Preview variables in Vercel are `APP_ENV=qa`/`DATABASE_ENV=qa` with the qa `DATABASE_URL`.
+2. Decide Stage hosting (separate Vercel project vs custom environment) and update `docs/deployment.md` section 4.
+3. Add the GitHub validation workflow via the Testing Foundation work.
+4. Human merges when satisfied.
