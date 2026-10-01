@@ -357,6 +357,8 @@ Implemented in `apps/web` with `@clerk/nextjs` v7 (Clerk Core 3), Next.js 16 App
 
 Locally, set both in `apps/web/.env.local` (gitignored). On Vercel, set both for Development, Preview, and Production. Preview deployments use the same variables; a Clerk development instance (`pk_test_`/`sk_test_` keys) works on `*.vercel.app` preview URLs, while production keys require a production Clerk instance on a configured domain.
 
+Validation of these variables is centralized in `apps/web/lib/env` (`/docs/environments.md`). A `sk_live_` key is rejected unless `APP_ENV=prod`.
+
 ### Notes
 
 * Route protection in `proxy.ts` does not replace server-side checks. Future API routes and mutations must call `auth()` from `@clerk/nextjs/server` and reject unauthenticated requests.

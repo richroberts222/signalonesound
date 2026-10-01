@@ -53,6 +53,6 @@ Missing universal database helpers:
 ## Architectural concerns
 
 * `neon-http` and transactions: `data-mutations.md` requires transactions for multi-step changes, which the current driver choice cannot provide interactively. Needs a decision before the first mutation feature.
-* `APP_ENVS` in shared duplicates `DATABASE_ENVS` in `apps/web/db/env.ts`. They are intentionally left separate for now (this change avoids touching the database layer); consolidate when the env module is built.
+* `APP_ENVS` is now defined once in shared; `apps/web/db/env.ts` was removed in favor of `apps/web/lib/env` (`/docs/environments.md`).
 * Package scope `@signalone/*` embeds the application name (see references report).
 * `README.md` previously contained only placeholder text; existing docs referenced commands that are unchanged.

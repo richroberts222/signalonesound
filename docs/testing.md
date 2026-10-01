@@ -2,7 +2,7 @@
 
 ## Status
 
-No test runner is installed yet. Choosing one is an open decision (see `/docs/boilerplate-gap-report.md`); until then the required validation is lint, typecheck, and build. This document sets expectations so the choice and later tests are consistent. It does not mandate a specific tool.
+Vitest is installed in `apps/web` (`pnpm --filter web test`) and currently covers environment/configuration (`lib/env/env.test.ts`). The broader test strategy is still open (see `/docs/boilerplate-gap-report.md`); required validation is lint, typecheck, build, and tests where they exist. This document sets expectations so the choice and later tests are consistent. It does not mandate a specific tool.
 
 ## Required validation for every change
 
@@ -10,6 +10,7 @@ No test runner is installed yet. Choosing one is an open decision (see `/docs/bo
 pnpm lint
 pnpm typecheck
 pnpm build
+pnpm --filter web test
 ```
 
 Report results in the pull request. If a check fails, say so; do not claim success.
