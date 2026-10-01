@@ -1,56 +1,74 @@
-# Notes: Issue 37 "Complete Reusable Shared Contracts Foundation"
+# Notes: Issue 36 "Build Reusable Mobile Application Foundation"
 
-1. Issue: #37 "Complete Reusable Shared Contracts Foundation"
+1. Issue: #36 "Build Reusable Mobile Application Foundation"
 2. PR: none yet at time of writing (open one from this branch; further @claude requests should come from that PR).
-3. Canonical branch: `claude/issue-37-20261001-1232`, base `main` (`6ed0608`). Not merged.
+3. Canonical branch: `claude/issue-36-20261001-1233`, base `main` (`6ed0608`). Not merged.
 4. Latest commit: the commit containing this file; see `git log -1` on the branch.
 
 ## 5. Work completed
 
-- `@signalone/shared`: new `contracts.ts` with `ApiError` (alias of `AppError`), `Paginated<T>`, `paginated()`, `API_VERSIONS`/`ApiVersion`/`CURRENT_API_VERSION`. Exported from the barrel. No new dependencies.
-- `@signalone/validation`: new `contracts.ts` with `idSchema`, `apiErrorSchema`, `resultSchema(data)`, `paginatedSchema(item)`, `parseInput(schema, input)` (returns `Result`, `validation_failed` + path-keyed `fieldErrors`, never echoes input). Exported from the barrel.
-- Tests: `packages/shared/src/contracts.test.ts` (3 tests), `packages/validation/src/contracts.test.ts` (13 tests, including JSON round-trip of `Result`, schema/`Paginated` type assignability, and non-echo of submitted values).
-- `docs/shared-code.md`: new "Contract conventions" section (transport / domain / database / UI model boundaries, building blocks, naming, schema-first, identifiers, errors, pagination, additive-only versioning, serialization, portability).
+- Scaffolded `apps/mobile` as an Expo SDK 57 + React Native 0.86 + TypeScript app (pnpm workspace member, `@signalone/shared` via `workspace:*`).
+- Minimal shell only (`src/App.tsx`): title plus validated environment status. No navigation, screens, domain models, roles, auth UI, or API client.
+- Mobile-safe config: `src/config/env.ts` (`getMobileEnv()`, literal `EXPO_PUBLIC_*` reads) over a new shared pure parser `parseMobileClientEnv` in `packages/shared/src/env.ts`.
+- `app.config.ts` (single source of identity, placeholder identifiers `com.example.signalone`, iOS/Android only), `eas.json` (profiles development/qa/staging/production setting only `EXPO_PUBLIC_APP_ENV`), `.env.example`, `.gitignore`.
+- Scripts in `apps/mobile`: `start`, `android`, `ios`, `lint`, `typecheck`, `test`, `test:watch`, `check:deps`, `export`. `lint`/`typecheck`/`test` are picked up by the existing root `pnpm -r --if-present` scripts.
+- Tests: `src/config/env.test.ts`, `src/boundary.test.ts` (static boundary checks), plus 5 new `parseMobileClientEnv` tests in shared.
+- Docs: rewrote `docs/mobile.md` (architecture position, sharing matrix, config, commands, builds); updated `docs/environment.md`, `docs/deployment.md` section 8, `docs/testing.md`, `docs/shared-code.md`, `README.md`.
 
 ## 6. Files changed
 
-`packages/shared/src/{contracts.ts,contracts.test.ts,index.ts}`, `packages/validation/src/{contracts.ts,contracts.test.ts,index.ts}`, `docs/shared-code.md`, `docs/notes.md`.
+`apps/mobile/{package.json,app.config.ts,eas.json,tsconfig.json,eslint.config.js,vitest.config.ts,index.ts,.env.example,.gitignore}`, `apps/mobile/src/{App.tsx,boundary.test.ts,config/env.ts,config/env.test.ts}`, `packages/shared/src/{env.ts,env.test.ts}`, `pnpm-lock.yaml`, `README.md`, `docs/{mobile,environment,deployment,testing,shared-code,notes}.md`.
+
+No database, schema, migration, reset/seed, auth, API, workflow, or root `package.json` changes.
 
 ## 7. Architectural decisions
 
-- The issue mentions existing `ApiError` and `Paginated`; they did not exist (only `Result`/`AppError`). `ApiError` is an alias of `AppError` so a failed `Result` is sent as-is; `Paginated<T>` is cursor-based, matching existing `paginationSchema`.
-- Pure envelope types stay in `shared` (no zod dependency); runtime schemas stay in `validation`. Dependency direction unchanged.
-- API versioning is documented as additive-only per version with `v1` as the only version; routing/HTTP mapping is deliberately left to the API foundation (`docs/api.md` is empty).
-- Contract documentation was added to `docs/shared-code.md`, not `docs/api.md`, to avoid pre-empting the API foundation.
-- No domain entities, API routes, DB, mobile, root, or package.json changes.
+- Mobile is an API client only; the boundary is enforced by a static test, not just documented.
+- Added `parseMobileClientEnv` to `@signalone/shared` (the docs said the API-URL field would be added at scaffold time) instead of reusing `parseClientEnv`, whose error messages name `NEXT_PUBLIC_*`. Required: `EXPO_PUBLIC_APP_ENV`, `EXPO_PUBLIC_API_BASE_URL` (`https` outside `dev`). Optional: Clerk publishable key (must be `pk_`; `pk_live_` only in `prod`), because Clerk is not integrated yet.
+- Clerk (`@clerk/expo`), secure storage, and an API client were deliberately NOT added: `docs/api.md` is empty and the auth contract for mobile is not defined; adding them would invent architecture.
+- Metro needs no custom config (SDK 57 handles the monorepo; confirmed by bundling).
+- Dependency versions follow `expo install --check` (React 19.2.3, RN 0.86.3, TypeScript ~6.0.3 for mobile only; web/shared stay on TypeScript 5).
+- Mobile is not part of root `pnpm build` (builds Web only), left unchanged to avoid root edits.
 
 ## 8. Functional verification performed
 
-Unit tests for the new schemas/helpers (see 9). Both packages import only each other and `zod`; no server-only or infrastructure imports.
+- `expo export --platform android --platform ios` with `EXPO_PUBLIC_APP_ENV=dev` and `EXPO_PUBLIC_API_BASE_URL=http://localhost:3000` (via a temporary, since-deleted `.env.local`): Metro bundled iOS (585 modules) and Android (586 modules) from `index.ts`, resolving `@signalone/shared` through the workspace link. The inlined `localhost:3000` value was present in the Android bundle.
+- Searched the Android bundle for `drizzle`, `neondatabase`, `DATABASE_URL`: only two string literals from shared's pure env parsers (variable names in error messages, no values, never called by mobile). No Drizzle/Neon code.
+- `expo config --type public` resolves `app.config.ts` (platforms ios/android only).
+- `expo install --check`: "Dependencies are up to date".
 
 ## 9. Test/lint/typecheck/build results (latest run)
 
-Root `pnpm` scripts (`pnpm validate`) fail in this sandbox with `pnpm: not found` (scripts shell out to `pnpm`; only `corepack pnpm` is available), so package-level equivalents were run after `corepack pnpm install --frozen-lockfile`:
+`pnpm` is not on PATH in the sandbox, so root scripts (`pnpm validate`) could not be invoked directly; the equivalent was run via `corepack pnpm`:
 
-- `packages/validation`: `npx vitest run` 2 files, 18 tests passed; `npx tsc --noEmit` clean.
-- `packages/shared`: `npx vitest run` 4 files, 34 tests passed; `npx tsc --noEmit` clean.
-- `apps/web`: `npx eslint` clean; `npx next typegen && npx tsc --noEmit` clean; `npx next build` succeeded (5 routes).
-- `apps/web`: `npx vitest run` **2 failed, 41 passed (4 files)**. Both failures are in `lib/security.test.ts` and are caused by `packages/shared/src/testing/index.ts` (a file this branch did not modify; it contains `process.env` access and a fake `postgresql://test:fake-password@...` URL that the repo's static security scan flags). I did not run the suite on a clean `main` checkout to confirm, but the file is untouched here and the offending lines are in it.
+- `corepack pnpm install --frozen-lockfile`: lockfile up to date.
+- `corepack pnpm -r --if-present lint`: clean (mobile and web).
+- `corepack pnpm -r --if-present typecheck`: clean (shared, validation, mobile, web).
+- `corepack pnpm -r --if-present test`: shared 39/39, validation 8/8, mobile 7/7, web 56/56 passed (including `apps/web/lib/security.test.ts`).
+- `corepack pnpm --filter web build`: succeeded, 5 routes.
+
+### Security test note
+
+An earlier revision of this file embedded a credentialed connection string, which tripped the "credentialed postgres url" check in `apps/web/lib/security.test.ts`. It was replaced with a placeholder (`<DEV_DATABASE_URL>`-style wording). The security test was not modified and now passes with the rest of the suite.
 
 ## 10. Not tested, and why
 
-- Root `pnpm validate` as a single command (pnpm not on PATH).
-- Mobile (`apps/mobile` has no scaffold/scripts); consumption of the contracts from React Native/Expo was not exercised.
-- Web consumption: `next.config.ts` `transpilePackages` was not changed and no web code imports the new exports yet.
+- App not run on an iOS simulator, Android emulator, or physical device (none available); no `expo start` session was driven. Only Metro bundling/compilation for both platforms was verified.
+- No EAS build, signing, or store submission.
+- No Clerk or API interaction (not implemented).
+- No React Native component tests (no runner set up; documented in `docs/testing.md`).
+- `expo-doctor` not run.
 
 ## 11. Unresolved concerns
 
-- The 2 `lib/security.test.ts` failures above need a fix (allow-list or relocate the testing helper) by whoever owns `packages/shared/src/testing`; out of scope here.
-- `ERROR_CODES` is part of the contract; clients must tolerate unknown codes (documented, not enforced by a test).
-- No HTTP status mapping or version routing yet.
+- CI (`ci.yml`) runs `pnpm install --frozen-lockfile`; the lockfile was regenerated here and is consistent locally. TypeScript 6 for mobile alongside 5 elsewhere is intentional but worth a glance.
+- `@signalone/shared` ships server/database env parsers into the mobile bundle as unused code (names only). Splitting them behind a subpath export would remove this; deferred as a shared-package change.
+- Identifiers/name/slug/scheme are placeholders.
+- `pnpm build` does not cover mobile; `export` is a manual script, not in CI.
 
 ## 12. Recommended next steps
 
-1. Resolve the pre-existing security-test failures.
-2. Open the PR from this branch and review.
-3. Build the API foundation on `Result`/`resultSchema`/`parseInput`/`Paginated`.
+1. Open the PR and resolve the `security.test.ts` conflict separately.
+2. Define `docs/api.md` and the mobile auth contract, then add `@clerk/expo`, secure storage, and an API client.
+3. Verify on an emulator/simulator and decide whether `expo export` belongs in CI.
+4. Decide store identifiers, EAS project, and navigation approach.

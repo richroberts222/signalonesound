@@ -2,5 +2,32 @@
   "name": "mobile",
   "version": "0.0.0",
   "private": true,
-  "description": "Signal One mobile app (React Native + Expo). Placeholder; Expo is not scaffolded yet."
+  "description": "Signal One mobile app (React Native + Expo). Foundation shell only; no domain features.",
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:deps": "expo install --check",
+    "export": "expo export --platform android --platform ios --output-dir dist"
+  },
+  "dependencies": {
+    "@signalone/shared": "workspace:*",
+    "expo": "~57.0.26",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-native": "0.86.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "~19.2.4",
+    "eslint": "^9",
+    "eslint-config-expo": "~57.0.2",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.2"
+  }
 }

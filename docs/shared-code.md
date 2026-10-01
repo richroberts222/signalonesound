@@ -6,7 +6,7 @@ Signal One is a pnpm workspace monorepo (`pnpm-workspace.yaml`):
 
 ```text
 apps/web              Next.js Web application
-apps/mobile           React Native + Expo application (placeholder, not yet scaffolded)
+apps/mobile           React Native + Expo application (foundation shell; see /docs/mobile.md)
 packages/shared       Shared types, constants, result/error shapes, pure utilities
 packages/validation   Shared Zod validation schemas
 ```

@@ -7,6 +7,7 @@ import {
   isClientExposedName,
   parseClientEnv,
   parseDatabaseEnv,
+  parseMobileClientEnv,
   parseServerEnv,
 } from "./env";
 
@@ -136,6 +137,50 @@ describe("parseClientEnv", () => {
   it("rejects an invalid NEXT_PUBLIC_APP_ENV and a missing key", () => {
     expect(() => parseClientEnv({ ...valid, NEXT_PUBLIC_APP_ENV: "x" })).toThrow(/NEXT_PUBLIC_APP_ENV/);
     expect(() => parseClientEnv({})).toThrow(/NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY/);
+  });
+});
+
+describe("parseMobileClientEnv", () => {
+  const mobile = {
+    EXPO_PUBLIC_APP_ENV: "dev",
+    EXPO_PUBLIC_API_BASE_URL: "http://localhost:3000/",
+  };
+
+  it("accepts a minimal dev config and strips trailing slashes", () => {
+    expect(parseMobileClientEnv(mobile)).toEqual({
+      appEnv: "dev",
+      apiBaseUrl: "http://localhost:3000",
+      clerkPublishableKey: undefined,
+    });
+  });
+  it("requires explicit environment and API base URL", () => {
+    expect(() => parseMobileClientEnv({})).toThrow(/EXPO_PUBLIC_APP_ENV[\s\S]*EXPO_PUBLIC_API_BASE_URL/);
+  });
+  it("rejects invalid environments and malformed URLs", () => {
+    expect(() => parseMobileClientEnv({ ...mobile, EXPO_PUBLIC_APP_ENV: "production" })).toThrow(EnvValidationError);
+    expect(() => parseMobileClientEnv({ ...mobile, EXPO_PUBLIC_API_BASE_URL: "ftp://x" })).toThrow(/http\(s\)/);
+    expect(() => parseMobileClientEnv({ ...mobile, EXPO_PUBLIC_API_BASE_URL: "https://x?a=1" })).toThrow(/http\(s\)/);
+  });
+  it("requires https outside dev", () => {
+    const qa = { EXPO_PUBLIC_APP_ENV: "qa", EXPO_PUBLIC_API_BASE_URL: "http://qa.example.test" };
+    expect(() => parseMobileClientEnv(qa)).toThrow(/https/);
+    expect(parseMobileClientEnv({ ...qa, EXPO_PUBLIC_API_BASE_URL: "https://qa.example.test" }).apiBaseUrl).toBe(
+      "https://qa.example.test",
+    );
+  });
+  it("validates the optional Clerk publishable key without echoing it", () => {
+    expect(
+      parseMobileClientEnv({ ...mobile, EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_x" }).clerkPublishableKey,
+    ).toBe("pk_test_x");
+    let message = "";
+    try {
+      parseMobileClientEnv({ ...mobile, EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: "sk_test_SECRETVALUE" });
+    } catch (e) {
+      message = (e as Error).message;
+    }
+    expect(message).toMatch(/publishable/);
+    expect(message).not.toContain("SECRETVALUE");
+    expect(() => parseMobileClientEnv({ ...mobile, EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_live_x" })).toThrow(/live/);
   });
 });
 
