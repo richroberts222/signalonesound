@@ -328,7 +328,7 @@ Schema/code promotion and application data movement are separate things and are 
 | `stage` | Same migrations, promoted after qa | Production-like; not disposable | **Never** reset/seeded by these tools |
 | `prod` | Same migrations, deliberate reviewed promotion last | Real data | **Never** reset/seeded; never touched by tooling or tests |
 
-* **Schema promotion**: the committed Drizzle migration files move `dev -> qa -> stage -> prod` (section 10). `drizzle-kit push` is never the strategy for qa/stage/prod. Migration execution/promotion procedure is not yet implemented (separate issue).
+* **Schema promotion**: the committed Drizzle migration files move `dev -> qa -> stage -> prod` (section 10). `drizzle-kit push` is never the strategy for qa/stage/prod. The migration workflow is in section 12.3.
 * **Data is never promoted.** Data is not copied between environments by these tools. dev and qa data is created by seeds; stage data is controlled validation data; prod data is real and only changed by the application.
 * **Reset** removes data only (rows in `public` plus the tooling ledger). It keeps the schema, the `drizzle` migration-history schema, and the database. It never drops tables or schemas.
 * **Seed** applies named, idempotent seeds recorded in a ledger (`signalone_tooling.seed_runs`, created by the tooling, not application schema). Re-running seed is a no-op; `db:refresh` (reset then seed) returns an environment to its known state.
@@ -356,6 +356,36 @@ Safety is never inferred from `DATABASE_URL`; the guard does not parse it beyond
 Adding seed data: add a `Seed` (id, description, deterministic statements) to `SEEDS` in `db/tooling/seed.ts` together with the migration that creates its tables. Seeds must be idempotent per ledger id and use fake/test-safe data only. Raw SQL stays inside `db/tooling` (tooling-only, not application code). No domain seed data exists yet; the only seed is the generic `tooling-smoke` ledger marker.
 
 qa credentials: use a separate `DATABASE_ENV=qa` configuration (see `/docs/environment.md`). The qa reset/seed path is implemented identically but has not been exercised against a real qa database.
+
+---
+
+## 12.3 Migration workflow (`apps/web/drizzle`, `db/tooling/migrate.ts`)
+
+Drizzle migrations are the only authoritative way schema changes reach any environment. Generated SQL and `drizzle/meta` are committed to Git. `drizzle-kit push` is never used (no package script exposes it; a test enforces this).
+
+Commands (run from the repo root; `--env` is mandatory for the ones that connect):
+
+```text
+pnpm --filter web db:generate --name=<slug>          # schema.ts -> new SQL migration (no DB changes)
+pnpm --filter web db:migrate --env=dev|qa|stage      # apply pending migrations (idempotent)
+pnpm --filter web db:migrate:status --env=...        # read-only: applied vs pending
+pnpm --filter web db:migrate:verify --env=...        # read-only: schema check (currently the proof table)
+```
+
+Guard (`resolveMigrationTarget`) mirrors the reset/seed guard and fails closed before any connection: `DATABASE_ENV`/`DATABASE_URL` must validate; `APP_ENV`, if set, equals `DATABASE_ENV`; `VERCEL_ENV` unset; target in `dev|qa|stage` (`prod` always refused); `--env` equals `DATABASE_ENV`. Safety is never inferred from `DATABASE_URL`. The runner also refuses to apply when the database history contains migrations unknown to the committed journal.
+
+Per-environment workflow (same migration files at every step; **no data is copied**, see 12.1):
+
+1. **Change**: edit `db/schema.ts` (expand first; contract in a later migration).
+2. **Generate**: `db:generate`. **Review** the SQL for destructive statements (DROP, type changes, NOT NULL on populated tables) and fix by editing the schema/generating again, or by a hand-written reviewed migration.
+3. **DEV**: `db:migrate --env=dev`, then `db:migrate:status` and `db:migrate:verify`. Run again to confirm "no pending migrations". Commit the migration with the schema change.
+4. **QA**: after the PR is merged/promoted, `db:migrate --env=qa` with the qa configuration; status/verify; then `db:refresh --env=qa` if test data is wanted.
+5. **STAGE**: `db:migrate --env=stage` deliberately by a human with stage configuration; status/verify. Stage data is never reset/seeded. Take/confirm a Neon backup/restore point first.
+6. **PROD**: not run by local tooling (refused). A human applies the same reviewed, already-staged migration files through the deliberate production process after a verified backup/restore point exists, then checks status. The exact production automation is not yet defined (undecided).
+
+Migrations already applied to a shared environment are never edited; fix forward with a new migration.
+
+**Forward-only, recovery and rollback.** Migrations are forward-only; Drizzle generates no down migrations. To undo a change, write a new forward migration. If a migration fails mid-way it is not recorded as applied (each runs in a transaction on Postgres), so fix and re-run. If data is damaged or a forward fix is not feasible, recovery is restoring from a Neon backup/point-in-time restore (or a branch from before the change), not reversing migrations. Backups protect data; migrations define schema; a restore returns to an earlier schema+data state, after which the committed migrations bring the schema forward again. Restore procedures themselves are not yet documented/exercised.
 
 ---
 
@@ -588,7 +618,7 @@ At the time this document is established:
 - Drizzle is the selected ORM/schema/migration layer.
 - Detailed Signal One application schema design is still to be developed.
 
-Code status (environment validation lives in `@signalone/shared`, see `/docs/environment.md`): `apps/web/db` contains `env.ts`, `client.ts`, `index.ts` (server-only `getDb()` on `neon-http`), `errors.ts`, `health.ts`, and an empty `schema.ts` (see the layout in section 18). `apps/web/drizzle.config.ts` refuses `prod`. No migrations exist. `pnpm --filter web db:check` runs the read-only `SELECT 1` helper against `dev` only. Transactions are `db.batch` only (section 18). Reset/seed tooling exists (sections 12.1-12.2, `db/tooling`, `db:reset|seed|refresh`); a production migration procedure does not exist yet; see `/docs/boilerplate-gap-report.md`.
+Code status (environment validation lives in `@signalone/shared`, see `/docs/environment.md`): `apps/web/db` contains `env.ts`, `client.ts`, `index.ts` (server-only `getDb()` on `neon-http`), `errors.ts`, `health.ts`, and `schema.ts` (domain-free; contains only the generic `migration_proof` table used to prove migrations; see the layout in section 18). `apps/web/drizzle.config.ts` refuses `prod`. One migration exists (`0000_migration_proof`), applied to `dev` only; qa, stage and prod have not been migrated. `pnpm --filter web db:check` runs the read-only `SELECT 1` helper against `dev` only. Transactions are `db.batch` only (section 18). Reset/seed tooling exists (sections 12.1-12.2, `db/tooling`, `db:reset|seed|refresh`); migration tooling exists (section 12.3) but the production application procedure is not automated; see `/docs/boilerplate-gap-report.md`.
 
 The existence of this document does not imply that every described database capability has already been implemented.
 
