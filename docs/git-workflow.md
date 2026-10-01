@@ -425,7 +425,20 @@ The final state should have:
 
 ---
 
-# 23. Guiding Principle
+# 23. Foundation V1 Baseline Tag
+
+The Git tag `signal-one-foundation-v1` marks the known-good Signal One foundation immediately before product/domain feature development.
+
+* `signal-one-foundation-v1` is the **immutable** Foundation V1 baseline.
+* Do not move, recreate, overwrite, force-update, or delete this tag.
+* The tag is a permanent historical restore/reference point.
+* `main` remains the current approved application state.
+* Product development continues through issue branches and reviewed Pull Requests.
+* Experimental or rejected feature work is abandoned or reverted through the normal Git workflow (for example, closing the PR or reverting on a branch), never by modifying the foundation tag.
+
+---
+
+# 24. Guiding Principle
 
 Git should make the development process **safer and easier to understand**, not more complicated.
 
