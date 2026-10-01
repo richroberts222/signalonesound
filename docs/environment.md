@@ -62,7 +62,7 @@ Validation fails (throws) when:
 
 Code cannot detect a `DATABASE_URL` that points at the wrong Neon branch while `DATABASE_ENV` claims otherwise; Vercel Preview variables must be configured carefully.
 
-Tooling uses `assertDestructiveAllowed`: unknown target is refused, protected environments are refused even if listed, and the target must be in the allowed set. `assertNotProd` is the lighter guard for non-destructive tooling. `drizzle-kit` allows `dev`/`qa`/`stage`; `db:check` allows `dev` only. Future reset/seed (not implemented) must use the same guard with an allow-list of `dev`/`qa`.
+Tooling uses `assertDestructiveAllowed`: unknown target is refused, protected environments are refused even if listed, and the target must be in the allowed set. `assertNotProd` is the lighter guard for non-destructive tooling. `drizzle-kit` allows `dev`/`qa`/`stage`; `db:check` allows `dev` only. Reset/seed (`db:reset`, `db:seed`, `db:refresh`) use the same guard with an allow-list of `dev`/`qa`, additionally requiring `APP_ENV` (if set) to equal `DATABASE_ENV`, `VERCEL_ENV` unset, and an explicit matching `--env=` flag; see `/docs/database.md` section 12.2.
 
 ## Local configuration
 
@@ -76,9 +76,9 @@ Copy `apps/web/.env.example` to `apps/web/.env.local` (gitignored) and fill in d
 
 Set per Vercel environment (see `/docs/deployment.md`): `DATABASE_ENV`, `DATABASE_URL`, `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, and optionally `APP_ENV`. Production must set `DATABASE_ENV=prod` (and `APP_ENV=prod` if set); Preview must set `DATABASE_ENV=qa` (and `APP_ENV=qa` if set), otherwise validation fails on the first server request. Existing Vercel configuration works unchanged because `APP_ENV` is optional.
 
-## Future Expo/EAS (not built)
+## Mobile (Expo)
 
-Mobile uses the same `parseClientEnv` shape, fed from `EXPO_PUBLIC_*` variables (Clerk publishable key, API base URL, optional app env) set per EAS build profile (`dev`/`qa`/`stage`/`prod`). `EXPO_PUBLIC_*` is embedded in the app bundle and is public. Mobile never receives `DATABASE_URL` or `CLERK_SECRET_KEY` and talks only to the API. A mobile API-base-URL field will be added to the client schema when Expo is scaffolded.
+Mobile uses `parseMobileClientEnv` (`packages/shared/src/env.ts`), fed by `apps/mobile/src/config/env.ts` from literal `EXPO_PUBLIC_*` reads: `EXPO_PUBLIC_APP_ENV` (required), `EXPO_PUBLIC_API_BASE_URL` (required; `https` outside `dev`), `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` (optional until Clerk integration; `pk_` only, `pk_live_` only in `prod`). Values are set per EAS build profile (`dev`/`qa`/`stage`/`prod`) or in `apps/mobile/.env.local` locally (template: `apps/mobile/.env.example`). `EXPO_PUBLIC_*` is embedded in the app bundle and is public. Mobile never receives `DATABASE_URL` or `CLERK_SECRET_KEY` and talks only to the API. See `/docs/mobile.md`.
 
 ## Testing
 

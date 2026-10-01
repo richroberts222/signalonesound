@@ -16,7 +16,7 @@ Current setup: `db/env.ts` validates `DATABASE_ENV`; `db/index.ts` (server-only)
 
 Migration workflow (documented in `database.md` section 10): edit schema -> `db:generate` -> review SQL -> commit -> `db:migrate` against `dev`/`qa`/`stage`; `prod` only via a deliberate, separate process that is **not yet defined**.
 
-Reset/seed strategy (`database.md` section 12) is documented but has no tooling.
+Reset/seed strategy (`database.md` section 12) now has tooling (Issue 35); the production migration procedure is still missing.
 
 Missing universal database helpers:
 

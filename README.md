@@ -1,6 +1,6 @@
 # Signal One
 
-A pnpm monorepo: a Next.js web app (`apps/web`), a placeholder Expo mobile app (`apps/mobile`), and shared packages (`packages/*`). Web, Android, and iPhone are clients of one backend. Project rules live in [`CLAUDE.md`](CLAUDE.md) and [`/docs`](docs).
+A pnpm monorepo: a Next.js web app (`apps/web`), an Expo mobile app foundation shell (`apps/mobile`), and shared packages (`packages/*`). Web, Android, and iPhone are clients of one backend. Project rules live in [`CLAUDE.md`](CLAUDE.md) and [`/docs`](docs).
 
 ## Prerequisites
 
@@ -82,7 +82,7 @@ No application tables exist yet. See [`docs/database.md`](docs/database.md) for 
 
 ```text
 apps/web            Next.js (App Router) web app
-apps/mobile         Expo app (placeholder)
+apps/mobile         Expo app (foundation shell)
 packages/shared     Shared types, constants, result/error shapes, pure utilities
 packages/validation Shared Zod schemas
 docs                Architecture and project rules (source of truth)

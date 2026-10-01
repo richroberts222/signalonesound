@@ -19,7 +19,7 @@
 
 `apps/web/lib/services/{context,errors,run,atomic,index}.ts`, `apps/web/lib/services/services.test.ts`, `docs/services.md`, `docs/web.md`, `docs/auth.md`, `docs/notes.md`.
 
-## 7. Architecture decisions
+No database, schema, migration, reset/seed, auth, API, workflow, or root `package.json` changes.
 
 - Services are plain functions/factories taking `(ctx: ServiceContext, input)`; identity only from `ctx`, never input. No FormData/Request/Next/React/Clerk/Drizzle-client imports in service code (type-only `Database` import allowed; enforced by test).
 - Dependencies injected via factory arguments (data-access, `AtomicRunner`, clock/ID). No DI framework.
