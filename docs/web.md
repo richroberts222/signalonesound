@@ -11,6 +11,8 @@ The Web application lives in `apps/web`.
 
 Clerk is integrated in the Web app (see `/docs/auth.md`). Drizzle ORM and the Neon serverless driver are installed; the server-only connection lives in `apps/web/db` and no tables are defined yet (see `/docs/database.md`).
 
+Shared packages (`packages/shared`, `packages/validation`) exist but are not yet imported by the Web app. Add them to `transpilePackages` in `next.config.ts` at first import (see `/docs/shared-code.md`).
+
 ## Agent instructions
 
 Next.js 16's automatic `AGENTS.md`/`CLAUDE.md` generation (`next dev`) is intentionally disabled via `agentRules: false` in `apps/web/next.config.ts`. Those files are not authoritative for this project: the root `CLAUDE.md` and `/docs` are the sole source of project guidance. `apps/web/AGENTS.md` and `apps/web/CLAUDE.md` are gitignored as a safety net in case this is ever re-enabled.

@@ -247,7 +247,24 @@ importers:
         specifier: ^5
         version: 5.9.3
 
-  packages/shared: {}
+  packages/shared:
+    devDependencies:
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  packages/validation:
+    dependencies:
+      '@signalone/shared':
+        specifier: workspace:*
+        version: link:../shared
+      zod:
+        specifier: ^4
+        version: 4.6.5
+    devDependencies:
+      typescript:
+        specifier: ^5
+        version: 5.9.3
 
 packages:
 
