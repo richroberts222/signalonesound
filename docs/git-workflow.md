@@ -152,6 +152,8 @@ If the branch is significantly behind or conflicts are likely, Claude should upd
 
 Claude may resolve merge conflicts on its own development branch when the correct resolution is clear.
 
+To incorporate `main`, Claude runs `git fetch origin main` and `git merge origin/main` on the canonical PR branch (never rebase, never force-push), then pushes with the push helper. Procedure and constraints: `/docs/issues.md`.
+
 Claude MUST NOT resolve conflicts by silently discarding existing work.
 
 If a conflict cannot be resolved confidently, Claude should stop and explain the conflict.
@@ -235,6 +237,8 @@ Human merges Pull Request
 ```
 
 Claude may continue working on the Pull Request if the human requests changes or if review feedback is provided. Further `@claude` implementation requests should be made from the PR, not the original issue.
+
+Everything from review to fix to merge can be done from GitHub on a phone: comment `@claude` on the PR, Claude pushes to the PR head branch, CI re-runs, and Rich merges manually. See `/docs/issues.md`.
 
 ---
 
