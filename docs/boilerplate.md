@@ -45,7 +45,7 @@ Not automated, deliberately: creating Clerk, Neon, Vercel, GitHub, Expo/EAS, App
 
 ### Markers in docs
 
-`<!-- boilerplate:proof:start -->...<!-- boilerplate:proof:end -->` wraps prose about the proof slice; `boilerplate:template` wraps template-only prose. Init removes both. Markers on their own lines delimit a whole section; inline markers remove exactly the enclosed text.
+`<!-- boilerplate:proof:start -->...<!-- boilerplate:proof:end -->` wraps prose about the proof slice; `boilerplate:template` wraps template-only prose; `boilerplate:reference` wraps Signal One reference-app-only prose (for example the foundation tag section of `docs/git-workflow.md`) and is removed at export. Init removes all three. Markers on their own lines delimit a whole section; inline markers remove exactly the enclosed text.
 
 ## Standalone boilerplate repository (Issue 53)
 

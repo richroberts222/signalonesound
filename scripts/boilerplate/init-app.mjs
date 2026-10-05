@@ -78,7 +78,7 @@ export function applyIdentity(text, { name, slug, scope, bundleId }, sources = S
  * Markers alone on their own lines delimit whole sections (the blank line after
  * the end marker goes too); markers inside a line remove exactly the enclosed text.
  */
-export function stripMarkedRegions(text, kinds = ["proof", "template"]) {
+export function stripMarkedRegions(text, kinds = ["proof", "template", "reference"]) {
   const kind = `(${kinds.join("|")})`;
   return text
     .replace(new RegExp(`^<!-- boilerplate:${kind}:start -->\\n[\\s\\S]*?^<!-- boilerplate:\\1:end -->\\n\\n?`, "gm"), "")

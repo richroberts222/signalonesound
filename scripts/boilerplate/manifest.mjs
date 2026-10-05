@@ -41,6 +41,8 @@ export const EXPORT_EXCLUDED_PATHS = [
   "docs/boilerplate-gap-report.md",
   "docs/boilerplate-references-report.md",
   "docs/notes.md",
+  "docs/naming-conventions.md",
+  "docs/product",
 ];
 
 /** Directories never scanned or copied. */

@@ -427,6 +427,7 @@ The final state should have:
 
 ---
 
+<!-- boilerplate:reference:start -->
 # 23. Foundation V1 Baseline Tag
 
 The Git tag `signal-one-foundation-v1` marks the known-good Signal One foundation immediately before product/domain feature development.
@@ -439,6 +440,8 @@ The Git tag `signal-one-foundation-v1` marks the known-good Signal One foundatio
 * Experimental or rejected feature work is abandoned or reverted through the normal Git workflow (for example, closing the PR or reverting on a branch), never by modifying the foundation tag.
 
 ---
+
+<!-- boilerplate:reference:end -->
 
 # 24. Guiding Principle
 

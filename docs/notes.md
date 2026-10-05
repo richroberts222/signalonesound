@@ -49,6 +49,21 @@
 * Stale-reference defect found and fixed: roadmap and naming docs described the Issue #57 home UI as present; PR #59 reverted it.
 * Product development doc checked against the source plan: no requirement conflicts found; nothing in it assumed plan content.
 
+## CI fix: standalone boilerplate leak check (follow-up on PR #62)
+
+CI / Validate failed in `pnpm test:boilerplate`: the export test (`scripts/boilerplate/boilerplate.test.mjs`) found Signal One Sound identity in `docs/git-workflow.md`, `docs/naming-conventions.md`, and `docs/product/roadmap.md` of the exported standalone tree. Cause: export rewrites only "Signal One"/`signalone`, so the hyphenated slugs `signal-one-sound` and `signal-one-foundation-v1` survived.
+
+Fix, using the existing mechanisms (no change to `check-boilerplate.mjs` or its identity pattern; no product terminology removed):
+
+* `scripts/boilerplate/manifest.mjs`: `docs/naming-conventions.md` and `docs/product` added to `EXPORT_EXCLUDED_PATHS` (reference-app-only files, same list that already holds `docs/notes.md`). The Signal One Sound product docs stay in the reference app and are not copied to the standalone boilerplate.
+* `docs/git-workflow.md`: section 23 (Foundation V1 baseline tag, specific to this repository) wrapped in `<!-- boilerplate:reference:start/end -->` marker lines, the existing `<!-- boilerplate:KIND:start/end -->` convention with one new kind, `reference`.
+* `scripts/boilerplate/export-template.mjs`: export strips `proof` and `reference` regions (`template` regions are kept at export, since the README block depends on them). `init-app.mjs`: `stripMarkedRegions` default kinds now include `reference`.
+* `docs/boilerplate.md`: marker documentation updated.
+
+Validation: NOT run. The sandbox denied `node --test` / export commands and `pnpm` is not installed, so `pnpm test:boilerplate` and `pnpm validate` were not executed. The change was reasoned from the checker and export code only. CI must confirm. Rich: please check the CI result.
+
+Known follow-up (not changed, out of scope): the excluded product docs are still referenced from files that ship in the export (for example `docs/product-development.md`, `docs/features/README.md`, `docs/issues.md`, `docs/testing.md`, `CLAUDE.md`), leaving dangling links in the standalone boilerplate. Those need `reference` regions or exclusion in a separate pass.
+
 ## Branch note
 
 The session started on a different local branch (`claude/issue-60-20261005-1549`, equal to `main`). I loaded the canonical branch's files and am pushing to the canonical branch as instructed, not creating a new implementation branch.
