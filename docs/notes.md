@@ -1,74 +1,65 @@
-# Notes — Issue #57: Create First Signal One Home UI Concept
+# Notes: Issue #60, Establish Signal One Sound Product Development System
 
-- PR: none yet at time of writing (see issue #57 comment for the PR link).
-- Canonical branch: `claude/issue-57-20261001-2129` (base `main`).
-- Latest commit: see `git log` on the branch.
-- Status: **experimental, web-only visual concept**. No backend, DB, API, auth, env, or Expo changes. `signal-one-foundation-v1` tag untouched.
+## Current work
 
-## Work completed
+* Issue: #60, "Establish Signal One Sound Product Development System".
+* PR: created after push (link in the issue #60 comment).
+* Canonical branch: `claude/issue-60-20261005-0646` (base `main`).
+* Latest commit: see `git log` on the branch.
+* Scope: documentation/rules only. No application, DB, auth, API, mobile, env, or workflow changes. `signal-one-foundation-v1` untouched. No PROD access.
 
-A responsive fire/gold home page at `/` with a hero ("Signal One", "Holy. United. Awakened."), a "Find Revival" search/filter/map-preview section, and an upcoming-gatherings card grid.
+## BLOCKER / DISCREPANCY: product plan not supplied
 
-## Files changed
+* Instruction assumed: Rich's Signal One Sound product plan is available to translate into `/docs/product/product-plan.md`.
+* Repository/issue actually contain: no plan text (issue body has none, no comments/attachments, no "ROCK"/"ROCK SOS" text anywhere in the repo).
+* Why it matters: the issue forbids inventing or silently filling product requirements.
+* Resolution taken: `product-plan.md` is a clearly labeled PENDING SOURCE scaffold with the tiered structure and normalization rule, but **no product content**. Rich must supply the plan (paste into the PR/issue); a follow-up run then populates the minimum/startup, later Phase 1, Phase 2+, long-term, and UNDECIDED sections. This PR should not be treated as complete for issue section 15 until then.
 
-- `apps/web/app/page.tsx` — replaced placeholder home with Hero + RevivalFinder + footer.
-- `apps/web/app/globals.css` — scoped home theme tokens, gold text utility, reduced-motion-aware glow animation.
-- `apps/web/components/home/hero.tsx` — new.
-- `apps/web/components/home/revival-finder.tsx` — new (client component, local state only).
-- `apps/web/components/home/mock-data.ts` — new, static mock data.
-- `apps/web/components/ui/badge.tsx`, `input.tsx` — added via shadcn CLI (import of `cn` changed to `@/lib/utils` to match existing ui files).
-- `docs/notes.md` — this file.
+## Documents created
 
-## Visual direction
+* `docs/product-development.md`: the system (authority, pipeline, mock-first, DB design checkpoint, testing layers, reset/seed use, manual testing, Definition of Done, drift, handoff).
+* `docs/naming-conventions.md`: product name, identifier distinctions, domain terms (all UNDECIDED).
+* `docs/product/product-plan.md` (pending scaffold), `docs/product/roadmap.md` (no slices approved), `docs/features/README.md` (spec guidance).
 
-Dark warm-brown background, radial ember/orange glow behind the hero, amber/gold primary, gold gradient wordmark, translucent glass cards with amber ring and soft glow on hover. All effects are CSS gradients; no images or external assets.
+## Documents modified
 
-The theme is applied as a **scoped token override** (`body:has(.signal-home)`) so other routes (dashboard, proof, sign-in/up) keep the default theme. The layout's `AuthHeader` picks up the dark tokens automatically. This is an experiment, not a permanent branding or theming rule.
+* `CLAUDE.md`: new doc references in section 3, new concise section "19. Product Development System" (routing rules); former "Final Rule" renumbered to 20.
+* `docs/issues.md`: notes.md required contents extended with the issue's handoff sections.
+* `docs/notes.md`: overwritten (this file).
 
-## shadcn components
+## Existing rules reused (not duplicated)
 
-Reused: `Button`, `Card` (+Header/Title/Description/Content/Footer). Added: `Badge`, `Input`.
+Test Value Review and `docs/automation/*` (layers linked, not restated); `docs/database.md` sections 6, 10, 12, 22 and the `db:reset|seed|refresh --env=dev|qa` tooling; one-issue/one-branch/PR and never-merge rules in `docs/issues.md`; secrets rule (no URLs or credentials added); `docs/ideas` "not authorization" principle.
 
-## Mock/static data
+## Conflicts / duplication / discoveries
 
-`components/home/mock-data.ts`: event type filters, six placeholder gatherings (fictional "Example"/"Sample" hosts), five map pin positions. Not persisted, not fetched.
+* Repo brand is "Signal One"/`signalone` (package `signalone`, `@signalone/*`, Expo name, README, home UI), not "Signal One Sound". Documented as historical in `naming-conventions.md`; nothing renamed. UI copy still says "Signal One"; changing it is a separate approved slice.
+* No domain terms are defined anywhere in docs, so all ten are UNDECIDED.
+* Workflow notes: `docs/boilerplate*.md` and `docs/customization-map.md` describe the template-era naming; left unchanged as historical.
 
-## Responsive behavior
+## Decisions made
 
-Mobile-first. Hero CTAs stack full-width on phones; filter chips scroll horizontally on narrow screens and wrap from `sm`; cards are 1 column → 2 (`sm`) → 3 (`lg`); map preview stacks under search on mobile and sits beside it on `lg`. Touch targets are 40–44px tall.
+* Pending scaffold rather than inferring a plan (see blocker).
+* Process content lives in one new doc; CLAUDE.md remains a router.
+* Product-development doc is "required for product feature work" rather than a global gate.
 
-## Animations / effects
+## Validation performed
 
-One slow "breathing" opacity/scale animation (`signal-flame`) on the hero glow and map pins; disabled under `prefers-reduced-motion: reduce`. Hover glow on cards is a shadow transition only.
-
-## Accessibility
-
-Decorative glows/pins are `aria-hidden`; map preview has a text alternative; search is a labeled `role="search"` form; filters are buttons with `aria-pressed` in a labeled group; result count is `aria-live="polite"`; icons are `aria-hidden`; shadcn focus rings preserved. Muted text is a light amber on dark brown (intended to be readable; contrast ratios were not measured with a tool).
-
-## Tests
-
-None added. Test Value Review: the change is presentational with static data; the only logic is a trivial in-memory filter over mock data, which does not protect meaningful product behavior. Existing tests unaffected.
-
-## Validation actually performed (latest run)
-
-- `pnpm --dir apps/web lint` — passed, no output.
-- `pnpm --dir apps/web typecheck` — passed.
-- `pnpm --dir apps/web build` — passed.
-- `pnpm --dir apps/web test` — 13 files, 124 tests passed.
+* Manual review of cross-references: every path referenced from CLAUDE.md and the new docs exists in the branch (docs listed above plus existing automation/database/issues docs).
+* Checked for no real or credential-shaped URLs/secrets in new content.
+* No automated tests, lint, typecheck, or build were run: docs-only change, no code touched, and per Test Value Review no tests are justified. CI will run its normal checks.
 
 ## Not tested
 
-- Not viewed in a browser or on a real phone/tablet (no screenshots taken); visual quality, overflow, and contrast are unverified until the Vercel Preview is reviewed.
-- Playwright e2e not run (requires Clerk test setup). Mobile app not touched or run.
-- Database-backed/integration tests not run (DEV/QA/STAGE/PROD DBs not accessed).
+* Markdown rendering and links were not checked with a tool.
+* `docs/testing.md` and `docs/git-workflow.md` were not edited; I did not audit them for wording that conflicts with the new "Vercel Preview before merge" rule.
 
-## Unresolved visual concerns
+## Unresolved questions for Rich
 
-- The `body:has()` token override is a concept shortcut; a real theme would likely use a route group/layout.
-- Hero glow sizing and the horizontally scrolling chip row need on-device review.
-- `backdrop-filter` blur on cards/header may be heavy on low-end phones.
-- The `Show` signed-in/out hero content from the old placeholder was removed; auth actions remain in the header.
+1. Please supply the product plan (see blocker).
+2. Definitions for the UNDECIDED domain terms (Event, Revival, Church, Ministry, Church/Ministry, Organizer, Speaker, Revival Type, Gathering, Venue) when needed by a feature.
+3. When should user-facing "Signal One" copy (home UI, Expo display name) change to "Signal One Sound"?
 
-## Recommended next steps
+## Recommended next step (recommendation only)
 
-Review the Vercel Preview on an iPhone, pick which concepts (map, filters, cards) to keep, then decide on theme/branding rules and document them in `docs/ui.md`.
+Supply the product plan, then run a follow-up on this PR to populate `product-plan.md` and seed the roadmap. After merge, the first feature slice should be chosen by Rich from the minimum/startup tier.
