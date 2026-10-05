@@ -12,11 +12,11 @@ export const metadata: Metadata = {
 export default function DiscoverPage() {
   return (
     <main className="flex flex-1 flex-col">
-      <section className="bg-hero text-hero-foreground">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-10 sm:px-6 sm:py-14">
-          <BrandWordmark className="text-sm text-highlight" />
-          <h1 className="font-heading max-w-2xl text-4xl leading-tight font-semibold tracking-tight sm:text-5xl">
-            Find the fire <span className="text-highlight">near you.</span>
+      <section className="bg-hero-glow border-b text-hero-foreground">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-12 sm:px-6 sm:py-16">
+          <BrandWordmark className="text-sm" />
+          <h1 className="font-heading max-w-2xl text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl">
+            Find the fire <span className="text-gradient-gold">near you.</span>
           </h1>
           <p className="max-w-xl text-base text-hero-foreground/80 sm:text-lg">
             Revival gatherings, tent meetings, worship nights, and prayer: discover what God is

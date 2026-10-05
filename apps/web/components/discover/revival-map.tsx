@@ -42,7 +42,7 @@ export function RevivalMap({ origin, radius, results, selectedId, onSelect, clas
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         role="group"
         aria-label={`Map of ${results.length} events near ${origin.label}`}
-        className="aspect-square w-full rounded-xl border bg-muted"
+        className="aspect-square w-full rounded-xl border bg-card shadow-glow"
       >
         {[1, 2, 3].map((i) => (
           <g key={i} className="stroke-border" strokeWidth={1}>
@@ -101,12 +101,12 @@ export function RevivalMap({ origin, radius, results, selectedId, onSelect, clas
             >
               {/* larger transparent hit area for touch */}
               <circle cx={x} cy={y} r={16} className="fill-transparent" />
-              {active ? <circle cx={x} cy={y} r={13} className="fill-highlight/60" /> : null}
+              {active ? <circle cx={x} cy={y} r={13} className="fill-primary/35" /> : null}
               <circle
                 cx={x}
                 cy={y}
                 r={active ? 8 : 6}
-                className={cn("stroke-background transition-all", active ? "fill-primary" : "fill-primary/80")}
+                className={cn("stroke-background transition-all", active ? "fill-highlight" : "fill-primary/90")}
                 strokeWidth={2}
               />
             </g>

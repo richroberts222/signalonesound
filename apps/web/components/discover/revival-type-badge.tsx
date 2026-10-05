@@ -3,5 +3,5 @@ import { revivalTypeLabel, type RevivalTypeId } from "@/lib/discover/revival-typ
 
 /** The one visual representation of a Revival Type tag on an Event. */
 export function RevivalTypeBadge({ type }: { type: RevivalTypeId }) {
-  return <Badge variant="secondary">{revivalTypeLabel(type)}</Badge>;
+  return <Badge variant="outline">{revivalTypeLabel(type)}</Badge>;
 }

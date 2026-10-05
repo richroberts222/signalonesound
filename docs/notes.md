@@ -6,6 +6,18 @@
 * **Type:** MOCK-FIRST product discovery. Web only. No schema, API, auth, migration, or production-data change.
 * **Not product-approved by CI.** Rich must explore the Vercel Preview and approve.
 
+## Visual direction revision (PR #67 follow-up, requested by Rich)
+
+The cream/beige, burnt-orange, serif look was **not approved**. Replaced with a dark, gold-illuminated direction. Repo review: no brand/visual reference assets exist (only the reverted Issue #57 fire/gold concept, which is not a requirement), so the direction follows Rich's written brief.
+
+* **Tokens only** (`apps/web/app/globals.css`): black/charcoal surfaces, luminous gold `primary`, bright-gold `highlight`, new `ember` accent (warm amber-orange, not dominant), new `glow` shadow color, `shadow-glow` utilities, and `bg-atmosphere` / `bg-hero-glow` / `text-gradient-gold` utilities. The app is dark-only (`dark` on `<html>`).
+* **Typography:** Fraunces serif removed; Geist for headings and body, heavier weights for hierarchy. Also fixed `--font-sans`, which previously did not resolve to Geist.
+* **Home (`/`)** recomposed: full-width glowing hero ("Find the fire near you."), primary CTA, three-step explainer, and a "Happening soon" strip of mock events. The `/discover` hero uses the same tokens.
+* **Components** only consume tokens: Button default gets a gold glow, event cards and map glow on hover/selection, Revival Type badges are outlined, header is translucent (sticky on larger screens). Text wordmark kept; no logo designed.
+* **Unchanged:** all Discover functionality, mock data, and scope; no backend or schema change.
+* **Validation:** lint, typecheck, 133 unit tests, and `next build` pass. I could not view the rendered UI, so please review the Vercel Preview on desktop and iPhone (home, `/discover` after Near Me, map, Event Details).
+* **Known gap:** dashboard, proof, and Clerk screens inherit the dark theme through tokens but were not individually reviewed.
+
 ## What was built
 
 An interactive, responsive Discover Revival mock at **`/discover`** with Event Details at **`/discover/<event-id>`**. `/` gained a "Discover revival near you" button. Flow:
@@ -44,8 +56,8 @@ Accounts/sign-in gating, invite friends, push notifications and criteria, city/s
 
 ## Files changed
 
-* **Routes:** `apps/web/app/discover/page.tsx`, `apps/web/app/discover/[eventId]/page.tsx`; `apps/web/app/page.tsx` (wordmark + Discover button); `apps/web/app/layout.tsx` (title "Signal One Sound", display font).
-* **Theme:** `apps/web/app/globals.css` (ember/gold tokens).
+* **Routes:** `apps/web/app/discover/page.tsx`, `apps/web/app/discover/[eventId]/page.tsx`; `apps/web/app/page.tsx` (wordmark + Discover button); `apps/web/app/layout.tsx` (title "Signal One Sound", dark theme).
+* **Theme:** `apps/web/app/globals.css` (dark gold/ember tokens, atmosphere utilities).
 * **Brand:** `apps/web/components/brand/brand-wordmark.tsx`; `apps/web/components/auth/auth-header.tsx` now uses it.
 * **Discover components:** `apps/web/components/discover/` `discover-experience`, `discover-filters`, `filter-chip`, `event-card`, `revival-type-badge`, `revival-map`, `event-actions`, `save-button`, `mock-banner`.
 * **shadcn primitives added (official tooling):** `components/ui/tabs.tsx`, `badge.tsx`, `input.tsx`.
@@ -130,7 +142,7 @@ Event with title, summary, description, one or more Revival Types, start/end dat
 ## Unresolved concerns
 
 * Visual result unverified by me (see Verification); expect polish feedback.
-* Fraunces (Google font) added for headings; confirm or replace.
+* Fraunces was removed in the dark revision; headings use Geist (confirm the typography direction).
 * Mock "today" is fixed to Oct 5, 2026 and will look stale later.
 
 ## Recommended next steps (recommendation only)

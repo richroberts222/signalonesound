@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export function AuthHeader() {
   return (
-    <header className="flex h-14 items-center justify-between border-b px-4 sm:px-6">
+    <header className="flex h-14 items-center justify-between border-b bg-background/70 px-4 backdrop-blur sm:sticky sm:top-0 sm:z-40 sm:px-6">
       <Link href="/" aria-label="Signal One Sound home">
         <BrandWordmark />
       </Link>

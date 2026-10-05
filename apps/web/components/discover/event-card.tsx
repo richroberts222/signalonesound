@@ -29,8 +29,8 @@ export function EventCard({ event, distanceMiles, query, selected, onHover }: Ev
       onMouseEnter={() => onHover?.(event.id)}
       onMouseLeave={() => onHover?.(null)}
       className={cn(
-        "relative flex flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground shadow-xs transition-colors hover:border-primary/50 focus-within:border-primary/50",
-        selected && "border-primary ring-2 ring-primary/30",
+        "relative flex flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground shadow-xs transition-all hover:border-primary/50 hover:shadow-glow focus-within:border-primary/50",
+        selected && "border-primary shadow-glow",
       )}
     >
       <div className="flex items-start justify-between gap-3">

@@ -9,11 +9,11 @@ export function BrandWordmark({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        "font-heading text-base font-semibold tracking-tight whitespace-nowrap",
+        "font-heading text-base font-bold tracking-tight whitespace-nowrap",
         className,
       )}
     >
-      Signal One <span className="text-primary">Sound</span>
+      Signal One <span className="text-gradient-gold">Sound</span>
     </span>
   );
 }
