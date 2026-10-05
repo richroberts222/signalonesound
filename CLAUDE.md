@@ -57,6 +57,10 @@ Expected documentation includes:
 * `/docs/routing.md`
 * `/docs/server-components.md`
 * `/docs/issues.md` (required whenever working on a GitHub issue or PR; defines the `docs/notes.md` handoff rule)
+* `/docs/product-development.md` (product delivery process; required for product feature work)
+* `/docs/naming-conventions.md` (authoritative for naming and domain terminology)
+* `/docs/product/product-plan.md` and `/docs/product/roadmap.md` (product direction and sequencing; `/docs/product/source-product-plan.md` is the preserved source)
+* `/docs/features/` (approved feature specifications)
 
 Not all of these documents may exist yet.
 
@@ -396,7 +400,21 @@ The repository's security tests enforce this. Never change or weaken them to mak
 
 ---
 
-# 19. Final Rule
+# 19. Product Development System
+
+Detailed rules: `/docs/product-development.md`.
+
+* `/docs/naming-conventions.md` is authoritative for naming. The user-facing product name is **Signal One Sound**; do not rename technical identifiers without a compatibility evaluation. Terms marked UNDECIDED must not be invented; ask Rich.
+* `/docs/product/product-plan.md` is authoritative for product direction. Applicable specs under `/docs/features/` define approved feature behavior.
+* Future product knowledge does NOT authorize implementation; only an approved issue does. One feature slice / issue / canonical branch / PR at a time; recommend the next slice, never start it.
+* Repository-observed facts outrank external assumptions. Surface meaningful discrepancies (what was assumed, what exists, why it matters, recommended resolution); if material, stop and ask.
+* Exploratory UI/features must be reviewed (Vercel Preview where applicable) before merge. Claude never merges.
+* `docs/notes.md` is overwritten for the current work and must give exact current implementation visibility, including concrete manual-testing steps for Rich (`/docs/issues.md`).
+* Material documentation drift is a defect; update docs in the same work.
+
+---
+
+# 20. Final Rule
 
 Before implementing anything substantial, ask:
 

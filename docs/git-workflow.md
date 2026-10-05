@@ -266,6 +266,8 @@ A successful Vercel deployment does not mean the Pull Request is automatically a
 
 The human developer retains final approval.
 
+Exploratory UI/features MUST be reviewed in a Vercel Preview by Rich before merge, and must not be merged merely to obtain a Preview. Claude provides concrete review steps in `docs/notes.md`. See `/docs/product-development.md` (sections 3 and 8).
+
 ---
 
 # 14. Local Branch Inspection
