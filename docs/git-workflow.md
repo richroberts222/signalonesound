@@ -266,6 +266,8 @@ A successful Vercel deployment does not mean the Pull Request is automatically a
 
 The human developer retains final approval.
 
+Exploratory UI/features MUST be reviewed in a Vercel Preview by Rich before merge, and must not be merged merely to obtain a Preview. Claude provides concrete review steps in `docs/notes.md`.<!-- boilerplate:reference:start --> See `/docs/product-development.md` (sections 3 and 8).<!-- boilerplate:reference:end -->
+
 ---
 
 # 14. Local Branch Inspection
@@ -425,6 +427,7 @@ The final state should have:
 
 ---
 
+<!-- boilerplate:reference:start -->
 # 23. Foundation V1 Baseline Tag
 
 The Git tag `signal-one-foundation-v1` marks the known-good Signal One foundation immediately before product/domain feature development.
@@ -437,6 +440,8 @@ The Git tag `signal-one-foundation-v1` marks the known-good Signal One foundatio
 * Experimental or rejected feature work is abandoned or reverted through the normal Git workflow (for example, closing the PR or reverting on a branch), never by modifying the foundation tag.
 
 ---
+
+<!-- boilerplate:reference:end -->
 
 # 24. Guiding Principle
 
