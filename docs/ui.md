@@ -1,6 +1,6 @@
 # UI Standards
 
-This document defines the UI architecture and coding standards for Signal One.
+This document defines the UI architecture and coding standards for Signal One Sound.
 
 ---
 
@@ -8,7 +8,7 @@ This document defines the UI architecture and coding standards for Signal One.
 
 Signal One is a multi-client application.
 
-The UI architecture differs by client while sharing the broader Signal One platform architecture.
+The UI architecture differs by client while sharing the broader Signal One Sound platform architecture.
 
 ### Web
 
@@ -36,7 +36,7 @@ Mobile UI should follow React Native and platform-appropriate interaction patter
 
 ## 2. Web Component System
 
-**shadcn/ui is the standard component system for the Signal One Web application.**
+**shadcn/ui is the standard component system for the Signal One Sound Web application.**
 
 When a suitable shadcn/ui component exists, use it rather than creating an equivalent custom component.
 
@@ -66,7 +66,7 @@ The available shadcn/ui components should be checked before creating a new compo
 
 shadcn/ui components are treated as project-owned source code rather than as an opaque component library.
 
-Components should be added to the project using the shadcn/ui tooling and then customized when appropriate for Signal One.
+Components should be added to the project using the shadcn/ui tooling and then customized when appropriate for Signal One Sound.
 
 Do not replace shadcn/ui with another Web component framework without an explicit architectural decision.
 
@@ -76,7 +76,7 @@ Do not introduce competing Web UI component libraries unless specifically approv
 
 ## 4. Tailwind CSS
 
-Tailwind CSS is the primary styling system for the Signal One Web application.
+Tailwind CSS is the primary styling system for the Signal One Sound Web application.
 
 Prefer Tailwind utility classes and the established shadcn/ui styling patterns over:
 
@@ -102,16 +102,16 @@ Existing shadcn component
         ↓
 Composition
         ↓
-Signal One-specific component
+Signal One Sound-specific component
 ```
 
 over repeatedly creating visually similar components.
 
-Signal One-specific components should be created when they provide meaningful application-level behavior or reusable composition.
+Signal One Sound-specific components should be created when they provide meaningful application-level behavior or reusable composition.
 
 Avoid creating unnecessary abstractions for one-off elements.
 
-The full reuse order, variant, and override rules are in sections 22 to 26.
+The full reuse order, variant, and override rules are in sections 23 to 27.
 
 ---
 
@@ -136,9 +136,9 @@ Authentication UI must follow the rules in:
 For Web authentication:
 
 * Use Clerk's supported Next.js integration.
-* Use the Signal One shadcn/ui visual system.
+* Use the Signal One Sound shadcn/ui visual system.
 * Do not create a separate authentication component system that conflicts with Clerk.
-* Clerk-provided UI should be styled or themed to integrate naturally with Signal One where supported.
+* Clerk-provided UI should be styled or themed to integrate naturally with Signal One Sound where supported.
 
 Authentication functionality and UI styling are separate concerns:
 
@@ -149,7 +149,7 @@ Authentication behavior
 
 shadcn/ui + Tailwind
   ↓
-Signal One Web presentation
+Signal One Sound Web presentation
 ```
 
 ---
@@ -228,7 +228,7 @@ The appropriate state should be represented using existing shadcn/ui components 
 
 ## 12. Visual Consistency
 
-Signal One should maintain a consistent visual language across the Web application.
+Signal One Sound should maintain a consistent visual language across the Web application.
 
 Prefer established:
 
@@ -265,9 +265,9 @@ Theme-related values should be defined through the established Tailwind/shadcn/u
 
 Components should use semantic theme values where available instead of repeatedly defining arbitrary colors.
 
-This allows the Signal One visual identity to evolve without rewriting individual components.
+This allows the Signal One Sound visual identity to evolve without rewriting individual components.
 
-See sections 22 and 23 for the design-system hierarchy and semantic token rules.
+See sections 23 and 24 for the design-system hierarchy and semantic token rules.
 
 ---
 
@@ -331,7 +331,7 @@ Custom Web components are allowed when:
 
 * No appropriate shadcn/ui component exists.
 * Existing components cannot reasonably be composed to satisfy the requirement.
-* The component represents meaningful Signal One-specific functionality.
+* The component represents meaningful Signal One Sound-specific functionality.
 
 Custom components should follow the same:
 
@@ -396,7 +396,110 @@ should be documented before becoming established project conventions.
 
 ---
 
-## 22. Design System Hierarchy
+## 22. Signal One Sound Visual Identity
+
+The Signal One Sound visual identity represents revival, awakening, movement, hope, energy, and light emerging from darkness.
+
+This section defines the authoritative visual direction of the product. Exact token values, spacing, glow intensity, individual component treatments, and layout details may evolve through product review without changing this identity.
+
+### Core Visual Direction
+
+Signal One Sound should use:
+
+* A dark, rich charcoal / near-black visual foundation.
+* Luminous gold as the primary brand illumination.
+* Light emerging from darkness as a central visual metaphor.
+* Fire, ember, amber, and warm orange tones as supporting energy rather than the dominant interface color.
+* Atmospheric illumination and controlled glow where appropriate.
+* Strong visual hierarchy and immersive composition.
+* Modern, polished, highly readable application typography.
+* Contemporary, premium application presentation.
+* Visual energy that communicates revival and awakening without sacrificing usability.
+
+Signal One Sound should feel alive, illuminated, energetic, hopeful, and modern.
+
+### Visual Direction to Avoid
+
+Do not establish the primary Signal One Sound identity using:
+
+* Cream or beige editorial styling.
+* Serif-heavy traditional typography.
+* Rustic or old-fashioned presentation.
+* Church-newsletter aesthetics.
+* Dominant red or burnt-orange interfaces.
+* Flat visual treatment that removes the intended sense of illumination and energy.
+* Generic SaaS/demo styling that gives Signal One Sound no recognizable identity.
+* Excessive empty space that causes important application content to feel small, disconnected, or visually weak.
+* Excessive glow, fire effects, animation, or decoration that harms readability, accessibility, focus, or usability.
+
+### Brand Name and Wordmark
+
+The user-facing product name is:
+
+**Signal One Sound**
+
+Do not shorten the user-facing product name to **Signal One** unless explicitly approved.
+
+Until the permanent logo and brand mark are approved, a centralized text treatment of **Signal One Sound** may serve as the temporary wordmark.
+
+Do not invent a permanent logo merely to complete a feature.
+
+The future approved logo, wordmark, and application icon must integrate through the centralized brand-asset architecture defined in this document.
+
+### Responsive and Cross-Client Identity
+
+The Signal One Sound identity should remain recognizable across:
+
+* Desktop Web
+* Mobile-sized Web
+* iPhone
+* Android
+
+Layouts, navigation, controls, and interaction patterns may appropriately differ between Web and native Mobile clients.
+
+Shared identity does not require identical layouts.
+
+The visual vocabulary (darkness, illumination, luminous gold, controlled ember/fire energy, modern typography, and revival/awakening character) should remain coherent across clients.
+
+### Accessibility and Usability
+
+Brand expression must not override usability.
+
+Accessibility, readability, sufficient contrast, clear interaction states, responsive behavior, and understandable navigation take priority over decorative effects.
+
+Glow, gradients, atmospheric effects, fire imagery, and animation must remain controlled enough that content and controls remain clear.
+
+### Relationship to the Design System
+
+The visual identity defines intent.
+
+The design system implements that intent:
+
+```text
+SIGNAL ONE SOUND VISUAL IDENTITY
+        ↓
+SEMANTIC DESIGN TOKENS
+        ↓
+SHARED PRIMITIVES / COMPONENTS
+        ↓
+VARIANTS / COMPOSITION
+        ↓
+FEATURE UI
+        ↓
+SCOPED OVERRIDES WHEN JUSTIFIED
+```
+
+Feature code must not independently recreate the Signal One Sound identity using arbitrary hard-coded colors, shadows, typography, gradients, glow effects, or other styling.
+
+Broad visual changes should be implemented through semantic tokens and reusable components so the product identity can evolve consistently across the application.
+
+The principles in this section are authoritative.
+
+The exact styling of an individual mock or feature is not permanently approved merely because it currently implements these principles.
+
+---
+
+## 23. Design System Hierarchy
 
 The UI is built from the global design system outward, so broad visual changes are inexpensive and predictable:
 
@@ -414,7 +517,7 @@ Each level consumes the one above it. Feature code does not re-decide visual cho
 
 ---
 
-## 23. Semantic Design Tokens
+## 24. Semantic Design Tokens
 
 The centralized theme is `apps/web/app/globals.css` (CSS variables on `:root` and `.dark`, exposed to Tailwind through `@theme inline`). Existing semantic tokens include `background`, `foreground`, `card`, `popover`, `primary` (+ `-foreground`), `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, `chart-*`, `sidebar-*`, and `radius`. Issue #66 added the exploratory Signal One Sound theme, revised to a dark-only direction: black/charcoal `background`/`card`, a luminous gold `primary`, `highlight` (bright gold), `ember` (amber-orange accent), `hero` (deepest band), and `glow` (shadow color) wired to `shadow-glow`/`shadow-glow-lg`. Atmosphere is built from tokens by the `bg-atmosphere`, `bg-hero-glow`, and `text-gradient-gold` utilities in `globals.css`. `font-heading` is Geist (no serif). `:root` and `.dark` share values and `<html>` carries `dark`. These values are exploratory and refined in `globals.css`, not in components.
 
@@ -426,19 +529,19 @@ The centralized theme is `apps/web/app/globals.css` (CSS variables on `:root` an
 
 ---
 
-## 24. Centralized Brand Assets
+## 25. Centralized Brand Assets
 
 Repeatedly used identity assets are defined once: primary logo, wordmark, application icon, approved brand marks.
 
 * Feature code must not import, copy, or hard-code logo/wordmark assets or the product name styling independently. It uses one canonical reusable brand component or asset reference (for example `BrandLogo`, `BrandWordmark`, `AppIcon`) once identity assets exist.
 * Changing the canonical logo/wordmark should require changing one authoritative implementation or asset, not many screens.
 * Exact implementation (component vs. asset module, where it lives) follows the existing architecture and is decided when the brand assets are approved. These names are examples, not an instruction to create them now.
-* Web and Mobile may implement the brand component natively (section 27), but share the same source asset files/identity.
+* Web and Mobile may implement the brand component natively (section 28), but share the same source asset files/identity.
 * Exceptions: a genuinely distinct asset or variant (for example a monochrome mark for a specific surface, an OAuth provider logo, a favicon/store icon with a platform-mandated format) is allowed. It is defined once as a named variant of the brand asset or in its authoritative platform location, not ad hoc in a feature.
 
 ---
 
-## 25. Component Reuse Order
+## 26. Component Reuse Order
 
 Before adding UI, work down this order and stop at the first that satisfies the requirement:
 
@@ -448,7 +551,7 @@ Before adding UI, work down this order and stop at the first that satisfies the 
 4. Existing component variant/configuration
 5. New reusable application component
 6. Feature-local component, when genuinely feature-specific
-7. Local styling override, only when justified (section 26)
+7. Local styling override, only when justified (section 27)
 
 Do not copy an existing component because a new screen needs a slightly different version. Prefer variants (the shadcn `cva` pattern), composition, slots/children, or configuration when that gives a clearer design.
 
@@ -462,7 +565,7 @@ These are **examples, not authorization**. A component is created only when appr
 
 ---
 
-## 26. Controlled Overrides
+## 27. Controlled Overrides
 
 Default appearance and behavior come from the design system and shared component. A feature may override when it has a legitimate distinct requirement. Overrides must:
 
@@ -476,7 +579,7 @@ Repeated overrides are a signal to evaluate whether the shared component or them
 
 ---
 
-## 27. Web and Mobile Sharing
+## 28. Web and Mobile Sharing
 
 Web and Mobile remain separate client UI implementations. Do not force React Web components or Tailwind/shadcn classes into React Native.
 
@@ -492,19 +595,19 @@ Shared product identity does not require identical component implementations. A 
 
 ---
 
-## 28. Magic Values in UI
+## 29. Magic Values in UI
 
-Repeated design values belong in the theme (section 23). Repeated domain constants and limits belong with the contract that owns them<!-- boilerplate:proof:start --> (for example `PROOF_ITEM_LABEL_MAX` in `@signalone/validation`)<!-- boilerplate:proof:end -->, never re-typed in a component. Do not extract every literal; see `/docs/code-quality.md` section 5.
+Repeated design values belong in the theme (section 24). Repeated domain constants and limits belong with the contract that owns them<!-- boilerplate:proof:start --> (for example `PROOF_ITEM_LABEL_MAX` in `@signalone/validation`)<!-- boilerplate:proof:end -->, never re-typed in a component. Do not extract every literal; see `/docs/code-quality.md` section 5.
 
 ---
 
-## 29. Relationship to Code Quality
+## 30. Relationship to Code Quality
 
 `/docs/code-quality.md` is authoritative for general code-quality, dependency-direction, and refactoring rules. This document is authoritative for UI, component, design-system, and brand-asset architecture. Existing UI that predates these rules is reported<!-- boilerplate:reference:start --> in `/docs/code-quality-audit.md`;<!-- boilerplate:reference:end --> and is not refactored without an approved issue.
 
 ---
 
-## 30. Final Rule
+## 31. Final Rule
 
 For Web UI, prefer:
 
@@ -512,9 +615,9 @@ For Web UI, prefer:
 
 Use existing components before creating new ones.
 
-Create custom components when they provide genuine Signal One-specific value.
+Create custom components when they provide genuine Signal One Sound-specific value.
 
-Keep Web and Mobile UI appropriately independent while maintaining one coherent Signal One platform.
+Keep Web and Mobile UI appropriately independent while maintaining one coherent Signal One Sound platform.
 
 ---
 

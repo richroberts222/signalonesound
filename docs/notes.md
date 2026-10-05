@@ -6,6 +6,17 @@
 * **Type:** MOCK-FIRST product discovery. Web only. No schema, API, auth, migration, or production-data change.
 * **Not product-approved by CI.** Rich must explore the Vercel Preview and approve.
 
+## `docs/ui.md` repair (PR #67 follow-up, requested by Rich)
+
+Commit `98da759` on `main` ("updated ui.md with fire design requirements") pasted a copy of `docs/ui.md` with Markdown escaping damage (`**\##` headings, `\*` bullets, escaped backticks and HTML comments, hard-wrapped lines, a stray `**` and a duplicate `## 24.` heading). This branch repairs it; **no application code was changed**.
+
+* **Method:** the malformed file was compared section by section against the last known-good version (`bc41d25`) and this branch's version. Sections 1 to 21 and the rest were substantively identical apart from escaping, "Signal One" becoming "Signal One Sound" in prose, and the renumbering below. The malformed commit also dropped this branch's Issue #66 additions (the dark-theme token paragraph in the Semantic Design Tokens section and the extra Appendix component list); these were kept.
+* **Added:** section 22 "Signal One Sound Visual Identity" (core direction, directions to avoid, brand name and wordmark, cross-client identity, accessibility, relationship to the design system), with its rules kept in full.
+* **Renumbered:** 22 Visual Identity, 23 Design System Hierarchy, 24 Semantic Design Tokens, 25 Centralized Brand Assets, 26 Component Reuse Order, 27 Controlled Overrides, 28 Web and Mobile Sharing, 29 Magic Values in UI, 30 Relationship to Code Quality, 31 Final Rule. Internal references were updated (sections 5, 14, 25, 26, 29). References in `docs/notes.md` and `docs/code-quality-audit.md` were updated too.
+* **Naming:** prose says "Signal One Sound". Technical identifiers (`@signalone/shared`, `@signalone/validation`, paths) are unchanged. Section 1's "Signal One is a multi-client application." and the phrase "Signal One" inside the section 22 rule about not shortening the name are intentionally unchanged (the first matches the unchanged text in the malformed version and `CLAUDE.md`'s platform wording).
+* **To reconcile when `main` is merged:** this branch repairs `docs/ui.md` from the pre-malformed base, so merging into `main` will conflict with `98da759` in that file. Take this branch's version.
+* **Not changed (application code, out of scope):** the comment in `apps/web/components/brand/brand-wordmark.tsx` cites "docs/ui.md section 24" for brand assets; that section is now 25.
+
 ## Visual direction revision (PR #67 follow-up, requested by Rich)
 
 The cream/beige, burnt-orange, serif look was **not approved**. Replaced with a dark, gold-illuminated direction. Repo review: no brand/visual reference assets exist (only the reverted Issue #57 fire/gold concept, which is not a requirement), so the direction follows Rich's written brief.
@@ -76,7 +87,7 @@ Accounts/sign-in gating, invite friends, push notifications and criteria, city/s
 * No new dependency, no map SDK, no API route, no DB access. Pages are public (not added to the protected-route list).
 * The Issue requires the full name in product UI, so the shared header, home title, and metadata were changed from "Signal One" to "Signal One Sound". Dashboard, Clerk, and mobile copy were **not** touched.
 * The retuned global tokens also restyle existing pages (sign-in/up, dashboard, proof); that is the intended "refine globally" behavior but was not individually reviewed.
-* Mobile (React Native) not implemented. Native shared-token source is still undecided (`docs/ui.md` section 27).
+* Mobile (React Native) not implemented. Native shared-token source is still undecided (`docs/ui.md` section 28).
 
 ## Verification (this branch, this run)
 
