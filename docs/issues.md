@@ -13,6 +13,29 @@ One issue = one canonical feature branch and one pull request.
 3. All further implementation work happens on that PR branch. Claude MUST NOT create another (timestamped or otherwise) implementation branch for the same issue.
 4. Further `@claude` implementation requests are made from the PR, not from the original issue (an issue-triggered run starts a new branch).
 
+### How the canonical branch is established and remembered (phone-only workflow)
+
+Repository/service facts (verified in Issue #64):
+
+* `claude-code-action` (Claude GitHub App integration) decides the branch from the **trigger event**, not from any memory of earlier runs. An `issues` event (opened/assigned, or an `@claude` comment on an Issue) always creates a **new** generated branch (`claude/issue-<n>-<timestamp>`). A `pull_request_review_comment`, `pull_request_review`, or `issue_comment` on an **open PR** checks out and pushes to that PR's head branch. This is behavior of the external action, not something this repository can configure; there is no setting that makes an Issue-triggered run reuse an earlier branch.
+* The "remembered" canonical branch is therefore **the head branch of the open PR**. GitHub itself is the memory.
+* The push helper (`git-push.sh origin <ref>`) accepts only `origin <ref>` with no flags (so no force-push); the action grants it for the branch of the current run only.
+
+Rules:
+
+1. The first Issue-triggered run creates the branch. Open the PR (use the "Create a PR" link in Claude's comment) before any follow-up.
+2. **Every follow-up goes through the PR, never the Issue.** Tag `@claude` in a PR conversation comment (or a PR review / review comment). Do not write "continue Issue #N" on the Issue: that creates a second branch.
+3. Fixes for failing CI, Claude Review findings, or Rich's review feedback: comment `@claude` on the PR (for example, "@claude CI is failing, fix it on this branch" or "@claude merge latest main into this branch and resolve conflicts"). Claude reads CI results (`actions: read`) and pushes to the PR head branch; the push re-triggers the `pull_request` CI automatically.
+4. If a stray second branch was already created, comment `@claude` on the PR asking it to bring over the work with `git cherry-pick` (allowed), rather than merging branches locally.
+
+### Incorporating main
+
+Run on the PR head branch: `git fetch origin main`, then `git merge origin/main` (merge, not rebase; no history rewrite), resolve ordinary conflicts by editing files, `git add`, `git commit`, push with the helper. Never discard existing work to resolve a conflict; if a conflict is not clearly resolvable, stop and report. This needs `git merge` in the workflow allow-list (see Workflow configuration constraints).
+
+### Validation in the Claude job
+
+GitHub Actions CI on the pushed commit is authoritative. Claude runs `pnpm`/`npx` checks when the job can; if the sandbox prevents it, Claude states that in its comment and relies on CI. This must not block the push.
+
 ### Branch safety check (before modifying files in continued work)
 
 Verify, using the permitted read-only Git commands (`git status`, `git branch`, `git log`, `git fetch`):
@@ -49,7 +72,7 @@ Plan issue
 
 ## Workflow configuration constraints
 
-`.github/workflows/claude.yml` must keep: `fetch-depth: 0`; the tool allow-list (`gh pr *`, `pnpm`/`npx`/`corepack`, and `git fetch|branch|log|show|diff|checkout|cherry-pick|add|commit|status`); and the existing GitHub permissions. Do not broaden to unrestricted `git`, and do not add force-push, destructive reset, branch deletion, or merge permissions. The Claude GitHub App cannot edit workflow files, so workflow changes are made by the human.
+`.github/workflows/claude.yml` must keep: `fetch-depth: 0`; the tool allow-list (`gh pr *`, `pnpm`/`npx`/`corepack`, and `git fetch|branch|log|show|diff|checkout|cherry-pick|add|commit|status|merge|merge-base`); and the existing GitHub permissions. `git merge` and `git merge-base` are permitted only so Claude can merge `origin/main` into the canonical issue branch (local operation; publishing still goes through the no-flag push helper). Do not broaden to unrestricted `git`, and do not add `git push`, force-push, destructive reset, rebase, branch/tag deletion, or PR-merge (`gh pr merge`) permissions. Merging a PR into `main` remains human-only; `main` should also be protected on GitHub (see `/docs/security.md`). The Claude GitHub App cannot edit workflow files, so workflow changes are made by the human.
 
 ## Overwrite, never append
 
