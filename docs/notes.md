@@ -83,3 +83,5 @@ Largely, but not fully confirmed:
 * Whether pushes by the Claude app re-trigger CI was not tested here (the action pushes with an app token, which normally does; unverified).
 * Branch protection / rulesets not inspected.
 * Conflicts that need judgment still stop Claude and require a human decision.
+
+verified
