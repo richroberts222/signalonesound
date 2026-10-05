@@ -75,7 +75,23 @@ A reviewer must be able to retrieve one predictable file, `docs/notes.md`, from 
 9. Exact test / lint / typecheck / build results (latest run only).
 10. Anything not tested, and why.
 11. Unresolved concerns.
-12. Recommended next steps.
+12. Recommended next steps (a recommendation only; never implement the next slice without authorization).
+
+### Extended sections (when applicable)
+
+The handoff standard<!-- boilerplate:reference:start --> is in `/docs/product-development.md`; it<!-- boilerplate:reference:end --> requires the following. Include the items that apply:
+
+* **Current work**: issue, title, PR, canonical branch, base branch, latest commit.
+* **Product requirements**: feature spec, requirements being implemented, acceptance criteria.
+* **Implementation completed**: exact operational behavior.
+* **Files changed**: important files, what changed, why.
+* **Architecture impact**: UI, API, services/business logic, auth, database/data access, schema/migrations, shared contracts, mobile, external services.
+* **Database**: tables, columns, relationships, constraints, migration, reset/seed implications, environment used.
+* **Testing / validation**: per test group, what was tested, exact command, result, what remains untested and why.
+* **Manual exploratory testing**: exact steps for Rich (where to go, prerequisites, actions, expected result, edge cases, exploratory scenarios).
+* **Known issues / unresolved concerns**: incomplete behavior, uncertainty, technical debt, deferred decisions.
+
+`docs/notes.md` must give exact visibility into the current implementation.
 
 ## Accuracy
 
