@@ -1,74 +1,64 @@
-# Notes — Issue #57: Create First Signal One Home UI Concept
+# Handoff Notes
 
-- PR: none yet at time of writing (see issue #57 comment for the PR link).
-- Canonical branch: `claude/issue-57-20261001-2129` (base `main`).
-- Latest commit: see `git log` on the branch.
-- Status: **experimental, web-only visual concept**. No backend, DB, API, auth, env, or Expo changes. `signal-one-foundation-v1` tag untouched.
+## Issue / PR
 
-## Work completed
+- Request: revert PR #58 ("Add first Signal One fire/gold home UI concept"), which closed issue #57. The UI was merged by accident and is not wanted on `main`.
+- Revert PR: created from this branch (number assigned on creation). It is NOT merged. The human is the merge gate.
 
-A responsive fire/gold home page at `/` with a hero ("Signal One", "Holy. United. Awakened."), a "Find Revival" search/filter/map-preview section, and an upcoming-gatherings card grid.
+## Branch and base
 
-## Files changed
+- Canonical branch: `claude/pr-58-20261005-0636`
+- Base: `main` at `4ea8c01` (merge commit of PR #58)
+- Tag `signal-one-foundation-v1`: not touched. No history rewrite, no force-push, no reset of `main`.
 
-- `apps/web/app/page.tsx` — replaced placeholder home with Hero + RevivalFinder + footer.
-- `apps/web/app/globals.css` — scoped home theme tokens, gold text utility, reduced-motion-aware glow animation.
-- `apps/web/components/home/hero.tsx` — new.
-- `apps/web/components/home/revival-finder.tsx` — new (client component, local state only).
-- `apps/web/components/home/mock-data.ts` — new, static mock data.
-- `apps/web/components/ui/badge.tsx`, `input.tsx` — added via shadcn CLI (import of `cn` changed to `@/lib/utils` to match existing ui files).
-- `docs/notes.md` — this file.
+## Commits
 
-## Visual direction
+- Base: `4ea8c01` Merge pull request #58 (merge of `a04b24a`, whose first parent is `28c1ea1`)
+- One revert commit on this branch (see `git log`). The PR #58 changes were undone by restoring the pre-#58 tree (`28c1ea1`) rather than running `git revert`, because `git revert` is not in the workflow's allowed Git commands. The result is the same as `git revert -m 1 4ea8c01`, but the commit message was written by hand.
 
-Dark warm-brown background, radial ember/orange glow behind the hero, amber/gold primary, gold gradient wordmark, translucent glass cards with amber ring and soft glow on hover. All effects are CSS gradients; no images or external assets.
+## Files reverted
 
-The theme is applied as a **scoped token override** (`body:has(.signal-home)`) so other routes (dashboard, proof, sign-in/up) keep the default theme. The layout's `AuthHeader` picks up the dark tokens automatically. This is an experiment, not a permanent branding or theming rule.
+Restored to their state at `28c1ea1`:
 
-## shadcn components
+- `apps/web/app/globals.css`
+- `apps/web/app/page.tsx`
+- `docs/notes.md` (replaced by this file)
 
-Reused: `Button`, `Card` (+Header/Title/Description/Content/Footer). Added: `Badge`, `Input`.
+Removed (added by PR #58):
 
-## Mock/static data
+- `apps/web/components/home/hero.tsx`
+- `apps/web/components/home/mock-data.ts`
+- `apps/web/components/home/revival-finder.tsx`
+- `apps/web/components/ui/badge.tsx`
+- `apps/web/components/ui/input.tsx`
 
-`components/home/mock-data.ts`: event type filters, six placeholder gatherings (fictional "Example"/"Sample" hosts), five map pin positions. Not persisted, not fetched.
+Check: `git diff 28c1ea1` on the working tree shows no differences outside `docs/notes.md`.
 
-## Responsive behavior
+## Validation performed
 
-Mobile-first. Hero CTAs stack full-width on phones; filter chips scroll horizontally on narrow screens and wrap from `sm`; cards are 1 column → 2 (`sm`) → 3 (`lg`); map preview stacks under search on mobile and sits beside it on `lg`. Touch targets are 40–44px tall.
+Ran on this branch after the revert. `pnpm` was not on PATH, so commands were run through `corepack pnpm`:
 
-## Animations / effects
-
-One slow "breathing" opacity/scale animation (`signal-flame`) on the hero glow and map pins; disabled under `prefers-reduced-motion: reduce`. Hover glow on cards is a shadow transition only.
-
-## Accessibility
-
-Decorative glows/pins are `aria-hidden`; map preview has a text alternative; search is a labeled `role="search"` form; filters are buttons with `aria-pressed` in a labeled group; result count is `aria-live="polite"`; icons are `aria-hidden`; shadcn focus rings preserved. Muted text is a light amber on dark brown (intended to be readable; contrast ratios were not measured with a tool).
-
-## Tests
-
-None added. Test Value Review: the change is presentational with static data; the only logic is a trivial in-memory filter over mock data, which does not protect meaningful product behavior. Existing tests unaffected.
-
-## Validation actually performed (latest run)
-
-- `pnpm --dir apps/web lint` — passed, no output.
-- `pnpm --dir apps/web typecheck` — passed.
-- `pnpm --dir apps/web build` — passed.
-- `pnpm --dir apps/web test` — 13 files, 124 tests passed.
+- `pnpm install --frozen-lockfile`: passed
+- `pnpm -r --if-present lint` (mobile, web): passed
+- `pnpm -r --if-present typecheck` (validation, web, mobile): passed
+- `pnpm -r --if-present test`: mobile 10/10 passed; web 13 files, 124/124 passed
+- `pnpm -r --if-present build`: web Next.js build completed, routes listed
 
 ## Not tested
 
-- Not viewed in a browser or on a real phone/tablet (no screenshots taken); visual quality, overflow, and contrast are unverified until the Vercel Preview is reviewed.
-- Playwright e2e not run (requires Clerk test setup). Mobile app not touched or run.
-- Database-backed/integration tests not run (DEV/QA/STAGE/PROD DBs not accessed).
+- `pnpm test:boilerplate` (`node --test scripts/boilerplate/boilerplate.test.mjs`): not run. `node` is not on the workflow's Bash allow-list, so the command needed approval that was not available.
+- Other `pnpm validate` steps run through `corepack pnpm -r` rather than the root scripts, because the root scripts call `pnpm` directly and it is not on PATH here.
+- Visual check of `/` in a browser and the Vercel preview: not done.
+- Sign-in, API, and database flows: not exercised beyond the existing unit tests.
 
-## Unresolved visual concerns
+## Unresolved concerns
 
-- The `body:has()` token override is a concept shortcut; a real theme would likely use a route group/layout.
-- Hero glow sizing and the horizontally scrolling chip row need on-device review.
-- `backdrop-filter` blur on cards/header may be heavy on low-end phones.
-- The `Show` signed-in/out hero content from the old placeholder was removed; auth actions remain in the header.
+- The `docs/notes.md` that PR #58 added described the concept UI. It is overwritten here, so no trace of it remains outside Git history. The UI work stays in Git history (`a04b24a`) if it is wanted later.
+- Issue #57 was closed by PR #58. It is not reopened by this revert. Reopen it manually if the work should be tracked again.
+- Run `pnpm test:boilerplate` locally or in CI before merging.
 
 ## Recommended next steps
 
-Review the Vercel Preview on an iPhone, pick which concepts (map, filters, cards) to keep, then decide on theme/branding rules and document them in `docs/ui.md`.
+1. Review the revert PR diff against `28c1ea1`.
+2. Confirm CI and the Vercel preview are green.
+3. Merge the revert PR manually.
