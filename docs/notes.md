@@ -62,7 +62,17 @@ Fix, using the existing mechanisms (no change to `check-boilerplate.mjs` or its 
 
 Validation: NOT run. The sandbox denied `node --test` / export commands and `pnpm` is not installed, so `pnpm test:boilerplate` and `pnpm validate` were not executed. The change was reasoned from the checker and export code only. CI must confirm. Rich: please check the CI result.
 
-Known follow-up (not changed, out of scope): the excluded product docs are still referenced from files that ship in the export (for example `docs/product-development.md`, `docs/features/README.md`, `docs/issues.md`, `docs/testing.md`, `CLAUDE.md`), leaving dangling links in the standalone boilerplate. Those need `reference` regions or exclusion in a separate pass.
+### Second CI fix: init path inconsistency
+
+Remaining failures: "init produces a clean, generic application..." and "detector catches a credential-shaped URL added after init...". Cause: those tests run `initApp` on a copy of the reference repo (not the export), and init did not remove the reference-only docs, so `docs/naming-conventions.md` and `docs/product/roadmap.md` still carried the identity.
+
+Fix (existing manifest/region architecture, leak detector and tests untouched):
+
+* `scripts/boilerplate/manifest.mjs`: new `REFERENCE_ONLY_PATHS` (`docs/naming-conventions.md`, `docs/product-development.md`, `docs/features`, `docs/product`), spread into `EXPORT_EXCLUDED_PATHS` so export behavior is unchanged for the previously excluded files.
+* `scripts/boilerplate/init-app.mjs`: init removes `REFERENCE_ONLY_PATHS`, so export and init treat these docs identically.
+* Dangling links: `docs/product-development.md` and `docs/features/` are now reference-only too. The three sentences linking to `product-development.md` in `docs/issues.md`, `docs/git-workflow.md`, and `docs/testing.md` are wrapped in inline `boilerplate:reference` markers (removed by both export and init). `CLAUDE.md` has no such links.
+
+Validation: NOT run. The sandbox denied `node --test` and `pnpm` is unavailable. Reasoned from the code only; CI must confirm.
 
 ## Branch note
 

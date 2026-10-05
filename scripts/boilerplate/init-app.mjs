@@ -13,7 +13,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { checkBoilerplate, formatFindings } from "./check-boilerplate.mjs";
-import { PROOF_PATHS, TEMPLATE_ONLY_PATHS, isLocalEnvFile, walk } from "./manifest.mjs";
+import { PROOF_PATHS, REFERENCE_ONLY_PATHS, TEMPLATE_ONLY_PATHS, isLocalEnvFile, walk } from "./manifest.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -129,6 +129,7 @@ export function initApp({ root, name, slug, scope = slug, bundleId, dryRun = fal
   };
 
   stripProofSlice({ root, step });
+  for (const p of REFERENCE_ONLY_PATHS) if (existsSync(abs(p))) step(`remove reference-only ${p}`, () => rmSync(abs(p), { recursive: true, force: true }));
   step("edit package.json", () => {
     const pkg = JSON.parse(readFileSync(abs("package.json"), "utf8"));
     for (const k of ["init:app", "check:boilerplate", "test:boilerplate", "prove:init", "export:boilerplate"]) delete pkg.scripts[k];

@@ -8,7 +8,7 @@ Vitest is the unit-test runner for every workspace that has tests (`packages/sha
 
 This document is the high-level testing philosophy: tests protect the whole platform, verify behavior rather than implementation, are deterministic, and respect environment safety. Detailed per-layer rules live in `/docs/automation/` (`test-value-review.md` (every new test or test group is justified before it is added), `unit.md`, `integration.md`, `acceptance.md`, `e2e.md`, `playwright.md`, `coverage.md`, `reporting.md`).
 
-Every feature has explicit acceptance criteria, tests derived where the Test Value Review justifies them, and an honest completion report (`/docs/automation/README.md`). Product-feature delivery, layer selection, manual exploratory testing, and Definition of Done are in `/docs/product-development.md`; no feature automatically requires every layer. Playwright is the preferred E2E framework but is not installed yet. Code coverage is a diagnostic signal; 100% is not required.
+Every feature has explicit acceptance criteria, tests derived where the Test Value Review justifies them, and an honest completion report (`/docs/automation/README.md`).<!-- boilerplate:reference:start --> Product-feature delivery, layer selection, manual exploratory testing, and Definition of Done are in `/docs/product-development.md`;<!-- boilerplate:reference:end --> no feature automatically requires every layer. Playwright is the preferred E2E framework but is not installed yet. Code coverage is a diagnostic signal; 100% is not required.
 
 Possible future quality capabilities (analytics, session replay, observability, usage-informed test prioritization) are in `/docs/ideas/`. They are NOT current requirements and must not be implemented without an explicit issue.
 

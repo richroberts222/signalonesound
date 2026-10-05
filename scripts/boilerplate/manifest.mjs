@@ -33,6 +33,12 @@ export const TEMPLATE_ONLY_PATHS = [
   "scripts/boilerplate",
 ];
 
+/**
+ * Signal One Sound product documentation: lives only in the reference app. Export
+ * never copies it and init removes it, so both paths treat it identically.
+ */
+export const REFERENCE_ONLY_PATHS = ["docs/naming-conventions.md", "docs/product-development.md", "docs/features", "docs/product"];
+
 /** Reference-app-only tooling and files; never copied into the standalone boilerplate. */
 export const EXPORT_EXCLUDED_PATHS = [
   "scripts/boilerplate/export-template.mjs",
@@ -41,8 +47,7 @@ export const EXPORT_EXCLUDED_PATHS = [
   "docs/boilerplate-gap-report.md",
   "docs/boilerplate-references-report.md",
   "docs/notes.md",
-  "docs/naming-conventions.md",
-  "docs/product",
+  ...REFERENCE_ONLY_PATHS,
 ];
 
 /** Directories never scanned or copied. */

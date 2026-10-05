@@ -79,7 +79,7 @@ A reviewer must be able to retrieve one predictable file, `docs/notes.md`, from 
 
 ### Extended sections (when applicable)
 
-The full handoff standard is in `/docs/product-development.md`. Include the items that apply:
+The handoff standard<!-- boilerplate:reference:start --> is in `/docs/product-development.md`; it<!-- boilerplate:reference:end --> requires the following. Include the items that apply:
 
 * **Current work**: issue, title, PR, canonical branch, base branch, latest commit.
 * **Product requirements**: feature spec, requirements being implemented, acceptance criteria.
