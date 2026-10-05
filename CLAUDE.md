@@ -58,6 +58,10 @@ Expected documentation includes:
 * `/docs/server-components.md`
 * `/docs/code-quality.md` (authoritative for code-quality, reuse, dependency-direction, and refactoring principles)
 * `/docs/issues.md` (required whenever working on a GitHub issue or PR; defines the `docs/notes.md` handoff rule)
+* `/docs/product-development.md` (product delivery process; required for product feature work)
+* `/docs/naming-conventions.md` (authoritative for naming and domain terminology)
+* `/docs/product/product-plan.md` and `/docs/product/roadmap.md` (product direction and sequencing; `/docs/product/source-product-plan.md` is the preserved source)
+* `/docs/features/` (approved feature specifications)
 
 Not all of these documents may exist yet.
 
@@ -397,18 +401,32 @@ The repository's security tests enforce this. Never change or weaken them to mak
 
 ---
 
-# 19. Code Quality, Reuse, and Refactoring
+# 19. Product Development System
+
+Detailed rules: `/docs/product-development.md`.
+
+* `/docs/naming-conventions.md` is authoritative for naming. The user-facing product name is **Signal One Sound**; do not rename technical identifiers without a compatibility evaluation. Terms marked UNDECIDED must not be invented; ask Rich.
+* `/docs/product/product-plan.md` is authoritative for product direction. Applicable specs under `/docs/features/` define approved feature behavior.
+* Future product knowledge does NOT authorize implementation; only an approved issue does. One feature slice / issue / canonical branch / PR at a time; recommend the next slice, never start it.
+* Repository-observed facts outrank external assumptions. Surface meaningful discrepancies (what was assumed, what exists, why it matters, recommended resolution); if material, stop and ask.
+* Exploratory UI/features must be reviewed (Vercel Preview where applicable) before merge. Claude never merges.
+* `docs/notes.md` is overwritten for the current work and must give exact current implementation visibility, including concrete manual-testing steps for Rich (`/docs/issues.md`).
+* Material documentation drift is a defect; update docs in the same work.
+
+---
+
+# 20. Code Quality, Reuse, and Refactoring
 
 * `/docs/code-quality.md` is authoritative for code-quality and refactoring principles.
 * `/docs/ui.md` is authoritative for UI, component, design-system, and brand-asset architecture.
 * Reuse existing behavior, components, tokens, and contracts before creating duplicates, but do not abstract coincidental similarity.
 * Respect meaningful architectural boundaries and dependency direction.
 * Abstractions and interfaces must provide concrete value; no speculative or "interface for interface's sake" layers.
-* Broad or repository-wide refactors require explicit authorization (a separate approved issue). Audit findings are reported, not silently fixed; `/docs/code-quality-audit.md` records the current baseline.
+* Broad or repository-wide refactors require explicit authorization (a separate approved issue). Audit findings are reported, not silently fixed<!-- boilerplate:reference:start -->; `/docs/code-quality-audit.md` records the current baseline<!-- boilerplate:reference:end -->.
 
 ---
 
-# 20. Final Rule
+# 21. Final Rule
 
 Before implementing anything substantial, ask:
 

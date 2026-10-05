@@ -1,100 +1,69 @@
-# Handoff Notes
+# Issue 61 Handoff: Reusable UI Design System and Clean Code Standards
 
-## Issue / PR
-
-- Issue #61: Establish Reusable UI Design System and Clean Code Standards
-- PR: created from this branch (number assigned on creation). NOT merged; the human is the merge gate.
-
-## Branch and base
-
-- Canonical branch: `claude/issue-61-20261005-1601`
-- Base: `main` at `9e55d6a`
-- Latest commit: the single commit on this branch on top of `9e55d6a` (see `git log`).
-- Tag `signal-one-foundation-v1`: not touched.
+* **Issue:** #61 "Establish Reusable UI Design System and Clean Code Standards"
+* **PR:** not yet created (link below in the issue comment). Do not merge automatically.
+* **Canonical branch:** `claude/issue-61-20261005-1601`; base `main` (includes completed Issue #60, PR #62).
+* **Type:** documentation, rules and read-only audit. No application code, schema, API, auth, or mobile behavior changed. `signal-one-foundation-v1` untouched.
 
 ## Documents created
 
-- `docs/code-quality.md`: Clean Code standard (DRY/single source of truth, interfaces and boundaries, dependency direction, functions/modules, constants, error handling, testability, safe refactoring, Boy Scout Rule).
-- `docs/code-quality-audit.md`: read-only audit of the current repository.
+* `docs/code-quality.md`: Clean Code, DRY / single source of truth, interface and dependency-direction rules, error handling, testability, safe refactoring, Boy Scout Rule.
+* `docs/code-quality-audit.md`: read-only audit (reference-app only, see boilerplate below).
 
 ## Documents modified
 
-- `docs/ui.md`: added sections 22 to 29 (design-system hierarchy, semantic tokens, brand assets, component reuse order and reusable product components, controlled overrides, Web/Mobile sharing, magic values, relationship to code quality). "Final Rule" is now section 30. Short pointers added in sections 5 and 14. Existing sections otherwise unchanged.
-- `CLAUDE.md`: added `docs/code-quality.md` to the expected docs list and a concise new section 19 (router to the docs); "Final Rule" is now section 20.
-- `docs/notes.md`: overwritten (this file).
-- No other docs were changed; existing owners (`services.md`, `api.md`, `shared-code.md`, `testing.md`, `architecture-rules.md`) are referenced, not duplicated.
+* `docs/ui.md`: new sections 22-29 (design-system hierarchy, semantic tokens, brand assets, component reuse order, controlled overrides, Web/Mobile sharing, magic values, relationship to code-quality).
+* `CLAUDE.md`: reconciled after the merge. Now preserves BOTH rule sets: section 19 (Issue #60 Product Development System) and section 20 (Issue #61 Code Quality, Reuse, Refactoring); Final Rule renumbered to 21; the documentation list includes the Issue #60 entries (`product-development`, `naming-conventions`, `product/*`, `features/`) and `code-quality.md`.
+* `scripts/boilerplate/manifest.mjs`: `docs/code-quality-audit.md` added to `REFERENCE_ONLY_PATHS` (the audit describes this repository's code, so it is reference-app only). Leak detector not changed or weakened.
+* `docs/notes.md`: this file.
 
-## UI / design-system rules established (`docs/ui.md`)
+## Reconciliation with Issue #60
 
-- Hierarchy: global design system -> semantic tokens -> shadcn primitives -> Signal One reusable components -> variants/config -> feature composition -> local override.
-- Use semantic tokens from `apps/web/app/globals.css`, not raw palette values or literal colors; add tokens (for example `success`) only when genuinely needed.
-- Brand assets defined once (BrandLogo / BrandWordmark / AppIcon are examples only); documented exceptions for genuinely distinct variants.
-- Seven-step component reuse order; variants/composition over copying; no giant universal components.
-- Reusable product components (EventCard, etc.) are examples, not authorization.
-- Controlled-override rule; Web and Mobile stay separate implementations but share vocabulary, contracts, accessibility intent, and brand identity.
+* Official user-facing name is **Signal One Sound** (`docs/naming-conventions.md`). The earlier audit finding F3 treated the name as an open question; it is corrected: the name is decided, the observed "Signal One" copy is pre-existing and its correction is a separate approved application slice, and technical identifiers (`signalone`, `@signalone/*`, `signalone_tooling`, tag `signal-one-foundation-v1`, repo `signalonesound`) are not renamed without a compatibility review.
+* `docs/ui.md` product examples (`EventCard`, `RevivalTypeBadge`, `OrganizationCard`, `SpeakerCard`) are now inside a `boilerplate:reference` region, with pointers to naming-conventions (UNDECIDED terms such as Organizer must not be invented), the product plan, and approved feature specs. Examples remain examples, not authorization (product-development: only an approved issue authorizes implementation).
+* Generic docs (`ui.md`, `code-quality.md`) no longer carry product-name wording in the new sections; references to the audit are in `boilerplate:reference` regions.
 
-## Code-quality rules established (`docs/code-quality.md`)
+## Rules established (summary)
 
-- One authoritative implementation per concept; do not abstract coincidental similarity.
-- Focused functions/modules, intent-revealing names, no hidden side effects, no dead code, comments explain why, no line-count limits.
-- Named constants only where they carry meaning or a source of truth.
-- Use the existing `Result`/`AppError`/`runService` error foundation; no second error architecture.
-- Testability without distorting production code; Test Value Review applies.
-- Eight-step safe-refactoring procedure; broad refactors need explicit approval; Boy Scout Rule is limited to small, low-risk, in-scope cleanups.
+* **UI / design system:** hierarchy global design system -> semantic tokens (`globals.css`) -> shadcn primitives -> reusable components -> variants -> feature composition -> scoped override. Centralized brand assets (single brand component/asset reference, documented exceptions). Component reuse order. Controlled overrides promoted to variants/tokens when repeated. Web and Mobile stay separate implementations, sharing vocabulary, semantics, contracts, accessibility intent and brand identity; no shared token source is mandated yet.
+* **Code quality:** DRY as one authoritative implementation per concept (no abstraction of coincidental similarity); SRP, cohesion, naming, no arbitrary line limits; magic values only when a constant carries meaning; integrate with the existing error architecture; Test Value Review; safe-refactoring steps; Boy Scout Rule bounded to low-risk in-scope cleanup; broad refactors need explicit authorization.
+* **Interfaces / dependencies:** UI -> API/contracts -> services -> repositories -> Drizzle -> Neon; interfaces only where they give concrete value (isolation, substitutability, testability, stable shared contracts); no interface for its own sake. `architecture-rules.md`, `services.md`, `api.md`, `shared-code.md` remain authoritative where they already own a topic.
 
-## Interface / dependency rules established
+## Audit findings (none refactored)
 
-- Interfaces only where they add concrete value (isolation, substitutability, testability, stable contracts); none "for interface's sake".
-- Dependency direction: `apps -> validation -> shared`; UI -> contracts -> API -> service -> data access -> Drizzle -> Neon. UI never touches Neon/Drizzle; Clerk details stay in the auth boundary; shared contracts stay framework-free; row types are not contracts. Existing architecture docs remain authoritative.
-
-## Audit findings (see `docs/code-quality-audit.md`)
-
-Confirmed:
-- F1 (Recommended before product development): `text-red-600` / `text-green-700` in `apps/web/components/proof/proof-items-panel.tsx`; no `success` token.
-- F2 (Minor cleanup): proof panel uses raw `<input>`/`<label>`; no shadcn `input`/`label` installed.
-- F3 (Recommended before product development): "Signal One" text repeated in 5 places; no brand component/assets; unused create-next-app SVGs in `apps/web/public`. Product name in the issue ("Signal One Sound") differs from code/docs ("Signal One"); not decided here.
-- F4 (Future improvement): literal style values in the mobile proof screen; no mobile theme module.
-
-Possible concerns (not defects): services importing `DatabaseError` from `db/errors` (documented, allowed); size of `packages/shared/src/env.ts` (cohesive); uncommented `PROOF_ITEM_LABEL_MAX * 2`.
-
-No significant architectural concerns found.
+* F1 Recommended before product development: raw `text-red-600`/`text-green-700` in `apps/web/components/proof/proof-items-panel.tsx`; no `success` token.
+* F2 Minor cleanup: proof panel uses raw `<input>`/`<label>`; shadcn `input`/`label` not installed.
+* F3 Recommended before product development: brand text repeated in 5 places (web page, auth header, layout metadata, mobile App, app config), no brand component/assets, unused create-next-app SVGs in `apps/web/public`.
+* F4 Future improvement: mobile literal styles; no mobile theme module.
+* Possible concerns (not defects): P1 services importing `db/errors` (documented design), P2 size of `packages/shared/src/env.ts`, P3 uncommented `* 2` on `maxLength`.
+* No significant architectural concerns.
 
 ## Existing good practices
 
-Single-source contracts and limits in shared packages; enforced package dependency direction; route -> adapter -> service -> repository layering with a single composition root; no UI access to the database; justified `ProofItemRepo` (real + fake) and `AtomicRunner`; single error architecture; centralized shadcn/Tailwind theme that also themes Clerk; reused `Button`; no duplicated components found. Full list in the audit.
+Shared contracts and limits defined once; package dependency direction enforced by tests; layered backend with a single composition root; no UI access to Drizzle/Neon; business logic not in UI; justified abstractions (`ProofItemRepo` with fake, `AtomicRunner`); one error architecture; centralized Tailwind/shadcn theme including Clerk theming; component reuse of `Button`.
 
-## Potential refactors identified (none performed)
+## Potential refactors (all need separate approved issues)
 
-1. Add `success`/`warning` tokens; use `text-destructive` for errors.
-2. Decide official product name and brand asset approach; add brand component per client; delete unused SVGs.
-3. Add shadcn `input`/`label` with the first real form.
-4. Mobile theme module (future).
+Add `success`/`warning` tokens; decide brand asset approach and brand component (carrying "Signal One Sound"); add shadcn `input`/`label` with the first real form; decide mobile theme module; delete unused template SVGs. Risk: low each.
 
-Each needs a separate approved issue.
+## Validation
 
-## Risk assessment
+* **Not run in this session:** the automation environment had no `pnpm` and node script execution required approval, so `pnpm install`, `pnpm test:boilerplate`, `pnpm validate`, lint, typecheck, and build were NOT run. The previous session (before the merge) ran `pnpm -r test` successfully, but that predates the reconciliation.
+* The manifest change and new `boilerplate:reference` regions in `CLAUDE.md`, `docs/ui.md`, `docs/code-quality.md` are unverified against the leak detector and export. Whether region markers are processed in `CLAUDE.md` specifically was not confirmed.
+* Not tested: export (`pnpm export:boilerplate`), `pnpm prove:init`.
 
-This PR is documentation only. No application code, schema, migrations, API, auth, or mobile behavior changed. Refactors above are low risk (class-name / presentation-level), mostly needing a visual check.
+## Manual steps for Rich
 
-## Validation performed
+1. Run `pnpm install --frozen-lockfile && pnpm test:boilerplate && pnpm validate` (or let CI run `validate`) and report any boilerplate leak or dangling-reference failure.
+2. If `test:boilerplate` flags `CLAUDE.md` or `docs/ui.md`, the fix is in the reference markers or `manifest.mjs`, not the detector.
+3. Read `docs/code-quality.md`, `docs/ui.md` sections 22-29, and `docs/code-quality-audit.md`.
 
-Run on this branch with `corepack pnpm` (pnpm not on PATH):
-- `pnpm install --frozen-lockfile`: passed
-- `pnpm -r --if-present test`: shared 39/39, validation 24/24, mobile 10/10, web 13 files 124/124 passed. This includes the repository's security/boundary tests.
-- Checked that every `/docs/...` path referenced in the new/changed docs exists, and that the new rules reference (not contradict) `architecture-rules.md`, `services.md`, `api.md`, `shared-code.md`, `testing.md`.
-- No new tests added (documentation only; Test Value Review).
+## Unresolved
 
-## Not tested
-
-- `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm test:boilerplate`: not run (no code changed; skipped as not meaningful for docs-only changes). CI will run `validate`.
-- Visual UI, Vercel preview, sign-in, API and database flows: not exercised.
-- The audit is based on reading and targeted searches, not a dependency-graph tool; it may miss patterns.
-
-## Unresolved concerns
-
-- Official product name ("Signal One" vs "Signal One Sound") needs a human decision before brand work.
-- Whether a shared Web/Mobile token source is wanted is undecided (documented as such in `docs/ui.md`).
+* Validation above not yet run (blocking for confirming boilerplate separation).
+* `CLAUDE.md` still lists product docs (now also in the boilerplate flow as before Issue 61); how standalone export treats `CLAUDE.md` references was not re-verified.
+* Brand asset approach, mobile token strategy: undecided by design.
 
 ## Recommended next step
 
-Review the PR; if agreed, merge manually. Then open small issues for audit items 1 and 2 before the first product screens are built.
+Run the validation commands above. If green, review and merge Issue 61 manually, then open separate issues for audit findings F1 and F3 before the first product screens.

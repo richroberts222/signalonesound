@@ -1,6 +1,6 @@
 # Code Quality
 
-This document is authoritative for Signal One's code-quality, reuse, and refactoring principles.
+This document is authoritative for this project's code-quality, reuse, and refactoring principles.
 
 The goal is **maintainable software, not mechanical compliance**. These are judgment-guided principles, not slogans. Where another document already owns a topic, that document wins and this one only points to it:
 
@@ -148,4 +148,4 @@ UI reuse, design tokens, brand assets, variants, and overrides are owned by `/do
 
 * Prefer the simplest implementation that satisfies the requirement within the architecture (`CLAUDE.md` section 14).
 * These principles guide review and design; they do not replace judgment. When two principles conflict (for example DRY vs. avoiding premature abstraction), choose the option with the lower long-term maintenance cost and say why in the PR.
-* Existing code that departs from these principles is reported, not silently rewritten. See `/docs/code-quality-audit.md` for the current baseline.
+* Existing code that departs from these principles is reported, not silently rewritten.<!-- boilerplate:reference:start --> See `/docs/code-quality-audit.md` for the current baseline.<!-- boilerplate:reference:end -->

@@ -27,13 +27,13 @@ The repository is a small foundation (one infrastructure "proof item" feature, n
 * Recommended action: add shadcn `input`/`label` (official tooling) when the first real form is built; treat the proof panel as non-canonical meanwhile. Possibly remove or replace the proof panel when it is no longer needed.
 * Refactor risk: low; covered indirectly by `apps/web/e2e/proof-items.spec.ts`.
 
-### F3. Product name "Signal One" and brand text duplicated in several places: Recommended before product development
+### F3. Brand text duplicated in several places, and shortened product name in copy: Recommended before product development
 
 * `apps/web/app/page.tsx:8` (hero heading), `apps/web/components/auth/auth-header.tsx:9` (header link text), `apps/web/app/layout.tsx:19-20` (metadata title/description), `apps/mobile/src/App.tsx:25`, `apps/mobile/app.config.ts:9`.
 * No logo, wordmark, or icon asset exists in the app. `apps/web/public/*.svg` (`file`, `globe`, `next`, `vercel`, `window`) are default create-next-app files and are not referenced by any code found in `apps/`.
-* Reasoning: `/docs/ui.md` section 24 calls for one canonical brand representation. Today it is only text, so the duplication is small and cheap, but the name will be repeated further as screens are added. Note that the product's public name is "Signal One Sound" in the issue text while the code and docs use "Signal One"; this audit does not decide which is correct.
-* Recommended action: when brand assets are approved, introduce one brand component/asset reference (web) and one native counterpart (mobile); confirm the official product name first. Remove the unused template SVGs in a small cleanup.
-* Refactor risk: low. Do not rename technical identifiers (package scope `@signalone/*`, tag `signal-one-foundation-v1`).
+* Reasoning: `/docs/ui.md` section 24 calls for one canonical brand representation. Today it is only text, so the duplication is small and cheap, but the name will be repeated further as screens are added. The official user-facing name is **Signal One Sound** (`/docs/naming-conventions.md` section 1, authoritative; not an open question). The observed copy above says "Signal One", which `/docs/naming-conventions.md` section 2 records as pre-existing and out of scope for documentation work; correcting it is a separate approved application slice.
+* Recommended action: when brand assets are approved, introduce one brand component/asset reference (web) and one native counterpart (mobile) that carries the official name "Signal One Sound", so the user-facing correction is made once. Remove the unused template SVGs in a small cleanup.
+* Refactor risk: low. Do not rename technical identifiers (`signalone` root package, `@signalone/*` scope, `signalone_tooling`, tag `signal-one-foundation-v1`, repository `signalonesound`) without the compatibility evaluation required by `/docs/naming-conventions.md` section 2.
 
 ### F4. Mobile uses literal style values: Future improvement
 
@@ -92,7 +92,7 @@ The repository is a small foundation (one infrastructure "proof item" feature, n
 | # | Action | Class | Risk |
 | --- | --- | --- | --- |
 | 1 | Add `success` (and `warning` if needed) semantic tokens; use `text-destructive` for errors in new UI | Recommended before product development | Low |
-| 2 | Decide official product name and brand asset approach; create one brand component/asset reference per client; delete unused template SVGs | Recommended before product development | Low |
+| 2 | Decide the brand asset approach (the product name is already decided: Signal One Sound); create one brand component/asset reference per client that uses it; delete unused template SVGs | Recommended before product development | Low |
 | 3 | Add shadcn `input`/`label` when the first real form is built | Minor cleanup | Low |
 | 4 | Decide a mobile theme module sharing semantic names with web | Future improvement | Low now |
 | 5 | Optionally comment the `* 2` in the proof panel | Minor cleanup | None |

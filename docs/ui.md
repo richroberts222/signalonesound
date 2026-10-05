@@ -404,7 +404,7 @@ The UI is built from the global design system outward, so broad visual changes a
 GLOBAL DESIGN SYSTEM
   -> semantic design tokens                (apps/web/app/globals.css)
   -> shared primitive components           (apps/web/components/ui, shadcn/ui)
-  -> Signal One reusable components        (apps/web/components/<area>)
+  -> application reusable components       (apps/web/components/<area>)
   -> component variants / configuration
   -> feature composition
   -> local override, only when genuinely required
@@ -419,7 +419,7 @@ Each level consumes the one above it. Feature code does not re-decide visual cho
 The centralized theme is `apps/web/app/globals.css` (CSS variables on `:root` and `.dark`, exposed to Tailwind through `@theme inline`). Existing semantic tokens include `background`, `foreground`, `card`, `popover`, `primary` (+ `-foreground`), `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, `chart-*`, `sidebar-*`, and `radius`.
 
 * Use semantic tokens (`bg-primary`, `text-muted-foreground`, `border-border`, `rounded-lg`) instead of raw palette values (`text-red-600`) or literal colors (`#999`, `oklch(...)`) in components.
-* The goal: "change Signal One's primary brand color" is a change to the token values, not edits across components.
+* The goal: "change the application's primary brand color" is a change to the token values, not edits across components.
 * Add a token when a visual value has meaning and is (or will clearly be) reused. Semantic states not yet present (for example `success`, `warning`) are added to the theme when first genuinely needed, with their `-foreground` pairing and dark-mode value, and wired through `@theme inline`. Do not create tokens for one-off values.
 * Typography, radius, and spacing conventions follow the theme and Tailwind scale; document a spacing/type convention once it is repeated (section 12).
 * Third-party UI (Clerk) is themed from the same variables (`lib/clerk-appearance.ts`); do not give it a separate palette.
@@ -446,7 +446,7 @@ Before adding UI, work down this order and stop at the first that satisfies the 
 2. Existing shared project component
 3. Composition of existing components
 4. Existing component variant/configuration
-5. New Signal One reusable component
+5. New reusable application component
 6. Feature-local component, when genuinely feature-specific
 7. Local styling override, only when justified (section 26)
 
@@ -456,7 +456,7 @@ Do not build giant universal components with many flags to avoid duplication. If
 
 ### Reusable product components
 
-Repeated product concepts should normally have one reusable UI representation. Possible future examples: `EventCard`, `RevivalTypeBadge`, `PageHeader`, `EmptyState`, `LoadingState`, `ErrorState`, `BrandLogo`, `OrganizationCard`, `SpeakerCard`.
+Repeated product concepts should normally have one reusable UI representation. Possible future examples: `PageHeader`, `EmptyState`, `LoadingState`, `ErrorState`, `BrandLogo`.<!-- boilerplate:reference:start --> Signal One Sound domain examples: `EventCard`, `RevivalTypeBadge`, `OrganizationCard`, `SpeakerCard`. Domain terms follow `/docs/naming-conventions.md` (terms marked UNDECIDED, such as Organizer, must not be invented for component names), and product need is established by `/docs/product/product-plan.md` and approved specs under `/docs/features/`.<!-- boilerplate:reference:end -->
 
 These are **examples, not authorization**. A component is created only when approved product requirements establish the need, and it is created once, in the shared location, before a second screen copies it. `EmptyState`/`LoadingState`/`ErrorState` would implement the states required by section 11.
 
@@ -500,7 +500,7 @@ Repeated design values belong in the theme (section 23). Repeated domain constan
 
 ## 29. Relationship to Code Quality
 
-`/docs/code-quality.md` is authoritative for general code-quality, dependency-direction, and refactoring rules. This document is authoritative for UI, component, design-system, and brand-asset architecture. Existing UI that predates these rules is reported in `/docs/code-quality-audit.md`; it is not refactored without an approved issue.
+`/docs/code-quality.md` is authoritative for general code-quality, dependency-direction, and refactoring rules. This document is authoritative for UI, component, design-system, and brand-asset architecture. Existing UI that predates these rules is reported<!-- boilerplate:reference:start --> in `/docs/code-quality-audit.md`;<!-- boilerplate:reference:end --> and is not refactored without an approved issue.
 
 ---
 
