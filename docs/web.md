@@ -38,3 +38,10 @@ Database migration commands (Drizzle Kit). They read `DATABASE_ENV` (`dev|qa|sta
 pnpm --filter web db:generate  # drizzle-kit generate (SQL migrations to apps/web/drizzle)
 pnpm --filter web db:migrate   # drizzle-kit migrate (applies committed migrations)
 ```
+
+## Global App Shell and navigation (Issue 68, experimental)
+
+* `components/shell/app-shell.tsx` wraps every page from `app/layout.tsx`. Pages must not render their own global navigation or wordmark.
+* `lib/navigation/nav-config.ts` is the single list of global destinations (Home, Discover, Dashboard when signed in). `components/shell/app-header.tsx` is one renderer of that list (header on `sm` and up, disclosure menu below). A different pattern (sidebar, bottom tabs) replaces the renderer, not pages.
+* The wordmark is `components/brand/brand-wordmark.tsx`, linked to `/` by the header.
+* This navigation is experimental and not approved as permanent. "Saved" is intentionally absent until a saved-events destination exists. Church/ministry/admin navigation is out of scope.
