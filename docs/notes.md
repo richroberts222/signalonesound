@@ -1,100 +1,70 @@
-# Notes: Issue #60, Establish Signal One Sound Product Development System
+# Issue 61 Handoff: Reusable UI Design System and Clean Code Standards
 
-## Current work
+* **Issue:** #61 "Establish Reusable UI Design System and Clean Code Standards"
+* **PR:** not yet created (link below in the issue comment). Do not merge automatically.
+* **Canonical branch:** `claude/issue-61-20261005-1601`; base `main` (includes completed Issue #60, PR #62).
+* **Type:** documentation, rules and read-only audit. No application code, schema, API, auth, or mobile behavior changed. `signal-one-foundation-v1` untouched.
 
-* Issue: #60, "Establish Signal One Sound Product Development System".
-* PR: not yet created at time of writing; a prefilled "Create a PR" link is in the issue #60 comment. Do not merge automatically.
-* Canonical branch: `claude/issue-60-20261005-0646` (base `main`; brought up to date after PR #59). The work was pushed to that branch.
-* Latest commit: see `git log` on the canonical branch (the commit that adds this file).
-* Scope: documentation/rules only. No application, DB schema, migrations, API, auth, mobile, env, external-service, or workflow changes. `signal-one-foundation-v1` untouched. No PROD access.
+## Documents created
 
-## Source product plan used
+* `docs/code-quality.md`: Clean Code, DRY / single source of truth, interface and dependency-direction rules, error handling, testability, safe refactoring, Boy Scout Rule.
+* `docs/code-quality-audit.md`: read-only audit (reference-app only, see boilerplate below).
 
-`/docs/product/source-product-plan.md` (403 lines), read in full. It is preserved unchanged as the authoritative source.
+## Documents modified
 
-## Documents created (whole issue)
+* `docs/ui.md`: new sections 22-29 (design-system hierarchy, semantic tokens, brand assets, component reuse order, controlled overrides, Web/Mobile sharing, magic values, relationship to code-quality).
+* `CLAUDE.md`: reconciled after the merge. Now preserves BOTH rule sets: section 19 (Issue #60 Product Development System) and section 20 (Issue #61 Code Quality, Reuse, Refactoring); Final Rule renumbered to 21; the documentation list includes the Issue #60 entries (`product-development`, `naming-conventions`, `product/*`, `features/`) and `code-quality.md`.
+* `scripts/boilerplate/manifest.mjs`: `docs/code-quality-audit.md` added to `REFERENCE_ONLY_PATHS` (the audit describes this repository's code, so it is reference-app only). Leak detector not changed or weakened.
+* `docs/notes.md`: this file.
 
-* `docs/product-development.md`, `docs/naming-conventions.md`, `docs/product/roadmap.md`, `docs/features/README.md` (earlier run).
-* `docs/product/product-plan.md`: populated in this run (was a pending scaffold).
+## Reconciliation with Issue #60
 
-## Documents modified (this run)
+* Official user-facing name is **Signal One Sound** (`docs/naming-conventions.md`). The earlier audit finding F3 treated the name as an open question; it is corrected: the name is decided, the observed "Signal One" copy is pre-existing and its correction is a separate approved application slice, and technical identifiers (`signalone`, `@signalone/*`, `signalone_tooling`, tag `signal-one-foundation-v1`, repo `signalonesound`) are not renamed without a compatibility review.
+* `docs/ui.md` product examples (`EventCard`, `RevivalTypeBadge`, `OrganizationCard`, `SpeakerCard`) are now inside a `boilerplate:reference` region, with pointers to naming-conventions (UNDECIDED terms such as Organizer must not be invented), the product plan, and approved feature specs. Examples remain examples, not authorization (product-development: only an approved issue authorizes implementation).
+* Generic docs (`ui.md`, `code-quality.md`) no longer carry product-name wording in the new sections; references to the audit are in `boilerplate:reference` regions.
 
-* `docs/product/product-plan.md`: full repository-native plan with lettered tiers: A Minimum/Startup; B Later Phase 1; C Community Optional (Phase 1 or 2, undecided); D Phase 1 revenue; E Phase 2; F Phase 3; G Phase 4; H Phase 5; I Additional revenue streams; J Long-term vision; K consolidated index of 10 undecided/vote items. Each future tier states it is not authorized.
-* `docs/naming-conventions.md`: domain terms revisited (see below); removed stale reference to the reverted home UI.
-* `docs/product-development.md`: authority table cites the source plan; tier wording lists exactly what is not authorized.
-* `docs/product/roadmap.md`: corrected stale baseline entry (Issue #57 UI was reverted by PR #59).
-* `docs/testing.md`: two wording fixes (see audit).
-* `docs/git-workflow.md`: one paragraph added to Vercel Preview section.
-* `CLAUDE.md`: one line noting the preserved source plan.
-* `docs/notes.md`: overwritten.
+## Rules established (summary)
 
-## Product authority established
+* **UI / design system:** hierarchy global design system -> semantic tokens (`globals.css`) -> shadcn primitives -> reusable components -> variants -> feature composition -> scoped override. Centralized brand assets (single brand component/asset reference, documented exceptions). Component reuse order. Controlled overrides promoted to variants/tokens when repeated. Web and Mobile stay separate implementations, sharing vocabulary, semantics, contracts, accessibility intent and brand identity; no shared token source is mandated yet.
+* **Code quality:** DRY as one authoritative implementation per concept (no abstraction of coincidental similarity); SRP, cohesion, naming, no arbitrary line limits; magic values only when a constant carries meaning; integrate with the existing error architecture; Test Value Review; safe-refactoring steps; Boy Scout Rule bounded to low-risk in-scope cleanup; broad refactors need explicit authorization.
+* **Interfaces / dependencies:** UI -> API/contracts -> services -> repositories -> Drizzle -> Neon; interfaces only where they give concrete value (isolation, substitutability, testability, stable shared contracts); no interface for its own sake. `architecture-rules.md`, `services.md`, `api.md`, `shared-code.md` remain authoritative where they already own a topic.
 
-* `product-plan.md` = direction only; `source-product-plan.md` = preserved source; roadmap = sequencing; `docs/features/` specs + approved issue = authorization.
-* Only section A (Minimum/Startup) describes current targets, and still only via an approved issue.
-* Legacy ROCK / ROCK SOS normalized to Signal One Sound. One legacy slogan, "Prayed on the ROCK, 1 Sam 2:2" (Phase 2), is retained verbatim exactly as the source flags it as unresolved branding.
-* Source ambiguities preserved, not resolved: flyer upload "??" and livestream links "??" (startup), the startup list containing both "Free member/user accounts" and "Free monthly member/user accounts", the radius value "X", pricing votes, 300-character comment vote, flagship-50 vote, Phase 1 vs 2 placement of community features, testimony 30-day retention.
+## Audit findings (none refactored)
 
-## Naming decisions
+* F1 Recommended before product development: raw `text-red-600`/`text-green-700` in `apps/web/components/proof/proof-items-panel.tsx`; no `success` token.
+* F2 Minor cleanup: proof panel uses raw `<input>`/`<label>`; shadcn `input`/`label` not installed.
+* F3 Recommended before product development: brand text repeated in 5 places (web page, auth header, layout metadata, mobile App, app config), no brand component/assets, unused create-next-app SVGs in `apps/web/public`.
+* F4 Future improvement: mobile literal styles; no mobile theme module.
+* Possible concerns (not defects): P1 services importing `db/errors` (documented design), P2 size of `packages/shared/src/env.ts`, P3 uncommented `* 2` on `maxLength`.
+* No significant architectural concerns.
 
-* Resolved only where the source supports it: Event (basic), Revival Type (the 12 listed values; multi-tag), Church/Ministry (portal account holder), Speaker (person on an Event; optional profile).
-* Partial: Venue ("Venue Name" is an address component; Venue as an entity is undecided).
-* Still UNDECIDED: Revival (relationship to Event), Church (standalone), Ministry (standalone), Organizer (not in source), Gathering (only appears in later-phase names and "Prayer gatherings").
-* Official name Signal One Sound; slug `signal-one-sound`; repository identifier `signalonesound`. No technical identifier renamed. User-facing "Signal One" copy change is out of scope (separate approved application slice).
+## Existing good practices
 
-## Documentation audited and conflicts
+Shared contracts and limits defined once; package dependency direction enforced by tests; layered backend with a single composition root; no UI access to Drizzle/Neon; business logic not in UI; justified abstractions (`ProofItemRepo` with fake, `AtomicRunner`); one error architecture; centralized Tailwind/shadcn theme including Clerk theming; component reuse of `Button`.
 
-* `docs/testing.md`: "Every feature has ... derived tests" and "New shared logic ... ships with tests in the same PR" could be read as mandating tests regardless of Test Value Review. Resolved by qualifying both with the Test Value Review and linking `product-development.md`; no layer is mandated for every feature.
-* `docs/git-workflow.md`: section 13 said a Preview "may be used" for review. That is compatible for ordinary PRs but did not state the exploratory rule. Resolved by adding that exploratory UI/features must be reviewed by Rich in a Vercel Preview before merge and must not be merged just to get a Preview. Sections 12 and 20 (human reviews Preview, human merges, Claude has no merge authority) already agree; unchanged.
-* Stale-reference defect found and fixed: roadmap and naming docs described the Issue #57 home UI as present; PR #59 reverted it.
-* Product development doc checked against the source plan: no requirement conflicts found; nothing in it assumed plan content.
+## Potential refactors (all need separate approved issues)
 
-## CI fix: standalone boilerplate leak check (follow-up on PR #62)
+Add `success`/`warning` tokens; decide brand asset approach and brand component (carrying "Signal One Sound"); add shadcn `input`/`label` with the first real form; decide mobile theme module; delete unused template SVGs. Risk: low each.
 
-CI / Validate failed in `pnpm test:boilerplate`: the export test (`scripts/boilerplate/boilerplate.test.mjs`) found Signal One Sound identity in `docs/git-workflow.md`, `docs/naming-conventions.md`, and `docs/product/roadmap.md` of the exported standalone tree. Cause: export rewrites only "Signal One"/`signalone`, so the hyphenated slugs `signal-one-sound` and `signal-one-foundation-v1` survived.
+## Validation
 
-Fix, using the existing mechanisms (no change to `check-boilerplate.mjs` or its identity pattern; no product terminology removed):
+* **Not run in this session:** the automation environment had no `pnpm` and node script execution required approval, so `pnpm install`, `pnpm test:boilerplate`, `pnpm validate`, lint, typecheck, and build were NOT run. The previous session (before the merge) ran `pnpm -r test` successfully, but that predates the reconciliation.
+* The manifest change and new `boilerplate:reference` regions in `CLAUDE.md`, `docs/ui.md`, `docs/code-quality.md` are unverified against the leak detector and export. Whether region markers are processed in `CLAUDE.md` specifically was not confirmed.
+* **CI follow-up fix:** CI reported `docs/ui.md:497 [proof-reference]` (a `proof-item` / `migration_proof` reference). The `PROOF_ITEM_LABEL_MAX` example in section 28 names the proof slice, so it is proof-slice-specific prose, not generic wording. It is now wrapped inline in the existing `boilerplate:proof` region (`docs/boilerplate.md`), so export and init remove exactly that parenthetical and the sentence stays valid. The leak detector and tests are unchanged. Not re-run locally (no pnpm); CI is authoritative.
+* Not tested: export (`pnpm export:boilerplate`), `pnpm prove:init`.
 
-* `scripts/boilerplate/manifest.mjs`: `docs/naming-conventions.md` and `docs/product` added to `EXPORT_EXCLUDED_PATHS` (reference-app-only files, same list that already holds `docs/notes.md`). The Signal One Sound product docs stay in the reference app and are not copied to the standalone boilerplate.
-* `docs/git-workflow.md`: section 23 (Foundation V1 baseline tag, specific to this repository) wrapped in `<!-- boilerplate:reference:start/end -->` marker lines, the existing `<!-- boilerplate:KIND:start/end -->` convention with one new kind, `reference`.
-* `scripts/boilerplate/export-template.mjs`: export strips `proof` and `reference` regions (`template` regions are kept at export, since the README block depends on them). `init-app.mjs`: `stripMarkedRegions` default kinds now include `reference`.
-* `docs/boilerplate.md`: marker documentation updated.
+## Manual steps for Rich
 
-Validation: NOT run. The sandbox denied `node --test` / export commands and `pnpm` is not installed, so `pnpm test:boilerplate` and `pnpm validate` were not executed. The change was reasoned from the checker and export code only. CI must confirm. Rich: please check the CI result.
+1. Run `pnpm install --frozen-lockfile && pnpm test:boilerplate && pnpm validate` (or let CI run `validate`) and report any boilerplate leak or dangling-reference failure.
+2. If `test:boilerplate` flags `CLAUDE.md` or `docs/ui.md`, the fix is in the reference markers or `manifest.mjs`, not the detector.
+3. Read `docs/code-quality.md`, `docs/ui.md` sections 22-29, and `docs/code-quality-audit.md`.
 
-### Second CI fix: init path inconsistency
+## Unresolved
 
-Remaining failures: "init produces a clean, generic application..." and "detector catches a credential-shaped URL added after init...". Cause: those tests run `initApp` on a copy of the reference repo (not the export), and init did not remove the reference-only docs, so `docs/naming-conventions.md` and `docs/product/roadmap.md` still carried the identity.
+* Validation above not yet run (blocking for confirming boilerplate separation).
+* `CLAUDE.md` still lists product docs (now also in the boilerplate flow as before Issue 61); how standalone export treats `CLAUDE.md` references was not re-verified.
+* Brand asset approach, mobile token strategy: undecided by design.
 
-Fix (existing manifest/region architecture, leak detector and tests untouched):
+## Recommended next step
 
-* `scripts/boilerplate/manifest.mjs`: new `REFERENCE_ONLY_PATHS` (`docs/naming-conventions.md`, `docs/product-development.md`, `docs/features`, `docs/product`), spread into `EXPORT_EXCLUDED_PATHS` so export behavior is unchanged for the previously excluded files.
-* `scripts/boilerplate/init-app.mjs`: init removes `REFERENCE_ONLY_PATHS`, so export and init treat these docs identically.
-* Dangling links: `docs/product-development.md` and `docs/features/` are now reference-only too. The three sentences linking to `product-development.md` in `docs/issues.md`, `docs/git-workflow.md`, and `docs/testing.md` are wrapped in inline `boilerplate:reference` markers (removed by both export and init). `CLAUDE.md` has no such links.
-
-Validation: NOT run. The sandbox denied `node --test` and `pnpm` is unavailable. Reasoned from the code only; CI must confirm.
-
-## Branch note
-
-The session started on a different local branch (`claude/issue-60-20261005-1549`, equal to `main`). I loaded the canonical branch's files and am pushing to the canonical branch as instructed, not creating a new implementation branch.
-
-## Validation performed
-
-* Verified every `/docs/...` path referenced from CLAUDE.md and the new/edited docs exists.
-* Checked content for no secrets or credential-shaped URLs.
-* Compared product-plan.md section by section with the source.
-* No lint, typecheck, build, or tests were run: docs-only, no code touched, and the Test Value Review justifies none. CI runs its normal checks on the PR.
-
-## Not tested
-
-* Markdown rendering and anchor links (only file paths were checked).
-* No automated word-for-word diff between source and plan; comparison was manual. The plan reformats and groups the source (for example, merges repeated bullet lists by reference), so Rich should skim sections A, B, K.
-
-## Remaining work
-
-* Rich review of the PR (not merged automatically).
-* Decisions on the items in product-plan.md section K and the UNDECIDED terms, when a feature needs them.
-
-## Next recommended slice (recommendation only; NOT started)
-
-Rich chooses the first slice from section A. Likely candidate: a feature spec for the Church Portal event submission (Church/Ministry Name, dates/times, address with Venue Name, Revival Types). It requires answers to the startup undecided items (flyer upload, livestream links), then a mock-first review and the Database Design Checkpoint before any schema work.
+Run the validation commands above. If green, review and merge Issue 61 manually, then open separate issues for audit findings F1 and F3 before the first product screens.

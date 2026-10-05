@@ -111,6 +111,8 @@ Signal One-specific components should be created when they provide meaningful ap
 
 Avoid creating unnecessary abstractions for one-off elements.
 
+The full reuse order, variant, and override rules are in sections 22 to 26.
+
 ---
 
 ## 6. Component Boundaries
@@ -265,6 +267,8 @@ Components should use semantic theme values where available instead of repeatedl
 
 This allows the Signal One visual identity to evolve without rewriting individual components.
 
+See sections 22 and 23 for the design-system hierarchy and semantic token rules.
+
 ---
 
 ## 15. Client-Specific UI
@@ -392,7 +396,115 @@ should be documented before becoming established project conventions.
 
 ---
 
-## 22. Final Rule
+## 22. Design System Hierarchy
+
+The UI is built from the global design system outward, so broad visual changes are inexpensive and predictable:
+
+```text
+GLOBAL DESIGN SYSTEM
+  -> semantic design tokens                (apps/web/app/globals.css)
+  -> shared primitive components           (apps/web/components/ui, shadcn/ui)
+  -> application reusable components       (apps/web/components/<area>)
+  -> component variants / configuration
+  -> feature composition
+  -> local override, only when genuinely required
+```
+
+Each level consumes the one above it. Feature code does not re-decide visual choices that a higher level already owns. Avoid repeated hard-coded visual decisions (colors, radii, spacing scales, type styles) in feature code.
+
+---
+
+## 23. Semantic Design Tokens
+
+The centralized theme is `apps/web/app/globals.css` (CSS variables on `:root` and `.dark`, exposed to Tailwind through `@theme inline`). Existing semantic tokens include `background`, `foreground`, `card`, `popover`, `primary` (+ `-foreground`), `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, `chart-*`, `sidebar-*`, and `radius`.
+
+* Use semantic tokens (`bg-primary`, `text-muted-foreground`, `border-border`, `rounded-lg`) instead of raw palette values (`text-red-600`) or literal colors (`#999`, `oklch(...)`) in components.
+* The goal: "change the application's primary brand color" is a change to the token values, not edits across components.
+* Add a token when a visual value has meaning and is (or will clearly be) reused. Semantic states not yet present (for example `success`, `warning`) are added to the theme when first genuinely needed, with their `-foreground` pairing and dark-mode value, and wired through `@theme inline`. Do not create tokens for one-off values.
+* Typography, radius, and spacing conventions follow the theme and Tailwind scale; document a spacing/type convention once it is repeated (section 12).
+* Third-party UI (Clerk) is themed from the same variables (`lib/clerk-appearance.ts`); do not give it a separate palette.
+
+---
+
+## 24. Centralized Brand Assets
+
+Repeatedly used identity assets are defined once: primary logo, wordmark, application icon, approved brand marks.
+
+* Feature code must not import, copy, or hard-code logo/wordmark assets or the product name styling independently. It uses one canonical reusable brand component or asset reference (for example `BrandLogo`, `BrandWordmark`, `AppIcon`) once identity assets exist.
+* Changing the canonical logo/wordmark should require changing one authoritative implementation or asset, not many screens.
+* Exact implementation (component vs. asset module, where it lives) follows the existing architecture and is decided when the brand assets are approved. These names are examples, not an instruction to create them now.
+* Web and Mobile may implement the brand component natively (section 27), but share the same source asset files/identity.
+* Exceptions: a genuinely distinct asset or variant (for example a monochrome mark for a specific surface, an OAuth provider logo, a favicon/store icon with a platform-mandated format) is allowed. It is defined once as a named variant of the brand asset or in its authoritative platform location, not ad hoc in a feature.
+
+---
+
+## 25. Component Reuse Order
+
+Before adding UI, work down this order and stop at the first that satisfies the requirement:
+
+1. Existing shadcn/ui primitive (`components/ui`; add via the official tooling, section 17)
+2. Existing shared project component
+3. Composition of existing components
+4. Existing component variant/configuration
+5. New reusable application component
+6. Feature-local component, when genuinely feature-specific
+7. Local styling override, only when justified (section 26)
+
+Do not copy an existing component because a new screen needs a slightly different version. Prefer variants (the shadcn `cva` pattern), composition, slots/children, or configuration when that gives a clearer design.
+
+Do not build giant universal components with many flags to avoid duplication. If a component needs many unrelated options, split it or compose smaller ones. Do not abstract coincidental visual similarity (`/docs/code-quality.md` section 1).
+
+### Reusable product components
+
+Repeated product concepts should normally have one reusable UI representation. Possible future examples: `PageHeader`, `EmptyState`, `LoadingState`, `ErrorState`, `BrandLogo`.<!-- boilerplate:reference:start --> Signal One Sound domain examples: `EventCard`, `RevivalTypeBadge`, `OrganizationCard`, `SpeakerCard`. Domain terms follow `/docs/naming-conventions.md` (terms marked UNDECIDED, such as Organizer, must not be invented for component names), and product need is established by `/docs/product/product-plan.md` and approved specs under `/docs/features/`.<!-- boilerplate:reference:end -->
+
+These are **examples, not authorization**. A component is created only when approved product requirements establish the need, and it is created once, in the shared location, before a second screen copies it. `EmptyState`/`LoadingState`/`ErrorState` would implement the states required by section 11.
+
+---
+
+## 26. Controlled Overrides
+
+Default appearance and behavior come from the design system and shared component. A feature may override when it has a legitimate distinct requirement. Overrides must:
+
+* be intentional (the reason is evident or commented);
+* remain scoped to that usage;
+* not silently establish a competing design system or palette;
+* not duplicate an existing variant or token;
+* be promoted to a shared variant or token when repeated use shows it is a project convention.
+
+Repeated overrides are a signal to evaluate whether the shared component or theme needs another supported variant, not to keep copying the override.
+
+---
+
+## 27. Web and Mobile Sharing
+
+Web and Mobile remain separate client UI implementations. Do not force React Web components or Tailwind/shadcn classes into React Native.
+
+Share where it is reasonable and does not force inappropriate code:
+
+* design vocabulary and semantic color names (`primary`, `destructive`, ...)
+* component and product-concept naming and terminology
+* shared contracts, validation, and behavior (`@signalone/shared`, `@signalone/validation`)
+* accessibility intent (labels, roles, focus, contrast)
+* brand identity and source asset files
+
+Shared product identity does not require identical component implementations. A shared token source consumed by both clients is an architectural decision that must be documented before it is built; it is not established today.
+
+---
+
+## 28. Magic Values in UI
+
+Repeated design values belong in the theme (section 23). Repeated domain constants and limits belong with the contract that owns them<!-- boilerplate:proof:start --> (for example `PROOF_ITEM_LABEL_MAX` in `@signalone/validation`)<!-- boilerplate:proof:end -->, never re-typed in a component. Do not extract every literal; see `/docs/code-quality.md` section 5.
+
+---
+
+## 29. Relationship to Code Quality
+
+`/docs/code-quality.md` is authoritative for general code-quality, dependency-direction, and refactoring rules. This document is authoritative for UI, component, design-system, and brand-asset architecture. Existing UI that predates these rules is reported<!-- boilerplate:reference:start --> in `/docs/code-quality-audit.md`;<!-- boilerplate:reference:end --> and is not refactored without an approved issue.
+
+---
+
+## 30. Final Rule
 
 For Web UI, prefer:
 
