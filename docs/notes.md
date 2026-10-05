@@ -50,6 +50,7 @@ Add `success`/`warning` tokens; decide brand asset approach and brand component 
 
 * **Not run in this session:** the automation environment had no `pnpm` and node script execution required approval, so `pnpm install`, `pnpm test:boilerplate`, `pnpm validate`, lint, typecheck, and build were NOT run. The previous session (before the merge) ran `pnpm -r test` successfully, but that predates the reconciliation.
 * The manifest change and new `boilerplate:reference` regions in `CLAUDE.md`, `docs/ui.md`, `docs/code-quality.md` are unverified against the leak detector and export. Whether region markers are processed in `CLAUDE.md` specifically was not confirmed.
+* **CI follow-up fix:** CI reported `docs/ui.md:497 [proof-reference]` (a `proof-item` / `migration_proof` reference). The `PROOF_ITEM_LABEL_MAX` example in section 28 names the proof slice, so it is proof-slice-specific prose, not generic wording. It is now wrapped inline in the existing `boilerplate:proof` region (`docs/boilerplate.md`), so export and init remove exactly that parenthetical and the sentence stays valid. The leak detector and tests are unchanged. Not re-run locally (no pnpm); CI is authoritative.
 * Not tested: export (`pnpm export:boilerplate`), `pnpm prove:init`.
 
 ## Manual steps for Rich

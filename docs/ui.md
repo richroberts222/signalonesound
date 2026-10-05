@@ -494,7 +494,7 @@ Shared product identity does not require identical component implementations. A 
 
 ## 28. Magic Values in UI
 
-Repeated design values belong in the theme (section 23). Repeated domain constants and limits belong with the contract that owns them (for example `PROOF_ITEM_LABEL_MAX` in `@signalone/validation`), never re-typed in a component. Do not extract every literal; see `/docs/code-quality.md` section 5.
+Repeated design values belong in the theme (section 23). Repeated domain constants and limits belong with the contract that owns them<!-- boilerplate:proof:start --> (for example `PROOF_ITEM_LABEL_MAX` in `@signalone/validation`)<!-- boilerplate:proof:end -->, never re-typed in a component. Do not extract every literal; see `/docs/code-quality.md` section 5.
 
 ---
 
