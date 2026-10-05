@@ -6,6 +6,18 @@
 * **Type:** MOCK-FIRST product discovery. Web only. No schema, API, auth, migration, or production-data change.
 * **Not product-approved by CI.** Rich must explore the Vercel Preview and approve.
 
+## Vercel Preview runtime failure fix (PR #67 follow-up, requested by Rich)
+
+The Preview showed "This page couldn't load / A server error occurred."
+
+* **Probable root cause (static analysis; I could not run the app or read Vercel runtime logs):** `components/ui/badge.tsx` (new in this PR), `input.tsx`, `tabs.tsx`, and the existing `card.tsx` and `avatar.tsx` imported `cn` from the npm package `cn` (`from "cn"`) instead of the project helper `@/lib/utils`. `cn` is an unrelated package (it is in `apps/web/package.json`), and it is not the clsx/tailwind-merge helper these components need. The home page (`/`) now renders `EventCard`, then `RevivalTypeBadge`, then `Badge`, so the broken import runs on the server for every visit to `/`. Before this PR nothing rendered those components on `/`.
+* **Why validation missed it:** lint, typecheck, and unit tests never render the component. `next build` does not fail either, because Clerk makes these routes dynamic, so they are not prerendered at build time and the import is first exercised at request time.
+* **Fix:** the five components now import `cn` from `@/lib/utils`. No functionality or scope change. The unused `cn` dependency is still in `apps/web/package.json`; removing it needs a lockfile regeneration, so it is left for a separate cleanup.
+* **Guard added:** `components/ui/imports.test.ts` fails if any UI component imports from the package `cn`.
+* **Not verified:** I could not run pnpm, the build, or the app in this environment, so the fix is unverified until the new Vercel Preview loads. If it still fails, send me the Vercel runtime log for `/`; other candidates are the Clerk environment variables on the Preview and anything else the log names.
+* **Manual test for Rich:** open the new Preview, load `/`, then `/discover`, tap Near Me, and open an Event Details page. Each should render without the error page.
+* **Follow-up worth doing:** a Playwright smoke test that requests `/` and `/discover` against a started build (needs Clerk test keys in CI).
+
 ## `docs/ui.md` repair (PR #67 follow-up, requested by Rich)
 
 Commit `98da759` on `main` ("updated ui.md with fire design requirements") pasted a copy of `docs/ui.md` with Markdown escaping damage (`**\##` headings, `\*` bullets, escaped backticks and HTML comments, hard-wrapped lines, a stray `**` and a duplicate `## 24.` heading). This branch repairs it; **no application code was changed**.
