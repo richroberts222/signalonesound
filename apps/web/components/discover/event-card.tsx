@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { CalendarDays, Clock, MapPin } from "lucide-react";
 import { RevivalTypeBadge } from "@/components/discover/revival-type-badge";

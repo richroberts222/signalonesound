@@ -6,7 +6,18 @@
 * **Type:** MOCK-FIRST product discovery. Web only. No schema, API, auth, migration, or production-data change.
 * **Not product-approved by CI.** Rich must explore the Vercel Preview and approve.
 
-## Vercel Preview runtime failure fix (PR #67 follow-up, requested by Rich)
+## Vercel Preview runtime failure, second fix (PR #67 follow-up, requested by Rich)
+
+The Preview still failed after the `cn` import fix, so that was not (or not the only) cause.
+
+* **Probable root cause (static analysis; I could not run the app or read Vercel runtime logs):** `components/discover/event-card.tsx` attaches `onMouseEnter`/`onMouseLeave` handlers to its `<article>` but had no `"use client"` directive. `app/page.tsx` is a Server Component and renders `EventCard` in "Happening soon", so React tried to serialize a function prop from the server and threw on every request to `/`. `/discover` was unaffected because `EventCard` was reached only through the client `DiscoverExperience`, which is why the failure was specific to the new home page.
+* **Why validation missed it:** typecheck and lint accept handlers in a file that is not a Client Component, and `next build` does not render dynamic (Clerk) routes, so the error only appears on a real request.
+* **Fix:** added `"use client"` to `event-card.tsx`. Also added it to `filter-chip.tsx`, which has an `onClick` and had the same latent problem (only used from client components today). No behavior or scope change.
+* **Guard added:** `components/discover/server-boundary.test.ts` fails if a `.tsx` file in `components/discover` has an inline event handler without `"use client"`. It is a heuristic, not a full check.
+* **Not verified:** no pnpm, build, or running app here. Please load the new Preview. If it still fails, I need the Vercel runtime log for `/` (Functions logs), since I have now ruled out the two code causes I could find and the remaining candidates are Clerk environment variables on the Preview.
+* **Follow-up worth doing:** a Playwright smoke test that requests `/` and `/discover` against a started build (needs Clerk test keys in CI). It is the only check that exercises server rendering.
+
+## Vercel Preview runtime failure fix, first attempt (PR #67 follow-up, requested by Rich)
 
 The Preview showed "This page couldn't load / A server error occurred."
 
