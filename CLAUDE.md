@@ -56,6 +56,7 @@ Expected documentation includes:
 * `/docs/data-mutations.md`
 * `/docs/routing.md`
 * `/docs/server-components.md`
+* `/docs/code-quality.md` (authoritative for code-quality, reuse, dependency-direction, and refactoring principles)
 * `/docs/issues.md` (required whenever working on a GitHub issue or PR; defines the `docs/notes.md` handoff rule)
 
 Not all of these documents may exist yet.
@@ -396,7 +397,18 @@ The repository's security tests enforce this. Never change or weaken them to mak
 
 ---
 
-# 19. Final Rule
+# 19. Code Quality, Reuse, and Refactoring
+
+* `/docs/code-quality.md` is authoritative for code-quality and refactoring principles.
+* `/docs/ui.md` is authoritative for UI, component, design-system, and brand-asset architecture.
+* Reuse existing behavior, components, tokens, and contracts before creating duplicates, but do not abstract coincidental similarity.
+* Respect meaningful architectural boundaries and dependency direction.
+* Abstractions and interfaces must provide concrete value; no speculative or "interface for interface's sake" layers.
+* Broad or repository-wide refactors require explicit authorization (a separate approved issue). Audit findings are reported, not silently fixed; `/docs/code-quality-audit.md` records the current baseline.
+
+---
+
+# 20. Final Rule
 
 Before implementing anything substantial, ask:
 
