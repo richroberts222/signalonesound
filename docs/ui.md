@@ -416,7 +416,7 @@ Each level consumes the one above it. Feature code does not re-decide visual cho
 
 ## 23. Semantic Design Tokens
 
-The centralized theme is `apps/web/app/globals.css` (CSS variables on `:root` and `.dark`, exposed to Tailwind through `@theme inline`). Existing semantic tokens include `background`, `foreground`, `card`, `popover`, `primary` (+ `-foreground`), `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, `chart-*`, `sidebar-*`, and `radius`.
+The centralized theme is `apps/web/app/globals.css` (CSS variables on `:root` and `.dark`, exposed to Tailwind through `@theme inline`). Existing semantic tokens include `background`, `foreground`, `card`, `popover`, `primary` (+ `-foreground`), `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, `chart-*`, `sidebar-*`, and `radius`. Issue #66 added the exploratory Signal One Sound theme: warm `background`/`card`/`border` surfaces, an ember `primary`, and two new semantic pairs, `highlight` (gold) and `hero` (deep ember band), plus a `--font-display` heading font wired to `font-heading`. These values are exploratory and refined in `globals.css`, not in components.
 
 * Use semantic tokens (`bg-primary`, `text-muted-foreground`, `border-border`, `rounded-lg`) instead of raw palette values (`text-red-600`) or literal colors (`#999`, `oklch(...)`) in components.
 * The goal: "change the application's primary brand color" is a change to the token values, not edits across components.
@@ -523,7 +523,7 @@ Keep Web and Mobile UI appropriately independent while maintaining one coherent 
 shadcn/ui is initialized in `apps/web`.
 
 * Configuration: `apps/web/components.json` (style `base-nova`, base color `neutral`, CSS variables enabled, icon library `lucide`)
-* Components: `apps/web/components/ui` (`button.tsx` from `shadcn init`; `card.tsx` and `avatar.tsx` added for authentication UI)
+* Components: `apps/web/components/ui` (`button.tsx` from `shadcn init`; `card.tsx` and `avatar.tsx` added for authentication UI; `tabs.tsx`, `badge.tsx`, `input.tsx` added for Discover Revival). Product components: `components/brand/brand-wordmark.tsx` (`BrandWordmark`, the temporary text wordmark; the one place the name is styled) and `components/discover/*` (`EventCard`, `RevivalTypeBadge`, `FilterChip`, `RevivalMap`, ...)
 * Utilities: `apps/web/lib/utils.ts` (`cn` built on `clsx` and `tailwind-merge`)
 * Theme variables: `apps/web/app/globals.css`
 
