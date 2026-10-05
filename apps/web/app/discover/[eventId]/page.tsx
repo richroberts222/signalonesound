@@ -31,7 +31,10 @@ export default async function EventDetailsPage({
     Object.entries(raw).flatMap(([k, v]) => (typeof v === "string" ? [[k, v]] : [])),
   );
   const query = filtersToQuery(parseFilters(incoming));
-  const backHref = query ? `/discover?${query}` : "/discover";
+  // Opened from Home: go back Home. Otherwise restore the Discover search.
+  const fromHome = incoming.get("from") === "home";
+  const backHref = fromHome ? "/" : query ? `/discover?${query}` : "/discover";
+  const backLabel = fromHome ? "Back to Home" : "Back to results";
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
@@ -39,7 +42,7 @@ export default async function EventDetailsPage({
         href={backHref}
         className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft aria-hidden className="size-4" /> Back to results
+        <ArrowLeft aria-hidden className="size-4" /> {backLabel}
       </Link>
 
       <MockBanner />

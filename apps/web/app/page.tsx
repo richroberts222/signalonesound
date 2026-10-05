@@ -74,14 +74,14 @@ export default function Home() {
             <h2 id="featured-heading" className="font-heading text-2xl font-bold tracking-tight sm:text-3xl">
               Happening <span className="text-gradient-gold">soon</span>
             </h2>
-            <Link href="/discover" className="text-sm font-medium text-primary hover:underline">
+            <Link href="/discover?near=nashville&radius=any" className="text-sm font-medium text-primary hover:underline">
               See all
             </Link>
           </div>
           <ul className="grid gap-4 md:grid-cols-3">
             {featured.map((event) => (
               <li key={event.id}>
-                <EventCard event={event} distanceMiles={null} query="" />
+                <EventCard event={event} distanceMiles={null} query="from=home" />
               </li>
             ))}
           </ul>

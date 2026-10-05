@@ -79,9 +79,6 @@ export function DiscoverFilterPanel({
             {r === "any" ? "Unlimited" : `${r} miles`}
           </FilterChip>
         ))}
-        <FilterChip active={false} disabled onClick={() => {}} title="The product plan lists an unspecified radius “X”; undecided.">
-          X
-        </FilterChip>
       </Group>
 
       <Group legend="Date">

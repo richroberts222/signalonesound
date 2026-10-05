@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { BrandWordmark } from "@/components/brand/brand-wordmark";
 import { DiscoverExperience } from "@/components/discover/discover-experience";
 import { MockBanner } from "@/components/discover/mock-banner";
 
@@ -14,7 +13,6 @@ export default function DiscoverPage() {
     <main className="flex flex-1 flex-col">
       <section className="bg-hero-glow border-b text-hero-foreground">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-12 sm:px-6 sm:py-16">
-          <BrandWordmark className="text-sm" />
           <h1 className="font-heading max-w-2xl text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl">
             Find the fire <span className="text-gradient-gold">near you.</span>
           </h1>

@@ -6,6 +6,17 @@
 * **Type:** MOCK-FIRST product discovery. Web only. No schema, API, auth, migration, or production-data change.
 * **Not product-approved by CI.** Rich must explore the Vercel Preview and approve.
 
+## Navigation refinements after manual testing (PR #67 follow-up, requested by Rich)
+
+* **Wordmark:** the header wordmark already linked to `/`. The `/discover` hero also showed a second, non-link wordmark that duplicated the header; it is removed so the only wordmark is the header link to Home. If the header wordmark still goes to `/discover` on the Preview, tell me which screen and I will investigate.
+* **Event Details back link:** cards on Home carry `from=home`; Details then shows "Back to Home" linking to `/`. Cards opened from Discover keep "Back to results", which restores `near`, `radius`, `date`, and `types`. `from` is only honored as the exact value `home`.
+* **Happening soon "See all":** now links to `/discover?near=nashville&radius=any` (mock origin, unlimited distance, all upcoming events, soonest first), matching the Home strip's ordering instead of the empty generic Discover state.
+* **Distance "X":** the disabled "X" chip is removed. Product plan A1 lists "10, 25, 50, X, or unlimited" and open question 10 says "X" is unspecified in the source, so no meaning was invented. **Product question for Rich:** what is "X" (a user-entered custom distance? a fixed fifth value?) and should it be offered at all?
+* **Copy:** "Find the fire near you" left unchanged as temporary mock copy.
+* No global navigation added; no backend, schema, or API change.
+* **Manual test:** Home, open a card, confirm "Back to Home". Discover, Near Me, change filters, open a card, confirm "Back to results" restores them. Home "See all" lands on a populated results list. Distance row shows no "X".
+* **Validation:** not run in this environment (shell commands for pnpm are not available to me).
+
 ## Vercel Preview runtime failure, second fix (PR #67 follow-up, requested by Rich)
 
 The Preview still failed after the `cn` import fix, so that was not (or not the only) cause.
