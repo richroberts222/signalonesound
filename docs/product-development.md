@@ -6,13 +6,13 @@ How Signal One Sound product features are planned, prototyped, implemented, test
 
 | Question | Authoritative source |
 | --- | --- |
-| What is the product intended to become? | `/docs/product/product-plan.md` (direction only) |
+| What is the product intended to become? | `/docs/product/product-plan.md` (direction only), derived from the preserved source `/docs/product/source-product-plan.md` |
 | What is next / in what order? | `/docs/product/roadmap.md` |
 | What exactly is approved for this feature? | the approved spec in `/docs/features/` plus the issue |
 | What do we call things? | `/docs/naming-conventions.md` |
 | How is it built? | `/docs/architecture-rules.md` and the other `/docs` rules |
 
-**Knowledge of a future feature is not authorization to implement it.** The product plan defines direction; individual approved issues/features authorize implementation. Only the minimum/startup tier of the plan describes current targets, and even it requires an approved issue.
+**Knowledge of a future feature is not authorization to implement it.** The product plan defines direction; individual approved issues/features authorize implementation. Only the minimum/startup tier (section A of the product plan) describes current targets, and even it requires an approved issue. Later Phase 1, Phases 2-5, additional revenue streams, long-term vision, and undecided/vote items are not authorized; undecided items are resolved only by Rich.
 
 **Repository facts outrank external assumptions.** If an instruction assumes X but the repository shows Y: do not blindly implement X. Report what was assumed, what the repository contains, why it matters, and the recommended resolution. If it could materially change architecture, behavior, data, or compatibility, stop and ask before proceeding.
 

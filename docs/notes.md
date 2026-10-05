@@ -3,63 +3,73 @@
 ## Current work
 
 * Issue: #60, "Establish Signal One Sound Product Development System".
-* PR: created after push (link in the issue #60 comment).
-* Canonical branch: `claude/issue-60-20261005-0646` (base `main`).
-* Latest commit: see `git log` on the branch.
-* Scope: documentation/rules only. No application, DB, auth, API, mobile, env, or workflow changes. `signal-one-foundation-v1` untouched. No PROD access.
+* PR: not yet created at time of writing; a prefilled "Create a PR" link is in the issue #60 comment. Do not merge automatically.
+* Canonical branch: `claude/issue-60-20261005-0646` (base `main`; brought up to date after PR #59). The work was pushed to that branch.
+* Latest commit: see `git log` on the canonical branch (the commit that adds this file).
+* Scope: documentation/rules only. No application, DB schema, migrations, API, auth, mobile, env, external-service, or workflow changes. `signal-one-foundation-v1` untouched. No PROD access.
 
-## BLOCKER / DISCREPANCY: product plan not supplied
+## Source product plan used
 
-* Instruction assumed: Rich's Signal One Sound product plan is available to translate into `/docs/product/product-plan.md`.
-* Repository/issue actually contain: no plan text (issue body has none, no comments/attachments, no "ROCK"/"ROCK SOS" text anywhere in the repo).
-* Why it matters: the issue forbids inventing or silently filling product requirements.
-* Resolution taken: `product-plan.md` is a clearly labeled PENDING SOURCE scaffold with the tiered structure and normalization rule, but **no product content**. Rich must supply the plan (paste into the PR/issue); a follow-up run then populates the minimum/startup, later Phase 1, Phase 2+, long-term, and UNDECIDED sections. This PR should not be treated as complete for issue section 15 until then.
+`/docs/product/source-product-plan.md` (403 lines), read in full. It is preserved unchanged as the authoritative source.
 
-## Documents created
+## Documents created (whole issue)
 
-* `docs/product-development.md`: the system (authority, pipeline, mock-first, DB design checkpoint, testing layers, reset/seed use, manual testing, Definition of Done, drift, handoff).
-* `docs/naming-conventions.md`: product name, identifier distinctions, domain terms (all UNDECIDED).
-* `docs/product/product-plan.md` (pending scaffold), `docs/product/roadmap.md` (no slices approved), `docs/features/README.md` (spec guidance).
+* `docs/product-development.md`, `docs/naming-conventions.md`, `docs/product/roadmap.md`, `docs/features/README.md` (earlier run).
+* `docs/product/product-plan.md`: populated in this run (was a pending scaffold).
 
-## Documents modified
+## Documents modified (this run)
 
-* `CLAUDE.md`: new doc references in section 3, new concise section "19. Product Development System" (routing rules); former "Final Rule" renumbered to 20.
-* `docs/issues.md`: notes.md required contents extended with the issue's handoff sections.
-* `docs/notes.md`: overwritten (this file).
+* `docs/product/product-plan.md`: full repository-native plan with lettered tiers: A Minimum/Startup; B Later Phase 1; C Community Optional (Phase 1 or 2, undecided); D Phase 1 revenue; E Phase 2; F Phase 3; G Phase 4; H Phase 5; I Additional revenue streams; J Long-term vision; K consolidated index of 10 undecided/vote items. Each future tier states it is not authorized.
+* `docs/naming-conventions.md`: domain terms revisited (see below); removed stale reference to the reverted home UI.
+* `docs/product-development.md`: authority table cites the source plan; tier wording lists exactly what is not authorized.
+* `docs/product/roadmap.md`: corrected stale baseline entry (Issue #57 UI was reverted by PR #59).
+* `docs/testing.md`: two wording fixes (see audit).
+* `docs/git-workflow.md`: one paragraph added to Vercel Preview section.
+* `CLAUDE.md`: one line noting the preserved source plan.
+* `docs/notes.md`: overwritten.
 
-## Existing rules reused (not duplicated)
+## Product authority established
 
-Test Value Review and `docs/automation/*` (layers linked, not restated); `docs/database.md` sections 6, 10, 12, 22 and the `db:reset|seed|refresh --env=dev|qa` tooling; one-issue/one-branch/PR and never-merge rules in `docs/issues.md`; secrets rule (no URLs or credentials added); `docs/ideas` "not authorization" principle.
+* `product-plan.md` = direction only; `source-product-plan.md` = preserved source; roadmap = sequencing; `docs/features/` specs + approved issue = authorization.
+* Only section A (Minimum/Startup) describes current targets, and still only via an approved issue.
+* Legacy ROCK / ROCK SOS normalized to Signal One Sound. One legacy slogan, "Prayed on the ROCK, 1 Sam 2:2" (Phase 2), is retained verbatim exactly as the source flags it as unresolved branding.
+* Source ambiguities preserved, not resolved: flyer upload "??" and livestream links "??" (startup), the startup list containing both "Free member/user accounts" and "Free monthly member/user accounts", the radius value "X", pricing votes, 300-character comment vote, flagship-50 vote, Phase 1 vs 2 placement of community features, testimony 30-day retention.
 
-## Conflicts / duplication / discoveries
+## Naming decisions
 
-* Repo brand is "Signal One"/`signalone` (package `signalone`, `@signalone/*`, Expo name, README, home UI), not "Signal One Sound". Documented as historical in `naming-conventions.md`; nothing renamed. UI copy still says "Signal One"; changing it is a separate approved slice.
-* No domain terms are defined anywhere in docs, so all ten are UNDECIDED.
-* Workflow notes: `docs/boilerplate*.md` and `docs/customization-map.md` describe the template-era naming; left unchanged as historical.
+* Resolved only where the source supports it: Event (basic), Revival Type (the 12 listed values; multi-tag), Church/Ministry (portal account holder), Speaker (person on an Event; optional profile).
+* Partial: Venue ("Venue Name" is an address component; Venue as an entity is undecided).
+* Still UNDECIDED: Revival (relationship to Event), Church (standalone), Ministry (standalone), Organizer (not in source), Gathering (only appears in later-phase names and "Prayer gatherings").
+* Official name Signal One Sound; slug `signal-one-sound`; repository identifier `signalonesound`. No technical identifier renamed. User-facing "Signal One" copy change is out of scope (separate approved application slice).
 
-## Decisions made
+## Documentation audited and conflicts
 
-* Pending scaffold rather than inferring a plan (see blocker).
-* Process content lives in one new doc; CLAUDE.md remains a router.
-* Product-development doc is "required for product feature work" rather than a global gate.
+* `docs/testing.md`: "Every feature has ... derived tests" and "New shared logic ... ships with tests in the same PR" could be read as mandating tests regardless of Test Value Review. Resolved by qualifying both with the Test Value Review and linking `product-development.md`; no layer is mandated for every feature.
+* `docs/git-workflow.md`: section 13 said a Preview "may be used" for review. That is compatible for ordinary PRs but did not state the exploratory rule. Resolved by adding that exploratory UI/features must be reviewed by Rich in a Vercel Preview before merge and must not be merged just to get a Preview. Sections 12 and 20 (human reviews Preview, human merges, Claude has no merge authority) already agree; unchanged.
+* Stale-reference defect found and fixed: roadmap and naming docs described the Issue #57 home UI as present; PR #59 reverted it.
+* Product development doc checked against the source plan: no requirement conflicts found; nothing in it assumed plan content.
+
+## Branch note
+
+The session started on a different local branch (`claude/issue-60-20261005-1549`, equal to `main`). I loaded the canonical branch's files and am pushing to the canonical branch as instructed, not creating a new implementation branch.
 
 ## Validation performed
 
-* Manual review of cross-references: every path referenced from CLAUDE.md and the new docs exists in the branch (docs listed above plus existing automation/database/issues docs).
-* Checked for no real or credential-shaped URLs/secrets in new content.
-* No automated tests, lint, typecheck, or build were run: docs-only change, no code touched, and per Test Value Review no tests are justified. CI will run its normal checks.
+* Verified every `/docs/...` path referenced from CLAUDE.md and the new/edited docs exists.
+* Checked content for no secrets or credential-shaped URLs.
+* Compared product-plan.md section by section with the source.
+* No lint, typecheck, build, or tests were run: docs-only, no code touched, and the Test Value Review justifies none. CI runs its normal checks on the PR.
 
 ## Not tested
 
-* Markdown rendering and links were not checked with a tool.
-* `docs/testing.md` and `docs/git-workflow.md` were not edited; I did not audit them for wording that conflicts with the new "Vercel Preview before merge" rule.
+* Markdown rendering and anchor links (only file paths were checked).
+* No automated word-for-word diff between source and plan; comparison was manual. The plan reformats and groups the source (for example, merges repeated bullet lists by reference), so Rich should skim sections A, B, K.
 
-## Unresolved questions for Rich
+## Remaining work
 
-1. Please supply the product plan (see blocker).
-2. Definitions for the UNDECIDED domain terms (Event, Revival, Church, Ministry, Church/Ministry, Organizer, Speaker, Revival Type, Gathering, Venue) when needed by a feature.
-3. When should user-facing "Signal One" copy (home UI, Expo display name) change to "Signal One Sound"?
+* Rich review of the PR (not merged automatically).
+* Decisions on the items in product-plan.md section K and the UNDECIDED terms, when a feature needs them.
 
-## Recommended next step (recommendation only)
+## Next recommended slice (recommendation only; NOT started)
 
-Supply the product plan, then run a follow-up on this PR to populate `product-plan.md` and seed the roadmap. After merge, the first feature slice should be chosen by Rich from the minimum/startup tier.
+Rich chooses the first slice from section A. Likely candidate: a feature spec for the Church Portal event submission (Church/Ministry Name, dates/times, address with Venue Name, Revival Types). It requires answers to the startup undecided items (flyer upload, livestream links), then a mock-first review and the Database Design Checkpoint before any schema work.

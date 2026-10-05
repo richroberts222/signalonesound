@@ -7,7 +7,7 @@ The roadmap records the sequencing of approved feature slices. It derives from `
 ## Delivered baseline
 
 * `signal-one-foundation-v1`: immutable foundation baseline tag (see `/docs/git-workflow.md`). Foundation only; no domain features.
-* Issue #57: web-only fire/gold home UI concept using static mock data (exploratory).
+* The Issue #57 fire/gold home UI concept was merged (PR #58) and then reverted (PR #59). It is not part of the baseline and does not define requirements.
 
 ## Slices
 

@@ -59,7 +59,7 @@ Expected documentation includes:
 * `/docs/issues.md` (required whenever working on a GitHub issue or PR; defines the `docs/notes.md` handoff rule)
 * `/docs/product-development.md` (product delivery process; required for product feature work)
 * `/docs/naming-conventions.md` (authoritative for naming and domain terminology)
-* `/docs/product/product-plan.md` and `/docs/product/roadmap.md` (product direction and sequencing)
+* `/docs/product/product-plan.md` and `/docs/product/roadmap.md` (product direction and sequencing; `/docs/product/source-product-plan.md` is the preserved source)
 * `/docs/features/` (approved feature specifications)
 
 Not all of these documents may exist yet.
