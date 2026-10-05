@@ -16,7 +16,7 @@ The repository is a small foundation (one infrastructure "proof item" feature, n
 
 * `apps/web/components/proof/proof-items-panel.tsx:88,97` use `text-red-600`; line 102 uses `text-green-700`.
 * `apps/web/app/globals.css` defines `--destructive` but no `success`/`warning` token.
-* Reasoning: violates `/docs/ui.md` section 23. Error text already has a token (`text-destructive`); success has none, so the first product screen needing a success state will otherwise invent its own color.
+* Reasoning: violates `/docs/ui.md` section 24. Error text already has a token (`text-destructive`); success has none, so the first product screen needing a success state will otherwise invent its own color.
 * Recommended action: when product UI starts, use `text-destructive` for errors and add a `success` token (with dark-mode value) to the theme. Fixing the proof panel itself is optional (it is marked "not product UI").
 * Refactor risk: low (class-name change, no behavior). Visual check needed.
 
@@ -38,7 +38,7 @@ The repository is a small foundation (one infrastructure "proof item" feature, n
 ### F4. Mobile uses literal style values: Future improvement
 
 * `apps/mobile/src/proof/ProofItemsScreen.tsx:50` uses `borderColor: "#999"` and fixed sizes; `App.tsx` has its own `StyleSheet`.
-* Reasoning: mobile has no theme or token module. `/docs/ui.md` section 27 intentionally does not mandate a shared token source and says it needs an architectural decision.
+* Reasoning: mobile has no theme or token module. `/docs/ui.md` section 28 intentionally does not mandate a shared token source and says it needs an architectural decision.
 * Recommended action: when mobile product UI begins, decide a mobile theme module that shares semantic names (`primary`, `destructive`, ...) with the web theme. Not needed for the current proof screen.
 * Refactor risk: low now; grows with screen count.
 

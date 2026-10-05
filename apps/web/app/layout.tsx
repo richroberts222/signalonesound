@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist,Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { AuthHeader } from "@/components/auth/auth-header";
 import { clerkAppearance } from "@/lib/clerk-appearance";
@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Signal One",
-  description: "Signal One",
+  title: "Signal One Sound",
+  description: "Find revival gatherings near you.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -29,7 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <html
         lang="en"
-        className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
       >
         <body className="min-h-full flex flex-col">
           <AuthHeader />
