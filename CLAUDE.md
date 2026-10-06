@@ -411,6 +411,7 @@ Detailed rules: `/docs/product-development.md`.
 * Repository-observed facts outrank external assumptions. Surface meaningful discrepancies (what was assumed, what exists, why it matters, recommended resolution); if material, stop and ask.
 * Exploratory UI/features must be reviewed (Vercel Preview where applicable) before merge. Claude never merges.
 * GitHub (issue, canonical PR branch, commits/diff, comments, review threads, checks) is the live source of truth; reviewers inspect it directly. `docs/notes.md` is optional, not a status report: record only non-discoverable information (omissions, open questions, unperformed verification, manual-testing steps needing human judgment, follow-up lessons), preferably in the issue/PR conversation or permanent docs (`/docs/issues.md`).
+* ChatGPT/orchestrator rule (`/docs/issues.md`, "ChatGPT / orchestrator rule"): inspect live GitHub state before starting, reviewing, sequencing, or merging work; memory never overrides it; parallel development only when independence is verified (otherwise sequential); integration into `main` is serialized with a full re-check before each merge and revalidation of affected open PRs afterward. This does not weaken Claude's no-merge restriction.
 * Material documentation drift is a defect; update docs in the same work.
 
 ---

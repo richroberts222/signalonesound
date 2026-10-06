@@ -38,6 +38,18 @@ Rules:
 * A docs/governance-only issue may run alongside a feature issue only when it does not modify that feature's files. If a file is already being modified by another open issue/PR, stop and report the overlap instead of creating a conflict.
 * Claude never starts the next slice on its own; it may recommend one. Parallelism does not relax any other rule (CI, review, security, protected `main`, human-only merge).
 
+### ChatGPT / orchestrator rule
+
+This section governs ChatGPT (or any orchestrator) coordinating work. It does not grant Claude any merge authority; Claude never merges (see "Pull request safety" and `/docs/git-workflow.md`).
+
+* **Live state first.** Before deciding what work to start, review, sequence, or merge, inspect the live GitHub/repository state (issues, branches, PRs, commits/diff/code, comments, review threads, checks, current `main`). Memory is navigation/context only and never overrides live repository truth.
+* **Parallel only when verified independent.** Coordinate multiple issues in parallel only after verifying their scopes do not create unsafe file/code overlap, dependency conflicts, schema/contract conflicts, or sequencing dependencies.
+* **Least risk.** Prefer the most efficient approach with the least risk. If independence is uncertain, keep the work sequential.
+* **Parallel development is allowed; integration into `main` is serialized.** Do not merge multiple PRs concurrently.
+* **Before each merge,** re-check the live PR, current `main`, merge/conflict state, relevant reviews and threads, and required validation/checks.
+* **After a merge,** any other open PR that could be materially affected by the new `main` must be updated (see "Incorporating main") and revalidated before it is eligible to merge.
+* Merging remains a human decision and action; this rule only defines the checks that precede it.
+
 ### Incorporating main
 
 Run on the PR head branch: `git fetch origin main`, then `git merge origin/main` (merge, not rebase; no history rewrite), resolve ordinary conflicts by editing files, `git add`, `git commit`, push with the helper. Never discard existing work to resolve a conflict; if a conflict is not clearly resolvable, stop and report. This needs `git merge` in the workflow allow-list (see Workflow configuration constraints).
