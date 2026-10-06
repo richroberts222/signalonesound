@@ -20,4 +20,10 @@ describe("isNavItemActive", () => {
     expect(isNavItemActive(item("Account"), "/account/notifications")).toBe(true);
     expect(isNavItemActive(item("Account"), "/accounting")).toBe(false);
   });
+
+  it("lists the exploratory Admin mock for signed-in users, active on nested routes", () => {
+    expect(item("Admin (mock)").signedInOnly).toBe(true);
+    expect(isNavItemActive(item("Admin (mock)"), "/admin/events/evt-fall-harvest")).toBe(true);
+    expect(isNavItemActive(item("Admin (mock)"), "/administration")).toBe(false);
+  });
 });

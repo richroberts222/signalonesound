@@ -6,7 +6,9 @@
 // Deliberately NOT listed (decision documented in docs/notes.md, Issue 68):
 // - Saved: no destination exists. Save is a browser-local mock; saved events on
 //   an account are Later Phase 1 in the product plan. No fake page is built.
-// - Church/ministry/admin navigation: separate future shell.
+// - Church/ministry navigation: separate future shell. The exploratory Admin mock
+//   (Issue 76) is listed below for review access only; it does not imply real admin
+//   authority, and its section navigation lives in lib/admin/nav.ts.
 
 export type NavItem = {
   label: string;
@@ -22,6 +24,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: "Discover", href: "/discover" },
   { label: "Dashboard", href: "/dashboard", signedInOnly: true },
   { label: "Account", href: "/account", signedInOnly: true },
+  { label: "Admin (mock)", href: "/admin", signedInOnly: true },
 ];
 
 export function isNavItemActive(item: NavItem, pathname: string): boolean {

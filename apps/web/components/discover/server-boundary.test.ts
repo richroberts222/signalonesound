@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 // must be a Client Component. Rendered from a Server Component page without "use client",
 // it typechecks and builds but throws when the page is requested.
 // Covers every feature component folder that renders from Server Component pages.
-const FEATURE_DIRS = ["discover", "church", "member"];
+const FEATURE_DIRS = ["discover", "church", "member", "admin"];
 
 describe("feature components server/client boundary", () => {
   it.each(FEATURE_DIRS)("files in components/%s with event handlers declare use client", (dir) => {
