@@ -47,7 +47,7 @@ or another clear project-appropriate naming convention.
 
 Do not create unnecessary branches.
 
-**One issue = one canonical feature branch and one PR.** Once a PR exists for an issue, its branch is canonical and all further work happens there; never create a second implementation branch for the same issue. Before modifying files in continued work, verify the current branch, the expected canonical branch, the issue/PR, and that history is available; if they disagree, stop and report. Blocked Git operations fail fast and are not retried. See `/docs/issues.md`.
+**One issue = one canonical feature branch and one PR (per issue; independent issues may proceed in parallel when scopes/files do not overlap, see `/docs/issues.md`).** Once a PR exists for an issue, its branch is canonical and all further work happens there; never create a second implementation branch for the same issue. Before modifying files in continued work, verify the current branch, the expected canonical branch, the issue/PR, and that history is available; if they disagree, stop and report. Blocked Git operations fail fast and are not retried. See `/docs/issues.md`.
 
 ---
 
@@ -270,7 +270,7 @@ A successful Vercel deployment does not mean the Pull Request is automatically a
 
 The human developer retains final approval.
 
-Exploratory UI/features MUST be reviewed in a Vercel Preview by Rich before merge, and must not be merged merely to obtain a Preview. Claude provides concrete review steps in `docs/notes.md`.<!-- boilerplate:reference:start --> See `/docs/product-development.md` (sections 3 and 8).<!-- boilerplate:reference:end -->
+Exploratory UI/features MUST be reviewed in a Vercel Preview by Rich before merge, and must not be merged merely to obtain a Preview. Claude provides concrete review steps in the PR conversation.<!-- boilerplate:reference:start --> See `/docs/product-development.md` (sections 3 and 8).<!-- boilerplate:reference:end -->
 
 ---
 

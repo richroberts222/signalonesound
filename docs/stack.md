@@ -106,7 +106,7 @@ The framework existing is not a reason to write tests: each new test passes the 
 
 ## Development workflow
 
-`CLAUDE.md` is the entry point. One issue = one canonical branch + one pull request; `docs/notes.md` records the handoff for that branch (no secrets); a human merges. `/docs/issues.md`, `/docs/git-workflow.md`. `docs/ideas/` lists optional future ideas; nothing there is a requirement.
+`CLAUDE.md` is the entry point. One issue = one canonical branch + one pull request; GitHub (issue, PR, diff, checks) is the live handoff and `docs/notes.md` is optional for non-discoverable information only (no secrets); independent issues may run in parallel when scopes do not overlap; a human merges. `/docs/issues.md`, `/docs/git-workflow.md`. `docs/ideas/` lists optional future ideas; nothing there is a requirement.
 
 ## Where identity and external projects are configured
 

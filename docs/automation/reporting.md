@@ -2,7 +2,7 @@
 
 ## Current rule
 
-Test and validation results are reported accurately in the PR and in `docs/notes.md` (`/docs/issues.md`): exact commands run, real outcomes, and what was not tested. See the feature completion rule in `README.md`.
+Test and validation results are reported accurately in the PR conversation (`/docs/issues.md`): exact commands run, real outcomes, and what was not tested. See the feature completion rule in `README.md`.
 
 ## Future goal (not implemented)
 

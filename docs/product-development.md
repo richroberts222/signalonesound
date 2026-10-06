@@ -34,7 +34,7 @@ Requirements
 -> Merge (human only)
 ```
 
-**ONE FEATURE SLICE / ISSUE / CANONICAL BRANCH / PR AT A TIME** (`/docs/issues.md`). Claude never starts the next slice automatically; it may recommend one in `docs/notes.md`.
+**ONE CANONICAL BRANCH + ONE PR PER ISSUE** (`/docs/issues.md`). Independent issues may proceed in parallel when their scopes/files do not create unsafe overlap or dependency conflicts; dependent or conflicting work stays sequential. Claude never starts the next slice automatically; it may recommend one in the issue/PR conversation.
 
 ## 3. Mock-first discovery
 
@@ -104,7 +104,7 @@ Existing infrastructure is reused (`/docs/database.md` section 12; `pnpm --filte
 
 ## 8. Manual exploratory testing
 
-When human review is valuable, the feature spec and/or `docs/notes.md` give Rich concrete instructions, not "test the feature":
+When human review is valuable, the feature spec and/or the PR conversation (or `docs/notes.md` if used) give Rich concrete instructions, not "test the feature":
 
 * where to go (Vercel Preview URL/route);
 * prerequisites (account, data, device);
@@ -138,4 +138,4 @@ Material documentation drift is a defect. When implementation changes a feature 
 
 ## 11. Handoff
 
-`docs/notes.md` is the temporary handoff record for the active canonical branch/PR; its format is defined in `/docs/issues.md`. It is overwritten, never appended to, and must give exact visibility into the current implementation.
+GitHub is the live handoff: reviewers inspect the issue, canonical PR branch, commits/diff/code, comments/review threads, and checks. No duplicate status report is required. Claude records only non-discoverable information (intentional omissions/deferrals, unresolved product questions, unperformed verification, manual testing steps needing human judgment, lessons needing follow-up), preferably in the issue/PR conversation or permanent docs. `docs/notes.md` is optional; see `/docs/issues.md`.

@@ -57,7 +57,7 @@ Expected documentation includes:
 * `/docs/routing.md`
 * `/docs/server-components.md`
 * `/docs/code-quality.md` (authoritative for code-quality, reuse, dependency-direction, and refactoring principles)
-* `/docs/issues.md` (required whenever working on a GitHub issue or PR; defines the `docs/notes.md` handoff rule)
+* `/docs/issues.md` (required whenever working on a GitHub issue or PR; defines the GitHub-first review and non-discoverable-information rules)
 * `/docs/product-development.md` (product delivery process; required for product feature work)
 * `/docs/naming-conventions.md` (authoritative for naming and domain terminology)
 * `/docs/product/product-plan.md` and `/docs/product/roadmap.md` (product direction and sequencing; `/docs/product/source-product-plan.md` is the preserved source)
@@ -407,10 +407,11 @@ Detailed rules: `/docs/product-development.md`.
 
 * `/docs/naming-conventions.md` is authoritative for naming. The user-facing product name is **Signal One Sound**; do not rename technical identifiers without a compatibility evaluation. Terms marked UNDECIDED must not be invented; ask Rich.
 * `/docs/product/product-plan.md` is authoritative for product direction. Applicable specs under `/docs/features/` define approved feature behavior.
-* Future product knowledge does NOT authorize implementation; only an approved issue does. One feature slice / issue / canonical branch / PR at a time; recommend the next slice, never start it.
+* Future product knowledge does NOT authorize implementation; only an approved issue does. One issue = one canonical branch + one PR; independent issues may run in parallel only when scopes/files do not overlap or depend on each other (`/docs/issues.md`); dependent or conflicting work stays sequential. Recommend the next slice, never start it.
 * Repository-observed facts outrank external assumptions. Surface meaningful discrepancies (what was assumed, what exists, why it matters, recommended resolution); if material, stop and ask.
 * Exploratory UI/features must be reviewed (Vercel Preview where applicable) before merge. Claude never merges.
-* `docs/notes.md` is overwritten for the current work and must give exact current implementation visibility, including concrete manual-testing steps for Rich (`/docs/issues.md`).
+* GitHub (issue, canonical PR branch, commits/diff, comments, review threads, checks) is the live source of truth; reviewers inspect it directly. `docs/notes.md` is optional, not a status report: record only non-discoverable information (omissions, open questions, unperformed verification, manual-testing steps needing human judgment, follow-up lessons), preferably in the issue/PR conversation or permanent docs (`/docs/issues.md`).
+* ChatGPT/orchestrator rule (`/docs/issues.md`, "ChatGPT / orchestrator rule"): inspect live GitHub state before starting, reviewing, sequencing, or merging work; memory never overrides it; parallel development only when independence is verified (otherwise sequential); integration into `main` is serialized with a full re-check before each merge and revalidation of affected open PRs afterward. This does not weaken Claude's no-merge restriction.
 * Material documentation drift is a defect; update docs in the same work.
 
 ---

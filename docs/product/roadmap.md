@@ -17,4 +17,4 @@ None approved yet. Add rows as Rich approves them:
 | --- | --- | --- |
 | _none_ | | |
 
-Claude may recommend a next slice in `docs/notes.md` but must not start it without authorization.
+Claude may recommend a next slice in the issue/PR conversation but must not start it without authorization.
