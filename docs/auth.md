@@ -341,7 +341,7 @@ Implemented in `apps/web` with `@clerk/nextjs` v7 (Clerk Core 3), Next.js 16 App
 
 ### Files
 
-* `apps/web/proxy.ts`: `clerkMiddleware()`. Next.js 16 uses `proxy.ts` (formerly `middleware.ts`). Protects `/dashboard(.*)` with `auth.protect()`; all other routes are public.
+* `apps/web/proxy.ts`: `clerkMiddleware()`. Next.js 16 uses `proxy.ts` (formerly `middleware.ts`). Protects `/dashboard(.*)`, `/account(.*)`, and `/proof(.*)` with `auth.protect()`; all other routes are public.
 * `apps/web/app/layout.tsx`: wraps the app in `<ClerkProvider>` (sign-in URL `/sign-in`, sign-up URL `/sign-up`) and renders `AuthHeader`.
 * `apps/web/components/auth/auth-header.tsx`: header using `<Show when="signed-in">` / `<Show when="signed-out">` (Core 3 replacement for `SignedIn`/`SignedOut`), `SignInButton`, `SignUpButton`, `UserButton`.
 * `apps/web/app/sign-in/[[...sign-in]]/page.tsx` and `apps/web/app/sign-up/[[...sign-up]]/page.tsx`: Clerk `<SignIn />` / `<SignUp />` with path routing.

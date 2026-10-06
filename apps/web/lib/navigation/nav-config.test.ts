@@ -14,4 +14,10 @@ describe("isNavItemActive", () => {
     expect(isNavItemActive(item("Discover"), "/discover/some-event")).toBe(true);
     expect(isNavItemActive(item("Discover"), "/discoverable")).toBe(false);
   });
+
+  it("lists Account for signed-in users only, active on nested routes", () => {
+    expect(item("Account").signedInOnly).toBe(true);
+    expect(isNavItemActive(item("Account"), "/account/notifications")).toBe(true);
+    expect(isNavItemActive(item("Account"), "/accounting")).toBe(false);
+  });
 });
