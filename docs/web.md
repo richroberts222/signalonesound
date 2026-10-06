@@ -45,3 +45,11 @@ pnpm --filter web db:migrate   # drizzle-kit migrate (applies committed migratio
 * `lib/navigation/nav-config.ts` is the single list of global destinations (Home, Discover, Dashboard when signed in). `components/shell/app-header.tsx` is one renderer of that list (header on `sm` and up, disclosure menu below). A different pattern (sidebar, bottom tabs) replaces the renderer, not pages.
 * The wordmark is `components/brand/brand-wordmark.tsx`, linked to `/` by the header.
 * This navigation is experimental and not approved as permanent. "Saved" is intentionally absent until a saved-events destination exists. Church/ministry/admin navigation is out of scope.
+
+## Church/Ministry event-management mock (Issue 70, experimental)
+
+* Routes under `/dashboard/church` (protected by the existing Clerk proxy, re-verified in `app/dashboard/church/layout.tsx`): dashboard, `events/new` (also `?replace=<id>`), `events/[eventId]` (manage), `events/[eventId]/edit`. Reached from a card on `/dashboard`.
+* Mock only: `lib/church/mock-data.ts` is fictional static data; `lib/church/types.ts` shapes are mock-stage, not a schema or API contract. There is no persistence, API, or database access; the mock result screens say so.
+* `lib/church/event-draft.ts` holds the startup form rules (required fields, 1-3 links, multiple Revival Types). Real submission must enforce these on the server, shared with all clients.
+* Flyer, livestream, Speaker(s), and recurrence setup are shown only as a "Not part of this mock" list.
+* Client/server boundary guard (`components/discover/server-boundary.test.ts`) now covers `components/church` too; add new feature component folders to its `FEATURE_DIRS`.
