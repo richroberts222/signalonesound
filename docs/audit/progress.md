@@ -8,9 +8,9 @@ The single resumable state of the audit. Update in the same commit as the work i
 | --- | --- |
 | Baseline commit | `31ec6ba` (`main`, 2026-10-06) |
 | Audit branch | `audit/phase-0-methodology` (Phase 0). The canonical audit branch and PR are decided by Q-001. |
-| Current pass | Phase 0 complete. Pass 1 (Baseline) not started. |
+| Current pass | Pass 1 (Baseline) complete. Pass 2 (Subject examinations) not started. |
 | Depth budget | As `methodology.md` section 4 (Deep: AUTH, DATA, SEC, REL, DEVOS, BOIL; Standard: ARCH, TEST, OPS, REQ; Light: CODE, UX) |
-| Next action | Rich answers Q-001 (where the audit branch/PR lives) and optionally Q-002/Q-003. Then Pass 1: create `baseline/inventory.md` starting with the validation commands at the baseline (`pnpm install --frozen-lockfile`, `pnpm validate`, `pnpm audit`, `pnpm check:boilerplate`), then the claims ledger. |
+| Next action | Pass 2, Deep subjects in this order: SEC, DEVOS, DATA, AUTH, REL, BOIL; then ARCH, TEST, OPS, REQ; then CODE, UX. Start SEC: read `claude.yml` in full with the action's documented permission model, `lib/security.test.ts`, `handler.ts`, `proxy.ts`, `next.config.ts`; apply all nine lenses; create `findings/SEC.md`. Q-001 (push/PR) still open; work continues locally. |
 | Open questions | Q-001 to Q-006 (`decisions-needed.md`) |
 | Open contradictions | none (no findings yet) |
 
@@ -36,6 +36,9 @@ These were observed while evaluating the charter. They are recorded so that Pass
 | 14 | `apps/web/.env.local` exists locally and is gitignored. Not opened. | RUN | `git check-ignore -v`. |
 | 15 | No validation command (`pnpm validate`, `pnpm audit`, boilerplate checks) was run in Phase 0. | RUN (not run) | Deferred to Pass 1. |
 | 16 | `apps/web/lib/security.test.ts` fails on Windows with three false failures (expected `db/index.ts`, received `db\index.ts`; the test-code exemption regex uses forward slashes so `packages/shared/src/testing/index.ts` is flagged for its fake connection string). Identical with and without the audit files, so the audit docs introduce no offender. CI runs on Linux where the test is believed to pass (INFER). | RUN | `corepack pnpm --filter web exec vitest run lib/security.test.ts`, with the audit directory present and stashed. |
+| 17 | Repository is public; default `GITHUB_TOKEN` permission is write; all actions allowed; Dependabot alerts disabled; secret scanning on. Full detail in `baseline/external-state.md`. | CONSOLE | `gh api` (2026-10-06). |
+| 18 | A fresh boilerplate export carries every Signal One Sound product mock, `docs/audit`, and the charter; the published export is 52 paths behind. | RUN | `pnpm export:boilerplate` to a temp dir, `diff -rq` against a clone of `fullstack-boilerplate`. |
+| 19 | Three Windows-only failures block `pnpm validate` on the developer machine: path separators in two static tests, and CRLF in the export self-test. All pass in Linux CI at the baseline. | RUN | `pnpm validate`, `pnpm test:boilerplate` with and without the audit directory. |
 
 ## Pass log
 
@@ -48,3 +51,12 @@ Each entry: date, pass, what was done, metrics, IDs touched. This is the change 
 * Not created on purpose: subject files, `baseline/`, `scenarios/`, `exception-requests.md`, `roadmap.md`.
 * Metrics: findings 0; questions 6; prior inputs inventoried (see `inputs-reconciliation.md`), mapped 0.
 * Validation of the audit files: ran the repository's static security test (`lib/security.test.ts`): 10 passed, 3 failed; the 3 failures are pre-existing Windows path-separator false failures (fact 16) and none names a file under `docs/audit/`. A grep of `docs/audit/` for credential-shaped URLs, key-shaped tokens, and secret-like public variable names found nothing.
+
+### 2026-10-06, Pass 1 (baseline)
+
+* Created `baseline/inventory.md`, `baseline/claims-ledger.md` (68 claims: 31 Proven or Proven-at-one-level, 13 Partial, 7 Prose, 12 Contradicted, 5 Unverified), `baseline/external-state.md` (GitHub CONSOLE facts, Vercel metadata from bot comments, Neon dev state; UNVERIFIED register U-01 to U-20), `baseline/history.md`.
+* Commands run at the baseline: `pnpm install --frozen-lockfile`, `lint`, `typecheck`, `test:run`, `test:boilerplate`, `build`, `audit` (and `--prod`), `check:boilerplate`, `export:boilerplate` (temp dir), `db:check`, `db:migrate:status`, `db:migrate:verify` (dev, read-only); `gh api` reads of repository settings, secrets names, environments, collaborators, scanning status, PR/issue/run history, check runs on every merge commit. No database writes, no deployments, no `gh` mutations, no dependency changes.
+* Not run: `test:integration`, `test:e2e`, `prove:init --full`, mobile export (Q-003, not provisioned).
+* Notable facts beyond Phase 0: public repository; repo default token permission write; `Bash(gh pr *)` allow-list permits `gh pr merge` while the static test only matches the literal string; 7 PRs merged with a failing merge-commit check; Claude Code Review leaves no visible comments; `pnpm audit --prod` has 4 high advisories (all transitive via `shadcn`/`expo` declared as runtime deps); `cn` package declared and unused; 12 doc drifts recorded in the ledger (C-08, C-14, C-22, C-25, C-29, C-46, C-49, C-50, C-52 and others); export drift (fact 18); Windows gate failures (fact 19).
+* Metrics: findings 0 (Pass 1 creates none); questions still 6; prior inputs mapped 0 (mapping happens per subject in Pass 2).
+* Exit criteria check: every subject has an inventory section (yes); every claim has a status (68/68); every external dependency listed (GitHub, Vercel, Neon, Clerk, Expo/EAS/stores, Anthropic App). Pass 1 complete.
