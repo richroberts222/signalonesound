@@ -19,7 +19,7 @@ Product questions carried from the mock slices (for example who counts as an adm
 
 **Blocks**: pushing the branch and opening the PR. Does not block Pass 1 analysis.
 
-**Status**: Open.
+**Status**: Answered: option 1, in effect. Issue #81 and the single long-lived documentation-only PR #82 (branch `audit/phase-0-methodology`) are the canonical home; not to be merged before convergence (PR description, 2026-10-06).
 
 ---
 
@@ -34,9 +34,9 @@ Product questions carried from the mock slices (for example who counts as an adm
 1. Fix now as a tiny separate issue (add two paths to `REFERENCE_ONLY_PATHS`; `pnpm test:boilerplate` proves it). Recommended; it is cheap, and it removes a standing leak.
 2. Defer; do not run `export:boilerplate` for publication until then.
 
-**Blocks**: nothing in the audit. Blocks safe re-export of the boilerplate.
+**Blocks**: a green `Validate` on audit PR #82, and safe re-export of the boilerplate. (Updated 2026-10-06, DEVOS pass: this entry first said it blocked nothing in the audit. CI on the audit branch head is red: `test:boilerplate` fails 3 of 6 because files under `docs/audit/` contain the reference-app name and proof-slice terms that the init leak check refuses; the same suite is green at the baseline. The audit may not edit the manifest or the test. The PR is not to be merged before convergence anyway, so this is a visible red check, not an urgent break, but it will also make every later push red until option 1 or an equivalent lands. See F-DEVOS-002.)
 
-**Status**: Open.
+**Status**: Open. Option 1 now also removes the red check on PR #82.
 
 ---
 
@@ -122,5 +122,23 @@ Product questions carried from the mock slices (for example who counts as an adm
 3. Keep as is. Accepts the exposure recorded in F-SEC-002.
 
 **Blocks**: the final wording of F-SEC-002's recommendation only.
+
+**Status**: Open.
+
+---
+
+### Q-008 Keep, repair, or remove the automated Claude Code Review?
+
+**Question**: `claude-code-review.yml` runs on every pull request and has left no visible output on the PRs checked (F-DEVOS-001). Should it be repaired so it produces a visible result, or removed along with the docs that mention it?
+
+**Why the audit cannot decide**: it spends the owner's Claude usage on every PR, it is a workflow edit (human-only), and whether a same-model second look is worth anything to the owner is a judgment about their own process.
+
+**Options and consequences**:
+
+1. Repair (recommended to try once). Grant the plugin the minimum read and comment access, prove it with one throwaway PR holding a deliberate defect, and describe it in `issues.md` as an aid. Cost: tokens per PR, proportional to diff size; benefit: a second look at the 1,000 to 4,000 line agent PRs that merge in minutes.
+2. Remove. Delete the workflow and the three doc references. Cost: nothing is lost that is visible today; benefit: no false assurance and no idle spend.
+3. Keep as is. Accepts a green check that carries no information.
+
+**Blocks**: the final wording of F-DEVOS-001's recommendation only.
 
 **Status**: Open.

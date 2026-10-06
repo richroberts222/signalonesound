@@ -7,11 +7,12 @@ The single resumable state of the audit. Update in the same commit as the work i
 | Item | Value |
 | --- | --- |
 | Baseline commit | `31ec6ba` (`main`, 2026-10-06) |
-| Audit branch | `audit/phase-0-methodology` (Phase 0). The canonical audit branch and PR are decided by Q-001. |
-| Current pass | Pass 2 (Subject examinations) in progress. Done: SEC. |
+| Audit branch | `audit/phase-0-methodology`, the canonical audit branch; PR #82 under issue #81 (Q-001 answered). Never merge before convergence. |
+| Current pass | Pass 2 (Subject examinations) in progress. Done: SEC, DEVOS. |
 | Depth budget | As `methodology.md` section 4 (Deep: AUTH, DATA, SEC, REL, DEVOS, BOIL; Standard: ARCH, TEST, OPS, REQ; Light: CODE, UX) |
-| Next action | Pass 2 subject DEVOS (then DATA, AUTH, REL, BOIL; ARCH, TEST, OPS, REQ; CODE, UX). DEVOS must absorb the carry-forward list at the end of `findings/SEC.md` (workflow allow-list vs `issues.md`, Claude Code Review producing no visible output, merges on failing checks, doc drift ledger entries C-08, C-14, C-22, C-25, C-29, C-46, C-49, C-50, C-52). Q-001 (push/PR) still open; work continues locally. |
-| Open questions | Q-001 to Q-007 (`decisions-needed.md`) |
+| Next action | Pass 2 subject DATA (then AUTH, REL, BOIL; ARCH, TEST, OPS, REQ; CODE, UX). DATA must absorb the SEC carry-forward (least-privilege roles U-05, U-09; `NEON_DEV_DATABASE_URL` scope U-15) and the P-78-M05, M06, M12, M15, P-CH-08, P-CH-28, P-CH-30, P-GAP-04, P-GAP-06, P-SEC-07 rows. Before starting: compare `main` to `31ec6ba`; note that CI on this PR is red until Q-002 is applied (not caused by DATA work). |
+| Open questions | Q-002 to Q-008 (`decisions-needed.md`); Q-001 answered |
+| Open items from DEVOS | Read the bodies of the 41 GitHub issues for the Definition-of-Ready half of P-CH-03 (needs `gh` or web access, not available in the DEVOS session); U-24 and U-25. A session with `gh` can close the first and refine F-DEVOS-002. |
 | Open contradictions | none (no findings yet) |
 
 ## Facts observed during Phase 0 (carry forward into Pass 1; not findings)
@@ -39,6 +40,10 @@ These were observed while evaluating the charter. They are recorded so that Pass
 | 17 | Repository is public; default `GITHUB_TOKEN` permission is write; all actions allowed; Dependabot alerts disabled; secret scanning on. Full detail in `baseline/external-state.md`. | CONSOLE | `gh api` (2026-10-06). |
 | 18 | A fresh boilerplate export carries every Signal One Sound product mock, `docs/audit`, and the charter; the published export is 52 paths behind. | RUN | `pnpm export:boilerplate` to a temp dir, `diff -rq` against a clone of `fullstack-boilerplate`. |
 | 19 | Three Windows-only failures block `pnpm validate` on the developer machine: path separators in two static tests, and CRLF in the export self-test. All pass in Linux CI at the baseline. | RUN | `pnpm validate`, `pnpm test:boilerplate` with and without the audit directory. |
+| 20 | CI on the audit branch head (run `37534967908`) is red: `test:boilerplate` fails 3 of 6 because `docs/audit/` contains terms the init leak check refuses. Corrects the reading of facts 16 and 19 for the audit branch: the audit directory is not neutral on Linux. Earlier audit commits were not inspected. | RUN | CI job log via the CI tooling, 2026-10-06. |
+| 21 | Claude Code Review on the same head: job green, 3 turns, 4.5 s, about $0.07, 0 permission denials, "No buffered inline comments", on a 1,818-line docs-only diff. | RUN | Job log of run `37534967919`. |
+| 22 | In a Claude Actions job `pnpm` is not on `PATH`, no `node_modules` exists, and `claude.yml` has no setup or install step; `corepack` and Node 22 are present. | RUN | `which pnpm node npx corepack` in the job. |
+| 23 | No `.claude/` directory, issue or PR template, `CODEOWNERS`, `SECURITY.md`, `CONTRIBUTING.md`, or `LICENSE` exists in a public repository. | READ | Glob. |
 
 ## Pass log
 
@@ -76,3 +81,18 @@ Each entry: date, pass, what was done, metrics, IDs touched. This is the change 
   * Fable's severity framing kept: High, not Critical, for F-SEC-001, because deploy-on-merge is UNVERIFIED (U-01).
 * Metrics: findings 11 (Draft); questions 7; prior inputs mapped 22 of ~110. No contradictions among findings yet.
 * Not done: AUTH, DATA, TEST items listed in the SEC carry-forward are not findings yet. No workflow, setting, or code was changed.
+
+### 2026-10-06, Pass 2, subject DEVOS
+
+* `main` had not moved from `31ec6ba`; no re-baseline needed.
+* Created `findings/DEVOS.md`: 9 findings (3 Medium, 4 Low including one DEFER, 2 Info KEEP); lens matrix complete. Reconciled 14 prior-input rows (11 fully: `P-78-A/B/O01/O03/O08`, `P-CH-02/04/20/25`, `P-GAP-05`, and the DEVOS part of `P-78-O05`; partial: `P-78-K`, `P-CH-01`, `P-CH-03`, `P-NOTES-01` pointer). Added Q-008, U-24, U-25; updated Q-002 (now blocks a green check on PR #82) and marked Q-001 answered.
+* Evidence gathered before re-reading the inputs: docs and workflows read; doc reference and staleness greps; first-parent diff sizes; repository for templates, `CODEOWNERS`, `.claude/`, `LICENSE`; CI job logs of the audit branch head (validation and review); toolchain probe in the agent job.
+* Challenges to prior work:
+  * Phase 0 and Pass 1 reading that the audit directory is neutral and gate failures are Windows-only: **corrected** (fact 20). The audit branch is red on Linux; Q-002 modified.
+  * P-78-A **modified**, P-78-B **modified** (remedy rejected), P-78-O03 **rejected** (parallel batches are real).
+  * SEC carry-forward "seven PRs merged on a failing check" **narrowed**: the data show the merge commit red; some may be merge skew (4 of 8 CI-era PRs in parallel batches were red, against 3 of 19 others; small n, INFER); U-24 verifies.
+  * SEC carry-forward "review control may not exist" **confirmed** with log evidence (fact 21); silence is indistinguishable from "found nothing".
+  * F-SEC-002 point 5 is **superseded** by F-DEVOS-004 (grant `git merge` and `git merge-base` with exact patterns); `SEC.md` was not edited, so Pass 4 must apply this when challenging F-SEC-002.
+  * No DEVOS finding is High; the high-severity process failures remain F-SEC-001 and F-SEC-002.
+* Metrics: findings 20 (all Draft: 2 High, 8 Medium, 5 Low, 5 Info); questions 8 (Q-001 answered, 7 open); prior inputs fully mapped about 33 of ~110 (plus 4 partial). No contradictions among findings.
+* Not done: the 68-row claims ledger was not extended with the new drift items (listed in F-DEVOS-003); issue-body reading (Definition of Ready); any change outside `docs/audit/`. No workflow, setting, or code was changed. `pnpm validate` was not run (read-only unit; no install in this job).

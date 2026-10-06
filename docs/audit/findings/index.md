@@ -4,7 +4,7 @@ One line per finding. The finding's home is `findings/<CODE>.md`; this file neve
 
 Conventions: `methodology.md` section 6. IDs are never reused or renumbered. Merged, rejected, and superseded findings move to the Tombstones table with a pointer.
 
-Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC.
+Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS.
 
 ## Active findings
 
@@ -21,6 +21,15 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | F-SEC-009 | Server boundary, env guards, error redaction | Info | KEEP | n/a | Draft | |
 | F-SEC-010 | History has no credentials; secret scanning and push protection on | Info | KEEP | n/a | Draft | |
 | F-SEC-011 | Preview deployments behind Vercel Authentication | Info | KEEP | n/a | Draft | |
+| F-DEVOS-001 | Neither review step leaves evidence: automated reviewer silent, human review untraceable | Medium | IMPROVE | Now | Draft | |
+| F-DEVOS-002 | Documented validation cannot run in the agent job; red CI is not a stop signal | Medium | IMPROVE | Now | Draft | |
+| F-DEVOS-003 | Documentation drift is systemic: long, partly duplicated, partly stale, unindexed | Medium | IMPROVE | Now | Draft | |
+| F-DEVOS-004 | Documented allow-list rule is self-contradictory and out of step with `claude.yml` | Low | IMPROVE | Now | Draft | |
+| F-DEVOS-005 | `docs/notes.md` is a shared mutable file that duplicates GitHub and goes stale | Low | REMOVE | Now | Draft | |
+| F-DEVOS-006 | Agent runs have no concurrency control | Low | ADD | Now | Draft | |
+| F-DEVOS-007 | Risk-based gates by path (workflows, migrations, authorization) | Low | DEFER | Trigger: first product migration or role-based feature | Draft | |
+| F-DEVOS-008 | Human-only merge, one PR per issue, GitHub-first handoff followed in practice | Info | KEEP | n/a | Draft | |
+| F-DEVOS-009 | Process weight right-sized for a team of one; parallel work genuinely used | Info | KEEP | n/a | Draft | |
 
 ## Tombstones
 
@@ -34,6 +43,6 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | --- | --- | --- | --- | --- | --- |
 | Critical | 0 | 0 | 0 | 0 | 0 |
 | High | 2 | 0 | 0 | 0 | 0 |
-| Medium | 5 | 0 | 0 | 0 | 0 |
-| Low | 1 | 0 | 0 | 0 | 0 |
-| Info | 3 | 0 | 0 | 0 | 0 |
+| Medium | 8 | 0 | 0 | 0 | 0 |
+| Low | 5 | 0 | 0 | 0 | 0 |
+| Info | 5 | 0 | 0 | 0 | 0 |

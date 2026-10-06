@@ -20,8 +20,8 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 
 | ID | Input | Likely subject | Outcome | Pass |
 | --- | --- | --- | --- | --- |
-| P-78-A | Docs describe a different repository than exists (deployment §7 vs `ci.yml`; testing.md vs Playwright installed; component tests; stale security/gap docs) | DEVOS | Pending | |
-| P-78-B | ~7,800 lines of docs restating each other, no freshness check; consolidate, point docs at tests/scripts | DEVOS | Pending | |
+| P-78-A | Docs describe a different repository than exists (deployment §7 vs `ci.yml`; testing.md vs Playwright installed; component tests; stale security/gap docs) | DEVOS | Adopted, modified → F-DEVOS-003 (about 11 specific stale points in about 7 documents, not a different repository; 31 ledger claims proven, 13 partial) | 2 DEVOS |
+| P-78-B | ~7,800 lines of docs restating each other, no freshness check; consolidate, point docs at tests/scripts | DEVOS | Adopted, modified → F-DEVOS-003 (size confirmed, 8,039 non-audit lines; duplication modest; targeted fixes, a task-to-doc map and a doc-existence tripwire instead of a consolidation project) | 2 DEVOS |
 | P-78-C | Security docs list gaps nothing tracks (rate limiting, CSP/headers, audit logging, dependency scanning, CORS, request logging); `next.config.ts` sets no headers | SEC | Merged → F-SEC-005, F-SEC-006, F-SEC-004; request logging and audit logging pending (OPS, AUTH) | 2 SEC |
 | P-78-D | `claude.yml`: dev `DATABASE_URL` at job level with `pnpm *`/`npx *` (arbitrary code); trigger on any `@claude` without commenter check (action's own check unverified); floating tags; prompt-injection path with `contents: write` | SEC | Adopted → F-SEC-002 (the commenter-permission claim is Rejected: the action applies a write-permission gate by default, INFER; the residual is vendor risk) | 2 SEC |
 | P-78-E | `cn@^0.4.0` dependency possibly stray or typosquat-adjacent; usage unchecked; `pnpm audit` from an earlier issue is not a standing control | CODE | Rejected as typosquat (cn is published by the shadcn-ui org, no install scripts); unused-dependency hygiene → CODE pending; standing audit → F-SEC-004 | 2 SEC |
@@ -67,24 +67,24 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 
 | ID | Input | Likely subject | Outcome | Pass |
 | --- | --- | --- | --- | --- |
-| P-78-O01 | Documentation volume and process weight (orchestrator rules, serialized merges, revalidation of open PRs) heavy for a single reviewer; keep invariants, cut the rest | DEVOS | Pending | |
+| P-78-O01 | Documentation volume and process weight (orchestrator rules, serialized merges, revalidation of open PRs) heavy for a single reviewer; keep invariants, cut the rest | DEVOS | Merged → F-DEVOS-003 (volume) and F-DEVOS-009 (process weight is right-sized; the cost is documentation volume, not ceremony) | 2 DEVOS |
 | P-78-O02 | Test Value Review for every new test discourages tests; replace with a short rubric | TEST | Pending | |
-| P-78-O03 | Parallel-work ceremony; default to sequential | DEVOS | Pending | |
+| P-78-O03 | Parallel-work ceremony; default to sequential | DEVOS | Rejected (two real parallel batches on 2026-10-01; the rules govern actual throughput; the missing control is "require up to date", F-DEVOS-002, F-DEVOS-009) | 2 DEVOS |
 | P-78-O04 | Boilerplate export/init tooling, three reports, markers inside product docs: verify how many apps will be created; freeze if fewer than two | BOIL | Pending | |
-| P-78-O05 | `docs/ideas/` fine as parking lot; session replay/analytics carry privacy implications | AUTH/DEVOS | Pending | |
+| P-78-O05 | `docs/ideas/` fine as parking lot; session replay/analytics carry privacy implications | AUTH/DEVOS | DEVOS part: Not applicable (`docs/ideas/` is 5 files, 125 lines; no volume problem); privacy part pending AUTH | 2 DEVOS (partial) |
 | P-78-O06 | Static source-text security tests give false confidence; prefer linter boundary rules | TEST/SEC | Pending | |
 | P-78-O07 | `APP_ENV` plus `DATABASE_ENV` plus four environments with unprovisioned Stage is more than needed; do not build Stage until M01 to M09 | REL | Pending | |
-| P-78-O08 | Team-of-one: no reviewers, CODEOWNERS, multi-approver rules yet | DEVOS | Pending | |
-| P-78-K | Keep as-is: explicit environment identity and prod-refusal guards; server-only imports; Zod at boundaries; forward-only migrations with expand/contract; per-environment secrets; no merge rights for the agent; never-commit-secrets tests | several | Partly KEEP → F-SEC-009, F-SEC-010; remaining items pending DATA, ARCH, DEVOS | 2 SEC |
+| P-78-O08 | Team-of-one: no reviewers, CODEOWNERS, multi-approver rules yet | DEVOS | Adopted as KEEP → F-DEVOS-009 (none exist; correct); path-based gates deferred, F-DEVOS-007 | 2 DEVOS |
+| P-78-K | Keep as-is: explicit environment identity and prod-refusal guards; server-only imports; Zod at boundaries; forward-only migrations with expand/contract; per-environment secrets; no merge rights for the agent; never-commit-secrets tests | several | Partly KEEP → F-SEC-009, F-SEC-010; "no merge rights for the agent" modified (DEVOS): held behaviorally, 38 of 38 merges by the owner, F-DEVOS-008 KEEP, but not technically enforced, F-SEC-001, F-SEC-002; remaining items pending DATA, ARCH | 2 SEC, 2 DEVOS (partial) |
 
 ## Charter concern list ("raised by prior reviews")
 
 | ID | Input | Likely subject | Duplicates | Outcome | Pass |
 | --- | --- | --- | --- | --- | --- |
-| P-CH-01 | Requirements-to-release traceability | REQ/DEVOS | | Pending | |
-| P-CH-02 | Independent diff review | DEVOS | P-78-M01, P-78-O08 | Pending | |
-| P-CH-03 | Definition of Ready / Done | DEVOS | | Pending | |
-| P-CH-04 | Risk-based gates | DEVOS/REL | | Pending | |
+| P-CH-01 | Requirements-to-release traceability | REQ/DEVOS | | DEVOS part: PR to issue links work through GitHub; nothing to trace to because no feature spec exists (`features/README.md` is 13 lines); remainder pending REQ | 2 DEVOS (partial) |
+| P-CH-02 | Independent diff review | DEVOS | P-78-M01, P-78-O08 | Merged → F-DEVOS-001 (no independent reviewer exists or is needed for one owner; the automated reviewer is silent and must be repaired or removed, and described as an aid) | 2 DEVOS |
+| P-CH-03 | Definition of Ready / Done | DEVOS | | Done: Rejected as new ceremony; `product-development.md` section 9 exists and its provable parts are covered by F-DEVOS-002 and F-SEC-001. Ready: Pending (issue bodies not readable in the DEVOS session; see `progress.md` open items) | 2 DEVOS (partial) |
+| P-CH-04 | Risk-based gates | DEVOS/REL | | Merged → F-DEVOS-002 (general gate) and F-DEVOS-007 (path-based gates, DEFER with trigger) | 2 DEVOS |
 | P-CH-05 | Threat / abuse modeling | AUTH/SEC |  | Partly covered by F-SEC-002 and F-SEC-006 (attack paths); formal threat and abuse model pending AUTH and Pass 3 | 2 SEC |
 | P-CH-06 | Authorization matrices and deny-by-default server enforcement | AUTH | P-78-M13 | Pending | |
 | P-CH-07 | Data classification, lifecycle, privacy | AUTH/DATA | P-78-M10, P-78-T11 | Pending | |
@@ -100,12 +100,12 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CH-17 | Supply-chain security, SBOM, provenance | SEC | P-78-M03, P-78-T06 | Merged → F-SEC-004 (SBOM/provenance DEFER) | 2 SEC |
 | P-CH-18 | Progressive delivery and rollback | REL | P-78-T02 | Pending | |
 | P-CH-19 | AI-agent prompt/context safety and provenance | SEC/DEVOS | P-78-D, P-78-M02 | Merged → F-SEC-002 | 2 SEC |
-| P-CH-20 | Standards governance | DEVOS | | Pending | |
+| P-CH-20 | Standards governance | DEVOS | | Merged → F-DEVOS-003 (claims name a mechanism or say "convention"; doc-existence tripwire; ADRs rejected as ceremony for one decision-maker) | 2 DEVOS |
 | P-CH-21 | Long-term compatibility | ARCH | P-78-T04 | Pending | |
 | P-CH-22 | Reproducible builds | SEC/REL |  | Rejected as a finding for now (frozen lockfile, pinned pnpm; floating Node minor in CI is Low); revisit in REL | 2 SEC |
 | P-CH-23 | Configuration validation | REL | P-78-M09 | Pending | |
 | P-CH-24 | Operational ownership | OPS | | Pending | |
-| P-CH-25 | Institutional-memory survival | DEVOS | | Pending | |
+| P-CH-25 | Institutional-memory survival | DEVOS | | Merged → F-DEVOS-003 (task-to-doc map; about 63,000 tokens of required reading), F-DEVOS-005 (the memory file is overwritten per slice), and F-SEC-007 (single owner, credentials) | 2 DEVOS |
 | P-CH-26 | Emergency access recovery | SEC/OPS |  | Merged → F-SEC-007 | 2 SEC |
 | P-CH-27 | Credential and key lifecycle | SEC |  | Merged → F-SEC-007 | 2 SEC |
 | P-CH-28 | Silent data-corruption detection | DATA | | Pending | |
@@ -137,7 +137,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-GAP-02 | No CI job for integration/E2E (needs secrets) | TEST/REL | Pending | |
 | P-GAP-03 | Stage hosting mechanism undecided | REL | Pending | |
 | P-GAP-04 | Production migration procedure not automated or defined | DATA | Pending | |
-| P-GAP-05 | `docs/deployment.md` section 7 stale about `ci.yml` | DEVOS | Pending | |
+| P-GAP-05 | `docs/deployment.md` section 7 stale about `ci.yml` | DEVOS | Adopted → F-DEVOS-003 (confirmed, ledger C-22; fix in the reconciliation slice) | 2 DEVOS |
 | P-GAP-06 | `neon-http` cannot do interactive transactions; decision needed before first mutation feature (historical; check current `AtomicRunner`) | DATA | Pending | |
 | P-GAP-07 | `APP_ENVS` in shared duplicates `DATABASE_ENVS` in `apps/web/db/env.ts` (historical; check whether consolidated) | CODE | Pending | |
 | P-GAP-08 | Package scope `@signalone/*` embeds the application name (addressed by init `--scope`; verify) | BOIL | Pending | |
@@ -162,5 +162,5 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | --- | --- | --- | --- | --- |
 | P-RM-01 | Not yet scheduled: real roles and authorization, Church-managed data, real submission flow, real admin entry, bulk ingestion, multiple users per organization, product schema | REQ/AUTH/DATA | Pending | |
 | P-RM-02 | Data concepts surfaced by the admin mock: provenance, moderation decisions, duplicate/conflict rules, organization-manager relationships, import batches, lifecycle states, audit/history, orphan events | REQ/DATA | Pending | |
-| P-NOTES-01 | Unresolved product questions from Issue 76: who is an admin/moderator and how granted; anonymous submissions; moderation outcomes and reversibility; duplicate/conflict definition and precedence; imports creating organizations; staff editing manager records; permanent vs reversible removal | REQ/AUTH | Pending | |
+| P-NOTES-01 | Unresolved product questions from Issue 76: who is an admin/moderator and how granted; anonymous submissions; moderation outcomes and reversibility; duplicate/conflict definition and precedence; imports creating organizations; staff editing manager records; permanent vs reversible removal | REQ/AUTH | Pending (REQ/AUTH); these need a durable home before F-DEVOS-005 removes `notes.md` | |
 | P-NOTES-02 | Verification not performed on Issue 76: Playwright, root `pnpm validate`, browser rendering, iPhone Safari | TEST | Pending | |
