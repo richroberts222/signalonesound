@@ -17,7 +17,7 @@ Feature requirements
 
 ## The review
 
-Before adding new automated tests, determine and document (in the PR or `docs/notes.md`):
+Before adding new automated tests, determine and document (in the PR conversation):
 
 1. **What**: the behavior the test verifies.
 2. **Business value**: why protecting it matters to the product, customer, operation, revenue, trust, security, or data integrity.
@@ -50,7 +50,7 @@ Be especially selective. E2E tests protect meaningful user journeys, business-cr
 
 ## Test completion report
 
-When feature work adds tests, `docs/notes.md` must report:
+When feature work adds tests, the PR conversation must report:
 
 * which tests or test groups were added
 * what meaningful behavior they protect

@@ -138,7 +138,7 @@ Repository-wide or cross-cutting refactors require demonstrated need **and expli
 
 When touching existing code, leave it modestly cleaner when the cleanup is understood, the risk is low, behavior is preserved, and it stays reasonably within the scope of the change (a clearer name, a removed dead branch, a small extraction).
 
-This is not authorization for unrelated broad refactors. If the cleanup is larger than the task, record it in `docs/notes.md` as a recommendation instead.
+This is not authorization for unrelated broad refactors. If the cleanup is larger than the task, record it in the issue/PR conversation as a recommendation instead.
 
 ## 10. UI reuse
 

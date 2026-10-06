@@ -29,7 +29,7 @@ Mobile is a client of the Signal One API, exactly like Web. It never reaches the
 | `DATABASE_URL`, `CLERK_SECRET_KEY`, any secret | never | never | yes |
 | `apps/web/*` imports | n/a | never | n/a |
 
-Mobile consumes workspace packages as TypeScript source through pnpm workspace links (`"@signalone/shared": "workspace:*"`); Expo SDK 57 configures Metro for monorepos automatically, so no `metro.config.js` is needed. This was verified by bundling both platforms (see `docs/notes.md` for the exact result).
+Mobile consumes workspace packages as TypeScript source through pnpm workspace links (`"@signalone/shared": "workspace:*"`); Expo SDK 57 configures Metro for monorepos automatically, so no `metro.config.js` is needed. This was verified by bundling both platforms.
 
 `src/boundary.test.ts` statically enforces the boundary: no server/database/Next.js imports, no `apps/web` imports, `process.env` reads limited to `EXPO_PUBLIC_*` literals, and no forbidden packages in `package.json`.
 

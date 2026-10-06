@@ -1,12 +1,12 @@
-# Issue / PR Handoff Workflow
+# Issue / PR Workflow (GitHub-First)
 
 ## Rule
 
-Whenever Claude works on a GitHub issue or pull request, Claude MUST maintain `docs/notes.md` on the current feature branch as the authoritative current handoff/status report for that branch.
+GitHub is the source of truth for the live state of an issue and its pull request. Reviewers (Rich, ChatGPT, other humans) inspect the actual issue, the canonical PR branch, commits, diff, code, comments, review threads, and checks directly. Claude does not maintain a duplicate handoff/status report. `docs/notes.md` is **not** mandatory for any issue or PR; see "Recording non-discoverable information" below.
 
 ## Canonical branch and pull request
 
-One issue = one canonical feature branch and one pull request.
+One issue = one canonical feature branch and one pull request (per issue, not repository-wide).
 
 1. The first Claude implementation run for an issue may create the feature branch.
 2. Open a PR for that branch as early as practical. Once a PR exists, its branch is the canonical branch for the issue.
@@ -27,6 +27,16 @@ Rules:
 2. **Every follow-up goes through the PR, never the Issue.** Tag `@claude` in a PR conversation comment (or a PR review / review comment). Do not write "continue Issue #N" on the Issue: that creates a second branch.
 3. Fixes for failing CI, Claude Review findings, or Rich's review feedback: comment `@claude` on the PR (for example, "@claude CI is failing, fix it on this branch" or "@claude merge latest main into this branch and resolve conflicts"). Claude reads CI results (`actions: read`) and pushes to the PR head branch; the push re-triggers the `pull_request` CI automatically.
 4. If a stray second branch was already created, comment `@claude` on the PR asking it to bring over the work with `git cherry-pick` (allowed), rather than merging branches locally.
+
+### Parallel work across issues
+
+"One issue / one PR" applies **per issue**. It is not a repository-wide prohibition on independent work.
+
+* Multiple independent issues MAY proceed in parallel, each with its own canonical branch and PR, when their scopes and files do not create unsafe overlap or dependency conflicts.
+* Avoid overlapping changes when practical. Before starting, compare the files/areas each issue will touch (including shared docs, shared contracts, schema/migrations, and lockfiles).
+* Work that depends on another open issue's output, or that would edit the same files or contracts, stays sequential: start it after the other PR is merged (or branch the dependency explicitly with Rich's approval).
+* A docs/governance-only issue may run alongside a feature issue only when it does not modify that feature's files. If a file is already being modified by another open issue/PR, stop and report the overlap instead of creating a conflict.
+* Claude never starts the next slice on its own; it may recommend one. Parallelism does not relax any other rule (CI, review, security, protected `main`, human-only merge).
 
 ### Incorporating main
 
@@ -65,8 +75,7 @@ Plan issue
   -> PR branch becomes canonical workspace
   -> subsequent Claude work occurs on the PR
   -> implementation and functional verification
-  -> overwrite docs/notes.md
-  -> human/ChatGPT review
+  -> human/ChatGPT review of live GitHub state (issue, PR, diff, comments, checks)
   -> human merges PR
 ```
 
@@ -74,49 +83,26 @@ Plan issue
 
 `.github/workflows/claude.yml` must keep: `fetch-depth: 0`; the tool allow-list (`gh pr *`, `pnpm`/`npx`/`corepack`, and `git fetch|branch|log|show|diff|checkout|cherry-pick|add|commit|status|merge|merge-base`); and the existing GitHub permissions. `git merge` and `git merge-base` are permitted only so Claude can merge `origin/main` into the canonical issue branch (local operation; publishing still goes through the no-flag push helper). Do not broaden to unrestricted `git`, and do not add `git push`, force-push, destructive reset, rebase, branch/tag deletion, or PR-merge (`gh pr merge`) permissions. Merging a PR into `main` remains human-only; `main` should also be protected on GitHub (see `/docs/security.md`). The Claude GitHub App cannot edit workflow files, so workflow changes are made by the human.
 
-## Overwrite, never append
+## Recording non-discoverable information
 
-- `docs/notes.md` MUST be **overwritten**, not appended to, whenever Claude completes work or responds after making changes.
-- After each update it contains only the latest complete state of the branch.
-- It is not historical documentation. Permanent architectural knowledge belongs in the appropriate `/docs` file (for example `environment`, `database`, `auth`), not in `notes.md`.
-- Update `docs/notes.md` before the final commit and push so it is included in the pushed branch.
+Do not duplicate what GitHub already shows (issue/PR numbers, branch, commits, changed files, diff, CI results, review threads). Claude records only information that cannot reasonably be discovered from GitHub artifacts:
 
-## Purpose
+* intentional omissions or deferred requirements;
+* unresolved product questions;
+* environment limitations, or verification that could not be performed (and why);
+* precise manual/visual testing instructions when human judgment is required (where to go, prerequisites, exact actions, expected result, edge cases; see `/docs/product-development.md` section 8);
+* reusable lessons/rules that need deliberate follow-up.
 
-A reviewer must be able to retrieve one predictable file, `docs/notes.md`, from the public feature branch without copying GitHub comments.
+Where to record it:
 
-## Required contents
+1. Preferably in the relevant issue/PR conversation (Claude's comment or PR description).
+2. In permanent `/docs` documentation when the information is truly durable (architecture, environment, database, auth, feature specs). Permanent knowledge belongs there, not in a status file.
+3. `docs/notes.md` is optional. Use it only when the above are not suitable, and then it is overwritten (never appended) with only the non-discoverable items, never a status log. Do not create or update it merely to restate GitHub state.
 
-1. Issue number and title.
-2. PR number, if one exists.
-3. Canonical branch (and base).
-4. Latest commit.
-5. Work completed.
-6. Files changed.
-7. Architectural decisions.
-8. Functional verification performed.
-9. Exact test / lint / typecheck / build results (latest run only).
-10. Anything not tested, and why.
-11. Unresolved concerns.
-12. Recommended next steps (a recommendation only; never implement the next slice without authorization).
-
-### Extended sections (when applicable)
-
-The handoff standard<!-- boilerplate:reference:start --> is in `/docs/product-development.md`; it<!-- boilerplate:reference:end --> requires the following. Include the items that apply:
-
-* **Current work**: issue, title, PR, canonical branch, base branch, latest commit.
-* **Product requirements**: feature spec, requirements being implemented, acceptance criteria.
-* **Implementation completed**: exact operational behavior.
-* **Files changed**: important files, what changed, why.
-* **Architecture impact**: UI, API, services/business logic, auth, database/data access, schema/migrations, shared contracts, mobile, external services.
-* **Database**: tables, columns, relationships, constraints, migration, reset/seed implications, environment used.
-* **Testing / validation**: per test group, what was tested, exact command, result, what remains untested and why.
-* **Manual exploratory testing**: exact steps for Rich (where to go, prerequisites, actions, expected result, edge cases, exploratory scenarios).
-* **Known issues / unresolved concerns**: incomplete behavior, uncertainty, technical debt, deferred decisions.
-
-`docs/notes.md` must give exact visibility into the current implementation.
+Never put secrets or credential-shaped values in any of these (`/CLAUDE.md` section 18).
 
 ## Accuracy
 
-- Report only what was actually run on this branch. Do not carry over results from other branches or earlier runs.
-- If something is missing from the branch or could not be run, say so explicitly.
+* Report only what was actually run on this branch. Do not carry over results from other branches or earlier runs.
+* If something is missing from the branch or could not be run, say so explicitly in the PR/issue conversation.
+* Report test/lint/typecheck/build results accurately (exact commands and real outcomes); never claim CI passed unless it ran.

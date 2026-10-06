@@ -80,7 +80,7 @@ pnpm --filter web db:seed --env=dev             # dev | qa only
 
 ## 9. Claude / GitHub workflow
 
-Inherited unchanged: `CLAUDE.md`, `docs/issues.md` (one issue = one canonical branch + PR, `docs/notes.md` handoff), `docs/git-workflow.md`, `docs/automation/` including the Test Value Review. Add the Claude GitHub App and its OAuth/API secret in the new repository settings and enable branch protection requiring the `CI / Validate` check and a human merge. Workflow files are edited by a human (the Claude app cannot edit `.github/workflows`).
+Inherited unchanged: `CLAUDE.md`, `docs/issues.md` (one issue = one canonical branch + PR, GitHub-first handoff; `docs/notes.md` optional), `docs/git-workflow.md`, `docs/automation/` including the Test Value Review. Add the Claude GitHub App and its OAuth/API secret in the new repository settings and enable branch protection requiring the `CI / Validate` check and a human merge. Workflow files are edited by a human (the Claude app cannot edit `.github/workflows`).
 
 ## 10. Growing the application
 
