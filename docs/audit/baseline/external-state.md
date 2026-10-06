@@ -34,6 +34,7 @@ Public; one commit `859b792` dated 2026-10-01; `is_template: false`; default bra
 | --- | --- | --- |
 | Project | `signalonesound`, team `team-jesus5`, `rootDirectory: apps/web`, `isMonorepo: true` | Decoded metadata in the Vercel bot comment on PRs #77 and #80 |
 | Preview deployments | one per PR push; URL pattern `signalonesound-git-<branch>-team-jesus5.vercel.app`; status Ready on the PRs inspected | Same |
+| Preview deployment protection | **Vercel Authentication**: unauthenticated requests to the Preview page, API, and `/admin` get `302` to Vercel SSO (read-only `curl`, Pass 2, 2026-10-06) | CONSOLE |
 | Production deployment on merge to `main` | not observed by the audit | UNVERIFIED (U-01) |
 | Environment variables per scope | not observable | UNVERIFIED (U-02, U-03) |
 | "Include source files outside of the Root Directory" | the monorepo builds succeed, so it is effectively on | INFER |
@@ -93,3 +94,6 @@ Each item: where to look, what the audit expects to find, and which subject need
 | U-18 | Vercel spend limits / budget alerts; Neon compute limits; Clerk plan limits (MAU) | Each console → Billing | Cost spike scenario | OPS |
 | U-19 | Has the Vercel Preview ever been opened by a human before merge for the mock slices (#67, #69, #73, #75, #77)? | Rich's recollection | `docs/product-development.md` requires it; the median 5-minute PR lifetime makes it unlikely for most PRs | DEVOS |
 | U-20 | Any production domain configured (custom domain, DNS, HTTPS)? | Vercel → Domains | Launch readiness; Clerk production needs a real domain | REL |
+| U-21 | Production deployment protection setting and domain: is Production public, behind Vercel Authentication, or on a custom domain? What security headers does Production serve (`curl -I <prod URL>`)? | Vercel → Settings → Deployment Protection; Domains | Previews are protected (CONSOLE); Production behavior is unknown and decides how F-SEC-005 and F-SEC-006 apply today | SEC, REL |
+| U-22 | GitHub: "Fork pull request workflows from outside collaborators" approval setting | GitHub → Settings → Actions → General | Public repository; should require approval for all outside contributors | SEC |
+| U-23 | Which Claude account issued `CLAUDE_CODE_OAUTH_TOKEN` and how to revoke it | Claude account settings; GitHub secret metadata | If it is the owner's personal account token, a leak reaches beyond the product (F-SEC-007) | SEC |

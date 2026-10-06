@@ -8,10 +8,10 @@ The single resumable state of the audit. Update in the same commit as the work i
 | --- | --- |
 | Baseline commit | `31ec6ba` (`main`, 2026-10-06) |
 | Audit branch | `audit/phase-0-methodology` (Phase 0). The canonical audit branch and PR are decided by Q-001. |
-| Current pass | Pass 1 (Baseline) complete. Pass 2 (Subject examinations) not started. |
+| Current pass | Pass 2 (Subject examinations) in progress. Done: SEC. |
 | Depth budget | As `methodology.md` section 4 (Deep: AUTH, DATA, SEC, REL, DEVOS, BOIL; Standard: ARCH, TEST, OPS, REQ; Light: CODE, UX) |
-| Next action | Pass 2, Deep subjects in this order: SEC, DEVOS, DATA, AUTH, REL, BOIL; then ARCH, TEST, OPS, REQ; then CODE, UX. Start SEC: read `claude.yml` in full with the action's documented permission model, `lib/security.test.ts`, `handler.ts`, `proxy.ts`, `next.config.ts`; apply all nine lenses; create `findings/SEC.md`. Q-001 (push/PR) still open; work continues locally. |
-| Open questions | Q-001 to Q-006 (`decisions-needed.md`) |
+| Next action | Pass 2 subject DEVOS (then DATA, AUTH, REL, BOIL; ARCH, TEST, OPS, REQ; CODE, UX). DEVOS must absorb the carry-forward list at the end of `findings/SEC.md` (workflow allow-list vs `issues.md`, Claude Code Review producing no visible output, merges on failing checks, doc drift ledger entries C-08, C-14, C-22, C-25, C-29, C-46, C-49, C-50, C-52). Q-001 (push/PR) still open; work continues locally. |
+| Open questions | Q-001 to Q-007 (`decisions-needed.md`) |
 | Open contradictions | none (no findings yet) |
 
 ## Facts observed during Phase 0 (carry forward into Pass 1; not findings)
@@ -60,3 +60,19 @@ Each entry: date, pass, what was done, metrics, IDs touched. This is the change 
 * Notable facts beyond Phase 0: public repository; repo default token permission write; `Bash(gh pr *)` allow-list permits `gh pr merge` while the static test only matches the literal string; 7 PRs merged with a failing merge-commit check; Claude Code Review leaves no visible comments; `pnpm audit --prod` has 4 high advisories (all transitive via `shadcn`/`expo` declared as runtime deps); `cn` package declared and unused; 12 doc drifts recorded in the ledger (C-08, C-14, C-22, C-25, C-29, C-46, C-49, C-50, C-52 and others); export drift (fact 18); Windows gate failures (fact 19).
 * Metrics: findings 0 (Pass 1 creates none); questions still 6; prior inputs mapped 0 (mapping happens per subject in Pass 2).
 * Exit criteria check: every subject has an inventory section (yes); every claim has a status (68/68); every external dependency listed (GitHub, Vercel, Neon, Clerk, Expo/EAS/stores, Anthropic App). Pass 1 complete.
+
+### 2026-10-06, Pass 2, subject SEC
+
+* Created `findings/SEC.md`: 8 actionable findings (2 High, 5 Medium, 1 Low) and 3 KEEP records. Reconciled 22 prior-input rows (`P-78-C/D/E/K/M01/M02/M03/M04/M08/T06`, `P-CH-05/17/19/22/26/27/29`, `P-SEC-01` to `P-SEC-06`). Added Q-007 and U-21 to U-23.
+* Evidence gathered before re-reading the inputs: workflow files, API handler, headers, tests, history secret scans (all refs), dependency inspection, read-only HTTP requests to the Preview, vendor reporting on the Claude Code action (INFER).
+* New facts: Previews are behind Vercel Authentication (so app headers are unobservable, U-21); git history on all refs contains no credentials; `cn` is published by the shadcn-ui org (not a typosquat); `shadcn` is a genuine build dependency (it provides `tailwind.css`) but brings a 33-dependency CLI tree into the production install; the `gh pr *` allow-list wildcard permits `gh pr merge`.
+* Challenges to prior work (Fable's Phase 0 and Pass 1, issue 78):
+  * Phase 0 fact 9 and P-78-E ("`cn` possibly a typosquat"): **rejected** on registry and install evidence.
+  * C-12 in the claims ledger understated the problem: the static test regex misses the wildcard, and any executed code bypasses the allow-list entirely (F-SEC-002 is stronger than "narrow the allow-list").
+  * Issue 78 M01 (required review) **modified**: zero required approvals for a single-owner repository (F-SEC-001).
+  * Issue 78 M03 **modified**: a blocking `pnpm audit` would fail CI now on advisories with no patch; non-blocking and runtime-path based (F-SEC-004).
+  * Issue 78 M04 **modified**: headers now, CSP with the real UI (F-SEC-005).
+  * Issue 78 D ("trigger does not check commenter permission") **rejected** as stated: the action gates on write permission by default (INFER); the residual risk is vendor vulnerability history.
+  * Fable's severity framing kept: High, not Critical, for F-SEC-001, because deploy-on-merge is UNVERIFIED (U-01).
+* Metrics: findings 11 (Draft); questions 7; prior inputs mapped 22 of ~110. No contradictions among findings yet.
+* Not done: AUTH, DATA, TEST items listed in the SEC carry-forward are not findings yet. No workflow, setting, or code was changed.

@@ -22,22 +22,22 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | --- | --- | --- | --- | --- |
 | P-78-A | Docs describe a different repository than exists (deployment §7 vs `ci.yml`; testing.md vs Playwright installed; component tests; stale security/gap docs) | DEVOS | Pending | |
 | P-78-B | ~7,800 lines of docs restating each other, no freshness check; consolidate, point docs at tests/scripts | DEVOS | Pending | |
-| P-78-C | Security docs list gaps nothing tracks (rate limiting, CSP/headers, audit logging, dependency scanning, CORS, request logging); `next.config.ts` sets no headers | SEC | Pending | |
-| P-78-D | `claude.yml`: dev `DATABASE_URL` at job level with `pnpm *`/`npx *` (arbitrary code); trigger on any `@claude` without commenter check (action's own check unverified); floating tags; prompt-injection path with `contents: write` | SEC | Pending | |
-| P-78-E | `cn@^0.4.0` dependency possibly stray or typosquat-adjacent; usage unchecked; `pnpm audit` from an earlier issue is not a standing control | CODE | Pending | |
+| P-78-C | Security docs list gaps nothing tracks (rate limiting, CSP/headers, audit logging, dependency scanning, CORS, request logging); `next.config.ts` sets no headers | SEC | Merged → F-SEC-005, F-SEC-006, F-SEC-004; request logging and audit logging pending (OPS, AUTH) | 2 SEC |
+| P-78-D | `claude.yml`: dev `DATABASE_URL` at job level with `pnpm *`/`npx *` (arbitrary code); trigger on any `@claude` without commenter check (action's own check unverified); floating tags; prompt-injection path with `contents: write` | SEC | Adopted → F-SEC-002 (the commenter-permission claim is Rejected: the action applies a write-permission gate by default, INFER; the residual is vendor risk) | 2 SEC |
+| P-78-E | `cn@^0.4.0` dependency possibly stray or typosquat-adjacent; usage unchecked; `pnpm audit` from an earlier issue is not a standing control | CODE | Rejected as typosquat (cn is published by the shadcn-ui org, no install scripts); unused-dependency hygiene → CODE pending; standing audit → F-SEC-004 | 2 SEC |
 
 ## Issue #78 MUST-have foundations
 
 | ID | Input | Likely subject | Outcome | Pass |
 | --- | --- | --- | --- | --- |
-| P-78-M01 | Branch protection/rulesets on `main` (required check, review, no direct push); marked unverified there, **verified absent in Phase 0** (`progress.md` fact 1) | DEVOS/SEC | Pending | |
-| P-78-M02 | Fix `claude.yml` exposure: scope or remove `DATABASE_URL`, narrow `pnpm`/`npx`, pin SHAs, check `id-token` | SEC | Pending | |
-| P-78-M03 | Dependabot or Renovate plus `pnpm audit` in CI, including Actions updates | SEC | Pending | |
-| P-78-M04 | Security headers and baseline CSP (Clerk allowances), tested in Preview | SEC | Pending | |
+| P-78-M01 | Branch protection/rulesets on `main` (required check, review, no direct push); marked unverified there, **verified absent in Phase 0** (`progress.md` fact 1) | DEVOS/SEC | Adopted, modified → F-SEC-001 (zero required approvals for a single owner) | 2 SEC |
+| P-78-M02 | Fix `claude.yml` exposure: scope or remove `DATABASE_URL`, narrow `pnpm`/`npx`, pin SHAs, check `id-token` | SEC | Adopted → F-SEC-002 | 2 SEC |
+| P-78-M03 | Dependabot or Renovate plus `pnpm audit` in CI, including Actions updates | SEC | Adopted, modified → F-SEC-004 (non-blocking runtime-path audit; Dependabot for npm and actions) | 2 SEC |
+| P-78-M04 | Security headers and baseline CSP (Clerk allowances), tested in Preview | SEC | Adopted, modified → F-SEC-005 (headers now; CSP report-only with the real UI) | 2 SEC |
 | P-78-M05 | Restore drill: document and exercise one Neon point-in-time restore; confirm PITR window | DATA | Pending | |
 | P-78-M06 | Production migration procedure: who, how, verification | DATA | Pending | |
 | P-78-M07 | Error monitoring and structured logs with redaction | OPS | Pending | |
-| P-78-M08 | Rate limiting on `/api/v1` and auth-adjacent routes | SEC | Pending | |
+| P-78-M08 | Rate limiting on `/api/v1` and auth-adjacent routes | SEC | Adopted, modified → F-SEC-006 (platform rate limit first; no new vendor) | 2 SEC |
 | P-78-M09 | Lazy env validation ships a broken prod env green; add post-deploy smoke check or health route | REL | Pending | |
 | P-78-M10 | Privacy basics before collecting member data: policy, terms, data inventory, deletion/export decision | AUTH | Pending | |
 | P-78-M11 | Automated accessibility check (jsx-a11y lint, axe in Playwright on key pages) | UX | Pending | |
@@ -55,7 +55,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-78-T03 | Real Stage environment (before first production launch with real data) | REL | Pending | |
 | P-78-T04 | Mobile release engineering: signing, store review, OTA, minimum API version; API deprecation rules | REL/ARCH | Pending | |
 | P-78-T05 | Accessibility audit with assistive technology (pre-launch) | UX | Pending | |
-| P-78-T06 | SBOM/provenance, gitleaks, CodeQL after M03; enable GitHub secret scanning now (**verified enabled in Phase 0**, `progress.md` fact 2) | SEC | Pending | |
+| P-78-T06 | SBOM/provenance, gitleaks, CodeQL after M03; enable GitHub secret scanning now (**verified enabled in Phase 0**, `progress.md` fact 2) | SEC | Merged → F-SEC-004 (SBOM/provenance and CodeQL DEFER with triggers; gitleaks Rejected: push protection enabled and history scan clean, F-SEC-010) | 2 SEC |
 | P-78-T07 | Uptime monitoring, status page, alert routing, on-call (first production traffic) | OPS | Pending | |
 | P-78-T08 | Load/performance budgets, Core Web Vitals (before public launch) | OPS | Pending | |
 | P-78-T09 | Cost budgets and alerts on Vercel, Neon, Clerk (before launch) | OPS | Pending | |
@@ -75,7 +75,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-78-O06 | Static source-text security tests give false confidence; prefer linter boundary rules | TEST/SEC | Pending | |
 | P-78-O07 | `APP_ENV` plus `DATABASE_ENV` plus four environments with unprovisioned Stage is more than needed; do not build Stage until M01 to M09 | REL | Pending | |
 | P-78-O08 | Team-of-one: no reviewers, CODEOWNERS, multi-approver rules yet | DEVOS | Pending | |
-| P-78-K | Keep as-is: explicit environment identity and prod-refusal guards; server-only imports; Zod at boundaries; forward-only migrations with expand/contract; per-environment secrets; no merge rights for the agent; never-commit-secrets tests | several | Pending | |
+| P-78-K | Keep as-is: explicit environment identity and prod-refusal guards; server-only imports; Zod at boundaries; forward-only migrations with expand/contract; per-environment secrets; no merge rights for the agent; never-commit-secrets tests | several | Partly KEEP → F-SEC-009, F-SEC-010; remaining items pending DATA, ARCH, DEVOS | 2 SEC |
 
 ## Charter concern list ("raised by prior reviews")
 
@@ -85,7 +85,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CH-02 | Independent diff review | DEVOS | P-78-M01, P-78-O08 | Pending | |
 | P-CH-03 | Definition of Ready / Done | DEVOS | | Pending | |
 | P-CH-04 | Risk-based gates | DEVOS/REL | | Pending | |
-| P-CH-05 | Threat / abuse modeling | AUTH/SEC | | Pending | |
+| P-CH-05 | Threat / abuse modeling | AUTH/SEC |  | Partly covered by F-SEC-002 and F-SEC-006 (attack paths); formal threat and abuse model pending AUTH and Pass 3 | 2 SEC |
 | P-CH-06 | Authorization matrices and deny-by-default server enforcement | AUTH | P-78-M13 | Pending | |
 | P-CH-07 | Data classification, lifecycle, privacy | AUTH/DATA | P-78-M10, P-78-T11 | Pending | |
 | P-CH-08 | Migrations, backup and tested restore | DATA | P-78-M05, P-78-M06 | Pending | |
@@ -97,19 +97,19 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CH-14 | Accessibility | UX | P-78-M11, P-78-T05 | Pending | |
 | P-CH-15 | Performance, capacity, cost | OPS | P-78-T08, P-78-T09 | Pending | |
 | P-CH-16 | SLI/SLO and incident response | OPS | P-78-T07 | Pending | |
-| P-CH-17 | Supply-chain security, SBOM, provenance | SEC | P-78-M03, P-78-T06 | Pending | |
+| P-CH-17 | Supply-chain security, SBOM, provenance | SEC | P-78-M03, P-78-T06 | Merged → F-SEC-004 (SBOM/provenance DEFER) | 2 SEC |
 | P-CH-18 | Progressive delivery and rollback | REL | P-78-T02 | Pending | |
-| P-CH-19 | AI-agent prompt/context safety and provenance | SEC/DEVOS | P-78-D, P-78-M02 | Pending | |
+| P-CH-19 | AI-agent prompt/context safety and provenance | SEC/DEVOS | P-78-D, P-78-M02 | Merged → F-SEC-002 | 2 SEC |
 | P-CH-20 | Standards governance | DEVOS | | Pending | |
 | P-CH-21 | Long-term compatibility | ARCH | P-78-T04 | Pending | |
-| P-CH-22 | Reproducible builds | SEC/REL | | Pending | |
+| P-CH-22 | Reproducible builds | SEC/REL |  | Rejected as a finding for now (frozen lockfile, pinned pnpm; floating Node minor in CI is Low); revisit in REL | 2 SEC |
 | P-CH-23 | Configuration validation | REL | P-78-M09 | Pending | |
 | P-CH-24 | Operational ownership | OPS | | Pending | |
 | P-CH-25 | Institutional-memory survival | DEVOS | | Pending | |
-| P-CH-26 | Emergency access recovery | SEC/OPS | | Pending | |
-| P-CH-27 | Credential and key lifecycle | SEC | | Pending | |
+| P-CH-26 | Emergency access recovery | SEC/OPS |  | Merged → F-SEC-007 | 2 SEC |
+| P-CH-27 | Credential and key lifecycle | SEC |  | Merged → F-SEC-007 | 2 SEC |
 | P-CH-28 | Silent data-corruption detection | DATA | | Pending | |
-| P-CH-29 | Blast-radius containment | SEC/OPS | P-78-M15 | Pending | |
+| P-CH-29 | Blast-radius containment | SEC/OPS | P-78-M15 | Partly → F-SEC-001, F-SEC-002 (agent blast radius); DB roles pending DATA | 2 SEC |
 | P-CH-30 | Vendor exit and data portability | DATA/OPS | | Pending | |
 | P-CH-31 | Operational kill switches | OPS | | Pending | |
 | P-CH-32 | Safe bulk operations | OPS/DATA | | Pending | |
@@ -147,12 +147,12 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 
 | ID | Input | Likely subject | Outcome | Pass |
 | --- | --- | --- | --- | --- |
-| P-SEC-01 | `DATABASE_URL` (dev) at job level in `claude.yml`; scope to steps or drop | SEC | Pending | |
-| P-SEC-02 | `Bash(pnpm *)`/`Bash(npx *)` broad | SEC | Pending | |
-| P-SEC-03 | `id-token: write` in both workflows; confirm needed | SEC | Pending | |
-| P-SEC-04 | Floating action tags; pin to SHAs | SEC | Pending | |
-| P-SEC-05 | `claude-code-review.yml` has read-only permissions (recorded as correct) | SEC | Pending | |
-| P-SEC-06 | Gaps: rate limiting, security headers/CSP, audit logging, automated dependency scanning; API: no rate limiting, CORS, request logging | SEC | Pending | |
+| P-SEC-01 | `DATABASE_URL` (dev) at job level in `claude.yml`; scope to steps or drop | SEC | Adopted → F-SEC-002 | 2 SEC |
+| P-SEC-02 | `Bash(pnpm *)`/`Bash(npx *)` broad | SEC | Adopted → F-SEC-002 (stronger: also the gh pr wildcard) | 2 SEC |
+| P-SEC-03 | `id-token: write` in both workflows; confirm needed | SEC | Adopted → F-SEC-002 (verify, do not assume removable) | 2 SEC |
+| P-SEC-04 | Floating action tags; pin to SHAs | SEC | Adopted → F-SEC-002, F-SEC-004 | 2 SEC |
+| P-SEC-05 | `claude-code-review.yml` has read-only permissions (recorded as correct) | SEC | Confirmed correct (read-only contents, PRs, issues; carries id-token write); no finding | 2 SEC |
+| P-SEC-06 | Gaps: rate limiting, security headers/CSP, audit logging, automated dependency scanning; API: no rate limiting, CORS, request logging | SEC | Merged → F-SEC-004, F-SEC-005, F-SEC-006; CORS not needed for native clients (INFER, ARCH); logging and audit pending OPS, AUTH | 2 SEC |
 | P-SEC-07 | Least-privilege roles recommended, not configured | DATA | Pending | |
 | P-SEC-08 | Static source-text security checks do not follow transitive imports; `server-only` is the build-time backstop | TEST/SEC | Pending | |
 

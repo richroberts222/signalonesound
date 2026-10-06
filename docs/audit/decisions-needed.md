@@ -106,3 +106,21 @@ Product questions carried from the mock slices (for example who counts as an adm
 **Blocks**: nothing. Reduces Rich's manual verification load if yes.
 
 **Status**: Open.
+
+---
+
+### Q-007 Does the Claude Actions job need database access?
+
+**Question**: `claude.yml` sets `DATABASE_URL` (dev Neon) and `DATABASE_ENV: dev` for the whole job. No workflow step uses it, and the agent's work so far is mock UI and documentation. Has any Claude run ever needed a database (for example `db:migrate`, integration tests, or `db:check` inside Actions)? Should the job keep it?
+
+**Why the audit cannot decide**: only the owner knows whether a future slice depends on it, and removing it is a workflow edit the audit may not make.
+
+**Options and consequences**:
+
+1. Remove it (recommended). Eliminates a credential from an agent environment (F-SEC-002). Database-backed validation then runs on the owner's machine or in a future separate CI job with a scoped secret.
+2. Keep it but scope it to one step. Retains the capability with a smaller exposure; requires the agent's allow-list to run that step by exact command.
+3. Keep as is. Accepts the exposure recorded in F-SEC-002.
+
+**Blocks**: the final wording of F-SEC-002's recommendation only.
+
+**Status**: Open.
