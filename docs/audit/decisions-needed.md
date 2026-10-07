@@ -36,7 +36,15 @@ Product questions carried from the mock slices (for example who counts as an adm
 
 **Blocks**: a green `Validate` on audit PR #82, and safe re-export of the boilerplate. (Updated 2026-10-06, DEVOS pass: this entry first said it blocked nothing in the audit. CI on the audit branch head is red: `test:boilerplate` fails 3 of 6 because files under `docs/audit/` contain the reference-app name and proof-slice terms that the init leak check refuses; the same suite is green at the baseline. The audit may not edit the manifest or the test. The PR is not to be merged before convergence anyway, so this is a visible red check, not an urgent break, but it will also make every later push red until option 1 or an equivalent lands. See F-DEVOS-002.)
 
-**Status**: Open. Option 1 now also removes the red check on PR #82.
+**Status**: Decided 2026-10-07 (engineering decision, Claude, under the adopted decision model): option 1. Not yet applied; it needs its own issue and PR because it edits `scripts/boilerplate/manifest.mjs`, outside `docs/audit/`. The audit does not edit the manifest or the leak test.
+
+**Draft issue for the operator to open** (plain language; no test is weakened):
+
+> Title: Keep the audit documents out of generated apps and the boilerplate export
+>
+> The reference app contains an audit folder and a charter document that describe this specific product. A new project created from the boilerplate must not receive them. Today the export and init tooling would copy them and rename them, and the safety check that guards against reference-app names correctly fails. Add `docs/audit` and `docs/fable-audit-charter.md` to `REFERENCE_ONLY_PATHS` in `scripts/boilerplate/manifest.mjs` (one line). Do not edit or relax the leak check or its tests. Done when `pnpm test:boilerplate` passes with the audit folder present, `pnpm validate` passes, and a generated app contains neither path. No product, spending or dependency change.
+
+After it merges to `main`, PR #82's branch must be updated from `main` (merge or rebase by a human or the operator); `Validate` should then pass. Until then red on #82 is expected and is not an audit defect. Option 2's rule still applies meanwhile: do not run `pnpm export:boilerplate` for publication.
 
 ---
 
