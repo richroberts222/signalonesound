@@ -88,6 +88,7 @@ Only the server holds a connection string, one per environment, matching `DATABA
 
 * Least-privilege `permissions`; secrets scoped to the steps that need them; no production secrets in Actions.
 * No merge, force-push, destructive reset, or branch-delete tooling (checked by test for workflow files).
+* `main` is protected by the GitHub ruleset `Protect main` (active, no bypass actors): deletion and force-push are blocked, changes require a pull request (0 required approvals, since the sole owner cannot approve their own PR), and the `Validate` check from GitHub Actions must pass. "Require branches to be up to date" is off because open PRs are revalidated after each merge (`/docs/issues.md`). Changes to the ruleset are made by Rich in repository settings.
 * Workflow files are edited by humans only (the GitHub App cannot). Audit findings for `claude.yml`, recorded rather than changed:
   * `DATABASE_URL` (dev Neon) is set at job level, so every step, including the agent (allow-list includes `pnpm *`/`npx *`), can read it. Recommended: scope it to steps that need it, or drop it if the agent needs no database access. Mitigated today by dev-only scope.
   * `Bash(pnpm *)`/`Bash(npx *)` are broad (arbitrary scripts/packages); narrow if feasible.
