@@ -34,17 +34,17 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-78-M02 | Fix `claude.yml` exposure: scope or remove `DATABASE_URL`, narrow `pnpm`/`npx`, pin SHAs, check `id-token` | SEC | Adopted → F-SEC-002 | 2 SEC |
 | P-78-M03 | Dependabot or Renovate plus `pnpm audit` in CI, including Actions updates | SEC | Adopted, modified → F-SEC-004 (non-blocking runtime-path audit; Dependabot for npm and actions) | 2 SEC |
 | P-78-M04 | Security headers and baseline CSP (Clerk allowances), tested in Preview | SEC | Adopted, modified → F-SEC-005 (headers now; CSP report-only with the real UI) | 2 SEC |
-| P-78-M05 | Restore drill: document and exercise one Neon point-in-time restore; confirm PITR window | DATA | Pending | |
-| P-78-M06 | Production migration procedure: who, how, verification | DATA | Pending | |
+| P-78-M05 | Restore drill: document and exercise one Neon point-in-time restore; confirm PITR window | DATA | Adopted, modified → F-DATA-002 (restore drill plus a free logical dump) | 2 DATA |
+| P-78-M06 | Production migration procedure: who, how, verification | DATA | Adopted → F-DATA-001 | 2 DATA |
 | P-78-M07 | Error monitoring and structured logs with redaction | OPS | Pending | |
 | P-78-M08 | Rate limiting on `/api/v1` and auth-adjacent routes | SEC | Adopted, modified → F-SEC-006 (platform rate limit first; no new vendor) | 2 SEC |
 | P-78-M09 | Lazy env validation ships a broken prod env green; add post-deploy smoke check or health route | REL | Pending | |
 | P-78-M10 | Privacy basics before collecting member data: policy, terms, data inventory, deletion/export decision | AUTH | Pending | |
 | P-78-M11 | Automated accessibility check (jsx-a11y lint, axe in Playwright on key pages) | UX | Pending | |
-| P-78-M12 | Transaction decision: `neon-http` lacks interactive transactions vs `data-mutations.md` requirement | DATA | Pending | |
+| P-78-M12 | Transaction decision: `neon-http` lacks interactive transactions vs `data-mutations.md` requirement | DATA | Resolved → F-DATA-010 (`AtomicRunner`, `db.batch`; limit recorded) | 2 DATA |
 | P-78-M13 | Deny-by-default authorization test pattern in the service layer before the first role-based feature | AUTH | Pending | |
 | P-78-M14 | Clerk-to-Neon webhook handling if app data keys off users: signature, idempotency, replay | AUTH | Pending | |
-| P-78-M15 | Least-privilege DB roles (separate migration and runtime users) | DATA | Pending | |
+| P-78-M15 | Least-privilege DB roles (separate migration and runtime users) | DATA | Adopted → F-DATA-005 (Low confidence until roles are read) | 2 DATA |
 
 ## Issue #78 later maturity practices (trigger-gated)
 
@@ -88,7 +88,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CH-05 | Threat / abuse modeling | AUTH/SEC |  | Partly covered by F-SEC-002 and F-SEC-006 (attack paths); formal threat and abuse model pending AUTH and Pass 3 | 2 SEC |
 | P-CH-06 | Authorization matrices and deny-by-default server enforcement | AUTH | P-78-M13 | Pending | |
 | P-CH-07 | Data classification, lifecycle, privacy | AUTH/DATA | P-78-M10, P-78-T11 | Pending | |
-| P-CH-08 | Migrations, backup and tested restore | DATA | P-78-M05, P-78-M06 | Pending | |
+| P-CH-08 | Migrations, backup and tested restore | DATA | P-78-M05, P-78-M06 | Adopted → F-DATA-001, F-DATA-002, F-DATA-003 | 2 DATA |
 | P-CH-09 | Idempotency and concurrency | ARCH/DATA | P-78-M12 | Pending | |
 | P-CH-10 | Time and identifier conventions | ARCH | | Pending | |
 | P-CH-11 | External dependency failure handling | ARCH/OPS | P-78-T10 | Pending | |
@@ -108,9 +108,9 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CH-25 | Institutional-memory survival | DEVOS | | Merged → F-DEVOS-003 (task-to-doc map; about 63,000 tokens of required reading), F-DEVOS-005 (the memory file is overwritten per slice), and F-SEC-007 (single owner, credentials) | 2 DEVOS |
 | P-CH-26 | Emergency access recovery | SEC/OPS |  | Merged → F-SEC-007 | 2 SEC |
 | P-CH-27 | Credential and key lifecycle | SEC |  | Merged → F-SEC-007 | 2 SEC |
-| P-CH-28 | Silent data-corruption detection | DATA | | Pending | |
+| P-CH-28 | Silent data-corruption detection | DATA | | Deferred → F-DATA-009 | 2 DATA |
 | P-CH-29 | Blast-radius containment | SEC/OPS | P-78-M15 | Partly → F-SEC-001, F-SEC-002 (agent blast radius); DB roles pending DATA | 2 SEC |
-| P-CH-30 | Vendor exit and data portability | DATA/OPS | | Pending | |
+| P-CH-30 | Vendor exit and data portability | DATA/OPS | | Deferred → F-DATA-009; dump in F-DATA-002; topology F-DATA-006 | 2 DATA |
 | P-CH-31 | Operational kill switches | OPS | | Pending | |
 | P-CH-32 | Safe bulk operations | OPS/DATA | | Pending | |
 | P-CH-33 | Legal and compliance triggers | AUTH/REQ | P-78-M10 | Pending | |
@@ -136,9 +136,9 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-GAP-01 | No real Clerk-authenticated mobile call exists | ARCH/AUTH | Pending | |
 | P-GAP-02 | No CI job for integration/E2E (needs secrets) | TEST/REL | Pending | |
 | P-GAP-03 | Stage hosting mechanism undecided | REL | Pending | |
-| P-GAP-04 | Production migration procedure not automated or defined | DATA | Pending | |
+| P-GAP-04 | Production migration procedure not automated or defined | DATA | Adopted → F-DATA-001 | 2 DATA |
 | P-GAP-05 | `docs/deployment.md` section 7 stale about `ci.yml` | DEVOS | Adopted → F-DEVOS-003 (confirmed, ledger C-22; fix in the reconciliation slice) | 2 DEVOS |
-| P-GAP-06 | `neon-http` cannot do interactive transactions; decision needed before first mutation feature (historical; check current `AtomicRunner`) | DATA | Pending | |
+| P-GAP-06 | `neon-http` cannot do interactive transactions; decision needed before first mutation feature (historical; check current `AtomicRunner`) | DATA | Resolved → F-DATA-010 | 2 DATA |
 | P-GAP-07 | `APP_ENVS` in shared duplicates `DATABASE_ENVS` in `apps/web/db/env.ts` (historical; check whether consolidated) | CODE | Pending | |
 | P-GAP-08 | Package scope `@signalone/*` embeds the application name (addressed by init `--scope`; verify) | BOIL | Pending | |
 | P-GAP-09 | Boilerplate maintenance rules: proof paths manifest, markers, `prove:init --full` only on material change; re-export whenever the foundation changes (**export not refreshed since 2026-10-01**, `progress.md` fact 5) | BOIL | Pending | |
@@ -153,7 +153,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-SEC-04 | Floating action tags; pin to SHAs | SEC | Adopted → F-SEC-002, F-SEC-004 | 2 SEC |
 | P-SEC-05 | `claude-code-review.yml` has read-only permissions (recorded as correct) | SEC | Confirmed correct (read-only contents, PRs, issues; carries id-token write); no finding | 2 SEC |
 | P-SEC-06 | Gaps: rate limiting, security headers/CSP, audit logging, automated dependency scanning; API: no rate limiting, CORS, request logging | SEC | Merged → F-SEC-004, F-SEC-005, F-SEC-006; CORS not needed for native clients (INFER, ARCH); logging and audit pending OPS, AUTH | 2 SEC |
-| P-SEC-07 | Least-privilege roles recommended, not configured | DATA | Pending | |
+| P-SEC-07 | Least-privilege roles recommended, not configured | DATA | Adopted → F-DATA-005 | 2 DATA |
 | P-SEC-08 | Static source-text security checks do not follow transitive imports; `server-only` is the build-time backstop | TEST/SEC | Pending | |
 
 ## Roadmap and notes (product inputs that engineering depends on)

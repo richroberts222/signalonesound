@@ -201,7 +201,7 @@ Second-hand read of an owner screenshot. No setting was changed.
 | State in captured view | `production` active; `dev`, `qa`, `stage` idle | Point-in-time view. Not evidence of usage or of data. |
 
 Audit reading:
-* U-04 is answered for existence and topology. The `prod` vs `production` difference is doc drift in `docs/database.md` and `docs/new-app-setup.md` (F-DEVOS-003 class), carried to DATA. It is naming only, unless commands or scripts depend on the literal name `prod`. That has not been checked here.
+* U-04 is answered for existence and topology. The `prod` vs `production` difference was first read as doc drift; **corrected in DATA (F-DATA-011)**: `docs/database.md:73` already documents the mapping and no code reads a branch name. It is naming only, unless commands or scripts depend on the literal name `prod`. That has not been checked here.
 * Child branches inherit data from the parent at creation. Whether `dev`, `qa`, `stage` hold copies of anything from `production` is unknown (U-07).
 * This does NOT show that Vercel Preview `DATABASE_URL` points at `qa`, or that any role is scoped to one branch (U-02, U-05, U-15 remain open).
 * No severity assigned.

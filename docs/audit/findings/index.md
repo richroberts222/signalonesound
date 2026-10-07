@@ -4,7 +4,7 @@ One line per finding. The finding's home is `findings/<CODE>.md`; this file neve
 
 Conventions: `methodology.md` section 6. IDs are never reused or renumbered. Merged, rejected, and superseded findings move to the Tombstones table with a pointer.
 
-Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS.
+Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA.
 
 ## Active findings
 
@@ -30,6 +30,17 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | F-DEVOS-007 | Risk-based gates by path (workflows, migrations, authorization) | Low | DEFER | Trigger: first product migration or role-based feature | Draft | |
 | F-DEVOS-008 | Human-only merge, one PR per issue, GitHub-first handoff followed in practice | Info | KEEP | n/a | Draft | |
 | F-DEVOS-009 | Process weight right-sized for a team of one; parallel work genuinely used | Info | KEEP | n/a | Draft | |
+| F-DATA-001 | No production migration procedure; no route by which any pipeline applies migrations | Medium | ADD | Before real data | Draft | |
+| F-DATA-002 | Recovery margin: 6-hour window, no snapshot, unprotected root branch, restore never exercised | Medium | ADD | Before real data | Draft | |
+| F-DATA-003 | CI never applies migrations or checks drift; tooling runs only against Neon over HTTP | Medium | ADD | Now | Draft | |
+| F-DATA-004 | Destructive-tooling guard trusts a label nothing verifies against the database | Medium | ADD | Before real data | Draft | |
+| F-DATA-005 | No evidence of role separation; one credential per branch is the access boundary | Medium | ADD | Before real data | Draft | |
+| F-DATA-006 | Branch topology makes `production` the parent of dev, qa and stage | Low | IMPROVE | Before real data | Draft | |
+| F-DATA-007 | `db:reset` truncates every table in `public`, including extension-owned tables | Low | IMPROVE | Trigger: first extension installed | Draft | |
+| F-DATA-008 | Spatial and search data model undecided; extension availability unverified | Low | DEFER | Trigger: before first event or location table | Draft | |
+| F-DATA-009 | No data-lifecycle rules: retention, deletion, export, vendor exit, corruption detection | Low | DEFER | Trigger: first user-owned real data | Draft | |
+| F-DATA-010 | Data layer foundations are sound | Info | KEEP | n/a | Draft | |
+| F-DATA-011 | Root branch name `production` is documented; nothing depends on it | Info | KEEP | n/a | Draft | |
 
 ## Tombstones
 
@@ -43,6 +54,6 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | --- | --- | --- | --- | --- | --- |
 | Critical | 0 | 0 | 0 | 0 | 0 |
 | High | 2 | 0 | 0 | 0 | 0 |
-| Medium | 8 | 0 | 0 | 0 | 0 |
-| Low | 5 | 0 | 0 | 0 | 0 |
-| Info | 5 | 0 | 0 | 0 | 0 |
+| Medium | 13 | 0 | 0 | 0 | 0 |
+| Low | 9 | 0 | 0 | 0 | 0 |
+| Info | 7 | 0 | 0 | 0 | 0 |
