@@ -171,6 +171,25 @@ Audit reading:
 
 Remaining Neon facts (names and yes/no only, no secrets): the four branch names; whether a restore was ever exercised; roles per branch; whether Preview's `DATABASE_URL` uses a non-`production` branch role; whether any real data exists on `production`; extension availability.
 
+### Neon extension query relayed 2026-10-07 (direct read-only SQL, owner-run)
+
+Owner ran `SELECT extname, extversion FROM pg_extension WHERE extname IN ('postgis', 'pg_trgm') ORDER BY extname;` in the Neon SQL editor on the `production` branch. Neon reported success with no rows. No mutation was performed. Grade: owner-run read-only SQL, relayed second-hand (stronger than a screenshot of settings, weaker than output I read myself).
+
+| Item | Observed | Reading |
+| --- | --- | --- |
+| `postgis` installed on `production` | No | Fact. |
+| `pg_trgm` installed on `production` | No | Fact. |
+
+Audit reading:
+* This answers "installed", not "available". An empty `pg_extension` result says nothing about whether Neon offers either extension on this plan or version. Do not read it as "Neon cannot do geospatial or fuzzy search".
+* It is expected, not a defect. No migration creates either extension, and there is no geo or event table yet (repo fact pass `4defcf8`). The Phase 1 map and radius search need a spatial approach, so the choice is still open (OPEN, owned by me in DATA): PostGIS, or plain latitude/longitude with built-in distance functions. This is a design call for later and is not made here.
+* Only `production` was queried. Other branches may differ, and extensions are per database, so a later `CREATE EXTENSION` must go through a Drizzle migration on every branch, not by hand.
+* The relevance conclusion that PostGIS stays a live option is unchanged. Its availability is still UNVERIFIED.
+
+Cheapest next fact, read-only and needing no secret: `SELECT name, default_version FROM pg_available_extensions WHERE name IN ('postgis','pg_trgm','cube','earthdistance') ORDER BY name;`. Do not run `CREATE EXTENSION`.
+
+Remaining Neon facts (names and yes/no only, no secrets): the four branch names; whether a restore was ever exercised; roles per branch; whether Preview's `DATABASE_URL` uses a non-`production` branch role; whether any real data exists on `production`; extension availability (query above).
+
 ## Clerk
 
 | Item | Observed | How |
