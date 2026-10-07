@@ -104,6 +104,22 @@ Audit reading:
 
 Effect on the register: U-01 partly answered (commit and recency yes, trigger no). U-21 is still open. Step 1 stays AMBER.
 
+### Vercel team membership (UI-RELAY, 2026-10-07)
+
+Grade: UI-RELAY, a second-hand read of Team Settings > Members in owner screenshots. No setting was changed.
+
+Relayed: exactly one team member (Rich's account), role Owner. The member row shows 2FA with an X, meaning 2FA is not enabled for that account in the displayed state. Inviting more members is shown as a Pro-plan feature. No pending invitation is evidenced.
+
+Audit reading:
+* **Single point of failure (INFER, fits U-17).** One Owner, no second member, and no recovery arrangement evidenced. Loss of that account means loss of the deploy, rollback and environment-variable surface. The platform cannot add a second member on the apparent plan.
+* **No 2FA on the only Owner account is a concrete credential-lifecycle gap.** It is the account that holds production environment variables (Clerk secret key) and deploy rights. This strengthens F-SEC-007 (credential lifecycle) and goes to SEC/OPS carry-forward. Whether 2FA is truly off is not API-verified; the X indicator is the only evidence. Whether Vercel login is via GitHub (where 2FA may be enforced upstream) is unknown and would change the reading.
+* **Permissions question (fact 6) is largely answered:** with one Owner, Rich holds deploy, rollback and Force Promote. Spend limit is still unknown.
+* **Plan tier:** the Pro-gated invite message is consistent with a non-Pro plan (fact 8, still INFER).
+
+Remaining Vercel facts: Preview `DATABASE_URL` branch name, Clerk key prefixes and whether shared, Sensitive and per-environment scoping, Production protection (U-21), Shareable Link existence, spend limit, and how the Owner logs in (GitHub, email, passkey).
+
+Engineering recommendation (not applied): enable 2FA or a passkey on the Owner account and store recovery codes offline. This is a free account action only Rich can perform. It involves no spend and no product choice.
+
 ## Neon (partly RUN through the local dev configuration)
 
 | Item | Observed | How |
