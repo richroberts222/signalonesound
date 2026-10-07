@@ -190,6 +190,24 @@ Cheapest next fact, read-only and needing no secret: `SELECT name, default_versi
 
 Remaining Neon facts (names and yes/no only, no secrets): the four branch names; whether a restore was ever exercised; roles per branch; whether Preview's `DATABASE_URL` uses a non-`production` branch role; whether any real data exists on `production`; extension availability (query above).
 
+### Neon branch topology relayed 2026-10-07 (owner screenshot, UI-RELAY)
+
+Second-hand read of an owner screenshot. No setting was changed.
+
+| Item | Observed | Reading |
+| --- | --- | --- |
+| Branch count and names | Exactly 4: `production` (Default), `dev`, `qa`, `stage` | Fact (UI-RELAY). Names for `dev`, `qa`, `stage` match `docs/database.md`. The root is `production`, not the documented `prod`. |
+| Parentage | `dev`, `qa`, `stage` each show `production` as parent (UI truncates to "produ..."). `production` has no parent | Fact (UI-RELAY). Matches the documented parent/child shape, with the root named differently. |
+| State in captured view | `production` active; `dev`, `qa`, `stage` idle | Point-in-time view. Not evidence of usage or of data. |
+
+Audit reading:
+* U-04 is answered for existence and topology. The `prod` vs `production` difference is doc drift in `docs/database.md` and `docs/new-app-setup.md` (F-DEVOS-003 class), carried to DATA. It is naming only, unless commands or scripts depend on the literal name `prod`. That has not been checked here.
+* Child branches inherit data from the parent at creation. Whether `dev`, `qa`, `stage` hold copies of anything from `production` is unknown (U-07).
+* This does NOT show that Vercel Preview `DATABASE_URL` points at `qa`, or that any role is scoped to one branch (U-02, U-05, U-15 remain open).
+* No severity assigned.
+
+Remaining Neon facts (names and yes/no only, no secrets): whether a restore was ever exercised; roles per branch; whether Preview's `DATABASE_URL` uses the `qa` branch role; whether any real data exists on `production`; extension availability (query above).
+
 ## Clerk
 
 | Item | Observed | How |
