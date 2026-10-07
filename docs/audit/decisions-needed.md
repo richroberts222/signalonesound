@@ -147,6 +147,12 @@ After it merges to `main`, PR #82's branch must be updated from `main` (merge or
 2. Remove. Delete the workflow and the three doc references. Cost: nothing is lost that is visible today; benefit: no false assurance and no idle spend.
 3. Keep as is. Accepts a green check that carries no information.
 
-**Blocks**: the final wording of F-DEVOS-001's recommendation only.
+**Decision (2026-10-07, engineering call under the adopted decision model): Option 2, remove.**
 
-**Status**: Open.
+Evidence: (1) U-25 answered by Rich: automated review was never part of the workflow; Claude simply implemented each PR, so no process depends on it and nothing visible is lost. (2) The workflow is the stock vendor template. Its job grants only `pull-requests: read`, and the single allowed tool is the inline-comment tool, so whether it can post at all is unproven; it has produced no visible output on six PRs (F-DEVOS-001). (3) A same-model second look on agent-authored PRs adds little independence, and a green check that carries no information is false assurance. (4) Review evidence is better obtained from the authoritative CI gate plus the single independent adversarial pass reserved for Step 7, not from a per-PR bot.
+
+Follow-up (human-applied, because the agent cannot edit `.github/workflows`): delete `.github/workflows/claude-code-review.yml`; remove or reword the references in `docs/stack.md:103`, `docs/deployment.md:94`, `docs/security.md:96`, and check the mention at `docs/boilerplate.md:74`. Needs its own issue and PR; do not bundle with Q-002. Draft issue title: "Remove the silent Claude Code Review workflow and its doc references". Done when the file and references are gone, `Validate` is no worse than before, and no doc claims automated review exists. Reopen trigger: a concrete need for per-PR automated review, with a proof PR carrying a deliberate defect that produces a visible comment.
+
+**Blocks**: nothing further. F-DEVOS-001's recommendation is now final: remove the bot; review evidence comes from required CI checks and the Step 7 audit.
+
+**Status**: Decided (not yet applied).
