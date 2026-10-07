@@ -1,16 +1,19 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { join, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 
 // Static guard: client-reachable code must not touch server-only modules or
 // secret variables. Validation logic itself is tested in @signalone/shared.
 const root = join(__dirname, "../..");
 
+// Posix-style paths keep the regex checks below identical on Windows.
+const posix = (p: string) => p.split(sep).join("/");
+
 const files = (dir: string): string[] =>
   readdirSync(dir).flatMap((name) => {
     const path = join(dir, name);
     if (statSync(path).isDirectory()) return files(path);
-    return /\.(tsx?|mjs)$/.test(name) && !/\.test\.tsx?$/.test(name) ? [path] : [];
+    return /\.(tsx?|mjs)$/.test(name) && !/\.test\.tsx?$/.test(name) ? [posix(path)] : [];
   });
 
 const read = (path: string) => readFileSync(path, "utf8");

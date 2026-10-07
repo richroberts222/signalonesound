@@ -1,5 +1,5 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join, relative, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 
 // Static repository checks for the security foundation (/docs/security.md).
@@ -8,18 +8,22 @@ const repo = join(__dirname, "../../..");
 const web = join(repo, "apps/web");
 const SKIP = new Set(["node_modules", ".next", ".git", ".turbo", "dist"]);
 
+// Paths are compared and matched as posix strings so the checks behave the same on Windows.
+const posix = (p: string) => p.split(sep).join("/");
+const relTo = (base: string, p: string) => posix(relative(base, p));
+
 const walk = (dir: string): string[] =>
   readdirSync(dir).flatMap((name) => {
     if (SKIP.has(name)) return [];
     const path = join(dir, name);
-    return statSync(path).isDirectory() ? walk(path) : [path];
+    return statSync(path).isDirectory() ? walk(path) : [posix(path)];
   });
 
 const read = (path: string) => readFileSync(path, "utf8");
 // Source with comments removed, so prose mentioning a name is not a real use.
 const code = (path: string) =>
   read(path).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-const rel = (p: string) => relative(repo, p);
+const rel = (p: string) => relTo(repo, p);
 // Test support code (shared Vitest helpers with fake fixtures) counts as test code.
 const isTest = (f: string) => /\.test\.tsx?$/.test(f) || /packages\/shared\/src\/testing\//.test(f);
 const sources = (dir: string) => walk(dir).filter((f) => /\.(tsx?|mjs)$/.test(f));
@@ -62,7 +66,7 @@ describe("server-only modules", () => {
   const serverOnly = sources(web).filter((f) => /^import "server-only";/m.test(read(f)));
 
   it("exist for env and db", () => {
-    const names = serverOnly.map((f) => relative(web, f));
+    const names = serverOnly.map((f) => relTo(web, f));
     expect(names).toEqual(expect.arrayContaining(["lib/env/server.ts", "db/index.ts"]));
   });
 
@@ -72,7 +76,7 @@ describe("server-only modules", () => {
     const allowed = ["lib/env/server.ts", "db/index.ts", "db/env.ts", "drizzle.config.ts", "scripts/db-check.ts"];    const offenders = sources(web)
       .filter((f) => !isTest(f))
       .filter((f) => /process\.env\.(DATABASE_URL|CLERK_SECRET_KEY)|["']DATABASE_URL["']/.test(read(f)))
-      .map((f) => relative(web, f))
+      .map((f) => relTo(web, f))
       .filter((f) => !allowed.includes(f));
     expect(offenders).toEqual([]);
   });
@@ -83,7 +87,7 @@ describe("server-only modules", () => {
       .filter((f) => !isTest(f))
       .filter((f) => /^["']use client["']/m.test(read(f)))
       .filter((f) => forbidden.test(read(f)))
-      .map((f) => relative(web, f));
+      .map((f) => relTo(web, f));
     expect(offenders).toEqual([]);
   });
 
