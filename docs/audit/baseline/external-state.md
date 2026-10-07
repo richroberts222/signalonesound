@@ -141,12 +141,14 @@ Second-hand read of owner screenshots. No setting was changed. Project and branc
 | Branch protection on `production` | "Not protected" | Fact. Neon's protection limits deletion and reset-type actions. As I recall it, protected branches are plan-dependent (UNVERIFIED). Whether protection is available on this plan is unknown. INFER: the data branch can be deleted or reset from the console by the owner. |
 | Branch expiration | "Never expires" | Good. No automatic deletion. |
 | Region | not visible | Still needed. |
+| Restore window on `production` (Backup & Restore) | "Restore from history": instantly restore the branch to any point in the past **6 hour** history window. Preview-data / Restore is offered. Snapshots: none exist, no schedule set, schedules are offered as an upgrade. | Fact (UI-RELAY): visible point-in-time window is 6 hours. Partly answers U-08. INFER: a mistake, bad migration or deletion noticed after more than 6 hours cannot be undone from Neon history, and no snapshot exists as a fallback. A short window is consistent with a free or low plan, but the plan tier is not shown (UNVERIFIED). Whether a restore has ever been exercised is still unknown. |
 
 Audit reading:
 * The root data branch is unprotected. This is a console-level safeguard, not an application control, so it matters most for OPS (accidental deletion by the only owner, U-17). Severity not assigned here. It carries forward to DATA and OPS.
+* The 6-hour restore window with no snapshots is a narrow recovery margin for the root data branch. Combined with no branch protection and one owner (U-17), it carries forward to DATA and OPS. Severity not assigned here; it matters mainly once real data exists (U-07).
 * The branch name mismatch with the docs is a candidate doc-drift item for DATA (F-DEVOS-003 class), to be checked against the branch list.
 
-Remaining Neon facts (names and yes/no only, no secrets): other branch names; Region; plan tier; point-in-time restore window; roles per branch; whether Preview's `DATABASE_URL` uses a non-`production` branch role; whether any real data exists on `production`.
+Remaining Neon facts (names and yes/no only, no secrets): other branch names; Region; plan tier; whether a restore was ever exercised (window now known: 6 hours); roles per branch; whether Preview's `DATABASE_URL` uses a non-`production` branch role; whether any real data exists on `production`.
 
 ## Clerk
 
