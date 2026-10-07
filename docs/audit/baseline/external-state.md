@@ -130,6 +130,24 @@ Engineering recommendation (not applied): enable 2FA or a passkey on the Owner a
 | Backups, point-in-time restore window, any restore ever performed | not observable; `docs/database.md` 12.3 states restore is "not yet documented/exercised" | UNVERIFIED (U-08) |
 | Least-privilege roles (separate migration and runtime users) | not observable; docs say "recommended but not configured" | UNVERIFIED (U-09) |
 
+### Neon console evidence relayed 2026-10-07 (UI-RELAY)
+
+Second-hand read of owner screenshots. No setting was changed. Project and branch identifiers were deliberately not relayed and are not needed.
+
+| Item | Observed | Reading |
+| --- | --- | --- |
+| Project | `SignalOneSound`; selected branch named `production` | Branch is named `production`, while `docs/database.md` and `docs/new-app-setup.md` say `prod`. Naming drift or a different branch from the documented one. Not resolved (U-04). |
+| Default (root) branch | `production` is the project's Default branch | Partly answers U-04: `production` is the root. Whether `dev`, `qa`, `stage` exist as children is not shown. |
+| Branch protection on `production` | "Not protected" | Fact. Neon's protection limits deletion and reset-type actions. As I recall it, protected branches are plan-dependent (UNVERIFIED). Whether protection is available on this plan is unknown. INFER: the data branch can be deleted or reset from the console by the owner. |
+| Branch expiration | "Never expires" | Good. No automatic deletion. |
+| Region | not visible | Still needed. |
+
+Audit reading:
+* The root data branch is unprotected. This is a console-level safeguard, not an application control, so it matters most for OPS (accidental deletion by the only owner, U-17). Severity not assigned here. It carries forward to DATA and OPS.
+* The branch name mismatch with the docs is a candidate doc-drift item for DATA (F-DEVOS-003 class), to be checked against the branch list.
+
+Remaining Neon facts (names and yes/no only, no secrets): other branch names; Region; plan tier; point-in-time restore window; roles per branch; whether Preview's `DATABASE_URL` uses a non-`production` branch role; whether any real data exists on `production`.
+
 ## Clerk
 
 | Item | Observed | How |
