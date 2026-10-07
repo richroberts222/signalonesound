@@ -148,7 +148,28 @@ Audit reading:
 * The 6-hour restore window with no snapshots is a narrow recovery margin for the root data branch. Combined with no branch protection and one owner (U-17), it carries forward to DATA and OPS. Severity not assigned here; it matters mainly once real data exists (U-07).
 * The branch name mismatch with the docs is a candidate doc-drift item for DATA (F-DEVOS-003 class), to be checked against the branch list.
 
-Remaining Neon facts (names and yes/no only, no secrets): other branch names; Region; plan tier; whether a restore was ever exercised (window now known: 6 hours); roles per branch; whether Preview's `DATABASE_URL` uses a non-`production` branch role; whether any real data exists on `production`.
+### Neon branch overview relayed 2026-10-07 (UI-RELAY)
+
+Second-hand read of owner screenshots. No setting was changed.
+
+| Item | Observed | Reading |
+| --- | --- | --- |
+| Plan | Neon Free | Fact (UI-RELAY). Answers the plan-tier half of U-08. Consistent with the 6 hour history window and with schedules being offered as an upgrade. Plan limits (compute hours, storage, branch count) are UNVERIFIED from memory and not relied on. |
+| Region | AWS US West 2 (Oregon) | Fact (UI-RELAY). Region of the Vercel Functions is not yet known, so function-to-database co-location is unverified (REL, DATA). |
+| Branches | 4 | Count only. Names not shown. Consistent with the documented `dev`, `qa`, `stage` plus the root, but the names are unconfirmed (U-04). |
+| Default branch | `production` | Matches the earlier relay. |
+| IP restrictions | None set | Fact. The database accepts connections from any IP that holds valid credentials. This is the Neon default and is expected with serverless Vercel egress. Credential strength and role scope (U-05, U-09, U-15) therefore carry the whole access boundary. Not a defect by itself; a candidate hardening note for DATA/SEC. IP allow-listing availability on the Free plan is UNVERIFIED. |
+| Compute | default 0.25 to 2 CU (autoscaling range); 1 compute on `production` | Fact. Free-plan scale-to-zero cold starts are plausible but UNVERIFIED here. |
+| History retention | 6 hours | Confirms the earlier restore-window relay. |
+| PostgreSQL version | 18 | Fact. Compare with the local, CI and migration tooling target during DATA. Extension availability (PostGIS, pg_trgm) is still UNVERIFIED. |
+| `production` contents | 1 database, 1 compute, never expires | Fact. Whether the database holds any real data is not shown (U-07). |
+
+Audit reading:
+* Free plan explains the narrow recovery margin and the missing branch protection and snapshot schedules. It does not remove the risk. It means the controls would need a paid plan (spend, a Rich decision) or compensating practice (an exported dump before risky migrations), to be decided in OPS/DATA.
+* No IP restriction is normal for this architecture. The finding, if any, is about role separation, not network scope.
+* Free plan for a store-facing launch is a readiness question for REL and OPS, not a defect today.
+
+Remaining Neon facts (names and yes/no only, no secrets): the four branch names; whether a restore was ever exercised; roles per branch; whether Preview's `DATABASE_URL` uses a non-`production` branch role; whether any real data exists on `production`; extension availability.
 
 ## Clerk
 
