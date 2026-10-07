@@ -47,7 +47,7 @@ Grade: UI-RELAY. The operator read screenshots supplied by Rich and reported nam
 | Item | Relayed observation | Audit reading |
 | --- | --- | --- |
 | Environments | Production, Preview, Development | Matches the expected model |
-| Production | tied to `main`; `signalonesound.vercel.app` plus two more domains indicated | U-20 partly answered: at least one extra domain may exist, names unknown |
+| Production | tied to `main`; `signalonesound.vercel.app`. The first relay read the summary "+2" as two more domains; **corrected 2026-10-07** (see correction below) | U-20 answered by UI-RELAY: no custom production domain is evidenced |
 | Preview | applies to unassigned Git branches; no custom domains | Consistent with CONSOLE (Vercel Authentication on previews) |
 | Development | CLI only; no custom domains | Expected |
 | Production variable names | `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` only | **No `DATABASE_URL`, `DATABASE_ENV` or `APP_ENV` in Production.** Either production has no database wired yet, or the variables sit under another scope not shown. Consistent with `docs/database.md` saying only `dev` is migrated. Needs confirming (see below). |
@@ -56,6 +56,12 @@ Grade: UI-RELAY. The operator read screenshots supplied by Rich and reported nam
 | System environment variables | "Enable access to System Environment Variables" checked | Vercel default; exposes `VERCEL_*` metadata to builds. Low concern, recorded for completeness. |
 
 Effect on the register: U-02 is **partly answered** (names yes, values no). U-03 is **partly answered** (production is not configured with database variables; Clerk key type unknown). U-20 is **partly answered**. U-01 and U-21 are not answered by this evidence.
+
+### Correction: Production domains (UI-RELAY, 2026-10-07)
+
+Rich opened Settings > Environments > Production. The Domains section shows exactly one assigned domain, `signalonesound.vercel.app`, with an Add Domain button. The "+2" in the environment summary is therefore **not** two extra domains (its meaning is unknown, likely something else in the summary row). Same grade as above: second-hand screenshot read, no settings changed.
+
+Effect: no custom production domain is evidenced. U-20 is answered as "none". Consequences, as INFERENCE: Production is served from a `*.vercel.app` URL, Clerk cannot yet have a real production domain, so production launch readiness (REL) is not met. Earlier statements here and in `progress.md` that implied extra domains should be read as superseded. U-21 stays open.
 
 ### Vercel Deployment Protection, relayed by the operator from owner screenshots (UI-RELAY, 2026-10-07)
 
@@ -81,7 +87,7 @@ Still needed from Vercel (a human with the dashboard, one fact each, no secrets 
 1. Preview `DATABASE_URL`: which Neon branch or role name does it end in (not the password)? Expected `qa`.
 2. Production and Preview `CLERK_SECRET_KEY` / publishable key: does each begin with `sk_test_`/`pk_test_` or `sk_live_`/`pk_live_`? Only the first characters are needed, never the whole value. Concern if Preview and Production share the same key.
 3. Are the three variables above marked Sensitive, and is each scoped to exactly one environment (not "All Environments")?
-4. The two extra production domain names, and whether Production is behind Deployment Protection (U-21).
+4. ~~The two extra production domain names~~ (withdrawn, see correction below). Still needed: whether Production is behind Deployment Protection (U-21).
 5. Last Production deployment: date and commit (U-01).
 6. Who holds the Production deploy, rollback and Force Promote permissions; team members and spend limit (U-17, U-18).
 
