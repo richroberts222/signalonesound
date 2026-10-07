@@ -220,6 +220,28 @@ Resolve contradictions; sequence dependencies; set final statuses; write `roadma
 
 ---
 
+## 5A. Standards and rule-integrity reconciliation gate
+
+Before Pass 5 can converge, the audit must explicitly reconcile the development operating system and every material rule/control against applicable external authority. This is not a citation exercise. Its purpose is to answer both whether the rule is sound and whether the repository actually enforces what the rule claims.
+
+For each material rule or control, record:
+
+1. **Rule correctness** — Is the rule itself sound, current, proportionate, and compatible with Signal One's web, installed-mobile, boilerplate, and solo-owner operating realities?
+2. **Authority** — Identify the strongest applicable source class: current final standard; official vendor/platform guidance; established engineering practice where no formal authority governs; or Signal One-specific operating policy. Draft/future standards may inform direction but must not be represented as current final requirements.
+3. **Enforcement** — Classify the rule as machine-enforced, externally enforced, process-enforced with observable evidence, prose-only, partially enforced, or contradicted by actual configuration/history.
+4. **Drift** — Determine whether docs, code, tests, workflows, repository settings, vendor configuration, and observed history agree. A stale statement must not remain authoritative merely because it is documented.
+5. **Conflict** — Where Fabel/audit evidence, an existing Signal One rule, an external authority, vendor guidance, or independent model analyses disagree, record the disagreement and resolve it by evidence and applicability rather than model agreement.
+6. **Action** — Classify the result as: correct + enforced (keep); correct + weak/not enforced (add enforcement); incorrect/outdated + enforced (fix rule and enforcement); incorrect/outdated + not enforced (replace/remove); or Signal One-specific with no external authority (justify from engineering evidence and workflow needs).
+7. **Verification** — Define how the corrected rule/control will be proven after implementation and how future drift will be detected where practical.
+
+Fabel's findings that rules are weak, contradictory, stale, or only prose are mandatory inputs to this reconciliation and may not be closed merely by adding standards citations. Existing CLAUDE.md and docs material remains in scope even when no external standard speaks to it.
+
+The independent GPT and Claude authority passes must be preserved as independent inputs before comparison. Agreement between models is corroboration, not proof. Primary standards and official vendor sources outrank model judgment for claims they actually govern; repository evidence outranks prose claims about the repository's current state.
+
+**Pass 5 coverage gate:** no Critical/High rule-integrity finding and no material DEVOS/SEC/REL/BOIL rule claim may reach final convergence without this reconciliation. The roadmap must distinguish rule correction from enforcement work so an implementation issue cannot satisfy one while silently leaving the other unresolved.
+
+---
+
 ## 6. Finding records
 
 ### Identity and lifecycle
