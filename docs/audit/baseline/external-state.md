@@ -57,6 +57,26 @@ Grade: UI-RELAY. The operator read screenshots supplied by Rich and reported nam
 
 Effect on the register: U-02 is **partly answered** (names yes, values no). U-03 is **partly answered** (production is not configured with database variables; Clerk key type unknown). U-20 is **partly answered**. U-01 and U-21 are not answered by this evidence.
 
+### Vercel Deployment Protection, relayed by the operator from owner screenshots (UI-RELAY, 2026-10-07)
+
+Grade: UI-RELAY, same limits as above. No settings were changed.
+
+| Item | Relayed observation | Audit reading |
+| --- | --- | --- |
+| Vercel Authentication | Enabled, "Require Log In", Standard Protection | Agrees with the CONSOLE `302` finding for Previews. Standard Protection is understood to cover Preview and generated deployment URLs and to leave the Production custom domain public. That is vendor behaviour from recall, UNVERIFIED. U-21 is therefore **not answered**: the Production domain may be public, which is expected for a launch but means F-SEC-005 and F-SEC-006 apply to it directly. |
+| Password Protection | Not enabled; shown as a Pro-plan feature | Suggests the project may not be on Pro (INFER). Plan tier is unconfirmed. If it is not Pro, rollback is limited to the previous deployment and rolling releases are unavailable. Needs confirming (U-17, U-18). |
+| Trusted IP | Not enabled; Enterprise feature | Not relevant at this scale. |
+| Protection Bypass for Automation | No secret configured | Good. There is no automation bypass token to leak. It also means automated tests cannot reach protected Previews. Playwright e2e against a Preview, if wanted later, needs a deliberate decision. |
+| Deployment Protection Exceptions | None shown | Good. No unprotected exception domains. |
+| OPTIONS Allowlist | Disabled | Cross-origin preflight to protected Previews gets the login redirect. Matters only if a browser or mobile web client calls a Preview API from another origin. Not a current concern. |
+| Protected Sourcemaps | Enabled | Good. Source maps are not served to the public. |
+| Trusted Sources | Contains this project; all tokens can access matching environments, and development tokens can access Preview | Weak point. Development-scope tokens can reach Preview. This fits the shared-credential concern (Preview and Development both hold Clerk keys). Impact depends on what a "token" is here and is UNVERIFIED. Record as a candidate item for AUTH and REL. |
+| Shareable Links | Section present; whether any link exists is unknown | Open. A shareable link bypasses Vercel Authentication for one Preview. Needs one fact: does any active link exist? |
+
+Effect on the register: U-21 stays open and now has a sharper question. Two new facts are needed:
+7. Does any Shareable Link exist and is it still active?
+8. Which Vercel plan is the team on (Hobby, Pro, Enterprise)?
+
 Still needed from Vercel (a human with the dashboard, one fact each, no secrets revealed):
 1. Preview `DATABASE_URL`: which Neon branch or role name does it end in (not the password)? Expected `qa`.
 2. Production and Preview `CLERK_SECRET_KEY` / publishable key: does each begin with `sk_test_`/`pk_test_` or `sk_live_`/`pk_live_`? Only the first characters are needed, never the whole value. Concern if Preview and Production share the same key.
