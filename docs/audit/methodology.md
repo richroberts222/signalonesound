@@ -240,6 +240,26 @@ The independent GPT and Claude authority passes must be preserved as independent
 
 **Pass 5 coverage gate:** no Critical/High rule-integrity finding and no material DEVOS/SEC/REL/BOIL rule claim may reach final convergence without this reconciliation. The roadmap must distinguish rule correction from enforcement work so an implementation issue cannot satisfy one while silently leaving the other unresolved.
 
+### Control-effectiveness proof
+
+After a rule/control is accepted and its enforcement exists, mechanically enforceable controls must be proven where safely practical by **control-effectiveness testing**, not merely by inspecting the enforcement implementation.
+
+The proof method is selected by control class rather than forcing every rule through a real repository branch:
+
+* Repo-owned checks use known-good and known-bad fixtures or policy-as-code tests in recurring CI.
+* Queryable platform settings use API/configuration inspection plus a targeted behavioral proof where mis-scoping or bypass is material.
+* Destructive or security-sensitive behavior uses an isolated scratch/ephemeral environment with synthetic data and least-privilege test credentials.
+* Real-repository temporary branches are reserved for integrations whose behavior cannot be proven faithfully elsewhere.
+* Human/process controls use observable sampling/review and must not be represented as mechanically enforced.
+
+A negative test is valid only when a known-good baseline passes, one controlled violation is introduced, the **intended detector** fails or blocks with detector-specific evidence (preferably a stable rule ID/message), unrelated required checks remain interpretable, and the compliant state passes again. A generic red CI result is not evidence that the intended control worked.
+
+Before ordinary feature development trusts the rewritten development operating system, the implementation roadmap must include a focused trust gate for the controls protecting **main-branch integrity, secrets/credentials, authoritative CI, and AI-agent permissions/boundaries**. Other enforceable controls should gain recurring regression proofs as the governed capability exists. Platform-setting drift should be checked periodically or on relevant configuration changes so a one-time certification cannot silently decay.
+
+The eventual rule-enforcement evidence should map, at minimum: rule ID; authority/source class; enforcement type; injected violation or inspection; expected detector/block; actual result and evidence; compliant baseline/control result; environment/date/version where relevant; cleanup for isolated tests; and status (Enforced, Partial, Detected-not-blocked, Not enforced, Human control).
+
+This design direction was accepted after an independent Claude challenge as **ADOPT WITH CHANGES**. That model verdict is not external authority: standards/vendor claims used to justify final controls must still be independently verified against current primary sources during the standards reconciliation.
+
 ---
 
 ## 6. Finding records
