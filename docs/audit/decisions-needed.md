@@ -36,7 +36,7 @@ Product questions carried from the mock slices (for example who counts as an adm
 
 **Blocks**: a green `Validate` on audit PR #82, and safe re-export of the boilerplate. (Updated 2026-10-06, DEVOS pass: this entry first said it blocked nothing in the audit. CI on the audit branch head is red: `test:boilerplate` fails 3 of 6 because files under `docs/audit/` contain the reference-app name and proof-slice terms that the init leak check refuses; the same suite is green at the baseline. The audit may not edit the manifest or the test. The PR is not to be merged before convergence anyway, so this is a visible red check, not an urgent break, but it will also make every later push red until option 1 or an equivalent lands. See F-DEVOS-002.)
 
-**Status**: Decided 2026-10-07 (engineering decision, Claude, under the adopted decision model): option 1. Not yet applied; it needs its own issue and PR because it edits `scripts/boilerplate/manifest.mjs`, outside `docs/audit/`. The audit does not edit the manifest or the leak test.
+**Status**: Decided 2026-10-07 (engineering decision, Claude, under the adopted decision model): option 1. **Applied 2026-10-07** through issue #83 and PR #84 (merged): `docs/audit` added to `REFERENCE_ONLY_PATHS` in `scripts/boilerplate/manifest.mjs`. The charter file `docs/fable-audit-charter.md` was not part of that change. The audit itself does not edit the manifest or the leak test.
 
 **Draft issue for the operator to open** (plain language; no test is weakened):
 
@@ -113,7 +113,7 @@ After it merges to `main`, PR #82's branch must be updated from `main` (merge or
 
 **Blocks**: nothing. Reduces Rich's manual verification load if yes.
 
-**Status**: Open.
+**Status**: Answered 2026-10-07 (owner action): read-only Vercel access exists through the Vercel MCP server and CLI on the owner's machine (project `signalonesound`, team `team-jesus5`). Use is read-only: project settings, deployments, logs, environment variable names and targets, never values. Several UNVERIFIED rows can now move to CONSOLE.
 
 ---
 

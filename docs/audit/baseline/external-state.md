@@ -8,8 +8,8 @@ What the audit could read about systems outside the repository, how, and when; t
 | --- | --- | --- |
 | Visibility | **public** | `repos/<r>` |
 | Default branch | `main` | `repos/<r>` |
-| Branch protection on `main` | none (404 "Branch not protected") | `repos/<r>/branches/main/protection` |
-| Rulesets | none | `repos/<r>/rulesets` |
+| Branch protection on `main` | none (404 "Branch not protected"); **superseded 2026-10-07, see read-back below** | `repos/<r>/branches/main/protection` |
+| Rulesets | none; **superseded 2026-10-07, see read-back below** | `repos/<r>/rulesets` |
 | Merge methods allowed | merge commit, squash, rebase all enabled | `repos/<r>` |
 | Auto-merge / delete branch on merge | both off | `repos/<r>` |
 | Collaborators | richroberts222 (admin) only | `repos/<r>/collaborators` |
@@ -23,6 +23,26 @@ What the audit could read about systems outside the repository, how, and when; t
 | Tag protection for `signal-one-foundation-v1` | none (no rulesets) | as above |
 | Workflow files | `ci.yml` (PR + push to main; `contents: read`; no secrets), `claude.yml` (`contents/pull-requests/issues/id-token: write`, `actions: read`; dev database URL at job level; `@claude` trigger on comments/issues/reviews), `claude-code-review.yml` (read permissions plus `id-token: write`; runs `/code-review --comment` on every PR) | READ |
 | Installed GitHub Apps | not readable with the audit's token | `repos/<r>/installation` (401) |
+
+### GitHub read-back after the ruleset (CONSOLE, via `gh api`, 2026-10-07)
+
+Read with the owner's `gh` login (`repo` and `workflow` scopes; no `admin:repo_hook`, so webhooks were not read). Nothing was changed by these reads.
+
+| Item | Observed | Effect on the table above |
+| --- | --- | --- |
+| Rulesets | one: `Protect main`, enforcement active, target the default branch, bypass list empty | Replaces "none". Created by the owner on 2026-10-07 after F-SEC-001. |
+| Ruleset rules | deletion blocked; force-push (non-fast-forward) blocked; pull request required with **0** required approvals (merge, squash and rebase allowed); required status check `Validate` from GitHub Actions; "require branches up to date" **off** | Answers the required-check half of F-SEC-001. The up-to-date option of F-DEVOS-002 is deliberately off (open PRs are revalidated after each merge). |
+| Tag `signal-one-foundation-v1` | unprotected (the ruleset targets the default branch only) | Row "Tag protection" still stands. |
+| Fork pull request workflow approval | `first_time_contributors` | **Answers U-22.** Outside contributors who are not first-time can run workflows without approval; the stricter setting is "all outside contributors". |
+| Default workflow permissions | `write`; workflows may approve pull request reviews | Unchanged (F-SEC-003). |
+| Allowed actions / SHA pinning | all actions allowed; SHA pinning not required | Unchanged (F-SEC-003, F-SEC-004). |
+| Merge methods | merge commit, squash and rebase all allowed; auto-merge off; delete branch on merge off | Unchanged. |
+| Secret scanning / push protection | enabled / enabled; Dependabot security updates disabled; Dependabot alerts disabled | Unchanged. |
+| Actions secrets (names) | `CLAUDE_CODE_OAUTH_TOKEN`, `NEON_DEV_DATABASE_URL` | Unchanged. |
+| Collaborators | one: the owner (admin) | Unchanged. |
+| Local tooling now available to the audit | `gh` (authenticated), Vercel MCP and CLI (read use), `pnpm` through user-directory Corepack shims | Closes the "access-blocked" status of Step 1 for GitHub. Neon and Clerk stay owner-relayed by design (`docs/security.md`: automation holds no production credentials). |
+
+Clerk and production (RECOLLECTION plus RUN, 2026-10-07): the owner reports only a Development instance in the Clerk dashboard and no Production instance. The deployed Production site embeds a test-mode publishable key (HTTP read of the page, key type only; no key value recorded). Together with the single `*.vercel.app` Production domain (U-20), this partly answers U-10: **no Clerk production instance is evidenced, and Production runs test-mode keys.** The owner states real production is far off and there is no custom domain; not a defect today (REL, deferred).
 
 ## Published boilerplate `richroberts222/fullstack-boilerplate` (CONSOLE)
 
@@ -259,3 +279,9 @@ Each item: where to look, what the audit expects to find, and which subject need
 | U-25 | Has the owner ever seen a comment, check annotation, or summary from Claude Code Review on any PR? | Rich's recollection; any PR conversation | Tells whether the reviewer ever produced visible output (F-DEVOS-001, Q-008) | DEVOS |
 
 **U-25 answered 2026-10-07 (owner recollection, graded RECOLLECTION):** automated Claude Code Review was not part of the prior workflow; Claude only implemented each PR. This is not evidence that the review workflow ever posted a comment. It removes any dependency on the bot and supports Q-008 option 2.
+
+**U-22 answered 2026-10-07 (CONSOLE):** the fork pull request approval setting is `first_time_contributors`. See the read-back above and F-SEC-003.
+
+**U-24 answered 2026-10-07 (CONSOLE, `gh pr list --json statusCheckRollup` for the `Validate` result on each merged PR's head, `gh api .../commits/<sha>/check-runs` for its merge commit):** of the 30 merged PRs that have a `Validate` result on their head, 22 were green, 7 were **red at the head** (#32, #33, #34, #40, #56, #58, #59) and 1 was cancelled (#67); the merge-commit results agree. All seven red merges were red before they merged; none is merge skew. The 11 PRs before #31 predate the check. PR #80's merge commit shows no `Validate` result in the check-runs read (cause not examined). Corrects the "two mechanisms" reading in F-DEVOS-002.
+
+**U-10 partly answered 2026-10-07:** see the Clerk and production note above.

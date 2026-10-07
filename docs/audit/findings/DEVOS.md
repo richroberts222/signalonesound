@@ -6,7 +6,7 @@ Examined 2026-10-06 (Pass 2) at baseline `31ec6ba` (`main` had not moved; `git r
 
 Evidence was gathered before the prior-input rows for DEVOS were re-read (`inputs-reconciliation.md`). Read in full: `CLAUDE.md` (as loaded and on disk), `docs/issues.md`, `git-workflow.md`, `product-development.md`, `boilerplate.md`, `notes.md`, `.github/workflows/*.yml`. Searched (read-only): every `/docs/*.md` reference in `CLAUDE.md`, `README.md` and `docs/**` for broken targets and coverage; the stale-phrase set ("currently empty", "not built", "not installed", "planned", "no tables"); rule duplication counts; the repository for `.claude/`, issue and PR templates, `CODEOWNERS`, `SECURITY.md`, `CONTRIBUTING.md`, `LICENSE`; first-parent diff size of every merge (`git log --first-parent -m --shortstat`); authorship counts. Read from the CI tooling for this PR: the failed `Validate` job log and the `claude-review` job log of the run on the audit branch head. Toolchain probe in this job: `which pnpm`.
 
-Not examined, and why: the **bodies of the 41 GitHub issues** (Definition of Ready evidence) and the PR-head check state of the seven red merges. `gh` and web fetch are not permitted in this session, so these are recorded as pending verification (U-24, and the DoR half of P-CH-03), not inferred. No finding below depends on them.
+Not examined, and why: the **bodies of the 41 GitHub issues** (Definition of Ready evidence) and the PR-head check state of the seven red merges. `gh` and web fetch were not permitted in this session, so these were recorded as pending verification (U-24, and the DoR half of P-CH-03), not inferred. Both were read on 2026-10-07: see F-DEVOS-002 History (U-24) and F-DEVOS-010 (issue bodies). No finding below depends on them.
 
 New facts established in this pass, not in Pass 1 (also in `progress.md`):
 
@@ -62,7 +62,7 @@ New facts established in this pass, not in Pass 1 (also in `progress.md`):
 | --- | --- |
 | Status | Draft |
 | Severity | Medium |
-| Confidence | Medium (the environment facts are RUN and READ; the cause of each red merge is not examined) |
+| Confidence | Medium (the environment facts are RUN and READ; U-24 examined 2026-10-07: the seven red merges were red at the PR head) |
 | Timing | Now |
 | Disposition | IMPROVE |
 | Scope | BOTH |
@@ -71,7 +71,7 @@ New facts established in this pass, not in Pass 1 (also in `progress.md`):
 
 **Evidence**: `claude.yml:33-50` (READ): checkout and the action only; no `corepack enable`, no install. `which pnpm` (RUN): not found; `corepack` and Node 22 present; no `node_modules`. `docs/notes.md` (READ): validation by `npx`, root `pnpm validate` and `test:boilerplate` "NOT run". `git-workflow.md` section 15 requires validation before a PR; `issues.md:59` ("Validation in the Claude job") concedes "if the sandbox prevents it, Claude states that ... and relies on CI". CONSOLE (`baseline/history.md`): `Validate` failed on the merge commit of #32, #33, #34, #40, #56, #58, #59, was cancelled on #67; 14 of 58 CI runs failed. Branch-name timestamps (READ): issue branches 23, 25 to 28 were created 06:28 to 06:35 and 35 to 38 at 12:28 to 12:33 on 2026-10-01, i.e. two parallel batches; 4 of those 8 CI-era PRs (#32, #33, #34, #40) are among the red merges, against 3 of the other 19 (#56, #58, #59). Small n, INFER. Owner machine: `pnpm validate` is red on the baseline on Windows for platform reasons (`progress.md` facts 16 and 19), so a local run cannot be the gate either.
 
-**Observation**: The agent's loop is "edit, partially validate with `npx`, push, find out in CI". Because the full gate (which includes the repository's security, boundary and boilerplate tripwires) only runs on GitHub after the push, and nothing blocks a merge on red, a red `Validate` is information the owner may or may not act on. Two different mechanisms are mixed in the seven red merges: PRs that were red at their head, and parallel PRs that were green alone and red together (merge skew). The records cannot distinguish them (U-24). The `issues.md` orchestrator rule (re-check before each merge; update and revalidate other open PRs after a merge) is exactly the control for merge skew, and is prose.
+**Observation**: The agent's loop is "edit, partially validate with `npx`, push, find out in CI". Because the full gate (which includes the repository's security, boundary and boilerplate tripwires) only runs on GitHub after the push, and nothing blocks a merge on red, a red `Validate` is information the owner may or may not act on. Two mechanisms were hypothesised for the seven red merges: PRs red at their head, and parallel PRs green alone and red together (merge skew). U-24 (answered 2026-10-07, CONSOLE) settles it: all seven were red at the PR head, so these seven are not merge skew. Merge skew remains possible in principle but is not evidenced. The `issues.md` orchestrator rule (re-check before each merge; update and revalidate other open PRs after a merge) is exactly the control for merge skew, and is prose.
 
 **Consequence**: A tripwire failure (a secret-shape hit, a boundary violation, a migration guard) merges because red is easy to dismiss. This audit's own PR is a live example: it is red for a reason the audit predicted (Q-002), and the Windows-only failures recorded in Phase 0 and Pass 1 hid that the Linux result for the audit's own files would be red.
 
@@ -91,6 +91,7 @@ New facts established in this pass, not in Pass 1 (also in `progress.md`):
 
 **History**: 2026-10-06 created. Modifies the SEC carry-forward "seven PRs merged on a failing check": the data show the *merge commit* red, not that each PR was red when merged; part may be merge skew. The process side of F-SEC-001 stands, with a sharper cause.
 
+**History (2026-10-07)**: U-24 answered. 7 of the 30 PRs with a head `Validate` result (23%) merged red at the head (#32, #33, #34, #40, #56, #58, #59); #67 merged with a cancelled run; 22 were green. The `Protect main` ruleset (required `Validate`, 0 approvals, up-to-date requirement off) now blocks a red merge, so recommendation (2) is applied for red-at-head. The up-to-date requirement is deliberately off. The agent-job validation gap (recommendation 1) is unchanged.
 ---
 
 ### F-DEVOS-003 Documentation drift is systemic: the rules are long, partly duplicated, partly stale, and unindexed
@@ -282,6 +283,43 @@ New facts established in this pass, not in Pass 1 (also in `progress.md`):
 **Challenge log**: (Pass 4)
 
 **History**: 2026-10-06 created. Absorbs P-CH-04 (risk-based gates) as deferred; the general gate is F-SEC-001 and F-DEVOS-002.
+
+---
+
+### F-DEVOS-010 Issues have no template or shared structure, so "ready to build" is a convention of the author
+
+| Field | Value |
+| --- | --- |
+| Status | Draft |
+| Severity | Low |
+| Confidence | Medium (counts are RUN over all issue bodies; whether each issue was clear enough to build from is a judgement not made here) |
+| Timing | Now |
+| Disposition | IMPROVE |
+| Scope | BOTH |
+| Trigger class | Foundational |
+| Effort | S |
+
+**Evidence**: `gh issue list --state all` (CONSOLE, 2026-10-07): 45 issues (43 closed, 2 open). Median body about 3,800 characters (about 4,300 for issues 60 and later), so the issues are substantial. Only 9 of 45 mention acceptance criteria, "done when", success criteria or a definition of done; 13 mention scope or non-goals; 5 early issues (#2, #4, #9, #15, #16) have bodies under 40 characters. Headings are free-form (Goal 6, Testing 4, Scope 3, Validation 3, Completion criteria 2). No issue or PR template exists (Phase 0 fact 23). `docs/product-development.md` expects acceptance criteria to be finalised for product features but names no minimum for an issue.
+
+**Observation**: The issues are long and mostly good, but each author invents the structure. Acceptance criteria, scope boundaries and "how will this be verified" appear when the author remembers them. That is workable while one owner and one agent write every issue, and it breaks the first time another author or a fresh agent session picks one up.
+
+**Consequence**: A fresh agent session or reviewer cannot tell from the issue alone whether it is ready or what "done" means; the PR template and review step have nothing to check against. Low today.
+
+**Recommendation**: Add a short issue template and a PR template (`.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md`) with five prompts: goal, scope and non-goals, acceptance criteria, how it will be verified, and affected docs. Do not add a longer process. Fold the Definition of Ready into `docs/issues.md` as one paragraph that points at the template.
+
+**Alternatives and tradeoffs**: Leave as is (cheapest; fine for one author). A heavier checklist (rejected: weight is already right-sized, F-DEVOS-009).
+
+**Affects**: `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md`, `docs/issues.md`.
+
+**Depends on / sequencing**: None. Workflow files are not touched, so it can ship any time.
+
+**Verification**: A new issue and PR show the template; `docs/issues.md` states the Definition of Ready in one place.
+
+**Decisions needed**: none.
+
+**Challenge log**: (Pass 4)
+
+**History**: 2026-10-07 created from the issue-body read that Pass 2 DEVOS could not do. Closes the Definition-of-Ready half of P-CH-03.
 
 ---
 

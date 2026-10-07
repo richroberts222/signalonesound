@@ -28,6 +28,7 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | F-DEVOS-005 | `docs/notes.md` is a shared mutable file that duplicates GitHub and goes stale | Low | REMOVE | Now | Draft | |
 | F-DEVOS-006 | Agent runs have no concurrency control | Low | ADD | Now | Draft | |
 | F-DEVOS-007 | Risk-based gates by path (workflows, migrations, authorization) | Low | DEFER | Trigger: first product migration or role-based feature | Draft | |
+| F-DEVOS-010 | Issues have no template or shared structure, so "ready" is the author's convention | Low | IMPROVE | Now | Draft | |
 | F-DEVOS-008 | Human-only merge, one PR per issue, GitHub-first handoff followed in practice | Info | KEEP | n/a | Draft | |
 | F-DEVOS-009 | Process weight right-sized for a team of one; parallel work genuinely used | Info | KEEP | n/a | Draft | |
 | F-DATA-001 | No production migration procedure; no route by which any pipeline applies migrations | Medium | ADD | Before real data | Draft | |
@@ -55,5 +56,5 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | Critical | 0 | 0 | 0 | 0 | 0 |
 | High | 2 | 0 | 0 | 0 | 0 |
 | Medium | 13 | 0 | 0 | 0 | 0 |
-| Low | 9 | 0 | 0 | 0 | 0 |
+| Low | 10 | 0 | 0 | 0 | 0 |
 | Info | 7 | 0 | 0 | 0 | 0 |

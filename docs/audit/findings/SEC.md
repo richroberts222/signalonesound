@@ -50,6 +50,7 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 **History**: 2026-10-06 created. Differs from issue 78 M01 ("required review"): reviews required set to zero for a single-owner repository; severity High, not Critical, because production deployment is UNVERIFIED and the realistic exploit needs F-SEC-002.
 
+**History (2026-10-07)**: Partly applied by the owner: ruleset `Protect main` is active (deletion and force-push blocked; pull request required with 0 approvals; `Validate` required; up-to-date off; bypass list empty). Documented in `docs/security.md` (PR #86). Deploy-on-merge (U-01) is still unverified, so severity is not yet downgraded; Pass 4 decides. Tag protection for `signal-one-foundation-v1` is not covered.
 ---
 
 ### F-SEC-002 The Claude job concentrates secrets, write access, and arbitrary code execution
@@ -124,6 +125,7 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 **History**: 2026-10-06 created (new; not in prior inputs).
 
+**History (2026-10-07)**: U-22 answered: fork pull request workflow approval is `first_time_contributors`, not the stricter all-outside-contributors setting. Default token `write`, workflow PR approval allowed, all actions allowed: all unchanged on 2026-10-07.
 ---
 
 ### F-SEC-004 No standing dependency or workflow-update control
