@@ -88,8 +88,21 @@ Still needed from Vercel (a human with the dashboard, one fact each, no secrets 
 2. Production and Preview `CLERK_SECRET_KEY` / publishable key: does each begin with `sk_test_`/`pk_test_` or `sk_live_`/`pk_live_`? Only the first characters are needed, never the whole value. Concern if Preview and Production share the same key.
 3. Are the three variables above marked Sensitive, and is each scoped to exactly one environment (not "All Environments")?
 4. ~~The two extra production domain names~~ (withdrawn, see correction below). Still needed: whether Production is behind Deployment Protection (U-21).
-5. Last Production deployment: date and commit (U-01).
+5. ~~Last Production deployment: date and commit (U-01).~~ Partly answered, see "Last Production deployment" below. Still open for U-01: whether the deployment was triggered automatically by the merge.
 6. Who holds the Production deploy, rollback and Force Promote permissions; team members and spend limit (U-17, U-18).
+
+### Last Production deployment (UI-RELAY, 2026-10-07)
+
+Grade: UI-RELAY, a second-hand read of the Deployments list in an owner screenshot. No deployment action was taken.
+
+Relayed: the most recent Production deployment is "Create Fable Exhaustive Audit Charter (#80)" on `main` at short commit `31ec6ba`, status Ready (26s build), about 11 hours old at the time of the screenshot. Deployments for `audit/phase-0-methodology` appear above it and are Preview deployments.
+
+Audit reading:
+* The latest Production commit equals the audit baseline `31ec6ba` (the repo fact pass recorded `origin/main` as `31ec6ba`). Production is not behind `main`, and no audit-branch commit has reached Production.
+* **U-01 is partly answered.** A Production deployment exists whose commit is the merge of PR #80, which is consistent with deploy-on-merge. One observation does not prove the trigger (a manual deploy or promote would look the same), so the claim in `docs/deployment.md` stays UNVERIFIED. The F-SEC-001 High severity is therefore not lowered or raised by this. A second data point, such as a deployment for an earlier merge with the Git-triggered source label, would raise confidence.
+* Preview deployments for the audit branch are protected by Vercel Authentication (see above), so the audit branch is not publicly reachable.
+
+Effect on the register: U-01 partly answered (commit and recency yes, trigger no). U-21 is still open. Step 1 stays AMBER.
 
 ## Neon (partly RUN through the local dev configuration)
 
