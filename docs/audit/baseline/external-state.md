@@ -40,6 +40,31 @@ Public; one commit `859b792` dated 2026-10-01; `is_template: false`; default bra
 | "Include source files outside of the Root Directory" | the monorepo builds succeed, so it is effectively on | INFER |
 | `vercel.json` | none committed | RUN `ls` |
 
+### Vercel dashboard, relayed by the operator from owner screenshots (UI-RELAY, 2026-10-07)
+
+Grade: UI-RELAY. The operator read screenshots supplied by Rich and reported names and scopes only; values were masked. This is weaker than an API read-back (a second hand, no raw output) and stronger than INFER. It cannot show values, so it cannot show whether a key is a development or a production key.
+
+| Item | Relayed observation | Audit reading |
+| --- | --- | --- |
+| Environments | Production, Preview, Development | Matches the expected model |
+| Production | tied to `main`; `signalonesound.vercel.app` plus two more domains indicated | U-20 partly answered: at least one extra domain may exist, names unknown |
+| Preview | applies to unassigned Git branches; no custom domains | Consistent with CONSOLE (Vercel Authentication on previews) |
+| Development | CLI only; no custom domains | Expected |
+| Production variable names | `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` only | **No `DATABASE_URL`, `DATABASE_ENV` or `APP_ENV` in Production.** Either production has no database wired yet, or the variables sit under another scope not shown. Consistent with `docs/database.md` saying only `dev` is migrated. Needs confirming (see below). |
+| Preview variable names | `DATABASE_URL`, `DATABASE_ENV`, `APP_ENV`, both Clerk keys | Names match the expected Preview set (U-02). Values unknown: whether `DATABASE_URL` is the qa branch is still unverified. |
+| Development variable names | both Clerk keys | Expected (database config is local) |
+| System environment variables | "Enable access to System Environment Variables" checked | Vercel default; exposes `VERCEL_*` metadata to builds. Low concern, recorded for completeness. |
+
+Effect on the register: U-02 is **partly answered** (names yes, values no). U-03 is **partly answered** (production is not configured with database variables; Clerk key type unknown). U-20 is **partly answered**. U-01 and U-21 are not answered by this evidence.
+
+Still needed from Vercel (a human with the dashboard, one fact each, no secrets revealed):
+1. Preview `DATABASE_URL`: which Neon branch or role name does it end in (not the password)? Expected `qa`.
+2. Production and Preview `CLERK_SECRET_KEY` / publishable key: does each begin with `sk_test_`/`pk_test_` or `sk_live_`/`pk_live_`? Only the first characters are needed, never the whole value. Concern if Preview and Production share the same key.
+3. Are the three variables above marked Sensitive, and is each scoped to exactly one environment (not "All Environments")?
+4. The two extra production domain names, and whether Production is behind Deployment Protection (U-21).
+5. Last Production deployment: date and commit (U-01).
+6. Who holds the Production deploy, rollback and Force Promote permissions; team members and spend limit (U-17, U-18).
+
 ## Neon (partly RUN through the local dev configuration)
 
 | Item | Observed | How |
