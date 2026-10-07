@@ -11,6 +11,7 @@ The single resumable state of the audit. Update in the same commit as the work i
 | Current pass | Pass 2 (Subject examinations) in progress. Done: SEC, DEVOS. |
 | Depth budget | As `methodology.md` section 4 (Deep: AUTH, DATA, SEC, REL, DEVOS, BOIL; Standard: ARCH, TEST, OPS, REQ; Light: CODE, UX) |
 | Next action | Pass 2 subject DATA (then AUTH, REL, BOIL; ARCH, TEST, OPS, REQ; CODE, UX). DATA must absorb the SEC carry-forward (least-privilege roles U-05, U-09; `NEON_DEV_DATABASE_URL` scope U-15) and the P-78-M05, M06, M12, M15, P-CH-08, P-CH-28, P-CH-30, P-GAP-04, P-GAP-06, P-SEC-07 rows. Before starting: compare `main` to `31ec6ba`; note that CI on this PR is red until Q-002 is applied (not caused by DATA work). |
+| Fact pass 2026-10-07 | Reconciliation-checkpoint prerequisite 1 recorded in `baseline/repo-fact-pass-2026-10-07.md`. AMBER: repository state read; GitHub settings and vendor docs not verified. Does not change the next audit action. |
 | Open questions | Q-002 to Q-008 (`decisions-needed.md`); Q-001 answered |
 | Open items from DEVOS | Read the bodies of the 41 GitHub issues for the Definition-of-Ready half of P-CH-03 (needs `gh` or web access, not available in the DEVOS session); U-24 and U-25. A session with `gh` can close the first and refine F-DEVOS-002. |
 | Open contradictions | none (no findings yet) |
