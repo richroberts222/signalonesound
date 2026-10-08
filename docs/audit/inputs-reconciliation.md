@@ -24,7 +24,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-78-B | ~7,800 lines of docs restating each other, no freshness check; consolidate, point docs at tests/scripts | DEVOS | Adopted, modified → F-DEVOS-003 (size confirmed, 8,039 non-audit lines; duplication modest; targeted fixes, a task-to-doc map and a doc-existence tripwire instead of a consolidation project) | 2 DEVOS |
 | P-78-C | Security docs list gaps nothing tracks (rate limiting, CSP/headers, audit logging, dependency scanning, CORS, request logging); `next.config.ts` sets no headers | SEC | Merged → F-SEC-005, F-SEC-006, F-SEC-004; request logging and audit logging pending (OPS, AUTH) | 2 SEC |
 | P-78-D | `claude.yml`: dev `DATABASE_URL` at job level with `pnpm *`/`npx *` (arbitrary code); trigger on any `@claude` without commenter check (action's own check unverified); floating tags; prompt-injection path with `contents: write` | SEC | Adopted → F-SEC-002 (the commenter-permission claim is Rejected: the action applies a write-permission gate by default, INFER; the residual is vendor risk) | 2 SEC |
-| P-78-E | `cn@^0.4.0` dependency possibly stray or typosquat-adjacent; usage unchecked; `pnpm audit` from an earlier issue is not a standing control | CODE | Rejected as typosquat (cn is published by the shadcn-ui org, no install scripts); unused-dependency hygiene → CODE pending; standing audit → F-SEC-004 | 2 SEC |
+| P-78-E | `cn@^0.4.0` dependency possibly stray or typosquat-adjacent; usage unchecked; `pnpm audit` from an earlier issue is not a standing control | CODE | Rejected as typosquat (cn is published by the shadcn-ui org, no install scripts); unused-dependency hygiene → F-CODE-002; standing audit → F-SEC-004 | 2 SEC, 2 CODE |
 
 ## Issue #78 MUST-have foundations
 
@@ -126,8 +126,8 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CQ-F3 | Brand text duplicated; shortened product name in copy; no brand asset (note: `components/brand/brand-wordmark.tsx` now exists) | UX | Pending | |
 | P-CQ-F4 | Mobile uses literal style values; no mobile theme module | UX | Pending | |
 | P-CQ-P1 | Services import `DatabaseError`/`Database` type from `db/`; documented as acceptable; open question only if services move to a shared package | ARCH | Resolved → F-ARCH-004 (type and error class only) | 2 ARCH |
-| P-CQ-P2 | `packages/shared/src/env.ts` size (cohesive; no action) | CODE | Pending | |
-| P-CQ-P3 | Uncommented `* 2` looseness on client `maxLength` | CODE | Pending | |
+| P-CQ-P2 | `packages/shared/src/env.ts` size (cohesive; no action) | CODE | Not applicable: cohesive, no action → F-CODE-005 | 2 CODE |
+| P-CQ-P3 | Uncommented `* 2` looseness on client `maxLength` | CODE | Not applicable: proof slice only, intentional → F-CODE-005 | 2 CODE |
 
 ## Boilerplate gap report and known gaps
 
@@ -139,7 +139,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-GAP-04 | Production migration procedure not automated or defined | DATA | Adopted → F-DATA-001 | 2 DATA |
 | P-GAP-05 | `docs/deployment.md` section 7 stale about `ci.yml` | DEVOS | Adopted → F-DEVOS-003 (confirmed, ledger C-22; fix in the reconciliation slice) | 2 DEVOS |
 | P-GAP-06 | `neon-http` cannot do interactive transactions; decision needed before first mutation feature (historical; check current `AtomicRunner`) | DATA | Resolved → F-DATA-010 | 2 DATA |
-| P-GAP-07 | `APP_ENVS` in shared duplicates `DATABASE_ENVS` in `apps/web/db/env.ts` (historical; check whether consolidated) | CODE | Pending | |
+| P-GAP-07 | `APP_ENVS` in shared duplicates `DATABASE_ENVS` in `apps/web/db/env.ts` (historical; check whether consolidated) | CODE | Resolved before this audit: single definition in the shared package → F-CODE-005 | 2 CODE |
 | P-GAP-08 | Package scope `@signalone/*` embeds the application name (addressed by init `--scope`; verify) | BOIL | Resolved → F-BOIL-006 | 2 BOIL |
 | P-GAP-09 | Boilerplate maintenance rules: proof paths manifest, markers, `prove:init --full` only on material change; re-export whenever the foundation changes (**export not refreshed since 2026-10-01**, `progress.md` fact 5) | BOIL | Adopted → F-BOIL-004, F-BOIL-001 | 2 BOIL |
 

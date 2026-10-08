@@ -4,7 +4,7 @@ One line per finding. The finding's home is `findings/<CODE>.md`; this file neve
 
 Conventions: `methodology.md` section 6. IDs are never reused or renumbered. Merged, rejected, and superseded findings move to the Tombstones table with a pointer.
 
-Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH, REL, BOIL, ARCH, TEST, OPS, REQ.
+Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH, REL, BOIL, ARCH, TEST, OPS, REQ, CODE.
 
 ## Active findings
 
@@ -89,6 +89,11 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | F-REQ-005 | Imprecise requirements; nothing records which slice each undecided item blocks | Low | IMPROVE | Trigger: first real slice | Draft | |
 | F-REQ-006 | User-generated content and store-policy obligations are not captured as requirements | Medium | ADD | Trigger: first UGC feature or first store submission | Draft | |
 | F-REQ-007 | The requirements process and its discipline about undecided items are sound | Info | KEEP | n/a | Draft | |
+| F-CODE-001 | The two shared packages, which hold the cross-client rules, are never linted | Low | IMPROVE | Now | Draft | |
+| F-CODE-002 | A stray package named `cn` is installed, never imported, and collides with the helper every UI file uses | Low | IMPROVE | Now | Draft | |
+| F-CODE-003 | Strict mode is on, but one recommended extra check would flag 29 places | Low | DEFER | Trigger: before the first service that reads real product data | Draft | |
+| F-CODE-004 | About 4,500 lines of mock code are labelled, but nothing stops real code importing mock types as contracts | Low | IMPROVE | Trigger: first real slice | Draft | |
+| F-CODE-005 | Small, strictly typed code with no type escapes and test-enforced layering | Info | KEEP | n/a | Draft | |
 
 ## Tombstones
 
@@ -103,5 +108,5 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | Critical | 0 | 0 | 0 | 0 | 0 |
 | High | 2 | 0 | 0 | 0 | 0 |
 | Medium | 28 | 0 | 0 | 0 | 0 |
-| Low | 33 | 0 | 0 | 0 | 0 |
-| Info | 16 | 0 | 0 | 0 | 0 |
+| Low | 37 | 0 | 0 | 0 | 0 |
+| Info | 17 | 0 | 0 | 0 | 0 |
