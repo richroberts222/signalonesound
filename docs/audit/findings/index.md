@@ -4,7 +4,7 @@ One line per finding. The finding's home is `findings/<CODE>.md`; this file neve
 
 Conventions: `methodology.md` section 6. IDs are never reused or renumbered. Merged, rejected, and superseded findings move to the Tombstones table with a pointer.
 
-Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH, REL, BOIL, ARCH, TEST.
+Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH, REL, BOIL, ARCH, TEST, OPS.
 
 ## Active findings
 
@@ -76,6 +76,12 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | F-TEST-004 | `docs/testing.md` describes a CI job that does not exist and omits one that runs | Low | IMPROVE | Now | Draft | |
 | F-TEST-005 | No flaky-test policy, retry rule, or test-results visibility | Low | DEFER | Trigger: first end-to-end test in CI | Draft | |
 | F-TEST-006 | Security-critical logic is well tested and the tests bite; static boundary tests are worth keeping | Info | KEEP | n/a | Draft | |
+| F-OPS-001 | No way to know the site is down or failing, and little evidence survives when it does | Medium | ADD | Before first real users | Draft | |
+| F-OPS-002 | No incident response, runbooks or kill switches; one person is the whole team | Medium | ADD | Before first real users | Draft | |
+| F-OPS-003 | Capacity, performance and cost limits are unknown; public reads are not designed to be cheap | Low | ADD | Before public launch | Draft | |
+| F-OPS-004 | Vendor outages and bulk operations have no designed behaviour yet | Low | DEFER | Trigger: first real data path and first real bulk import | Draft | |
+| F-OPS-005 | Service targets are not defined and should stay informal until there are users | Info | DEFER | Trigger: first real users | Draft | |
+| F-OPS-006 | Failing closed under dependency failure and PII-free error reports are sound | Info | KEEP | n/a | Draft | |
 
 ## Tombstones
 
@@ -89,6 +95,6 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | --- | --- | --- | --- | --- | --- |
 | Critical | 0 | 0 | 0 | 0 | 0 |
 | High | 2 | 0 | 0 | 0 | 0 |
-| Medium | 22 | 0 | 0 | 0 | 0 |
-| Low | 29 | 0 | 0 | 0 | 0 |
-| Info | 13 | 0 | 0 | 0 | 0 |
+| Medium | 24 | 0 | 0 | 0 | 0 |
+| Low | 31 | 0 | 0 | 0 | 0 |
+| Info | 15 | 0 | 0 | 0 | 0 |

@@ -36,7 +36,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-78-M04 | Security headers and baseline CSP (Clerk allowances), tested in Preview | SEC | Adopted, modified → F-SEC-005 (headers now; CSP report-only with the real UI) | 2 SEC |
 | P-78-M05 | Restore drill: document and exercise one Neon point-in-time restore; confirm PITR window | DATA | Adopted, modified → F-DATA-002 (restore drill plus a free logical dump) | 2 DATA |
 | P-78-M06 | Production migration procedure: who, how, verification | DATA | Adopted → F-DATA-001 | 2 DATA |
-| P-78-M07 | Error monitoring and structured logs with redaction | OPS | Pending | |
+| P-78-M07 | Error monitoring and structured logs with redaction | OPS | Adopted → F-OPS-001 | 2 OPS |
 | P-78-M08 | Rate limiting on `/api/v1` and auth-adjacent routes | SEC | Adopted, modified → F-SEC-006 (platform rate limit first; no new vendor) | 2 SEC |
 | P-78-M09 | Lazy env validation ships a broken prod env green; add post-deploy smoke check or health route | REL | Adopted, modified → F-REL-001 | 2 REL |
 | P-78-M10 | Privacy basics before collecting member data: policy, terms, data inventory, deletion/export decision | AUTH | Adopted → F-AUTH-003 | 2 AUTH |
@@ -56,12 +56,12 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-78-T04 | Mobile release engineering: signing, store review, OTA, minimum API version; API deprecation rules | REL/ARCH | REL part adopted → F-REL-005; API deprecation stays with ARCH | 2 REL |
 | P-78-T05 | Accessibility audit with assistive technology (pre-launch) | UX | Pending | |
 | P-78-T06 | SBOM/provenance, gitleaks, CodeQL after M03; enable GitHub secret scanning now (**verified enabled in Phase 0**, `progress.md` fact 2) | SEC | Merged → F-SEC-004 (SBOM/provenance and CodeQL DEFER with triggers; gitleaks Rejected: push protection enabled and history scan clean, F-SEC-010) | 2 SEC |
-| P-78-T07 | Uptime monitoring, status page, alert routing, on-call (first production traffic) | OPS | Pending | |
-| P-78-T08 | Load/performance budgets, Core Web Vitals (before public launch) | OPS | Pending | |
-| P-78-T09 | Cost budgets and alerts on Vercel, Neon, Clerk (before launch) | OPS | Pending | |
-| P-78-T10 | Vendor-outage runbook; cached/static read path for public discovery | OPS | Pending | |
+| P-78-T07 | Uptime monitoring, status page, alert routing, on-call (first production traffic) | OPS | Uptime and alert → F-OPS-001; status page and on-call deferred (F-OPS-002) | 2 OPS |
+| P-78-T08 | Load/performance budgets, Core Web Vitals (before public launch) | OPS | Informal targets → F-OPS-005; baseline → F-OPS-003 | 2 OPS |
+| P-78-T09 | Cost budgets and alerts on Vercel, Neon, Clerk (before launch) | OPS | Adopted → F-OPS-003 | 2 OPS |
+| P-78-T10 | Vendor-outage runbook; cached/static read path for public discovery | OPS | Adopted → F-OPS-002, F-OPS-003, F-OPS-004 | 2 OPS |
 | P-78-T11 | Data retention and data-subject request automation | AUTH/DATA | Adopted → F-AUTH-003 (data side F-DATA-009) | 2 AUTH |
-| P-78-T12 | Second-region or multi-cloud DR (not foreseeable) | OPS | Pending | |
+| P-78-T12 | Second-region or multi-cloud DR (not foreseeable) | OPS | Rejected: not foreseeable (agreed) | 2 OPS |
 
 ## Issue #78 overengineering flags and removals
 
@@ -91,12 +91,12 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CH-08 | Migrations, backup and tested restore | DATA | P-78-M05, P-78-M06 | Adopted → F-DATA-001, F-DATA-002, F-DATA-003 | 2 DATA |
 | P-CH-09 | Idempotency and concurrency | ARCH/DATA | P-78-M12 | Adopted → F-ARCH-001 (DATA part earlier: F-DATA-010) | 2 ARCH |
 | P-CH-10 | Time and identifier conventions | ARCH | | Adopted → F-ARCH-001 | 2 ARCH |
-| P-CH-11 | External dependency failure handling | ARCH/OPS | P-78-T10 | Client side → F-ARCH-002; server side stays with OPS | 2 ARCH |
+| P-CH-11 | External dependency failure handling | ARCH/OPS | P-78-T10 | Client side → F-ARCH-002; server side → F-OPS-004 | 2 ARCH, 2 OPS |
 | P-CH-12 | Upload, notification, search, geospatial contracts | ARCH/REQ | | Trigger-gated list inside F-ARCH-001; geospatial → F-DATA-008 | 2 ARCH |
 | P-CH-13 | Test taxonomy and flaky-test policy | TEST | | Adopted, deferred → F-TEST-005 | 2 TEST |
 | P-CH-14 | Accessibility | UX | P-78-M11, P-78-T05 | Pending | |
-| P-CH-15 | Performance, capacity, cost | OPS | P-78-T08, P-78-T09 | Pending | |
-| P-CH-16 | SLI/SLO and incident response | OPS | P-78-T07 | Pending | |
+| P-CH-15 | Performance, capacity, cost | OPS | P-78-T08, P-78-T09 | Adopted → F-OPS-003 | 2 OPS |
+| P-CH-16 | SLI/SLO and incident response | OPS | P-78-T07 | Adopted → F-OPS-002, F-OPS-005 | 2 OPS |
 | P-CH-17 | Supply-chain security, SBOM, provenance | SEC | P-78-M03, P-78-T06 | Merged → F-SEC-004 (SBOM/provenance DEFER) | 2 SEC |
 | P-CH-18 | Progressive delivery and rollback | REL | P-78-T02 | Adopted → F-REL-001, F-REL-002 | 2 REL |
 | P-CH-19 | AI-agent prompt/context safety and provenance | SEC/DEVOS | P-78-D, P-78-M02 | Merged → F-SEC-002 | 2 SEC |
@@ -104,15 +104,15 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CH-21 | Long-term compatibility | ARCH | P-78-T04 | Adopted → F-ARCH-002 | 2 ARCH |
 | P-CH-22 | Reproducible builds | SEC/REL |  | Rejected as a finding for now (frozen lockfile, pinned pnpm; floating Node minor in CI is Low); re-opened narrowly in REL → F-REL-003 (Node and pnpm pins) | 2 SEC |
 | P-CH-23 | Configuration validation | REL | P-78-M09 | Adopted → F-REL-001 | 2 REL |
-| P-CH-24 | Operational ownership | OPS | | Pending | |
+| P-CH-24 | Operational ownership | OPS | | Adopted → F-OPS-002 | 2 OPS |
 | P-CH-25 | Institutional-memory survival | DEVOS | | Merged → F-DEVOS-003 (task-to-doc map; about 63,000 tokens of required reading), F-DEVOS-005 (the memory file is overwritten per slice), and F-SEC-007 (single owner, credentials) | 2 DEVOS |
 | P-CH-26 | Emergency access recovery | SEC/OPS |  | Merged → F-SEC-007 | 2 SEC |
 | P-CH-27 | Credential and key lifecycle | SEC |  | Merged → F-SEC-007 | 2 SEC |
 | P-CH-28 | Silent data-corruption detection | DATA | | Deferred → F-DATA-009 | 2 DATA |
 | P-CH-29 | Blast-radius containment | SEC/OPS | P-78-M15 | Partly → F-SEC-001, F-SEC-002 (agent blast radius); DB roles pending DATA | 2 SEC |
 | P-CH-30 | Vendor exit and data portability | DATA/OPS | | Deferred → F-DATA-009; dump in F-DATA-002; topology F-DATA-006 | 2 DATA |
-| P-CH-31 | Operational kill switches | OPS | | Pending | |
-| P-CH-32 | Safe bulk operations | OPS/DATA | | Pending | |
+| P-CH-31 | Operational kill switches | OPS | | Adopted → F-OPS-002 | 2 OPS |
+| P-CH-32 | Safe bulk operations | OPS/DATA | | Adopted, deferred → F-OPS-004 | 2 OPS |
 | P-CH-33 | Legal and compliance triggers | AUTH/REQ | P-78-M10 | Adopted → F-AUTH-003 (counsel review is the owner's action) | 2 AUTH |
 | P-CH-34 | Charter restatement of the previous Claude audit (drift and duplication; security as prose; workflow permissions; floating tags; `cn`; branch protection; dependency scanning; CSP/headers; untested restore; prod migration; monitoring; rate limiting; lazy env validation; privacy decisions; accessibility enforcement; transactions; authorization tests; webhook integrity; least-privilege roles) | several | P-78-A to E, M01 to M15 | Covered by the 78 rows | |
 | P-CH-35 | Charter restatement of overengineering warnings (doc/process ceremony, bureaucratic tests, premature parallel work, premature environments, team-scale controls) | several | P-78-O01 to O08 | Covered by the 78 rows | |
