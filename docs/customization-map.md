@@ -12,7 +12,7 @@ Flags: `--name` (display name), `--slug`, `--scope` (defaults to slug), `--bundl
 
 | Value | Where it ends up | Kind |
 | --- | --- | --- |
-| Display name | `apps/web/app/layout.tsx` (title, description); `apps/web/app/page.tsx` and `components/auth/auth-header.tsx` (visible name); `apps/web/app/dashboard/page.tsx` (fallback label); `apps/mobile/app.config.ts` `name`; `apps/mobile/src/App.tsx`; `README.md`; prose in `CLAUDE.md` and `docs/` | Auto, Public |
+| Display name | `apps/web/app/layout.tsx` (title, description); `apps/web/app/page.tsx`, `apps/web/components/brand/brand-wordmark.tsx` and `apps/web/components/shell/app-header.tsx` (visible name); `apps/web/app/dashboard/page.tsx` (fallback label); `apps/mobile/app.config.ts` `name`; `apps/mobile/src/App.tsx`; `README.md`; prose in `CLAUDE.md` and `docs/` | Auto, Public |
 | Slug | root `package.json` `name`; `apps/mobile/app.config.ts` `slug` and `scheme` (URL scheme); tooling ledger schema prefix in `apps/web/db/tooling/seed.ts` (`<slug_with_underscores>_tooling`, schema-qualified in the database) | Auto, Permanent once a database or store listing exists |
 | npm scope | `packages/shared/package.json`, `packages/validation/package.json` names; every `@scope/...` import; `workspace:*` dependencies in `apps/web/package.json` and `apps/mobile/package.json`; `transpilePackages` in `apps/web/next.config.ts`; `pnpm-lock.yaml` | Auto |
 | Bundle id | `apps/mobile/app.config.ts`: `ios.bundleIdentifier` and `android.package` (the same value) | Auto, Permanent once published to a store |
