@@ -171,7 +171,25 @@ Follow-up (human-applied, because the agent cannot edit `.github/workflows`): de
 
 **Blocks**: F-AUTH-003 (all of it); F-AUTH-002's deletion behaviour; the notification and location data model (F-DATA-008); any public sign-up.
 
-**Status**: Open. Default until answered: option 3 (no real collection). Engineering recommendation: option 1.
+**Status**: Answered 2026-10-08 by the owner, with one item left open.
+
+Owner statements (RECOLLECTION, 2026-10-08):
+
+* Minimum age is **18**.
+* Launch in the United States first, but **plan for worldwide use** (revival gatherings are expected around the world).
+* Sign-up should require agreeing to a terms and privacy policy, in the common way.
+* Whether a lawyer is involved is **not decided** ("not sure"). This is the one open item and it is the owner's residual-risk decision, below.
+
+Engineering decisions (Claude, under the adopted decision model):
+
+1. Age is confirmed at sign-up by self-attestation (Clerk cannot verify age); record it with the policy acceptance.
+2. Record each user's acceptance of the terms and privacy policy (policy version and timestamp) when the first application row for that user is created (F-AUTH-002).
+3. Build the deletion path, the export function, the data inventory, and coarse-by-default location storage from the first user-owned table, regardless of country (cheap now, expensive later). This is the "plan for worldwide" part that costs little.
+4. Defer region-specific compliance until a region is actually opened.
+
+Residual-risk decision still with the owner: launching in the United States on a standard template policy with sign-up acceptance and **no** legal review is a common starting point for a small product, and the engineering position is that it is acceptable only with the minimum in items 1 to 3 in place. Before the **first non-US user** (EU, UK, and others), legal review is recommended because religious belief is treated as special-category or sensitive data there (INFER, not legal advice), together with a decision on data location (the database is in the US West region) and the vendor data-processing terms (Clerk, Neon, Vercel).
+
+Collection gate (unchanged in substance): no real user data is collected until a privacy policy page, terms acceptance at sign-up, and the 18+ confirmation exist. Legal review is not part of that gate for a US-only start, but is a hard gate for any non-US user.
 
 ### Q-010 Who are admins, moderators and Church/Ministry managers, and how is each granted?
 
@@ -186,4 +204,18 @@ Follow-up (human-applied, because the agent cannot edit `.github/workflows`): de
 
 **Blocks**: F-AUTH-001 (role design), F-AUTH-004 (what the audit trail records), the product schema design review.
 
-**Status**: Open. Default until answered: option 1. Engineering recommendation: option 1.
+**Status**: Answered 2026-10-08 by the owner (tentative where marked).
+
+Owner statements (RECOLLECTION, 2026-10-08):
+
+* **Platform admins:** the owner now, plus one more person who does not have a Clerk account yet. Her name is deliberately not recorded in this public repository.
+* **Church/Ministry manager:** the person asks for the role when signing up and an admin approves it ("request, then approve"). This modifies option 1 (admin-initiated invitation only) to include requests.
+* **Ordinary members** need no approval; they just search. The owner expects members to pay for the service (tentative: "I think").
+* Not answered: a separate moderator role, anonymous submissions, reversal of moderation decisions, several managers per organization.
+
+Engineering decisions (Claude):
+
+1. **A user never chooses their own role.** Clerk only proves who someone is. Choosing "I am a church" can only create a pending **request**; an admin's approval creates the grant. Roles and requests live in the application database keyed by the Clerk user ID (F-AUTH-001), not in Clerk.
+2. **Platform admins** are a server-only allow-list of Clerk user IDs, so adding the second admin takes two steps: she creates her own Clerk account, then the owner adds her ID to the configuration (a Vercel environment variable change, an owner action). Move to a database-backed admin flag only if the admin count grows.
+3. Defaults for the unanswered items, to be revised only if the owner objects: admins also act as moderators for now; anonymous submissions are not allowed at first; moderation decisions are recorded and reversible (F-AUTH-004); an organization may have several managers.
+4. **Paid membership is a new topic, not an AUTH one.** A payment provider, hosted checkout, tax, refunds and the Apple/Google in-app-purchase rules for the mobile apps are undesigned (REQ/ARCH; the plan marks pricing UNDECIDED). Nothing in AUTH assumes payment.

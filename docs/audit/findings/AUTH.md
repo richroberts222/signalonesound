@@ -41,11 +41,11 @@ Not examined, and why: the Clerk dashboard (sign-up restrictions, bot protection
 
 **Verification**: A signed-in user outside the allow-list receives a not-found response from `/admin/*`; the matrix test fails when a service method gains an allow path without a test row; the static tripwire fails on a new admin file with no rule.
 
-**Decisions needed**: Q-010 (new).
+**Decisions needed**: Q-010 (answered 2026-10-08; see its Status for the owner's choices and the engineering decisions).
 
 **Challenge log**: (Pass 4)
 
-**History**: 2026-10-07 created. Absorbs P-78-M13, P-CH-06, P-RM-01 (roles part), P-NOTES-01 (who is an admin, how granted); carry-forward from SEC and DATA (role model before real admin data).
+**History**: 2026-10-07 created. Absorbs P-78-M13, P-CH-06, P-RM-01 (roles part), P-NOTES-01 (who is an admin, how granted); carry-forward from SEC and DATA (role model before real admin data). 2026-10-08: Q-010 answered. Two admins (the owner and one more person without an account yet); church managers request a role and an admin approves; a user never selects their own role. The recommended mechanism above is unchanged and now covers the request-and-approve flow (a pending-request record, then a membership row on approval).
 
 ---
 
@@ -115,11 +115,11 @@ Not examined, and why: the Clerk dashboard (sign-up restrictions, bot protection
 
 **Verification**: A policy page and data inventory exist and match the schema; a deletion request removes the Clerk user and all application rows in a test; the member notification mock does not persist location until the gate is lifted.
 
-**Decisions needed**: Q-009 (new).
+**Decisions needed**: Q-009 (answered 2026-10-08 except the legal-review residual risk, which belongs to the owner; see its Status).
 
 **Challenge log**: (Pass 4)
 
-**History**: 2026-10-07 created. Absorbs P-78-M10, P-CH-07, P-CH-33, P-78-T11, and the privacy part of P-78-O05.
+**History**: 2026-10-07 created. Absorbs P-78-M10, P-CH-07, P-CH-33, P-78-T11, and the privacy part of P-78-O05. 2026-10-08: Q-009 answered. Age 18 or over; US first with worldwide planning; terms and privacy acceptance at sign-up; legal review undecided (owner's residual-risk decision; hard gate before any non-US user).
 
 ---
 
@@ -359,7 +359,7 @@ Challenges to prior work: **C-08** (ledger) understated by one more fact: the la
 * **TEST**: the Clerk end-to-end spec is not in CI; a valid-token mobile test (F-AUTH-005); the authorization matrix and the static tripwire (F-AUTH-001); secret-bearing E2E needs a policy (C-51).
 * **SEC**: the allow-list of admin Clerk IDs is a new server-only variable (credential lifecycle, F-SEC-007); response headers and rate limiting on sign-up and auth-adjacent routes stay with F-SEC-005 and F-SEC-006.
 * **DATA**: `user_profile` and foreign-key design with the first domain schema (F-AUTH-002); deletion cascade policy (F-DATA-009); location precision (F-DATA-008, F-AUTH-003).
-* **ARCH/REQ**: Q-009 and Q-010 are product and legal decisions; the not-found-versus-forbidden convention (F-AUTH-007) belongs in `docs/services.md`.
+* **ARCH/REQ**: Q-009 and Q-010 are answered (2026-10-08); paid membership (payment provider, hosted checkout, tax, store in-app-purchase rules on mobile) is undesigned and is a new REQ/ARCH item; the not-found-versus-forbidden convention (F-AUTH-007) belongs in `docs/services.md`.
 * **OPS**: Clerk plan limits and cost alerts (U-18); incident response for an account-takeover report; owner account security (U-16, single owner, Vercel 2FA indicator off).
 * **BOIL**: whether the admin allow-list rule and the authorization matrix test ship in the template.
 * **Platform facts still needed (yes/no or names only)**: Clerk sign-up restrictions and bot protection (U-11); MFA and session lifetime; allowed origins; any configured webhooks (expected none); whether a Clerk test user for E2E exists and where its credentials live (U-12).
