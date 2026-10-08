@@ -89,10 +89,10 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CH-06 | Authorization matrices and deny-by-default server enforcement | AUTH | P-78-M13 | Adopted → F-AUTH-001 | 2 AUTH |
 | P-CH-07 | Data classification, lifecycle, privacy | AUTH/DATA | P-78-M10, P-78-T11 | Adopted → F-AUTH-003 | 2 AUTH |
 | P-CH-08 | Migrations, backup and tested restore | DATA | P-78-M05, P-78-M06 | Adopted → F-DATA-001, F-DATA-002, F-DATA-003 | 2 DATA |
-| P-CH-09 | Idempotency and concurrency | ARCH/DATA | P-78-M12 | Pending | |
-| P-CH-10 | Time and identifier conventions | ARCH | | Pending | |
-| P-CH-11 | External dependency failure handling | ARCH/OPS | P-78-T10 | Pending | |
-| P-CH-12 | Upload, notification, search, geospatial contracts | ARCH/REQ | | Pending | |
+| P-CH-09 | Idempotency and concurrency | ARCH/DATA | P-78-M12 | Adopted → F-ARCH-001 (DATA part earlier: F-DATA-010) | 2 ARCH |
+| P-CH-10 | Time and identifier conventions | ARCH | | Adopted → F-ARCH-001 | 2 ARCH |
+| P-CH-11 | External dependency failure handling | ARCH/OPS | P-78-T10 | Client side → F-ARCH-002; server side stays with OPS | 2 ARCH |
+| P-CH-12 | Upload, notification, search, geospatial contracts | ARCH/REQ | | Trigger-gated list inside F-ARCH-001; geospatial → F-DATA-008 | 2 ARCH |
 | P-CH-13 | Test taxonomy and flaky-test policy | TEST | | Pending | |
 | P-CH-14 | Accessibility | UX | P-78-M11, P-78-T05 | Pending | |
 | P-CH-15 | Performance, capacity, cost | OPS | P-78-T08, P-78-T09 | Pending | |
@@ -101,7 +101,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CH-18 | Progressive delivery and rollback | REL | P-78-T02 | Adopted → F-REL-001, F-REL-002 | 2 REL |
 | P-CH-19 | AI-agent prompt/context safety and provenance | SEC/DEVOS | P-78-D, P-78-M02 | Merged → F-SEC-002 | 2 SEC |
 | P-CH-20 | Standards governance | DEVOS | | Merged → F-DEVOS-003 (claims name a mechanism or say "convention"; doc-existence tripwire; ADRs rejected as ceremony for one decision-maker) | 2 DEVOS |
-| P-CH-21 | Long-term compatibility | ARCH | P-78-T04 | Pending | |
+| P-CH-21 | Long-term compatibility | ARCH | P-78-T04 | Adopted → F-ARCH-002 | 2 ARCH |
 | P-CH-22 | Reproducible builds | SEC/REL |  | Rejected as a finding for now (frozen lockfile, pinned pnpm; floating Node minor in CI is Low); re-opened narrowly in REL → F-REL-003 (Node and pnpm pins) | 2 SEC |
 | P-CH-23 | Configuration validation | REL | P-78-M09 | Adopted → F-REL-001 | 2 REL |
 | P-CH-24 | Operational ownership | OPS | | Pending | |
@@ -125,7 +125,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CQ-F2 | Proof panel hand-builds form controls instead of shared primitives (note: `components/ui/input.tsx` now exists) | UX | Pending | |
 | P-CQ-F3 | Brand text duplicated; shortened product name in copy; no brand asset (note: `components/brand/brand-wordmark.tsx` now exists) | UX | Pending | |
 | P-CQ-F4 | Mobile uses literal style values; no mobile theme module | UX | Pending | |
-| P-CQ-P1 | Services import `DatabaseError`/`Database` type from `db/`; documented as acceptable; open question only if services move to a shared package | ARCH | Pending | |
+| P-CQ-P1 | Services import `DatabaseError`/`Database` type from `db/`; documented as acceptable; open question only if services move to a shared package | ARCH | Resolved → F-ARCH-004 (type and error class only) | 2 ARCH |
 | P-CQ-P2 | `packages/shared/src/env.ts` size (cohesive; no action) | CODE | Pending | |
 | P-CQ-P3 | Uncommented `* 2` looseness on client `maxLength` | CODE | Pending | |
 

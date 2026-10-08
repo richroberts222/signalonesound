@@ -4,7 +4,7 @@ One line per finding. The finding's home is `findings/<CODE>.md`; this file neve
 
 Conventions: `methodology.md` section 6. IDs are never reused or renumbered. Merged, rejected, and superseded findings move to the Tombstones table with a pointer.
 
-Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH, REL, BOIL.
+Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH, REL, BOIL, ARCH.
 
 ## Active findings
 
@@ -66,6 +66,10 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | F-BOIL-004 | The published template repository is public, stale, and not marked as a template | Low | IMPROVE | Now | Draft | |
 | F-BOIL-005 | Two historical reports and a few stale references add reading weight | Low | REMOVE | Now | Draft | |
 | F-BOIL-006 | Init and export design is sound: one manifest, dry run, identity validation, negative controls | Info | KEEP | n/a | Draft | |
+| F-ARCH-001 | Conventions expensive to change are undecided: event times and recurrence, idempotency, concurrency, pagination limits, locale, units, money | Medium | ADD | Before first product table or endpoint | Draft | |
+| F-ARCH-002 | Client-server compatibility contract is thin: no timeout, no offline versus server error, no client version, no minimum supported version | Low | ADD | Trigger: first real mobile feature | Draft | |
+| F-ARCH-003 | `routing.md` and `server-components.md` are empty while pages will start loading real data | Low | DEFER | Trigger: first real-data page | Draft | |
+| F-ARCH-004 | Layer boundaries are real and machine-enforced; envelope and error mapping are consistent | Info | KEEP | n/a | Draft | |
 
 ## Tombstones
 
@@ -79,6 +83,6 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | --- | --- | --- | --- | --- | --- |
 | Critical | 0 | 0 | 0 | 0 | 0 |
 | High | 2 | 0 | 0 | 0 | 0 |
-| Medium | 19 | 0 | 0 | 0 | 0 |
-| Low | 24 | 0 | 0 | 0 | 0 |
-| Info | 11 | 0 | 0 | 0 | 0 |
+| Medium | 20 | 0 | 0 | 0 | 0 |
+| Low | 26 | 0 | 0 | 0 | 0 |
+| Info | 12 | 0 | 0 | 0 | 0 |
