@@ -81,7 +81,7 @@ export function applyIdentity(text, { name, slug, scope, bundleId }, sources = S
 export function stripMarkedRegions(text, kinds = ["proof", "template", "reference"]) {
   const kind = `(${kinds.join("|")})`;
   return text
-    .replace(new RegExp(`^<!-- boilerplate:${kind}:start -->\\n[\\s\\S]*?^<!-- boilerplate:\\1:end -->\\n\\n?`, "gm"), "")
+    .replace(new RegExp(`^<!-- boilerplate:${kind}:start -->\\r?\\n[\\s\\S]*?^<!-- boilerplate:\\1:end -->\\r?\\n(?:\\r?\\n)?`, "gm"), "")
     .replace(new RegExp(`<!-- boilerplate:${kind}:start -->[\\s\\S]*?<!-- boilerplate:\\1:end -->`, "g"), "");
 }
 

@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 
 import { checkBoilerplate } from "./check-boilerplate.mjs";
 import { initApp } from "./init-app.mjs";
-import { walk } from "./manifest.mjs";
+import { isLocalEnvFile, walk } from "./manifest.mjs";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const identity = { name: "Harbor Notes", slug: "harbor-notes", scope: "harbor", bundleId: "com.harbornotes.app" };
@@ -25,6 +25,7 @@ const keep = process.argv.includes("--keep");
 
 const root = mkdtempSync(path.join(tmpdir(), "harbor-notes-"));
 for (const file of walk(repo)) {
+  if (isLocalEnvFile(path.posix.basename(file))) continue; // never copy local secrets into the temp copy
   mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
   cpSync(path.join(repo, file), path.join(root, file));
 }
@@ -33,9 +34,9 @@ console.log(`== copied template to ${root}`);
 initApp({ root, ...identity });
 if (checkBoilerplate(root).length > 0) throw new Error("leak check not clean");
 
-function run(label, command, args, cwd = root) {
+function run(label, command, args, extraEnv = {}, cwd = root) {
   console.log(`\n== ${label}: ${command} ${args.join(" ")}`);
-  const result = spawnSync(command, args, { cwd, stdio: "inherit", env: { ...process.env, CI: "1" } });
+  const result = spawnSync(command, args, { cwd, stdio: "inherit", shell: process.platform === "win32", env: { ...process.env, CI: "1", ...extraEnv } });
   if (result.status !== 0) {
     console.error(`FAILED: ${label}`);
     process.exit(result.status ?? 1);
@@ -56,7 +57,11 @@ if (full) {
     schema,
     `import { pgTable, text, uuid } from "drizzle-orm/pg-core";\nexport const note = pgTable("note", { id: uuid("id").primaryKey().defaultRandom(), ownerId: text("owner_id").notNull() });\n`,
   );
-  run("db:generate (offline, first migration)", "pnpm", ["--filter", "web", "db:generate"]);
+  // Generation is offline: it needs the variables to exist, not a reachable database.
+  run("db:generate (offline, first migration)", "pnpm", ["--filter", "web", "db:generate"], {
+    DATABASE_ENV: "dev",
+    DATABASE_URL: "postgresql://localhost/offline_generate_only",
+  });
   const migrations = path.join(root, "apps/web/drizzle");
   if (!existsSync(path.join(migrations, "meta/_journal.json"))) throw new Error("no journal generated");
   console.log(`generated: ${readFileSync(path.join(migrations, "meta/_journal.json"), "utf8").match(/"tag": "[^"]+"/)?.[0]}`);

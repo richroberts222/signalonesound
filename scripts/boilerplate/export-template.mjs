@@ -62,7 +62,7 @@ export function exportTemplate({ source, out, log = console.log }) {
     const before = buf.toString("utf8");
     const stripped = file.endsWith(".md") ? stripMarkedRegions(before, ["proof", "reference"]) : before;
     let after = applyIdentity(stripped, TEMPLATE_IDENTITY);
-    if (file === "README.md") after = after.replace(/^(# .*\n\n)/, `$1${README_BLOCK}`);
+    if (file === "README.md") after = after.replace(/^(# .*\r?\n\r?\n)/, `$1${README_BLOCK}`);
     if (after !== before) {
       writeFileSync(full, after);
       changed += 1;
