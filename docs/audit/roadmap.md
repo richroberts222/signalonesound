@@ -62,6 +62,8 @@ Not needed while the site is a private preview. Each line is one small piece of 
 | Before public launch or taking payment | F-REL-007, F-OPS-003, F-TEST-003, F-OPS-004, F-REL-002 |
 | First test of its kind or slice of its kind | F-TEST-005, F-DEVOS-005, F-DEVOS-006 (also a Wave 1 ride-along), F-DEVOS-007, F-OPS-005, F-UX-003, F-UX-004 |
 
+**Owner direction 2026-10-08 (Q-013):** apps are part of launch and are built in parallel with the website through a walking skeleton (one small feature end to end on both clients). The "First real mobile build" triggers above (F-REL-005, F-ARCH-002, F-AUTH-005) therefore move up to the start of the first real slice, and Q-011 (app name and store identity) should be answered before that slice. The owner also uses Preview, not Production, for review.
+
 ## 5. What needs your approval
 
 | Kind | Items |

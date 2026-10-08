@@ -267,7 +267,9 @@ Engineering decisions (Claude): this selects option 2 with sequencing, not a fre
 
 **Blocks**: nothing today. Shapes the order of the roadmap in Pass 5.
 
-**Status**: Open. Default until answered: option 1. Not needed before the roadmap is presented.
+**Status**: Answered 2026-10-08 by the owner (RECOLLECTION): apps are part of launch ("most everybody uses apps nowadays") and the owner wants the architecture to work in parallel with mobile devices if that is the usual practice. It is: this selects option 2 in spirit but with a parallel, not mobile-first, build.
+
+Engineering decisions (Claude): (1) The first real slice is a **walking skeleton** built on web and mobile together against the one shared API: one small read (and later one write), real sign-in on both, real database, with acceptance criteria for both clients (F-REQ-004). (2) This pulls forward, but does not start, F-AUTH-005 (a real mobile token reaching the API, with a test), F-ARCH-002 (client timeout, version header, minimum supported version) and Q-011 (app name and store identities) so they are decided before that slice, not at the first store build. (3) Store developer accounts and fees are spending decisions to ask before any purchase. (4) Application code stays paused until the owner lifts it; the rules and tests that make the skeleton safe (contract tests for the shared API, the mobile token test) can be prepared first.
 
 ### Q-014 Should public sign-up stay open on the live site before launch?
 
@@ -282,4 +284,4 @@ Engineering decisions (Claude): this selects option 2 with sequencing, not a fre
 
 **Blocks**: nothing. Informs F-AUTH-003 and the launch gate in `roadmap.md`.
 
-**Status**: Open. Default until answered: option 2 (your existing risk stance). Recorded here so it is a decision, not an oversight.
+**Status**: Open, low urgency. 2026-10-08 owner note (RECOLLECTION): the owner reviews the work on the Preview site and does not need the Production site at all before launch. Consequence: the Production deployment is not relied on by anyone; options include leaving it, or restricting sign-up in the Clerk dashboard, or later pausing the Production deployment. Default until answered: leave it; revisit at the launch gate.
