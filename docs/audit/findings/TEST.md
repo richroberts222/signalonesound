@@ -22,7 +22,7 @@ Not examined, and why: a mutation test of the shared validation schemas and the 
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium |
 | Confidence | High (RUN, mutation 2) |
 | Timing | Now |
@@ -49,7 +49,12 @@ Not examined, and why: a mutation test of the shared validation schemas and the 
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Upheld
+  Strongest case against: The layouts for `/account`, `/admin` and `/dashboard/church` re-check sign-in, so the mutation only exposes two pages (`/dashboard`, `/proof`) outside those layouts; the pages are mocks. A route-folder classification test could become a nuisance whenever a folder is added.
+  Evidence re-checked: RUN `grep -rln proxy` over test and spec files: none mention `proxy`. READ `apps/web/proxy.ts`: the protected list is one inline array, not exported. The earlier author's mutation run (171 tests green) was not repeated by this review (no test runs permitted); the grep and the source corroborate it.
+  Result: The cheapest tripwire in the register: about 30 lines, no secrets, no vendor, and it also serves F-AUTH-001. The nuisance cost is intended (a new folder must be classified). Needs a minimal edit to export the list from `proxy.ts`, which is a protective change, not feature work. Upheld at Medium.
 
 **History**: 2026-10-08 created. Absorbs the page-protection part of P-CH-06 (tests of authorization).
 
@@ -59,11 +64,11 @@ Not examined, and why: a mutation test of the shared validation schemas and the 
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
-| Severity | Medium |
+| Status | Challenged |
+| Severity | Low |
 | Confidence | High for the facts; Medium for the consequence (it depends on the first real feature) |
-| Timing | Before the first product table or endpoint |
-| Disposition | ADD |
+| Timing | Trigger: first product table or endpoint |
+| Disposition | DEFER |
 | Scope | BOTH |
 | Trigger class | Foundational |
 | Effort | M |
@@ -86,9 +91,17 @@ Not examined, and why: a mutation test of the shared validation schemas and the 
 
 **Decisions needed**: Q-003 (existing).
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low; ADD to DEFER)
+  Strongest case against: A nightly workflow with a real Clerk user and a real database, failing non-blocking to a notification a non-developer will not triage, is process theater for a project with no product tables. It needs a human workflow edit, a GitHub Environment, a Clerk test user and a qa role (F-DATA-005), and it overlaps F-AUTH-005 (real token test) and F-DATA-003 option (c).
+  Evidence re-checked: RUN `ls .github/workflows`: three workflows, none runs integration or Playwright. READ `docs/testing.md`: both 'not part of validate', 'neither runs in CI yet'. READ `apps/web/db/proof-items.integration.test.ts`: needs a Neon URL.
+  Result: The unproven join is real, but the consequence today is nil. Re-trigger at the first product table or endpoint, and then prefer a manual-dispatch workflow before each release over a nightly job. Combine with the F-AUTH-005 spike so the real-token test exists once. Low, DEFER.
 
 **History**: 2026-10-08 created. Absorbs P-GAP-02 and C-51.
+
+
+**History (Pass 4, 2026-10-08)**: Medium to Low and ADD to DEFER; nothing to integrate yet, overlaps F-AUTH-005 and F-DATA-003.
 
 ---
 

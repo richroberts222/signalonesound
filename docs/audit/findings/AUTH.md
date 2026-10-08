@@ -16,7 +16,7 @@ Not examined, and why: the Clerk dashboard (sign-up restrictions, bot protection
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium |
 | Confidence | High for the facts; the severity is driven by the absence of real data, not by the code |
 | Timing | Before real data (or the first real admin write, whichever is first) |
@@ -43,9 +43,17 @@ Not examined, and why: the Clerk dashboard (sign-up restrictions, bot protection
 
 **Decisions needed**: Q-010 (answered 2026-10-08; see its Status for the owner's choices and the engineering decisions).
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
+  Strongest case against: Recommendation (3) says to make `/admin` and `/dashboard/church` return not-found for non-members now, which is application code that the owner has paused, and would need an allow-list variable in Vercel before any member concept exists. Everything behind the pages is fictional static data.
+  Evidence re-checked: READ `apps/web/proxy.ts`: `createRouteMatcher(['/dashboard(.*)','/account(.*)','/admin(.*)','/proof(.*)'])`, sign-in only. READ `app/admin/layout.tsx` comments (not an authorization check). RUN read-only GET of public Production `/sign-up`: HTTP 200 with a `pk_test` key in the HTML, so any visitor can create an account and reach `/admin`.
+  Result: The gap and the copy-the-pattern risk are real. Reword timing: the test (F-TEST-001) and the deny-by-default pattern are allowed now; the allow-list mechanism and layout checks ship with the first real admin write, not before. Consistency fix: History records 'two admins', while Q-010's 2026-10-08 update says one shared identity; the single allow-list entry applies.
 
 **History**: 2026-10-07 created. Absorbs P-78-M13, P-CH-06, P-RM-01 (roles part), P-NOTES-01 (who is an admin, how granted); carry-forward from SEC and DATA (role model before real admin data). 2026-10-08: Q-010 answered. Two admins (the owner and one more person without an account yet); church managers request a role and an admin approves; a user never selects their own role. The recommended mechanism above is unchanged and now covers the request-and-approve flow (a pending-request record, then a membership row on approval).
+
+
+**History (Pass 4, 2026-10-08)**: reworded. Layout changes move to the first real admin write (application code is paused); the test is carried by F-TEST-001.
 
 ---
 
@@ -53,11 +61,11 @@ Not examined, and why: the Clerk dashboard (sign-up restrictions, bot protection
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
-| Severity | Medium |
+| Status | Challenged |
+| Severity | Low |
 | Confidence | High for the facts; Medium for the consequence (it depends on the first user-owned domain table) |
-| Timing | Before real data |
-| Disposition | ADD |
+| Timing | Trigger: first user-owned domain table |
+| Disposition | DEFER |
 | Scope | BOTH |
 | Trigger class | Foundational |
 | Effort | M |
@@ -80,9 +88,17 @@ Not examined, and why: the Clerk dashboard (sign-up restrictions, bot protection
 
 **Decisions needed**: Q-009.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low; ADD to DEFER)
+  Strongest case against: There is no user-owned domain table beyond the proof item, no webhook, no deletion obligation yet. The recommendation itself says 'at the design pass for the first user-owned domain table'. That is a trigger, not a Medium finding.
+  Evidence re-checked: READ `apps/web/db/schema.ts:19`: `owner_id text`, no foreign key. READ `app/api`: only `v1/proof-items` and `v1/status`; no webhook route. READ F-AUTH-002 recommendation text.
+  Result: Defer with the trigger 'first user-owned domain table'. It shares one design pass with F-AUTH-003's deletion path and F-DATA-009; do not open it separately. Low.
 
 **History**: 2026-10-07 created. Absorbs P-78-M14; carry-forward from DATA (Clerk user-deleted handling and webhook idempotency, F-DATA-009).
+
+
+**History (Pass 4, 2026-10-08)**: Medium to Low and ADD to DEFER; own recommendation is trigger-gated.
 
 ---
 
@@ -90,7 +106,7 @@ Not examined, and why: the Clerk dashboard (sign-up restrictions, bot protection
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium |
 | Confidence | Medium (the legal characterisation is INFER and needs counsel; the absence of any policy is READ) |
 | Timing | Before real data (and before any public sign-up) |
@@ -117,7 +133,12 @@ Not examined, and why: the Clerk dashboard (sign-up restrictions, bot protection
 
 **Decisions needed**: Q-009 (answered 2026-10-08 except the legal-review residual risk, which belongs to the owner; see its Status).
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
+  Strongest case against: A policy for zero real users is premature, the legal characterisation is INFER, and the owner has already answered Q-009 (18 or over, US first, terms and privacy accepted at sign-up, legal review undecided). Part of the content duplicates F-DATA-009.
+  Evidence re-checked: RUN grep of `docs/` outside `docs/audit` for age floor, first market, privacy policy and account deletion: no match. READ `product-plan.md` lines 40-98: GPS, notifications, friends, church portal. RUN read-only GET of Production `/sign-up`: 200, so the finding's 'before any public sign-up' timing has already passed (see F-AUTH-011).
+  Result: Upheld: the cost of the gate (a written rule) is near zero and the downside (religion plus location data collected without a policy) cannot be undone. Narrowed: the gate wording goes into `docs/auth.md` now; the inventory, coarse-location design and export wait for the first data-bearing slice. Overlap with F-DATA-009 is one design pass; keep both, cross-referenced.
 
 **History**: 2026-10-07 created. Absorbs P-78-M10, P-CH-07, P-CH-33, P-78-T11, and the privacy part of P-78-O05. 2026-10-08: Q-009 answered. Age 18 or over; US first with worldwide planning; terms and privacy acceptance at sign-up; legal review undecided (owner's residual-risk decision; hard gate before any non-US user).
 
@@ -164,11 +185,11 @@ Not examined, and why: the Clerk dashboard (sign-up restrictions, bot protection
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
-| Severity | Medium |
+| Status | Challenged |
+| Severity | Low |
 | Confidence | Medium (the server half is RUN against invalid tokens only; the client half is READ) |
 | Timing | Before real mobile authentication (the first mobile feature that needs a user) |
-| Disposition | ADD |
+| Disposition | DEFER |
 | Scope | MOBILE |
 | Trigger class | Trigger-gated |
 | Effort | M |
@@ -191,9 +212,17 @@ Not examined, and why: the Clerk dashboard (sign-up restrictions, bot protection
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low; ADD to DEFER)
+  Strongest case against: Mobile is a placeholder screen; the owner has paused application work; the finding itself says 'not before'. A trigger-gated spike is a Low, DEFER item (test 9). It also overlaps F-REQ-004's 'first slice includes one mobile read'.
+  Evidence re-checked: READ `apps/mobile/src/proof/proofClient.ts:17` (`noToken`); `apps/mobile/package.json` has no `@clerk/expo`. RUN grep: no test sends a valid bearer token. Not run against Clerk.
+  Result: The unproven success path is genuine and is the central premise of 'one platform, three clients', so the spike must happen before any mobile feature needs a user. But severity measures consequence now: schedule risk, not harm. Low, DEFER with the stated trigger. F-REQ-004 refers here for the token proof rather than repeating it.
 
 **History**: 2026-10-07 created. Absorbs P-GAP-01.
+
+
+**History (Pass 4, 2026-10-08)**: Medium to Low and ADD to DEFER; no mobile feature needs a user yet.
 
 ---
 
@@ -317,6 +346,43 @@ KEEP. Evidence: `lib/api/route.ts` and `lib/api/handler.ts` require a verified C
 ### F-AUTH-010 The authorization primitives are small and deny by default; do not replace them with a framework
 
 KEEP. Evidence: `lib/auth/authorize.ts` is 50 lines; `can` converts a throwing rule to a deny, `authorize` throws unless the result is strictly `true`, `isOwner` rejects empty owners; `auth.test.ts` covers allow, deny, missing owner, throwing rule, strict true, and composition; `proof-items.ts` re-scopes the delete to the owner so a race cannot remove another user's row. Why it is sound: it is the minimum structure the next rules (F-AUTH-001) need, and it is pure, so it runs on web and, through the service layer, for mobile. Tripwire: a rule library or decorator framework proposed before three distinct roles exist (L8); a rule that returns a truthy non-boolean.
+
+---
+
+### F-AUTH-011 Public sign-up is open on the public Production site, which runs a Clerk development instance, with no terms, privacy notice or age gate
+
+| Field | Value |
+| --- | --- |
+| Status | Draft |
+| Severity | Low |
+| Confidence | High for the observed behaviour (RUN); the Clerk dashboard settings are UNVERIFIED |
+| Timing | Now |
+| Disposition | ADD |
+| Scope | BOTH |
+| Trigger class | Foundational |
+| Effort | S |
+
+**Evidence**: A read-only GET of the public Production `/sign-up` page (2026-10-08, Pass 4) returns HTTP 200 and embeds a publishable key of the test (development) type; the value is not recorded. `findings/AUTH.md` F-AUTH-001 already records that Production is a Clerk development instance and that `/admin` and `/dashboard/church` accept any signed-in user. Production is public (U-21 answered). No age floor, terms or privacy text exists in `docs/` outside the audit folder (RUN grep, Pass 4). Q-009 decided that terms and privacy acceptance happen at sign-up; nothing implements it.
+
+**Observation**: F-AUTH-003 gates collection 'before any public sign-up'. That gate has already been crossed in a development form: a stranger can create an account today, Clerk collects their email address with no notice or age confirmation, and the account reaches the mock admin pages. No product data is at risk, but the audit's own proposed rule is not met by the live site, and nothing in the findings records it.
+
+**Consequence**: Low today (development-instance limits, fictional data). It matters as a precedent and as a privacy exposure that the owner may not know exists: real people's email addresses can be entered by anyone who finds the URL.
+
+**Recommendation**: An owner action in the Clerk dashboard, free: restrict sign-ups on the development instance (restricted or invitation-only mode, or an allow-list of the team's emails) until the terms-and-privacy flow of Q-009 exists. If the owner wants outsiders to try the site, record that as a deliberate, time-boxed exception. Update F-AUTH-003's timing text to say the gate applies to the production instance, not to development.
+
+**Alternatives and tradeoffs**: Leave open (the team shares one login anyway, so nobody needs a separate account). Remove the sign-up route until it is needed (application change, paused).
+
+**Affects**: Clerk dashboard settings; `docs/auth.md`; F-AUTH-003 wording.
+
+**Depends on / sequencing**: Independent; owner action.
+
+**Verification**: The `/sign-up` page shows restricted or closed access, or a new test email cannot register; the setting is recorded in `baseline/external-state.md`.
+
+**Decisions needed**: whether anyone outside the team should be able to register before launch (owner).
+
+**Challenge log**: (Pass 4) Created during Pass 4; Low severity and not eligible for a challenge entry. Re-examine in the next adversarial pass.
+
+**History**: 2026-10-08 created in Pass 4 from a read-only request to the public site (test 9: a current problem that earlier findings framed as future).
 
 ---
 

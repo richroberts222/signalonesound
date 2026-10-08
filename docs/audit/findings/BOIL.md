@@ -16,8 +16,8 @@ Not examined, and why: the generated application's build, tests and lint (above)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
-| Severity | Medium |
+| Status | Challenged |
+| Severity | Low |
 | Confidence | High for the mechanism and the incident; the recurring cost is INFER |
 | Timing | Now (a decision, Q-012; the fix is small) |
 | Disposition | IMPROVE |
@@ -43,11 +43,19 @@ Not examined, and why: the generated application's build, tests and lint (above)
 
 **Decisions needed**: Q-012 (new).
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low, reworded)
+  Strongest case against: The incident has been fixed structurally: PR #84 added `docs/audit` to `REFERENCE_ONLY_PATHS`, and Q-012 was answered 'another app will be built', which rejects the freeze branch of the recommendation. CI has been green on the audit branch since.
+  Evidence re-checked: READ `scripts/boilerplate/manifest.mjs:40`: `REFERENCE_ONLY_PATHS` includes `docs/audit`, `docs/features`, `docs/product`. RUN `gh run list --workflow=CI`: green. READ Q-012 Status: option 2 chosen. `gh pr list`: PR #93 (CRLF/Windows tooling) and #90 (reports) are open.
+  Result: The word denylist across all text still means any new document outside the reference-only directories that says 'Signal One' fails the required check. That is a real but small recurring cost, now with a known one-line remedy and a decided direction (invert the boundary). Reword to that: the 'freeze' branch is withdrawn. Low.
 
 **History**: 2026-10-08 created. Absorbs P-78-O04; incident from Pass 1 fact 20 and Q-002.
 
 **History (2026-10-08)**: Q-012 answered: a second application will be built. The freeze recommendation is replaced by: keep the gate, reduce its false alarms structurally (one directory convention), and invest nothing else in the template until Signal One's foundation fixes land.
+
+**History (Pass 4, 2026-10-08)**: Medium to Low; incident fixed by #84, Q-012 answered 'keep the template', freeze option withdrawn.
+
 ---
 
 ### F-BOIL-002 The copy routines include the private local environment file and untracked files, and the proof script leaves its copy behind on failure
@@ -160,13 +168,15 @@ Not examined, and why: the generated application's build, tests and lint (above)
 **History**: 2026-10-08 created. Absorbs P-GAP-09 (export not refreshed since 2026-10-01).
 
 **History (2026-10-08)**: Q-012 answered. The template will be reused, so the repository is kept, refreshed after the foundation fixes, and made private now (owner action in the repository's settings).
+
+**History (2026-10-08, later)**: Owner decision (RECOLLECTION: "not too worried about making the boiler plate private yet because nobody's after my code"): the published template repository stays public for now. Accepted residual risk; revisit before it carries anything proprietary or at the first real user's data.
 ---
 
 ### F-BOIL-005 Two historical reports and a few stale references add reading weight to the template
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Low |
 | Confidence | High |
 | Timing | Now |
@@ -193,11 +203,19 @@ Not examined, and why: the generated application's build, tests and lint (above)
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Upheld
+  Strongest case against: Deleting history-bearing documents might lose context.
+  Evidence re-checked: READ: both reports still exist in `docs/`; `docs/customization-map.md:15` names `components/auth/auth-header.tsx`, and `apps/web/components/auth` does not exist (RUN `ls`). `gh pr view 90`: OPEN, branch `docs/issue-89-remove-historical-boilerplate-reports`.
+  Result: Sound and already in flight: the owner approved removal under Q-012 and PR #90 implements it. Version control keeps the history. No change beyond a status note: when #90 merges, close this finding as done.
 
 **History**: 2026-10-08 created.
 
 **History (2026-10-08)**: Owner approved removal. Applied in issue #89 and PR #90 (open at the time of writing).
+
+**History (Pass 4, 2026-10-08)**: upheld; implementation is PR #90 (issue #89).
+
 ---
 
 ### F-BOIL-006 The init and export design is sound: one manifest, dry run, identity validation, negative controls

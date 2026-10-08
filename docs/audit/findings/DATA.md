@@ -18,7 +18,7 @@ No code, script, test or config reads a Neon branch name. The word `prod` in cod
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium |
 | Confidence | High (READ) that none exists; the state of qa, stage and prod is UNVERIFIED (U-06) |
 | Timing | Before real data |
@@ -45,9 +45,17 @@ No code, script, test or config reads a Neon branch name. The word `prod` in cod
 
 **Decisions needed**: none from Rich.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
+  Strongest case against: A production migration script with an interactive confirmation presumes the owner runs a command-line tool on their own machine. The owner is a non-developer, the local gate was red on Windows until recently, and the agent must not hold a production credential. The finding rejects a GitHub Environment with required approval only because `environment.md:73` forbids production secrets in Actions, which is a documented choice, not a law.
+  Evidence re-checked: READ `apps/web/db/tooling/migrate.ts:21` (`MIGRATE_ALLOWED_ENVS` = dev, qa, stage); READ `drizzle.config.ts` (refuses prod); READ `database.md` step 6 'not yet defined'; RUN `ls apps/web/drizzle`: two proof migrations only.
+  Result: The gap is real and correctly timed (before the first product table). Reword: who executes a production migration is the open design question, not just what the script checks. Evaluate a GitHub Environment holding the production credential with a required-reviewer approval (secret reachable only by that job) against the owner-machine route, and record the choice in `database.md`. Expand/contract and the restore-point precondition stand.
 
 **History**: 2026-10-07 created (Pass 2). Maps P-78-M06, P-GAP-04, P-CH-08 (procedure part).
+
+
+**History (Pass 4, 2026-10-08)**: reworded. Added the executor question and the Environment-with-approval alternative; neither requires work before the first product table.
 
 ---
 
@@ -55,7 +63,7 @@ No code, script, test or config reads a Neon branch name. The word `prod` in cod
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium (High once real data exists) |
 | Confidence | Medium (window and plan are UI-RELAY; "never exercised" is the docs' statement, `database.md:380`) |
 | Timing | Before real data |
@@ -82,7 +90,12 @@ No code, script, test or config reads a Neon branch name. The word `prod` in cod
 
 **Decisions needed**: Possibly a spend decision (plan upgrade) later; not now.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
+  Strongest case against: The severity text says 'Medium (High once real data exists)'. Under the methodology's own rule that would be High; yet no real data exists and part of the fix is a spend decision. A scheduled `pg_dump` to owner-controlled storage is an operations burden for a non-developer.
+  Evidence re-checked: READ `docs/database.md:380` (restore 'not yet documented/exercised'); `baseline/external-state.md` (UI-RELAY): Free plan, 6-hour window, no snapshots, `production` not protected. Not re-verifiable from the repository; UNVERIFIED on the console today.
+  Result: Keep Medium: the item is gated by timing and the first step (one restore on a throwaway child branch) is free and now. Narrow the rest: decide between a paid longer window and the dump habit at the real-data trigger; do not build the dump schedule earlier. Calibration note in `pass-4-review.md`: the 'High once data exists' convention is implicit and is not applied elsewhere.
 
 **History**: 2026-10-07 created (Pass 2). Maps P-78-M05, P-CH-08 (restore part), P-CH-30 (partly). Pure plan limits are not treated as defects of the stack.
 
@@ -92,10 +105,10 @@ No code, script, test or config reads a Neon branch name. The word `prod` in cod
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium |
 | Confidence | Medium (READ for CI and drivers; the driver constraint is INFER from `neon()`/`neon-http` use, not RUN) |
-| Timing | Now |
+| Timing | Now (offline drift check); before the first product migration (apply from zero) |
 | Disposition | ADD |
 | Scope | BOTH |
 | Trigger class | Foundational |
@@ -119,9 +132,17 @@ No code, script, test or config reads a Neon branch name. The word `prod` in cod
 
 **Decisions needed**: none from Rich (option (c) would need an account action).
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld, timing split)
+  Strongest case against: Only two proof migrations exist and application work is paused; an ephemeral Postgres plus a node-postgres migrator adds a dev dependency and a second driver path (test 7). The Neon-HTTP point is INFER.
+  Evidence re-checked: READ `ci.yml`: only `pnpm validate`. READ `apps/web/drizzle.config.ts`: needs `loadDatabaseEnv()` values but `db:generate` makes no connection, so a fake dev URL suffices. RUN `ls apps/web/drizzle`: `0000_migration_proof.sql`, `0001_proof_item.sql` and meta.
+  Result: Split the recommendation. Now (S): an offline CI step that runs `drizzle-kit generate` and fails on any diff, plus a check that journal `when` values are strictly increasing; no container, no new dependency. Before the first product migration (M): apply-from-zero against ephemeral Postgres. This settles the open contradiction with F-DEVOS-007: the machine check here is separate from DEVOS-007's path-based review gate, which stays deferred.
 
 **History**: 2026-10-07 created (Pass 2). Narrows the fact-pass statement that `db:check`/`db:migrate:verify` are merely "omitted from CI": they cannot run in CI as written without a Neon credential. Maps P-CH-08 (verification part). F-DEVOS-007's deferral of migration gates is now partly contradicted for this check (see its challenge log in Pass 4).
+
+
+**History (Pass 4, 2026-10-08)**: reworded and split by timing; resolves the DATA-003 versus DEVOS-007 open contradiction.
 
 ---
 
@@ -129,8 +150,8 @@ No code, script, test or config reads a Neon branch name. The word `prod` in cod
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
-| Severity | Medium |
+| Status | Challenged |
+| Severity | Low |
 | Confidence | High (READ) |
 | Timing | Before real data |
 | Disposition | ADD |
@@ -156,9 +177,17 @@ No code, script, test or config reads a Neon branch name. The word `prod` in cod
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low)
+  Strongest case against: The failure needs a production URL to be on a machine or in a job configured for dev. Credential hygiene (production URL never in `.env.local`, which `deployment.md` already says) and roles (F-DATA-005) prevent the same event more cheaply. The fingerprint also contradicts F-DATA-007: `db:reset` truncates every base table in `public`, so a fingerprint row stored there would be wiped by the very command it is meant to guard (test 6 and test 8: a new migration in every environment, including production).
+  Evidence re-checked: READ `apps/web/db/tooling/reset.ts:5,19-25` (truncates all `public` base tables with CASCADE); READ `guard.ts:20-26`; READ `claude.yml` (dev URL only). Not run.
+  Result: The idea is sound but not Medium: nobody but the dev-scoped tooling runs `db:reset`, and no production credential is on any machine the audit saw. If built, the fingerprint must live outside `public` (own schema or a database setting) and must be a migration-free provisioning step. Prefer first: keep production credentials off every dev path and use separate roles. Low, before real data.
 
 **History**: 2026-10-07 created (Pass 2). Maps P-CH-29 (database part) and the label/branch-name question.
+
+
+**History (Pass 4, 2026-10-08)**: Medium to Low. Found a design conflict: the fingerprint would be truncated by `db:reset`; it must live outside `public`.
 
 ---
 
@@ -166,7 +195,7 @@ No code, script, test or config reads a Neon branch name. The word `prod` in cod
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium |
 | Confidence | Low (the state is UNVERIFIED: U-05, U-09, U-15; the docs say "recommended, not configured") |
 | Timing | Before real data |
@@ -193,7 +222,12 @@ No code, script, test or config reads a Neon branch name. The word `prod` in cod
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
+  Strongest case against: Confidence is Low: roles are UNVERIFIED, so the finding may describe a problem that does not exist. A role split before any product schema is speculative design (test 9).
+  Evidence re-checked: READ `docs/security.md` and `database.md`: roles 'recommended, not configured'. `baseline/external-state.md` (UI-RELAY): no IP restriction. Neon role list not read (UNVERIFIED, U-05, U-09).
+  Result: Keep, but as a two-step item: first read the role list (a console view, names and privileges only); design the two-role split with the first product schema, when `drizzle` migrations and the runtime connection are written anyway. The agent job's credential is the first thing to scope (F-SEC-002). Medium holds at 'before real data'.
 
 **History**: 2026-10-07 created (Pass 2). Maps P-78-M15, P-SEC-07, P-CH-29 (part). Carries U-05, U-09, U-15 from SEC.
 

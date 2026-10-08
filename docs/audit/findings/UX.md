@@ -14,8 +14,8 @@ Not examined, and why: visual design quality and colour contrast (no rendered re
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
-| Severity | Medium |
+| Status | Challenged |
+| Severity | Low |
 | Confidence | High on the counts (RUN); High that no guard exists (READ) |
 | Timing | Now (the guard); with issue #91 (the conversion) |
 | Disposition | ADD |
@@ -41,9 +41,17 @@ Not examined, and why: visual design quality and colour contrast (no rendered re
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low)
+  Strongest case against: Severity measures consequence, and 19 raw elements in mock screens (some of which may be discarded, Q-005) change nothing for users. The owner's priority on shadcn is a priority, not a severity. A per-file allowlist ratchet has its own upkeep as files move.
+  Evidence re-checked: RUN grep for raw elements outside `components/ui`: `<label` 13, `<input` 4, `<button` 1, `<table` 1, `<select` 0, `<textarea` 0 (matches the finding). READ `apps/web/eslint.config.mjs`: only `next/core-web-vitals` and `typescript` presets; no restricted-syntax rule.
+  Result: Counts are exact and the guard is cheap and owner-directed, so keep it at Now. Prefer an ESLint `no-restricted-syntax` rule with a per-file override list (the same ratchet, one existing mechanism, no custom test). Low severity; priority is high by owner instruction.
 
 **History**: 2026-10-08 created. Absorbs P-CQ-F2 and the owner directive of 2026-10-08.
+
+
+**History (Pass 4, 2026-10-08)**: Medium to Low; owner priority recorded separately from severity. ESLint rule preferred over a bespoke test.
 
 ---
 
@@ -51,7 +59,7 @@ Not examined, and why: visual design quality and colour contrast (no rendered re
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium |
 | Confidence | High that nothing is automated (RUN); Medium on the extent of real defects (not tested with tools or people) |
 | Timing | Automation: Before first real users. Human check: Before public launch |
@@ -78,7 +86,12 @@ Not examined, and why: visual design quality and colour contrast (no rendered re
 
 **Decisions needed**: none now.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
+  Strongest case against: WCAG work for a mock stage is early, the `next/core-web-vitals` preset already carries some accessibility rules (INFER), Playwright is not in CI so an axe scan has no home yet, and an overlay-free approach still needs a human screen-reader pass that this audit cannot perform.
+  Evidence re-checked: READ `apps/web/eslint.config.mjs`: presets only. RUN dependency search: no axe or accessibility testing package. Preset rule contents not verified (UNVERIFIED). Contrast of brand colours not measured.
+  Result: Keep, sequenced: record the WCAG 2.2 AA target now (one line in `docs/ui.md`), add the stricter lint rules in the same ESLint edit as F-UX-001, and defer the axe scan to the point Playwright runs in CI (F-TEST-003). The human pass stays 'before public launch'. Medium holds for an audience that skews to larger text and assistive tools.
 
 **History**: 2026-10-08 created. Absorbs P-78-M11, P-78-T05 and P-CH-14.
 

@@ -16,7 +16,7 @@ Not examined, and why: the Vercel plan tier and its log retention (not exposed t
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium |
 | Confidence | High that nothing is configured in the repository; Medium on the retention (INFER from the platform's own wording and an empty log read) |
 | Timing | Before first real users |
@@ -43,7 +43,12 @@ Not examined, and why: the Vercel plan tier and its log retention (not exposed t
 
 **Decisions needed**: none now (vendor choice at authorization).
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
+  Strongest case against: Nothing real runs on Production and the error-tracking vendor needs the owner's authorisation and a privacy decision. The health-route ping, the request id and the tracker are three separate pieces; the health route duplicates F-REL-001.
+  Evidence re-checked: RUN grep for `sentry|datadog|pino|winston|posthog|logtail` in the three `package.json` files: no match. READ `lib/api/report.ts` (class name only, by design). The Vercel log read (403 for seven days) is from 2026-10-08 and was not re-run.
+  Result: Keep, narrowed to what is cheap and privacy-neutral first: a request identifier in the shared adapter and one free external uptime check on the health route (the same item as F-REL-001's smoke check). The error-tracking vendor waits for the owner's authorisation at launch. Medium holds at 'before first real users'.
 
 **History**: 2026-10-08 created. Absorbs P-78-M07 (error monitoring and structured logs with redaction), P-78-T07 (uptime monitoring and alert routing; status page and on-call stay deferred), and the OPS part of P-SEC-06 (request logging).
 
@@ -53,7 +58,7 @@ Not examined, and why: the Vercel plan tier and its log retention (not exposed t
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Merged -> F-SEC-007 |
 | Severity | Medium |
 | Confidence | High |
 | Timing | Before first real users |
@@ -80,9 +85,17 @@ Not examined, and why: the Vercel plan tier and its log retention (not exposed t
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Merged into F-SEC-007
+  Strongest case against: Same root cause as F-SEC-007: a one-page operational runbook for a single owner. Two findings, one page, one owner action list. Its clause (3), 'give the business partner their own login', contradicts the owner's accepted shared-login decision.
+  Evidence re-checked: READ F-OPS-002 recommendation (1) to (5) against F-SEC-007 recommendation and the F-SEC-007 History of 2026-10-08. RUN `gh secret list`: two secrets.
+  Result: Merged: kill switches, first-three-steps incident list and status-page subscriptions move to F-SEC-007 (`docs/operations.md`); the own-login clause is dropped; the rollback step points to F-REL-001. ID kept as a tombstone.
 
 **History**: 2026-10-08 created. Absorbs P-CH-24 (operational ownership), P-CH-31 (kill switches), the incident-response half of P-CH-16, the runbook half of P-78-T10 (vendor-outage runbook), and F-DATA-002's runbook carry-forward. Emergency access (P-CH-26) is owned by F-SEC-007.
+
+
+**History (Pass 4, 2026-10-08)**: merged into F-SEC-007.
 
 ---
 
@@ -90,11 +103,11 @@ Not examined, and why: the Vercel plan tier and its log retention (not exposed t
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Low |
 | Confidence | Low (the plans and limits are not read; the design point is INFER) |
-| Timing | Before public launch |
-| Disposition | ADD |
+| Timing | Trigger: design of the real discovery data path; before public launch |
+| Disposition | DEFER |
 | Scope | BOTH |
 | Trigger class | Trigger-gated |
 | Effort | S to M |
@@ -117,9 +130,17 @@ Not examined, and why: the Vercel plan tier and its log retention (not exposed t
 
 **Decisions needed**: none now (spend is the owner's at the trigger).
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (disposition ADD to DEFER)
+  Strongest case against: Confidence is Low (plan limits unread), the discovery path does not exist, and the recommendation is a design decision for a data path not yet designed (test 9).
+  Evidence re-checked: READ `docs/ideas/observability.md` and the finding's evidence; vendor plan limits UNVERIFIED (U-18).
+  Result: Keep the caching design principle as a note on the discovery slice, and read vendor limits at the pre-launch checkpoint. DEFER with trigger 'the real discovery data path'. Low.
 
 **History**: 2026-10-08 created. Absorbs P-CH-15 (performance, capacity, cost), P-78-T08 (performance budgets), P-78-T09 (cost budgets and alerts), the cached-read-path half of P-78-T10, and the OPS part of F-REL-007.
+
+
+**History (Pass 4, 2026-10-08)**: ADD to DEFER; hypothetical until a data path exists.
 
 ---
 
@@ -159,6 +180,7 @@ Not examined, and why: the Vercel plan tier and its log retention (not exposed t
 **History**: 2026-10-08 created. Absorbs P-CH-11 (server side) and P-CH-32 (safe bulk operations).
 
 **History (Pass 3, 2026-10-08, S-08)**: `proxy.ts` runs the identity middleware on every page and API request except static files (RUN, matcher read), so public discovery pages are inside the identity provider's request path. Whether a provider outage takes down public pages is therefore a real, untested question; the verification step above is the test, and the middleware may need a public-route bypass at the first real public page.
+
 ---
 
 ### F-OPS-005 Service targets (availability, speed) are not defined, and should stay informal until there are users

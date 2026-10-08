@@ -22,7 +22,7 @@ Not examined, and why: the value of the Preview `APP_ENV` and `DATABASE_ENV` (U-
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium |
 | Confidence | Medium (the missing variables are CONSOLE; the failure at first request is READ and INFER, no authenticated Production request was made) |
 | Timing | Before first real users |
@@ -49,9 +49,17 @@ Not examined, and why: the value of the Preview `APP_ENV` and `DATABASE_ENV` (U-
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
+  Strongest case against: Three new mechanisms (a health route, a `deployment_status` workflow, an instrumentation hook) for a site with no users. The health route's database ping would wake the Free-plan Neon compute on every poll, adding cost and masking cold-start behaviour. The smoke check duplicates F-OPS-001's uptime check.
+  Evidence re-checked: READ `apps/web/app/api/v1/status/route.ts`: static JSON, no environment or database check. READ `docs/deployment.md` section 7 ('Planned, not built'). Production lacking database variables is UI-RELAY from 2026-10-07 and was not re-checked (UNVERIFIED today).
+  Result: Narrow to two items: one health route whose depth is a decision (configuration check always, database ping only on demand), and the one-page release and rollback runbook (fold into `docs/operations.md`, F-SEC-007). The post-deploy smoke check and the uptime monitor are one mechanism (F-OPS-001). Drop the instrumentation hook until the first release. Medium holds: lazy validation plus a green deployment is a real failure shape.
 
 **History**: 2026-10-08 created. Absorbs P-78-M09, P-CH-23, and the rollback part of P-CH-18; supersedes the "check a Preview" sentence as the only control.
+
+
+**History (Pass 4, 2026-10-08)**: reworded. Smoke check merged with the uptime check (F-OPS-001); instrumentation hook dropped; runbook moved into the shared operations page.
 
 ---
 

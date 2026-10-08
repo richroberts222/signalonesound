@@ -23,8 +23,8 @@ New facts established in this pass, not in Pass 1 (also in `progress.md`):
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
-| Severity | Medium |
+| Status | Challenged |
+| Severity | Low |
 | Confidence | Medium (silence is RUN for one run and CONSOLE history for five; the cause is INFER) |
 | Timing | Now |
 | Disposition | IMPROVE |
@@ -50,9 +50,17 @@ New facts established in this pass, not in Pass 1 (also in `progress.md`):
 
 **Decisions needed**: Q-008.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low)
+  Strongest case against: The owner reports that no separate review process was ever relied on (U-25), Q-008 is decided as 'remove', and a same-model reviewer is a lint-grade aid anyway. Making human review 'traceable' for a team of one is process theater. A silent green optional check harms nobody once the owner knows.
+  Evidence re-checked: RUN `gh api` on PRs #84, #86, #88: submitted reviews 0, inline comments 0, issue comments from `vercel[bot]` only. RUN `gh run list --workflow='Claude Code Review'`: the latest runs all `success`. READ `claude-code-review.yml`: only `mcp__github_inline_comment__create_inline_comment` is allowed, `pull-requests: read`.
+  Result: The silent-green observation stands and was reproduced on three further PRs. But the decision (Q-008 option 2) collapses 'repair or remove' to removal plus three doc edits, and the human-trace half should be dropped. Removal also deletes one more floating-tag workflow from F-SEC-002's surface. Low.
 
 **History**: 2026-10-06 created (Pass 2). Confirms the SEC carry-forward ("Claude Code Review runs green but leaves no visible comments") with a log-level observation and narrows the claim: silence is indistinguishable from "found nothing", which is the defect; the audit does not claim the reviewer would miss a defect.
+
+
+**History (Pass 4, 2026-10-08)**: Medium to Low. Q-008 decided removal; the untraceable-human-review half is dropped as theater for a team of one.
 
 ---
 
@@ -60,8 +68,8 @@ New facts established in this pass, not in Pass 1 (also in `progress.md`):
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
-| Severity | Medium |
+| Status | Challenged |
+| Severity | Low |
 | Confidence | Medium (the environment facts are RUN and READ; U-24 examined 2026-10-07: the seven red merges were red at the PR head) |
 | Timing | Now |
 | Disposition | IMPROVE |
@@ -87,18 +95,26 @@ New facts established in this pass, not in Pass 1 (also in `progress.md`):
 
 **Decisions needed**: Q-007 (existing), Q-002 (existing).
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low)
+  Strongest case against: The serious half, red merges, is solved by the ruleset's required `Validate`. What remains is a convenience: the agent cannot run `pnpm validate`. Adding an install step enlarges the executable surface of the job exactly while F-SEC-002 tries to shrink it (test 6). The Windows false failures that undercut local runs are addressed by PR #88 (merged) and #93 (open).
+  Evidence re-checked: READ `claude.yml`: checkout and the action only; no corepack, no install. RUN `gh api .../rulesets/24677009`: required check `Validate`, `strict_required_status_checks_policy: false`. RUN `gh run list --workflow=CI`: latest runs green on the audit and fix branches. READ `git log origin/main`: #88 merged.
+  Result: Reworded to a documentation fix first: state that the agent validates with the allowed commands and CI is the gate; add an install step only after F-SEC-002 has narrowed the allow-list. Recommendation (2) is already applied (up-to-date stays off by owner choice). Low.
 
 **History**: 2026-10-06 created. Modifies the SEC carry-forward "seven PRs merged on a failing check": the data show the *merge commit* red, not that each PR was red when merged; part may be merge skew. The process side of F-SEC-001 stands, with a sharper cause.
 
 **History (2026-10-07)**: U-24 answered. 7 of the 30 PRs with a head `Validate` result (23%) merged red at the head (#32, #33, #34, #40, #56, #58, #59); #67 merged with a cancelled run; 22 were green. The `Protect main` ruleset (required `Validate`, 0 approvals, up-to-date requirement off) now blocks a red merge, so recommendation (2) is applied for red-at-head. The up-to-date requirement is deliberately off. The agent-job validation gap (recommendation 1) is unchanged.
+
+**History (Pass 4, 2026-10-08)**: Medium to Low. Red-merge half is closed by the ruleset; the install step conflicts with F-SEC-002 and is sequenced after it.
+
 ---
 
 ### F-DEVOS-003 Documentation drift is systemic: the rules are long, partly duplicated, partly stale, and unindexed
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium |
 | Confidence | High (READ and RUN greps; the cost to a model run is INFER) |
 | Timing | Now |
@@ -132,7 +148,12 @@ New facts established in this pass, not in Pass 1 (also in `progress.md`):
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
+  Strongest case against: Most of the volume is rule content for unbuilt features, only about 11 sentences are stale, and 'last verified' metadata or consolidation would be ceremony. A doc-existence test and a task map could themselves go stale.
+  Evidence re-checked: RUN grep on 2026-10-08: `docs/deployment.md:96-97` 'Planned, not built'; `docs/shared-code.md:78` 'api.md, currently empty' while `api.md` is 119 lines; `docs/testing.md:52` 'not yet installed'; `CLAUDE.md:66` 'Not all of these documents may exist yet'; `docs/routing.md` and `docs/server-components.md` are 0 lines.
+  Result: Every cited stale sentence is still present, none fixed since the baseline. Keep (1) deletion of state sentences, (2) the task-to-document map, (4) the small existence test. Treat (3) 'name the mechanism' as a convention line, not a check. Medium holds on the finding's own best argument: `CLAUDE.md:70` converts a stale sentence into a wrong decision. Note: a local untracked `.claude/` directory now exists; the claim 'repository has no `.claude/`' concerns tracked files only.
 
 **History**: 2026-10-06 created. Challenges issue 78's "docs describe a different repository" (P-78-A): about 11 specific stale points in about 7 documents, against 31 ledger claims proven and 13 partial; the problem is systemic in mechanism, not in extent. Narrows P-78-B's remedy.
 
@@ -179,11 +200,11 @@ New facts established in this pass, not in Pass 1 (also in `progress.md`):
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Low |
 | Confidence | High (READ, git history) |
-| Timing | Now |
-| Disposition | REMOVE |
+| Timing | Trigger: the documentation-reconciliation slice (F-DEVOS-003) |
+| Disposition | DEFER |
 | Scope | BOTH |
 | Trigger class | Overengineering now |
 | Effort | S |
@@ -206,9 +227,17 @@ New facts established in this pass, not in Pass 1 (also in `progress.md`):
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (disposition REMOVE to DEFER)
+  Strongest case against: Removal is not cheap for a Low: the file is referenced by `CLAUDE.md`, six docs, three boilerplate scripts and a navigation config including the manifest and init reset (test 3 and test 8). The product questions inside it need a new home first.
+  Evidence re-checked: RUN grep for `notes.md` outside `docs/audit`: 12 files (`CLAUDE.md`, `docs/boilerplate.md`, `customization-map.md`, `issues.md`, `new-app-setup.md`, `product-development.md`, `stack.md`, three scripts under `scripts/boilerplate/`, one template doc, and `nav-config.ts`). READ `docs/notes.md`: 38 lines; `git log` shows #73, #75 and #77 each rewrote it.
+  Result: The problem is real but small; the cure touches the tooling under test. Defer removal into the documentation-reconciliation slice (F-DEVOS-003) and, meanwhile, adopt the cheap rule: the PR that uses `notes.md` empties it before merge. Low.
 
 **History**: 2026-10-06 created (new; the Phase 0 reading of `notes.md` recorded it as optional and did not examine its use).
+
+
+**History (Pass 4, 2026-10-08)**: REMOVE to DEFER; 12 referencing files make a standalone removal poor value.
 
 ---
 
@@ -216,11 +245,11 @@ New facts established in this pass, not in Pass 1 (also in `progress.md`):
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Low |
 | Confidence | Medium (READ; the harm is INFER, not observed) |
-| Timing | Now |
-| Disposition | ADD |
+| Timing | Trigger: first observed double run, or the next edit to `claude.yml` |
+| Disposition | DEFER |
 | Scope | BOTH |
 | Trigger class | Foundational |
 | Effort | S |
@@ -243,9 +272,17 @@ New facts established in this pass, not in Pass 1 (also in `progress.md`):
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (disposition ADD to DEFER)
+  Strongest case against: Never observed in history; the harm is wasted runs and a rejected push, bounded and visible. It solves a hypothetical (test 9) and costs a human workflow edit.
+  Evidence re-checked: READ `claude.yml` and `ci.yml`: no `concurrency:` key. No evidence of a double run in `baseline/history.md` (not re-queried in full; UNVERIFIED beyond a read of the finding).
+  Result: Keep as a one-line addition to the edit window already needed for F-SEC-002, but do not open a standalone change for it. DEFER with trigger: the first observed double run. Low.
 
 **History**: 2026-10-06 created (new).
+
+
+**History (Pass 4, 2026-10-08)**: ADD to DEFER; hypothetical, ride along with the next `claude.yml` edit.
 
 ---
 

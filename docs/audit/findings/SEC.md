@@ -19,11 +19,11 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
-| Severity | High |
+| Status | Challenged |
+| Severity | Low |
 | Confidence | Medium (protection absence is CONSOLE; the deploy-on-merge link is U-01) |
 | Timing | Now |
-| Disposition | ADD |
+| Disposition | IMPROVE |
 | Scope | BOTH |
 | Trigger class | Foundational |
 | Effort | S |
@@ -46,18 +46,26 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 **Decisions needed**: none (Q-007 is separate).
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (High to Low; ADD to IMPROVE)
+  Strongest case against: The recommendation has been applied, so the High is stale. Ruleset 24677009 is active with deletion, non_fast_forward, pull_request (0 approvals) and required `Validate`, and the bypass list is empty, so the owner cannot push to `main` either. The original premise, that nothing technical stops a direct push or a red merge, is no longer true (test 2: redundant with an existing control).
+  Evidence re-checked: RUN `gh api repos/:owner/:repo/rulesets` and `.../rulesets/24677009` on 2026-10-08: the four rules above, `bypass_actors: []`, target `~DEFAULT_BRANCH`. RUN `git tag`: `signal-one-foundation-v1` exists; only one ruleset exists, so the tag has no protection. READ `claude.yml`: `Bash(gh pr *)` still present.
+  Result: Residuals are (a) tag protection for the restore-point tag (Low), (b) record the ruleset as exported JSON for the template, and (c) the fact that an agent-opened PR with a green `Validate` can be merged by a merge-capable token, which is F-SEC-002, not this finding. Severity Low, disposition IMPROVE. The up-to-date option stays off by the owner's deliberate choice (F-DEVOS-002).
 
 **History**: 2026-10-06 created. Differs from issue 78 M01 ("required review"): reviews required set to zero for a single-owner repository; severity High, not Critical, because production deployment is UNVERIFIED and the realistic exploit needs F-SEC-002.
 
 **History (2026-10-07)**: Partly applied by the owner: ruleset `Protect main` is active (deletion and force-push blocked; pull request required with 0 approvals; `Validate` required; up-to-date off; bypass list empty). Documented in `docs/security.md` (PR #86). Deploy-on-merge is now **evidenced** (U-01 answered 2026-10-08: a merge to `main` deploys Production within seconds), which supports keeping the severity until Pass 4 verifies that the ruleset is the only path to `main`. Tag protection for `signal-one-foundation-v1` is not covered.
+
+**History (Pass 4, 2026-10-08)**: High to Low and ADD to IMPROVE because the ruleset `Protect main` is active and verified; residual is tag protection and exporting the ruleset. The merge-capability risk is carried by F-SEC-002.
+
 ---
 
 ### F-SEC-002 The Claude job concentrates secrets, write access, and arbitrary code execution
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | High |
 | Confidence | Medium (configuration READ; exploitability depends on vendor behavior, INFER) |
 | Timing | Now |
@@ -84,9 +92,17 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 **Decisions needed**: Q-007.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
+  Strongest case against: Exploitation needs a write-access actor or injected text the agent reads. The repository has one collaborator, the action only serves write users by default, the database credential is the dev branch (proof data), and the largest prize is the owner's personal Claude token. Recommendation (3), SHA pinning, duplicates F-SEC-004, and (4) may be moot: the action normally needs `id-token: write` to obtain its GitHub App token (INFER from vendor examples).
+  Evidence re-checked: READ `.github/workflows/claude.yml` (2026-10-08): job `env` sets `DATABASE_URL` from the dev secret; `Bash(gh pr *)`, `Bash(pnpm *)`, `Bash(npx *)` allowed; floating `@v1`/`@v4`; write permissions. RUN `gh secret list`: exactly two secrets (OAuth token, dev database URL). UNVERIFIED: whether `gh pr merge` actually succeeds with the app token.
+  Result: High is kept for one reason: this is the only place a documented core invariant (human-only merge) is contradicted by configuration. `gh pr *` includes merge, `pnpm *` runs arbitrary code, and the ruleset only demands a green `Validate`, so a green agent PR is mergeable by the agent. The fix is small and mostly deletions. Narrowed: pinning moves to F-SEC-004 as one change; item (4) becomes a test, not an assumption; point 5 is superseded by F-DEVOS-004 (grant `git merge`/`git merge-base`, as `progress.md` required). Tension recorded: F-DEVOS-002's agent-install step enlarges what this finding shrinks.
 
 **History**: 2026-10-06 created. Strengthens Fable's `claude.yml` notes: the `gh pr *` wildcard permits merging, and any executed code bypasses the allow-list, which together make the Phase 0 "arbitrary code execution" statement concrete. Disagrees with issue 78's claim that the trigger "does not check commenter permission" as a defect: the action applies a write-permission check by default (INFER), so the finding is the vendor-risk residual, not a missing check.
+
+
+**History (Pass 4, 2026-10-08)**: upheld at High but narrowed (pinning is owned by F-SEC-004; point 5 superseded by F-DEVOS-004; id-token removal is a test, not an assumption).
 
 ---
 
@@ -94,8 +110,8 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
-| Severity | Medium |
+| Status | Challenged |
+| Severity | Low |
 | Confidence | High (CONSOLE) |
 | Timing | Now |
 | Disposition | IMPROVE |
@@ -121,18 +137,26 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low)
+  Strongest case against: All three workflows declare `permissions` (`ci.yml` read-only), so the write default only bites a future workflow that omits the block. `can_approve_pull_request_reviews` is moot while the ruleset requires zero approvals. No path to harm exists today (test 9).
+  Evidence re-checked: RUN `gh api repos/:owner/:repo/actions/permissions/workflow` -> `write`, `can_approve_pull_request_reviews: true`; `.../actions/permissions` -> `allowed_actions: all`, `sha_pinning_required: false` (2026-10-08, unchanged). READ the three workflows: each has a `permissions` block.
+  Result: Settings are as reported but harmless today. Three clicks, so still do them in the same sitting as F-SEC-002, but Low. Note `sha_pinning_required` is a repository setting that could enforce the pinning F-SEC-002 asks for, replacing a custom test.
 
 **History**: 2026-10-06 created (new; not in prior inputs).
 
 **History (2026-10-07)**: U-22 answered: fork pull request workflow approval is `first_time_contributors`, not the stricter all-outside-contributors setting. Default token `write`, workflow PR approval allowed, all actions allowed: all unchanged on 2026-10-07.
+
+**History (Pass 4, 2026-10-08)**: Medium to Low; every workflow declares its permissions and the approval flag is moot at zero required approvals.
+
 ---
 
 ### F-SEC-004 No standing dependency or workflow-update control
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium |
 | Confidence | High |
 | Timing | Now |
@@ -161,19 +185,27 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
+  Strongest case against: The six advisories are all outside the runtime path, so a blocking audit is wrong and a non-blocking audit report nobody reads is process theater. F-SEC-004a (vendoring the shadcn stylesheet) creates a copied file to refresh: maintenance debt for a reduction in install surface only.
+  Evidence re-checked: RUN `gh api repos/:owner/:repo` `security_and_analysis`: `dependabot_security_updates: disabled`. READ: no `.github/dependabot.yml`; `ci.yml` has no audit step. UNVERIFIED today: `pnpm audit` was not re-run (figures are from 2026-10-06).
+  Result: Keep the core: enable Dependabot alerts and security updates and a minimal `dependabot.yml` (actions weekly, npm grouped). It also makes SHA-pinning (F-SEC-002) sustainable; pinning without an updater rots. Cut F-SEC-004a and the non-blocking audit step; alerts replace the latter. Medium holds because an advisory in `next` or `@clerk/nextjs` is realistic and nothing would notice. Absorbs the pinning item from F-SEC-002.
 
 **History**: 2026-10-06 created. Differs from issue 78 M03: audit step non-blocking and runtime-focused (a blocking audit would fail today on unpatchable transitive advisories); gitleaks rejected as redundant with enabled push protection plus the clean history scan; CodeQL and SBOM deferred with triggers.
 
 **History (Pass 3, 2026-10-08, S-06)**: All six workflow `uses:` references are version tags, not commit hashes (`actions/checkout@v4` three times, `actions/setup-node@v4` once, `anthropics/claude-code-action@v1` twice; RUN). Pinning to commit hashes, kept current by the update tool this finding recommends, is part of the recommendation. Mitigating fact: `pnpm-workspace.yaml` sets `allowBuilds` to false for the three packages that request install scripts (RUN).
+
+**History (Pass 4, 2026-10-08)**: reworded. Dropped F-SEC-004a and the audit step; now owns SHA pinning and the updater as one change.
+
 ---
 
 ### F-SEC-005 The application sets no security response headers
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
-| Severity | Medium |
+| Status | Challenged |
+| Severity | Low |
 | Confidence | Medium (config READ; deployed headers unobservable behind Vercel Authentication, U-21) |
 | Timing | Before public launch |
 | Disposition | ADD |
@@ -199,9 +231,17 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low)
+  Strongest case against: Previews are behind SSO, Production serves mock content, and Vercel already sets HSTS. The proposed test asserts that a header array exists, which is weak evidence. CSP is deferred anyway.
+  Evidence re-checked: READ `apps/web/next.config.ts`: no `headers()`. RUN read-only GET of the public Production `/sign-up` page: HTTP 200 (so Production is public, which keeps this above zero); response headers were not captured, so what Production serves is UNVERIFIED.
+  Result: A ten-line config block with no regret, but the consequence on a mock site is minimal. Low; timing stays before public launch. Prefer a test that reads the exported header array over a curl check (Previews cannot be curled).
 
 **History**: 2026-10-06 created. Differs from issue 78 M04 in timing (CSP deferred to real UI) and in noting Preview auth protection.
+
+
+**History (Pass 4, 2026-10-08)**: Medium to Low; no member data on any page and the fix is cheap whenever done.
 
 ---
 
@@ -209,10 +249,10 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
-| Severity | Medium |
+| Status | Challenged |
+| Severity | Low |
 | Confidence | Medium |
-| Timing | Before public launch |
+| Timing | Trigger: before the first public data-bearing endpoint |
 | Disposition | ADD |
 | Scope | BOTH |
 | Trigger class | Before production |
@@ -236,9 +276,17 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low)
+  Strongest case against: The only public endpoint is a static JSON status route, Clerk throttles its own flows, free plans tend to pause rather than bill, and the platform rule's availability on the current plan is unknown (U-18). This protects against abuse of endpoints that do not exist yet (test 9).
+  Evidence re-checked: READ `apps/web/app/api/v1/status/route.ts`: static `{status, version}`, no database. READ `docs/api.md`: `rate_limited` is reserved. UNVERIFIED: Vercel firewall rate-limit availability on the current plan.
+  Result: No cost-bearing abuse path exists today. Keep the recommendation (platform rule first) but make it a precondition of the first public, data-bearing endpoint, not a standing item. Low.
 
 **History**: 2026-10-06 created. Differs from issue 78 M08: platform rule first, in-code limiter only on a concrete need.
+
+
+**History (Pass 4, 2026-10-08)**: Medium to Low and timing made a trigger; no cost-bearing endpoint exists.
 
 ---
 
@@ -246,10 +294,10 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium |
 | Confidence | Low (depends on U-15, U-16, U-17) |
-| Timing | Before real data |
+| Timing | Before first real users |
 | Disposition | ADD |
 | Scope | BOTH |
 | Trigger class | Before production |
@@ -273,13 +321,22 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 **Decisions needed**: whether to add a second account owner (business, Rich).
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Reworded (survivor of merge with F-OPS-002)
+  Strongest case against: One person, no users, one deliberately shared login: a credential register of two Actions secrets plus vendor keys is mostly paperwork, and a rotation rehearsal creates churn. Confidence is Low (U-15 to U-17 unverified). The OPS-002 clause 'give the partner their own login' contradicts the owner's recorded, accepted decision to share one login.
+  Evidence re-checked: RUN `gh secret list`: `CLAUDE_CODE_OAUTH_TOKEN`, `NEON_DEV_DATABASE_URL`, nothing else. READ F-SEC-007 History (shared login accepted as residual risk) and F-OPS-002 recommendation (3). Vercel two-factor state is UI-RELAY, not re-checked.
+  Result: Both findings are fixed by the same change: one short `docs/operations.md` page. F-OPS-002 is merged here (see Tombstones), bringing its kill-switch list, the first-three-steps incident list and status-page subscriptions. The OPS-002 'own login' clause is dropped because it conflicts with the accepted shared login; the free mitigations in the 2026-10-08 History (password manager, authenticator on both phones, recovery codes offline, two-factor on every vendor) stay. Timing is 'Before first real users'. Rotation rehearsal optional. Medium held on the merged scope.
 
 **History**: 2026-10-06 created. Merges P-CH-26 (emergency access) and P-CH-27 (credential lifecycle).
 
 **History (2026-10-08)**: Owner reports that the business partner views the product by using the owner's own Vercel login (RECOLLECTION). A shared login removes per-person attribution, ties the partner's access to the owner's password and second factor (Vercel's team 2FA indicator was reported off, UI-RELAY), and cannot be revoked for one person without changing the owner's credentials. Production is already public and needs no login; unmerged Preview deployments can be shared with a link or by adding a seat. Recommendation: stop sharing the login; use the Production URL for merged work and a Vercel shareable link for a specific Preview (INFER on plan availability), or add a paid seat if per-person access is needed (F-REL-007). The second platform admin must have her own Clerk account (Q-010).
 
 **History (2026-10-08, later)**: Owner decision: the owner and the business partner deliberately share one set of logins, so collaboration through separate accounts is not needed (RECOLLECTION: "it's just me and [the partner] and we share the same exact account"). Recorded as a **residual-risk acceptance by the owner**, not as a defect to fix now. The risk that remains is account takeover: whoever holds the shared password and second factor can reach every system the account reaches (repository, hosting, database, sign-in provider), and nothing distinguishes the two people in any log. Free mitigations that keep the arrangement: keep the credentials in a password manager rather than messages; use an authenticator app for two-factor and register it on both phones when it is first set up, and store the recovery codes offline; turn on two-factor on every vendor account (Vercel's was reported off). Revisit at the first real user, the first payment, or when a third person joins.
+
+**History (Pass 4, 2026-10-08)**: absorbed F-OPS-002 (same page, same owner action list). Dropped the 'own login' advice (conflicts with the accepted shared login). Tie-break for cross-subject merges: the earlier-created finding survives, so evidence and history stay together.
+
+**History (2026-10-08, later)**: Owner decision (RECOLLECTION: "not really worried about two factor authentication either"): two-factor setup is declined for now. Recorded as accepted residual risk alongside the shared login. Revisit at the first real user's data, the first payment, or when a third person joins.
 ---
 
 ### F-SEC-008 The API body-size cap measures characters after fully buffering the body

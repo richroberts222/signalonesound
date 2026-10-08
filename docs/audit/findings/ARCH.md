@@ -16,7 +16,7 @@ Not examined, and why: the Server Component and page data-loading patterns (the 
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium |
 | Confidence | High that the conventions are absent; Medium on the specific defaults recommended |
 | Timing | Before the first product table or endpoint |
@@ -43,9 +43,17 @@ Not examined, and why: the Server Component and page data-loading patterns (the 
 
 **Decisions needed**: none now; product behaviour (do events recur at launch) is carried to REQ.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld, narrowed)
+  Strongest case against: Six conventions at once, with an idempotency table, optimistic-concurrency columns and a cursor policy, for endpoints that do not exist. Most of these are additive later: a pagination maximum, an `Idempotency-Key` header and a `version` column can each be added by an additive migration or header. Only the time model and money and unit representation are expensive to reverse once data exists.
+  Evidence re-checked: READ `docs/api.md` 'Not decided yet'; READ `packages/validation/src/contracts.ts`: `paginatedSchema` has `items` and `nextCursor` only, no size limit; READ `docs/data-fetching.md:331-337` ('timezone-aware representation'). No schema stores an event time yet.
+  Result: Keep Medium for the part that is costly to retrofit: event time as an instant plus venue IANA zone and recurrence in venue-local time; units and money. Defer idempotency, row versions and pagination limits to the first endpoint that needs each, with the trigger written in `docs/api.md`. The one-page conventions document stays the deliverable; the tests wait for the endpoints.
 
 **History**: 2026-10-08 created. Absorbs P-CH-09, P-CH-10, P-CH-12 (contract parts), and the DATA carry-forward on locked read-modify-write.
+
+
+**History (Pass 4, 2026-10-08)**: reworded. Only time, units and money are decided before the first product table; the rest are triggers.
 
 ---
 
@@ -53,11 +61,11 @@ Not examined, and why: the Server Component and page data-loading patterns (the 
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Low |
 | Confidence | High for the client behaviour (READ); the impact depends on mobile adoption |
 | Timing | Trigger: the first real mobile feature |
-| Disposition | ADD |
+| Disposition | DEFER |
 | Scope | MOBILE |
 | Trigger class | Trigger-gated |
 | Effort | S to M |
@@ -80,9 +88,17 @@ Not examined, and why: the Server Component and page data-loading patterns (the 
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (disposition ADD to DEFER)
+  Strongest case against: Trigger-gated on the first real mobile feature, which is paused. It overlaps F-REL-005 (release policy) and F-AUTH-005 (client token). It describes hypothetical mobile users on poor connections.
+  Evidence re-checked: READ `packages/validation/src/api-client.ts`: no timeout; catch-all becomes `internal`. READ `docs/api.md` Versioning. Not run.
+  Result: The observations are accurate; the disposition ADD implied work now. DEFER with its stated trigger, and fold the three mobile items (token, client contract, release policy) into one mobile-readiness slice when the trigger fires. Low.
 
 **History**: 2026-10-08 created. Absorbs P-CH-11 (client side), P-CH-21, and the ARCH part of P-78-T04. The server side of dependency failures (Clerk or database unavailable) fails closed or returns a generic 500 and is recorded under OPS.
+
+
+**History (Pass 4, 2026-10-08)**: ADD to DEFER; the work is gated by a mobile feature that does not exist.
 
 ---
 

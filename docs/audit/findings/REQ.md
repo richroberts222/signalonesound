@@ -16,7 +16,7 @@ Not examined, and why: whether the product is the right business or the revenue 
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium |
 | Confidence | High |
 | Timing | Trigger: the first slice that gets a real backend |
@@ -31,21 +31,29 @@ Not examined, and why: whether the product is the right business or the revenue 
 
 **Consequence**: A real slice would be built, tested and reviewed against the implementer's interpretation. Tests then prove the interpretation, not the requirement, and a later reviewer (or a different AI session) cannot tell a defect from a different reading.
 
-**Recommendation**: Keep it small and tied to the first real slice, not retroactive. (1) Give each line of the plan's section A a stable identifier (for example `A2.3`) so a spec, test or pull request can cite it. (2) Require, for any slice that touches persistence, a short spec in `docs/features/` containing only: requirement identifiers covered, acceptance criteria written as checkable statements, what is out of scope, and the open questions. The existing suggested sections are a menu; a spec needs only these four. (3) Add a "Requirements:" line to the pull request template (F-DEVOS-004) so the link exists in GitHub. Do not write specs for the delivered mocks.
+**Recommendation**: Keep it small and tied to the first real slice, not retroactive. (1) Give each line of the plan's section A a stable identifier (for example `A2.3`) so a spec, test or pull request can cite it. (2) Require, for any slice that touches persistence, a short spec in `docs/features/` containing only: requirement identifiers covered, acceptance criteria written as checkable statements, what is out of scope, and the open questions. The existing suggested sections are a menu; a spec needs only these four. (3) Add a "Requirements:" line to the pull request template (F-DEVOS-010) so the link exists in GitHub. Do not write specs for the delivered mocks.
 
 **Alternatives and tradeoffs**: Full specification up front for every plan line (the plan's later tiers are explicitly unauthorized; this is the process theater the charter warns about). A traceability tool or matrix (heavy for one owner; a requirement identifier plus a PR line gives most of the value).
 
 **Affects**: `docs/product/product-plan.md`, `docs/features/README.md`, `docs/product-development.md`, the PR template.
 
-**Depends on / sequencing**: F-DEVOS-004 (the template); the first real-slice decision (F-REQ-004).
+**Depends on / sequencing**: F-DEVOS-010 (the template); the first real-slice decision (F-REQ-004).
 
 **Verification**: The first real slice's pull request cites requirement identifiers, each has at least one acceptance criterion, and each criterion maps to a test or a named manual check.
 
 **Decisions needed**: none.
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
+  Strongest case against: A stable identifier for every line of the plan's minimum scope, plus a spec per persistence slice, risks becoming ceremony; the plan's later tiers are unauthorised. It also cites the wrong finding for the PR template.
+  Evidence re-checked: READ `docs/features/README.md` ('No feature specifications exist yet'); READ `roadmap.md` 'Feature spec: none yet'. READ `findings/DEVOS.md`: the template finding is F-DEVOS-010; F-DEVOS-010 is the allow-list finding. REQ.md cited F-DEVOS-010 for the template in three places (corrected as part of this review).
+  Result: Fix the cross-reference (done in REQ-001, REQ-003). Narrow the recommendation: identifiers only for the plan lines a slice actually covers, assigned when the slice is chosen; one four-section spec per persistence slice. F-DEVOS-010 supplies the PR/issue template, so the requirement line is added there. Medium holds because AI implementers will otherwise supply their own interpretation.
 
 **History**: 2026-10-08 created. Absorbs the remainder of P-CH-01 (requirements-to-release traceability).
+
+
+**History (Pass 4, 2026-10-08)**: reworded; corrected the F-DEVOS-010 to F-DEVOS-010 cross-reference; identifiers only for lines a slice covers.
 
 ---
 
@@ -53,7 +61,7 @@ Not examined, and why: whether the product is the right business or the revenue 
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Challenged |
 | Severity | Medium |
 | Confidence | High |
 | Timing | Now |
@@ -80,7 +88,12 @@ Not examined, and why: whether the product is the right business or the revenue 
 
 **Decisions needed**: none (the content is already decided; see Q-013 for the one related open item).
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Upheld
+  Strongest case against: The decisions are safe in `decisions-needed.md` as long as the audit branch merges; promoting them may duplicate. The owner's pricing leaning ('members pay') is tentative, so writing it down risks premature authority.
+  Evidence re-checked: RUN grep of `docs/` outside `docs/audit` for age floor, first market, minimum age: no match. READ `docs/product/` : only `product-plan.md`, `roadmap.md`, `source-product-plan.md`. READ Q-009, Q-010 Status.
+  Result: Confirmed: nothing outside the audit folder records the age floor, first market or role-request rule, and the audit folder is reference-only and excluded from exports. The finding's own safeguard (mark K3/K4 'owner leaning, not final') handles the tentative item. Sequencing is correct (after Pass 5). Upheld at Medium.
 
 **History**: 2026-10-08 created. Absorbs the REQ part of P-RM-01 and P-NOTES-01.
 
@@ -105,7 +118,7 @@ Not examined, and why: whether the product is the right business or the revenue 
 
 **Consequence**: Low on its own. As a pattern it teaches readers to distrust the governing documents, and the first reader to be misled is an AI session that treats them as authoritative.
 
-**Recommendation**: Correct the roadmap status in the same pull request as F-REQ-002. Treat the user-facing "Signal One" copy as an application slice (it is, per the naming document) and add it to the list of small copy fixes to do when application work resumes, not now. Fold the general fix (a status line that is updated by the pull request that changes it) into F-DEVOS-004's template rather than inventing a check.
+**Recommendation**: Correct the roadmap status in the same pull request as F-REQ-002. Treat the user-facing "Signal One" copy as an application slice (it is, per the naming document) and add it to the list of small copy fixes to do when application work resumes, not now. Fold the general fix (a status line that is updated by the pull request that changes it) into F-DEVOS-010's template rather than inventing a check.
 
 **Alternatives and tradeoffs**: An automated drift check (high cost, low yield at this size).
 
@@ -127,8 +140,8 @@ Not examined, and why: whether the product is the right business or the revenue 
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
-| Severity | Medium |
+| Status | Challenged |
+| Severity | Low |
 | Confidence | Medium (the mock coverage is READ; whether web-first is intended is the owner's call) |
 | Timing | Trigger: choosing the first real slice |
 | Disposition | IMPROVE |
@@ -154,9 +167,17 @@ Not examined, and why: whether the product is the right business or the revenue 
 
 **Decisions needed**: Q-013 (non-blocking; default recorded).
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low)
+  Strongest case against: This is a plan-consistency note and a rule for the first slice, both gated on a decision (Q-013, default web first). The mobile token proof is owned by F-AUTH-005; repeating it here double-counts.
+  Evidence re-checked: READ `apps/mobile/src/App.tsx` (placeholder), `lib/discover/filters.ts` (fixed mock origins); RUN dependency search: no map, location or notification package. READ Q-013 (open, default option 1).
+  Result: Evidence holds, severity does not: the consequence is a possible redesign later, not a present failure. Keep the single actionable rule (the first real slice includes one mobile read, with the plan's wording reconciled in writing) and let F-AUTH-005 own the token spike. Low.
 
 **History**: 2026-10-08 created. Absorbs the REQ part of P-CH-12 (the contract list itself stays in F-ARCH-001).
+
+
+**History (Pass 4, 2026-10-08)**: Medium to Low; overlaps F-AUTH-005, decision Q-013 pending.
 
 ---
 
@@ -201,11 +222,11 @@ Not examined, and why: whether the product is the right business or the revenue 
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
-| Severity | Medium |
+| Status | Challenged |
+| Severity | Low |
 | Confidence | Medium (the plan text is READ; current store policy wording is RECOLLECTION and is UNVERIFIED, see below) |
 | Timing | Trigger: the first user-generated-content feature, or the first store submission, whichever is first |
-| Disposition | ADD |
+| Disposition | DEFER |
 | Scope | Signal One |
 | Trigger class | Sensitive capability |
 | Effort | M |
@@ -228,9 +249,17 @@ Not examined, and why: whether the product is the right business or the revenue 
 
 **Decisions needed**: the meaning of "negative" (ask at the UGC slice, not now).
 
-**Challenge log**: (Pass 4)
+**Challenge log**:
+
+Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low; ADD to DEFER)
+  Strongest case against: The finding says 'do not build any of it now' and the plan places UGC in later, unauthorised tiers. The store-policy content is RECOLLECTION and UNVERIFIED. A checklist for a slice that may never exist is a hypothetical (test 9).
+  Evidence re-checked: READ `product-plan.md` sections B and C1 (reviews, prayer requests, photos, videos); the finding's own UNVERIFIED note. No store policy text was fetched.
+  Result: Keep as a pointer: when a UGC slice or the first store submission is chosen, read the then-current Apple and Google rules and apply the two checklists. DEFER with the existing trigger. Low.
 
 **History**: 2026-10-08 created. UNVERIFIED: the exact current Apple and Google rules (read the published policies at the time of the first submission; nothing in this session fetched them).
+
+
+**History (Pass 4, 2026-10-08)**: Medium to Low and ADD to DEFER; trigger-gated and unverified.
 
 ---
 
