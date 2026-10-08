@@ -40,7 +40,7 @@ Rules:
 
 ### ChatGPT / orchestrator rule
 
-This section governs ChatGPT (or any orchestrator) coordinating work. It does not grant Claude any merge authority; Claude never merges (see "Pull request safety" and `/docs/git-workflow.md`).
+This section governs ChatGPT (or any orchestrator) coordinating work. It does not grant Claude any merge authority; merging by Claude is governed only by "Pull request safety" and `/docs/git-workflow.md` (the human's explicit authorization).
 
 * **Live state first.** Before deciding what work to start, review, sequence, or merge, inspect the live GitHub/repository state (issues, branches, PRs, commits/diff/code, comments, review threads, checks, current `main`). Memory is navigation/context only and never overrides live repository truth.
 * **Parallel only when verified independent.** Coordinate multiple issues in parallel only after verifying their scopes do not create unsafe file/code overlap, dependency conflicts, schema/contract conflicts, or sequencing dependencies.
@@ -75,7 +75,7 @@ Infrastructure, permission, history, or branch-state failures must fail fast. Do
 
 ### Pull request safety
 
-Claude never merges the PR. The human is the final merge gate.
+Claude merges a pull request only when the human developer (Rich) has explicitly authorized that merge, either for a named pull request or for a stated class such as "all pull requests that have passed". Without that authorization Claude never merges. Authorization is part of this rule, not an exception to it, and it does not waive any check: Claude merges only pull requests that are open, not draft, mergeable, and have the required `Validate` check passing; it re-checks each one immediately before merging and merges them one at a time. The authorization covers the pull requests that exist when it is given, not later ones. The repository ruleset remains the technical backstop. The human is the final merge gate and may delegate each merge explicitly.
 
 ## Normal lifecycle
 
