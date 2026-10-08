@@ -72,6 +72,8 @@ Do not replace shadcn/ui with another Web component framework without an explici
 
 Do not introduce competing Web UI component libraries unless specifically approved and documented.
 
+Enforced: `apps/web/components/ui/raw-controls.test.ts` fails when a raw `<button>`, `<input>`, `<select>`, `<textarea>`, `<label>` or `<table>` appears outside `components/ui`. Its allowance list covers controls not yet converted (issue #91) and may only shrink.
+
 ---
 
 ## 4. Tailwind CSS
