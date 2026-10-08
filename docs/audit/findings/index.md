@@ -4,7 +4,7 @@ One line per finding. The finding's home is `findings/<CODE>.md`; this file neve
 
 Conventions: `methodology.md` section 6. IDs are never reused or renumbered. Merged, rejected, and superseded findings move to the Tombstones table with a pointer.
 
-Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH, REL, BOIL, ARCH, TEST, OPS.
+Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH, REL, BOIL, ARCH, TEST, OPS, REQ.
 
 ## Active findings
 
@@ -82,6 +82,13 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | F-OPS-004 | Vendor outages and bulk operations have no designed behaviour yet | Low | DEFER | Trigger: first real data path and first real bulk import | Draft | |
 | F-OPS-005 | Service targets are not defined and should stay informal until there are users | Info | DEFER | Trigger: first real users | Draft | |
 | F-OPS-006 | Failing closed under dependency failure and PII-free error reports are sound | Info | KEEP | n/a | Draft | |
+| F-REQ-001 | No acceptance criteria or feature specs, so requirements cannot be traced to a release | Medium | ADD | Trigger: first slice with a real backend | Draft | |
+| F-REQ-002 | The owner's accepted product decisions live only in the audit folder | Medium | ADD | Now | Draft | |
+| F-REQ-003 | Roadmap and naming documents already disagree with the repository | Low | IMPROVE | Now | Draft | |
+| F-REQ-004 | Plan is mobile-first but every delivered slice is a web mock; no product evidence for one platform, three clients | Medium | IMPROVE | Trigger: choosing the first real slice | Draft | |
+| F-REQ-005 | Imprecise requirements; nothing records which slice each undecided item blocks | Low | IMPROVE | Trigger: first real slice | Draft | |
+| F-REQ-006 | User-generated content and store-policy obligations are not captured as requirements | Medium | ADD | Trigger: first UGC feature or first store submission | Draft | |
+| F-REQ-007 | The requirements process and its discipline about undecided items are sound | Info | KEEP | n/a | Draft | |
 
 ## Tombstones
 
@@ -95,6 +102,6 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | --- | --- | --- | --- | --- | --- |
 | Critical | 0 | 0 | 0 | 0 | 0 |
 | High | 2 | 0 | 0 | 0 | 0 |
-| Medium | 24 | 0 | 0 | 0 | 0 |
-| Low | 31 | 0 | 0 | 0 | 0 |
-| Info | 15 | 0 | 0 | 0 | 0 |
+| Medium | 28 | 0 | 0 | 0 | 0 |
+| Low | 33 | 0 | 0 | 0 | 0 |
+| Info | 16 | 0 | 0 | 0 | 0 |

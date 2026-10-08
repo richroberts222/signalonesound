@@ -81,7 +81,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 
 | ID | Input | Likely subject | Duplicates | Outcome | Pass |
 | --- | --- | --- | --- | --- | --- |
-| P-CH-01 | Requirements-to-release traceability | REQ/DEVOS | | DEVOS part: PR to issue links work through GitHub; nothing to trace to because no feature spec exists (`features/README.md` is 13 lines); remainder pending REQ | 2 DEVOS (partial) |
+| P-CH-01 | Requirements-to-release traceability | REQ/DEVOS |  | DEVOS part: PR to issue links work through GitHub; nothing to trace to because no feature spec exists (`features/README.md` is 13 lines); remainder pending REQ; REQ part: Adopted, scaled down → F-REQ-001 | 2 DEVOS (partial), REQ |
 | P-CH-02 | Independent diff review | DEVOS | P-78-M01, P-78-O08 | Merged → F-DEVOS-001 (no independent reviewer exists or is needed for one owner; the automated reviewer is silent and must be repaired or removed, and described as an aid) | 2 DEVOS |
 | P-CH-03 | Definition of Ready / Done | DEVOS | | Done: Rejected as new ceremony; `product-development.md` section 9 exists and its provable parts are covered by F-DEVOS-002 and F-SEC-001. Ready: Pending (issue bodies not readable in the DEVOS session; see `progress.md` open items) | 2 DEVOS (partial) |
 | P-CH-04 | Risk-based gates | DEVOS/REL | | Merged → F-DEVOS-002 (general gate) and F-DEVOS-007 (path-based gates, DEFER with trigger) | 2 DEVOS |
@@ -92,7 +92,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CH-09 | Idempotency and concurrency | ARCH/DATA | P-78-M12 | Adopted → F-ARCH-001 (DATA part earlier: F-DATA-010) | 2 ARCH |
 | P-CH-10 | Time and identifier conventions | ARCH | | Adopted → F-ARCH-001 | 2 ARCH |
 | P-CH-11 | External dependency failure handling | ARCH/OPS | P-78-T10 | Client side → F-ARCH-002; server side → F-OPS-004 | 2 ARCH, 2 OPS |
-| P-CH-12 | Upload, notification, search, geospatial contracts | ARCH/REQ | | Trigger-gated list inside F-ARCH-001; geospatial → F-DATA-008 | 2 ARCH |
+| P-CH-12 | Upload, notification, search, geospatial contracts | ARCH/REQ |  | Trigger-gated list inside F-ARCH-001; geospatial → F-DATA-008; REQ part → F-REQ-004, F-REQ-006 | 2 ARCH, REQ |
 | P-CH-13 | Test taxonomy and flaky-test policy | TEST | | Adopted, deferred → F-TEST-005 | 2 TEST |
 | P-CH-14 | Accessibility | UX | P-78-M11, P-78-T05 | Pending | |
 | P-CH-15 | Performance, capacity, cost | OPS | P-78-T08, P-78-T09 | Adopted → F-OPS-003 | 2 OPS |
@@ -160,7 +160,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 
 | ID | Input | Likely subject | Outcome | Pass |
 | --- | --- | --- | --- | --- |
-| P-RM-01 | Not yet scheduled: real roles and authorization, Church-managed data, real submission flow, real admin entry, bulk ingestion, multiple users per organization, product schema | REQ/AUTH/DATA | AUTH part adopted → F-AUTH-001; product questions → Q-010 | 2 AUTH |
-| P-RM-02 | Data concepts surfaced by the admin mock: provenance, moderation decisions, duplicate/conflict rules, organization-manager relationships, import batches, lifecycle states, audit/history, orphan events | REQ/DATA | Pending | |
-| P-NOTES-01 | Unresolved product questions from Issue 76: who is an admin/moderator and how granted; anonymous submissions; moderation outcomes and reversibility; duplicate/conflict definition and precedence; imports creating organizations; staff editing manager records; permanent vs reversible removal | REQ/AUTH | Routed → Q-010, F-AUTH-001, F-AUTH-004 (AUTH); REQ part pending; these still need a durable home before F-DEVOS-005 removes `notes.md` | 2 AUTH (partial) |
+| P-RM-01 | Not yet scheduled: real roles and authorization, Church-managed data, real submission flow, real admin entry, bulk ingestion, multiple users per organization, product schema | REQ/AUTH/DATA | AUTH part adopted → F-AUTH-001; product questions → Q-010; REQ part → F-REQ-002, F-REQ-005 | 2 AUTH, REQ |
+| P-RM-02 | Data concepts surfaced by the admin mock: provenance, moderation decisions, duplicate/conflict rules, organization-manager relationships, import batches, lifecycle states, audit/history, orphan events | REQ/DATA | Adopted → F-REQ-005 (design itself belongs to the Database Design Checkpoint) | 2 REQ |
+| P-NOTES-01 | Unresolved product questions from Issue 76: who is an admin/moderator and how granted; anonymous submissions; moderation outcomes and reversibility; duplicate/conflict definition and precedence; imports creating organizations; staff editing manager records; permanent vs reversible removal | REQ/AUTH | Routed → Q-010, F-AUTH-001, F-AUTH-004 (AUTH); REQ part pending; these still need a durable home before F-DEVOS-005 removes `notes.md`; REQ part → F-REQ-005, F-REQ-002 | 2 AUTH (partial), REQ |
 | P-NOTES-02 | Verification not performed on Issue 76: Playwright, root `pnpm validate`, browser rendering, iPhone Safari | TEST | Adopted → F-TEST-003 | 2 TEST |

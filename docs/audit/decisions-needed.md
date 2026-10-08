@@ -253,3 +253,18 @@ Engineering decisions (Claude):
 **Status**: Answered 2026-10-08 by the owner (RECOLLECTION): another application **will** be built from this foundation, but the priority is to get Signal One Sound operational first, "the sooner the better on both." The owner also approved removing misleading reports.
 
 Engineering decisions (Claude): this selects option 2 with sequencing, not a freeze. (1) Keep the template tooling and its gate, but invest only in small safe fixes now: the two historical reports are removed (issue #89, PR #90), the copy-routine safety fix (F-BOIL-002) and the Windows fix (F-BOIL-003) are cheap and scheduled with the fix plan. (2) Reduce the false-alarm surface of the gate (F-BOIL-001) once, structurally, instead of freezing: all reference-only documents live under a small set of directories that init removes and the scan ignores. (3) Defer the template refresh and any publication until the Signal One foundation fixes from this audit have landed, so the second app starts from a corrected foundation. (4) The published template repository (F-BOIL-004) stays out of public view: **owner action** to make it private in the repository settings.
+
+### Q-013 Is the first public release web-only, or are the iPhone and Android apps part of launch?
+
+**Question**: The product plan's minimum scope starts with "Mobile app for iPhone/Android", a GPS map and push notifications. Everything built so far is on the website. Which is the first thing real people will use: the website alone (apps later), or the apps at launch?
+
+**Why the audit cannot decide**: it is a business and sequencing decision. It changes which engineering work comes first (store accounts, app identity, push notifications, mobile sign-in) and what the first real slice must prove (F-REQ-004).
+
+**Options and consequences**:
+
+1. Website first, apps after the directory works. Lowest cost and risk; the plan's wording is then updated to say so. The first real slice must still include one mobile read of its data so the shared contract is proven. Recommended.
+2. Apps at launch. Matches the plan's wording; needs Q-011 answered, store developer accounts, the store checklist in F-REQ-006, and push notifications (a separate slice with its own policy work) before launch.
+
+**Blocks**: nothing today. Shapes the order of the roadmap in Pass 5.
+
+**Status**: Open. Default until answered: option 1. Not needed before the roadmap is presented.
