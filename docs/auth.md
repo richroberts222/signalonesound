@@ -337,13 +337,13 @@ If a significant authentication decision cannot be resolved from the existing do
 
 ## Appendix: Web Clerk Implementation
 
-Implemented in `apps/web` with `@clerk/nextjs` v7 (Clerk Core 3), Next.js 16 App Router. Mobile authentication, database user storage, and API token handling are not yet implemented.
+Implemented in `apps/web` with `@clerk/nextjs` v7 (Clerk Core 3), Next.js 16 App Router. Mobile authentication and database user storage are not yet implemented. The API adapter accepts a Clerk bearer token (`lib/api/route.ts`), but no mobile client has sent one yet. Clerk instance type per environment: development for local, Preview and Production today (no production Clerk instance exists yet).
 
 ### Files
 
-* `apps/web/proxy.ts`: `clerkMiddleware()`. Next.js 16 uses `proxy.ts` (formerly `middleware.ts`). Protects `/dashboard(.*)`, `/account(.*)`, and `/proof(.*)` with `auth.protect()`; all other routes are public.
-* `apps/web/app/layout.tsx`: wraps the app in `<ClerkProvider>` (sign-in URL `/sign-in`, sign-up URL `/sign-up`) and renders `AuthHeader`.
-* `apps/web/components/auth/auth-header.tsx`: header using `<Show when="signed-in">` / `<Show when="signed-out">` (Core 3 replacement for `SignedIn`/`SignedOut`), `SignInButton`, `SignUpButton`, `UserButton`.
+* `apps/web/proxy.ts`: `clerkMiddleware()`. Next.js 16 uses `proxy.ts` (formerly `middleware.ts`). Protects `/dashboard(.*)`, `/account(.*)`, `/admin(.*)`, and `/proof(.*)` with `auth.protect()`; all other routes are public. `proxy.test.ts` guards this list.
+* `apps/web/app/layout.tsx`: wraps the app in `<ClerkProvider>` (sign-in URL `/sign-in`, sign-up URL `/sign-up`) and renders `AppShell`.
+* `apps/web/components/shell/app-header.tsx`: global header (rendered by `AppShell`) using `<Show when="signed-in">` / `<Show when="signed-out">` (Core 3 replacement for `SignedIn`/`SignedOut`), `SignInButton`, `SignUpButton`, `UserButton`.
 * `apps/web/app/sign-in/[[...sign-in]]/page.tsx` and `apps/web/app/sign-up/[[...sign-up]]/page.tsx`: Clerk `<SignIn />` / `<SignUp />` with path routing.
 * `apps/web/app/page.tsx`: public home page showing signed-in/signed-out state.
 * `apps/web/app/dashboard/page.tsx`: protected page. Server-side `currentUser()` displays the user's name, email, and avatar; `SignOutButton` signs out and redirects to `/`.
@@ -359,7 +359,7 @@ Locally, set both in `apps/web/.env.local` (gitignored). On Vercel, set both for
 
 ### Notes
 
-* Route protection in `proxy.ts` does not replace server-side checks. Future API routes and mutations must call `auth()` from `@clerk/nextjs/server` and reject unauthenticated requests.
+* Route protection in `proxy.ts` does not replace server-side checks. API routes use `apiRoute` with its `auth` option (`docs/api.md`), which rejects unauthenticated requests; mutations must go through the same boundary.
 * The build succeeds without Clerk env vars because all routes are dynamically rendered; runtime requests need the keys.
 
 ### Server-side auth and authorization helpers

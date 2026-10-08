@@ -21,7 +21,7 @@ Run from the repository root:
 | `pnpm test` / `pnpm test:run` | Run every workspace's tests once (`vitest run`). What CI runs. |
 | `pnpm test:watch` | Watch mode across workspaces. |
 | `pnpm lint` / `pnpm typecheck` / `pnpm build` | Other required checks. |
-| `pnpm validate` | `lint`, `typecheck`, `test:run`, `build` in order; the full local gate. |
+| `pnpm validate` | `lint`, `typecheck`, `test:run`, `test:boilerplate`, `build` in order; the full local gate. |
 | `pnpm --filter <name> test` / `test:watch` | One workspace (`web`, `@signalone/shared`, `@signalone/validation`). |
 
 Every workspace with tests defines `test` (`vitest run`) and `test:watch` (`vitest`). Root scripts use `pnpm -r --if-present`, so new workspaces are picked up automatically once they define these scripts.
@@ -91,8 +91,8 @@ Original requirements, still binding for any new database-backed tests:
 
 `.github/workflows/ci.yml` (separate from `claude.yml`) runs on pull requests and pushes to `main`:
 
-* `validate` job: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck`, `pnpm test:run`, `pnpm build`. Read-only `contents` permission, no secrets, no database credentials. Build succeeds without credentials; keep it that way.
-* `workflow-lint` job: runs [actionlint](https://github.com/rhysd/actionlint) (pinned version, standalone binary, no new repo dependency) over `.github/workflows/` to catch malformed workflow files. Chosen over a local dependency to keep the toolchain small.
+* `validate` job (the only job): `pnpm install --frozen-lockfile`, then `pnpm validate` (lint, typecheck, test:run, test:boilerplate, build). Read-only `contents` permission, no secrets, no database credentials. Build succeeds without credentials; keep it that way.
+* **Planned, not built:** a `workflow-lint` job running [actionlint](https://github.com/rhysd/actionlint) (pinned version, standalone binary) over `.github/workflows/` to catch malformed workflow files. Workflow-file edits are made by the human.
 
 Because the GitHub App cannot edit workflow files, changes to `ci.yml` are made or approved by the human. Local `pnpm validate` runs the same commands as CI.
 
