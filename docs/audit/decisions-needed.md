@@ -218,7 +218,7 @@ Owner statements (RECOLLECTION, 2026-10-08):
 Engineering decisions (Claude):
 
 1. **A user never chooses their own role.** Clerk only proves who someone is. Choosing "I am a church" can only create a pending **request**; an admin's approval creates the grant. Roles and requests live in the application database keyed by the Clerk user ID (F-AUTH-001), not in Clerk.
-2. **Platform admins** are a server-only allow-list of Clerk user IDs, so adding the second admin takes two steps: she creates her own Clerk account, then the owner adds her ID to the configuration (a Vercel environment variable change, an owner action). Move to a database-backed admin flag only if the admin count grows.
+2. **Platform admins** are a server-only allow-list of Clerk user IDs (a Vercel environment variable change, an owner action). **Update 2026-10-08:** the owner and the business partner share one login, so the allow-list needs exactly one identity today; no second Clerk account is required. Move to a database-backed admin flag, and individual accounts, only if the admin count grows or a third person joins. Separate non-admin **test accounts** are still needed to try the member and church-manager roles.
 3. Defaults for the unanswered items, to be revised only if the owner objects: admins also act as moderators for now; anonymous submissions are not allowed at first; moderation decisions are recorded and reversible (F-AUTH-004); an organization may have several managers.
 4. **Paid membership is a new topic, not an AUTH one.** A payment provider, hosted checkout, tax, refunds and the Apple/Google in-app-purchase rules for the mobile apps are undesigned (REQ/ARCH; the plan marks pricing UNDECIDED). Nothing in AUTH assumes payment.
 

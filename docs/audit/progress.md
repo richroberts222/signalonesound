@@ -208,3 +208,7 @@ Each entry: date, pass, what was done, metrics, IDs touched. This is the change 
 * Challenges to prior work: the privacy-first reporting design is kept; P-78-T12 rejected (agreed).
 * Metrics: findings 72 (all Draft: 2 High, 24 Medium, 31 Low, 15 Info).
 * Not done: the Vercel plan and log retention, vendor consoles for alerts and limits (owner-relayed).
+
+### 2026-10-08, owner decision on shared access
+
+* The owner confirmed that the owner and the business partner share one account everywhere, by choice. Recorded as a residual-risk acceptance on F-SEC-007 with free mitigations; Q-010's admin note updated (one admin identity today; separate test accounts needed for the other roles). The partner's name is not recorded in this public repository.
