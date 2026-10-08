@@ -23,7 +23,7 @@ Claude MUST NOT:
 
 **The human developer owns the decision to merge changes into `main`.**
 
-Claude may prepare everything necessary for a Pull Request, but the final merge into `main` is performed manually by the human developer on GitHub.
+Claude may prepare everything necessary for a Pull Request, but the decision to merge into `main` is the human developer's. The human merges on GitHub, or explicitly authorizes Claude to merge. Claude merges a pull request only when the human developer (Rich) has explicitly authorized that merge, either for a named pull request or for a stated class such as "all pull requests that have passed". Without that authorization Claude never merges. Authorization is part of this rule, not an exception to it, and it does not waive any check: Claude merges only pull requests that are open, not draft, mergeable, and have the required `Validate` check passing; it re-checks each one immediately before merging and merges them one at a time. The authorization covers the pull requests that exist when it is given, not later ones. The repository ruleset remains the technical backstop.
 
 ---
 
