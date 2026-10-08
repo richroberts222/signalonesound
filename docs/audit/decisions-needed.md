@@ -236,3 +236,18 @@ Engineering decisions (Claude):
 **Blocks**: nothing today. Blocks F-REL-005 at its trigger (the first internal or store build) and the Clerk native sign-in redirect configuration (F-AUTH-005).
 
 **Status**: Open. Default until answered: option 1.
+
+### Q-012 How many other applications will be built from this foundation, and when?
+
+**Question**: Do you expect to build other applications from this codebase's foundation (a template for future projects), and if so, how soon? Should the published template repository stay public?
+
+**Why the audit cannot decide**: it is a business-priority question. The template tooling costs maintenance effort in the product's own pipeline (F-BOIL-001) and the answer decides whether that cost is worth paying.
+
+**Options and consequences**:
+
+1. Not in the next year or so: **freeze** the template. The tooling stays in the repository and works, but it stops gating product work (it is run on demand before an export), and the published copy is made private or archived. Recommended default: it keeps the product's pipeline free for the product.
+2. Soon (two or more): keep the template current. The boundary is inverted so ordinary documents cannot trip it, the full proof is scheduled, and the published repository is refreshed and marked as a template.
+
+**Blocks**: F-BOIL-001, -003, -004, -005 (what to do, not whether it is a problem).
+
+**Status**: Open. Default until answered: option 1 (freeze). Engineering recommendation: option 1.

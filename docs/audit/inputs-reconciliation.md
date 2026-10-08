@@ -70,7 +70,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-78-O01 | Documentation volume and process weight (orchestrator rules, serialized merges, revalidation of open PRs) heavy for a single reviewer; keep invariants, cut the rest | DEVOS | Merged → F-DEVOS-003 (volume) and F-DEVOS-009 (process weight is right-sized; the cost is documentation volume, not ceremony) | 2 DEVOS |
 | P-78-O02 | Test Value Review for every new test discourages tests; replace with a short rubric | TEST | Pending | |
 | P-78-O03 | Parallel-work ceremony; default to sequential | DEVOS | Rejected (two real parallel batches on 2026-10-01; the rules govern actual throughput; the missing control is "require up to date", F-DEVOS-002, F-DEVOS-009) | 2 DEVOS |
-| P-78-O04 | Boilerplate export/init tooling, three reports, markers inside product docs: verify how many apps will be created; freeze if fewer than two | BOIL | Pending | |
+| P-78-O04 | Boilerplate export/init tooling, three reports, markers inside product docs: verify how many apps will be created; freeze if fewer than two | BOIL | Adopted → F-BOIL-001, Q-012 | 2 BOIL |
 | P-78-O05 | `docs/ideas/` fine as parking lot; session replay/analytics carry privacy implications | AUTH/DEVOS | DEVOS part: Not applicable (`docs/ideas/` is 5 files, 125 lines; no volume problem); privacy part → F-AUTH-003 | 2 DEVOS (partial) |
 | P-78-O06 | Static source-text security tests give false confidence; prefer linter boundary rules | TEST/SEC | Pending | |
 | P-78-O07 | `APP_ENV` plus `DATABASE_ENV` plus four environments with unprovisioned Stage is more than needed; do not build Stage until M01 to M09 | REL | Agreed in part → F-REL-002 | 2 REL |
@@ -140,8 +140,8 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-GAP-05 | `docs/deployment.md` section 7 stale about `ci.yml` | DEVOS | Adopted → F-DEVOS-003 (confirmed, ledger C-22; fix in the reconciliation slice) | 2 DEVOS |
 | P-GAP-06 | `neon-http` cannot do interactive transactions; decision needed before first mutation feature (historical; check current `AtomicRunner`) | DATA | Resolved → F-DATA-010 | 2 DATA |
 | P-GAP-07 | `APP_ENVS` in shared duplicates `DATABASE_ENVS` in `apps/web/db/env.ts` (historical; check whether consolidated) | CODE | Pending | |
-| P-GAP-08 | Package scope `@signalone/*` embeds the application name (addressed by init `--scope`; verify) | BOIL | Pending | |
-| P-GAP-09 | Boilerplate maintenance rules: proof paths manifest, markers, `prove:init --full` only on material change; re-export whenever the foundation changes (**export not refreshed since 2026-10-01**, `progress.md` fact 5) | BOIL | Pending | |
+| P-GAP-08 | Package scope `@signalone/*` embeds the application name (addressed by init `--scope`; verify) | BOIL | Resolved → F-BOIL-006 | 2 BOIL |
+| P-GAP-09 | Boilerplate maintenance rules: proof paths manifest, markers, `prove:init --full` only on material change; re-export whenever the foundation changes (**export not refreshed since 2026-10-01**, `progress.md` fact 5) | BOIL | Adopted → F-BOIL-004, F-BOIL-001 | 2 BOIL |
 
 ## Security doc audit notes
 

@@ -4,7 +4,7 @@ One line per finding. The finding's home is `findings/<CODE>.md`; this file neve
 
 Conventions: `methodology.md` section 6. IDs are never reused or renumbered. Merged, rejected, and superseded findings move to the Tombstones table with a pointer.
 
-Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH, REL.
+Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH, REL, BOIL.
 
 ## Active findings
 
@@ -60,6 +60,12 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | F-REL-006 | `docs/deployment.md` and `docs/environment.md` describe an environment that does not exist | Low | IMPROVE | Now | Draft | |
 | F-REL-007 | The Vercel plan and its terms may not fit a commercial product (unverified) | Low | DEFER | Trigger: before taking payment or public launch | Draft | |
 | F-REL-008 | Environment guards, frozen installs, protected Previews and merge-only Production are sound | Info | KEEP | n/a | Draft | |
+| F-BOIL-001 | The template machinery blocks product work: its leak check is in the required `Validate` check and fails on ordinary content | Medium | IMPROVE | Now | Draft | |
+| F-BOIL-002 | Copy routines include the private local env file and untracked files; the proof script leaves its copy on failure | Low | IMPROVE | Now | Draft | |
+| F-BOIL-003 | `prove:init --full` cannot run on Windows and nothing runs it in CI | Low | IMPROVE | Now (if the template stays in use) | Draft | |
+| F-BOIL-004 | The published template repository is public, stale, and not marked as a template | Low | IMPROVE | Now | Draft | |
+| F-BOIL-005 | Two historical reports and a few stale references add reading weight | Low | REMOVE | Now | Draft | |
+| F-BOIL-006 | Init and export design is sound: one manifest, dry run, identity validation, negative controls | Info | KEEP | n/a | Draft | |
 
 ## Tombstones
 
@@ -73,6 +79,6 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | --- | --- | --- | --- | --- | --- |
 | Critical | 0 | 0 | 0 | 0 | 0 |
 | High | 2 | 0 | 0 | 0 | 0 |
-| Medium | 18 | 0 | 0 | 0 | 0 |
-| Low | 20 | 0 | 0 | 0 | 0 |
-| Info | 10 | 0 | 0 | 0 | 0 |
+| Medium | 19 | 0 | 0 | 0 | 0 |
+| Low | 24 | 0 | 0 | 0 | 0 |
+| Info | 11 | 0 | 0 | 0 | 0 |
