@@ -16,7 +16,7 @@ Not examined, and why: the generated application's build, tests and lint (above)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High for the mechanism and the incident; the recurring cost is INFER |
 | Timing | Now (the fix is small) |
@@ -68,7 +68,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld (new evidence; reworded body)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High (RUN for each point) |
 | Timing | Now |
@@ -105,7 +105,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld (new evidence; reworded body)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High for the Windows failure; Medium that CI also lacks it |
 | Timing | Now (if the template stays in use), otherwise at unfreeze |
@@ -142,7 +142,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld (new evidence; reworded body)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High |
 | Timing | Now (a visibility decision) |
@@ -182,7 +182,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld (new evidence; reworded body)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High |
 | Timing | Now |

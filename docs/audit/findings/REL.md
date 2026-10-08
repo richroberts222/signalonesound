@@ -22,7 +22,7 @@ Not examined, and why: the value of the Preview `APP_ENV` and `DATABASE_ENV` (U-
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium |
 | Confidence | Medium (the missing variables are CONSOLE; the failure at first request is READ and INFER, no authenticated Production request was made) |
 | Timing | Before first real users |
@@ -67,7 +67,7 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High for the facts; the recommendation is a design choice |
 | Timing | Trigger: before the first real users |
@@ -104,7 +104,7 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High |
 | Timing | Now |
@@ -141,7 +141,7 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High for the locations; the latency cost is INFER (not measured) |
 | Timing | Before real traffic |
@@ -178,7 +178,7 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High |
 | Timing | Trigger: the first internal or store build |
@@ -215,7 +215,7 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High |
 | Timing | Now |
@@ -252,7 +252,7 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Low (the plan tier was not read; the Hobby inference rests on "member invites are Pro-gated", UI-RELAY) |
 | Timing | Trigger: before taking payment or public launch |

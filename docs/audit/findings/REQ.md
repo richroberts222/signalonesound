@@ -16,7 +16,7 @@ Not examined, and why: whether the product is the right business or the revenue 
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium |
 | Confidence | High |
 | Timing | Trigger: the first slice that gets a real backend |
@@ -63,7 +63,7 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium |
 | Confidence | High |
 | Timing | Now |
@@ -105,7 +105,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High |
 | Timing | Now |
@@ -142,7 +142,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium (the mock coverage is READ; whether web-first is intended is the owner's call) |
 | Timing | Trigger: choosing the first real slice |
@@ -193,7 +193,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High |
 | Timing | Trigger: the first real slice |
@@ -230,7 +230,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium (the plan text is READ; current store policy wording is RECOLLECTION and is UNVERIFIED, see below) |
 | Timing | Trigger: the first user-generated-content feature, or the first store submission, whichever is first |
@@ -279,7 +279,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Info |
 | Confidence | High |
 | Timing | n/a |

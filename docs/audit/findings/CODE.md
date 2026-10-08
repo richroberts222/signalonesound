@@ -14,7 +14,7 @@ Not examined, and why: line-by-line review of the mock components (disposable un
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High |
 | Timing | Now |
@@ -51,7 +51,7 @@ Not examined, and why: line-by-line review of the mock components (disposable un
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High |
 | Timing | Now |
@@ -88,7 +88,7 @@ Not examined, and why: line-by-line review of the mock components (disposable un
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High on the count (RUN); Medium on whether it is worth adopting everywhere |
 | Timing | Trigger: before the first service that reads real product data |
@@ -125,7 +125,7 @@ Not examined, and why: line-by-line review of the mock components (disposable un
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium (pattern-level; Q-005 is open) |
 | Timing | Trigger: the first real slice |
@@ -162,7 +162,7 @@ Not examined, and why: line-by-line review of the mock components (disposable un
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Info |
 | Confidence | High |
 | Timing | n/a |

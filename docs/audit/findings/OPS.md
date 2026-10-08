@@ -16,7 +16,7 @@ Not examined, and why: the Vercel plan tier and its log retention (not exposed t
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium |
 | Confidence | High that nothing is configured in the repository; Medium on the retention (INFER from the platform's own wording and an empty log read) |
 | Timing | Before first real users |
@@ -109,7 +109,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld (merge)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Low (the plans and limits are not read; the design point is INFER) |
 | Timing | Trigger: design of the real discovery data path; before public launch |
@@ -158,7 +158,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium |
 | Timing | Trigger: the first real data path and the first real bulk import |
@@ -197,7 +197,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Info |
 | Confidence | High |
 | Timing | Trigger: the first real users |

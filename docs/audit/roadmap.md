@@ -1,6 +1,6 @@
 # Roadmap: the short ranked plan
 
-Written 2026-10-08 (Pass 5) from `findings/index.md`. If this file and the register disagree, the register wins. **This is a proposal. Nothing in Stage 3 starts without your OK**, except items already done.
+Written 2026-10-08 (Pass 5) from `findings/index.md`. If this file and the register disagree, the register wins. **Approved by the owner on 2026-10-08** (RECOLLECTION: "I agree with the roadmap"). Stage 3 work starts as small issues and pull requests; application code stays paused until the owner lifts it, and any spending is asked first.
 
 Plain-language summary: the audit looked at 12 areas and wrote 89 findings. A fresh-eyes review (Pass 4) downgraded many of them, leaving 1 High, 16 Medium, 54 Low and 18 Info (keep-as-is notes). Only **one** item is still rated High. The rest is a small amount of cheap tidying now, a **launch gate** (things to finish before real people or real data), and a long list that waits for a specific trigger.
 

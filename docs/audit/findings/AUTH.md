@@ -16,7 +16,7 @@ Not examined, and why: the Clerk dashboard (sign-up restrictions, bot protection
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium |
 | Confidence | High for the facts; the severity is driven by the absence of real data, not by the code |
 | Timing | Before real data (or the first real admin write, whichever is first) |
@@ -63,7 +63,7 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High for the facts; Medium for the consequence (it depends on the first user-owned domain table) |
 | Timing | Trigger: first user-owned domain table |
@@ -112,7 +112,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium |
 | Confidence | Medium (the legal characterisation is INFER and needs counsel; the absence of any policy is READ) |
 | Timing | Before real data (and, for the production Clerk instance, before any public sign-up; the development instance is already open, F-AUTH-011) |
@@ -156,7 +156,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium |
 | Timing | Trigger: the first real admin or moderator write |
@@ -193,7 +193,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium (the server half is RUN against invalid tokens only; the client half is READ) |
 | Timing | Before real mobile authentication (the first mobile feature that needs a user) |
@@ -242,7 +242,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High |
 | Timing | Now |
@@ -279,7 +279,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High for the behaviour; the risk is negligible today (identifiers are random UUIDs) |
 | Timing | Trigger: the first domain resource whose existence is itself sensitive |
@@ -316,7 +316,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Low (the session cookie's attributes were not observed; the behaviour is INFER) |
 | Timing | Trigger: the first real state-changing endpoint |
@@ -365,7 +365,7 @@ KEEP. Evidence: `lib/auth/authorize.ts` is 50 lines; `can` converts a throwing r
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High for the observed behaviour (RUN); the Clerk dashboard settings are UNVERIFIED |
 | Timing | Now |

@@ -18,7 +18,7 @@ No code, script, test or config reads a Neon branch name. The word `prod` in cod
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium |
 | Confidence | High (READ) that none exists; the state of qa, stage and prod is UNVERIFIED (U-06) |
 | Timing | Before real data |
@@ -63,7 +63,7 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium (High once real data exists) |
 | Confidence | Medium (window and plan are UI-RELAY; "never exercised" is the docs' statement, `database.md:380`) |
 | Timing | Before real data |
@@ -105,7 +105,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium |
 | Confidence | Medium (READ for CI and drivers; the driver constraint is INFER from `neon()`/`neon-http` use, not RUN) |
 | Timing | Now (offline drift check); before the first product migration (apply from zero) |
@@ -150,7 +150,7 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld, timing split)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High (READ) |
 | Timing | Before real data |
@@ -201,7 +201,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld (reworded body)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium |
 | Confidence | Low (the state is UNVERIFIED: U-05, U-09, U-15; the docs say "recommended, not configured") |
 | Timing | Before real data |
@@ -243,7 +243,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium (topology is UI-RELAY; behaviour of branch reset from parent is the docs' own warning, `database.md` section 13) |
 | Timing | Before real data |
@@ -280,7 +280,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium (READ for `reset.ts`; that PostGIS creates `spatial_ref_sys` in `public` is INFER from recall, UNVERIFIED) |
 | Timing | Trigger: first extension (for example PostGIS) is installed |
@@ -319,7 +319,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High that the decision is open; extension availability UNVERIFIED |
 | Timing | Trigger: before the first event or location table |
@@ -356,7 +356,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High (READ) that none exist |
 | Timing | Trigger: first table holding user-owned real data |
@@ -393,7 +393,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Info |
 | Confidence | High (READ; not RUN) |
 | Timing | n/a |
@@ -418,7 +418,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Info |
 | Confidence | High (READ, repository-wide search) |
 | Timing | n/a |

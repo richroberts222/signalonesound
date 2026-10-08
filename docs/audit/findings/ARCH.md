@@ -16,7 +16,7 @@ Not examined, and why: the Server Component and page data-loading patterns (the 
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium |
 | Confidence | High that the conventions are absent; Medium on the specific defaults recommended |
 | Timing | Before the first product table or endpoint |
@@ -61,7 +61,7 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld, narrowed)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High for the client behaviour (READ); the impact depends on mobile adoption |
 | Timing | Trigger: the first real mobile feature |
@@ -112,7 +112,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High |
 | Timing | Trigger: the first product page that loads real data |

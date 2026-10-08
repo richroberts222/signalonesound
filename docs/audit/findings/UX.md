@@ -14,7 +14,7 @@ Not examined, and why: visual design quality and colour contrast (no rendered re
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High on the counts (RUN); High that no guard exists (READ) |
 | Timing | Now (the guard); with issue #91 (the conversion) |
@@ -65,7 +65,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld (reworded body)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium |
 | Confidence | High that nothing is automated (RUN); Medium on the extent of real defects (not tested with tools or people) |
 | Timing | Automation: Before first real users. Human check: Before public launch |
@@ -107,7 +107,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High on the counts (RUN) |
 | Timing | Trigger: the first real success or warning state, and the first real mobile screen |
@@ -144,7 +144,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium |
 | Timing | Trigger: the decision to support a second language or country |
@@ -181,7 +181,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Info |
 | Confidence | High |
 | Timing | n/a |

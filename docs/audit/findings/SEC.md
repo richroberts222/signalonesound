@@ -19,7 +19,7 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium (protection absence is CONSOLE; the deploy-on-merge link is U-01) |
 | Timing | Now |
@@ -71,7 +71,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | High |
 | Confidence | Medium (configuration READ; exploitability depends on vendor behavior, INFER) |
 | Timing | Now |
@@ -123,7 +123,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High (CONSOLE) |
 | Timing | Now |
@@ -173,7 +173,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium |
 | Confidence | High |
 | Timing | Now |
@@ -221,7 +221,7 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium (config READ; deployed headers unobservable behind Vercel Authentication, U-21) |
 | Timing | Before public launch |
@@ -270,7 +270,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld (evidence strengthened)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium |
 | Timing | Trigger: before the first public data-bearing endpoint |
@@ -319,7 +319,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium |
 | Confidence | Low (depends on U-15, U-16, U-17) |
 | Timing | Before first real users |
@@ -375,7 +375,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld (merge verified)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High (READ) |
 | Timing | Trigger: first write endpoint with a user-supplied payload larger than a few KB |

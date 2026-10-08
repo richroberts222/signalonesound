@@ -22,7 +22,7 @@ Not examined, and why: a mutation test of the shared validation schemas and the 
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium |
 | Confidence | High (RUN, mutation 2) |
 | Timing | Now |
@@ -64,7 +64,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High for the facts; Medium for the consequence (it depends on the first real feature) |
 | Timing | Trigger: first product table or endpoint |
@@ -115,7 +115,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High |
 | Timing | Trigger: the first real-data page, and before any public launch for accessibility |
@@ -152,7 +152,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High |
 | Timing | Now |
@@ -189,7 +189,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High |
 | Timing | Trigger: the first end-to-end test in CI |

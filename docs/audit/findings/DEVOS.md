@@ -23,7 +23,7 @@ New facts established in this pass, not in Pass 1 (also in `progress.md`):
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium (silence is RUN for one run and CONSOLE history for five; the cause is INFER) |
 | Timing | Now |
@@ -74,7 +74,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld (reworded body)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium (the environment facts are RUN and READ; U-24 examined 2026-10-07: the seven red merges were red at the PR head) |
 | Timing | Now |
@@ -126,7 +126,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld (reworded body)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Medium |
 | Confidence | High (READ and RUN greps; the cost to a model run is INFER) |
 | Timing | Now |
@@ -175,7 +175,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High (READ) |
 | Timing | Now |
@@ -212,7 +212,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | High (READ, git history) |
 | Timing | Trigger: the documentation-reconciliation slice (F-DEVOS-003) |
@@ -263,7 +263,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld
 
 | Field | Value |
 | --- | --- |
-| Status | Challenged |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium (READ; the harm is INFER, not observed) |
 | Timing | Trigger: first observed double run, or the next edit to `claude.yml` |
@@ -314,7 +314,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld (reworded)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium |
 | Timing | Trigger: first product migration or first role-based feature |
@@ -351,7 +351,7 @@ Challenge (Pass 4b, 2026-10-08): verdict Upheld (reworded)
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Accepted |
 | Severity | Low |
 | Confidence | Medium (counts are RUN over all issue bodies; whether each issue was clear enough to build from is a judgement not made here) |
 | Timing | Now |
