@@ -4,7 +4,7 @@ One line per finding. The finding's home is `findings/<CODE>.md`; this file neve
 
 Conventions: `methodology.md` section 6. IDs are never reused or renumbered. Merged, rejected, and superseded findings move to the Tombstones table with a pointer.
 
-Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH, REL, BOIL, ARCH.
+Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH, REL, BOIL, ARCH, TEST.
 
 ## Active findings
 
@@ -70,6 +70,12 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | F-ARCH-002 | Client-server compatibility contract is thin: no timeout, no offline versus server error, no client version, no minimum supported version | Low | ADD | Trigger: first real mobile feature | Draft | |
 | F-ARCH-003 | `routing.md` and `server-components.md` are empty while pages will start loading real data | Low | DEFER | Trigger: first real-data page | Draft | |
 | F-ARCH-004 | Layer boundaries are real and machine-enforced; envelope and error mapping are consistent | Info | KEEP | n/a | Draft | |
+| F-TEST-001 | Nothing tests which pages are protected: removing route protection for `/admin` and `/dashboard` passes every test | Medium | ADD | Now | Draft | |
+| F-TEST-002 | Tests using real Clerk and a real database are manual and not in CI; the integration of the pieces is unproven | Medium | ADD | Before first product table or endpoint | Draft | |
+| F-TEST-003 | Pages are verified only by compilation: no render, accessibility or browser smoke tests | Low | DEFER | Trigger: first real-data page; before public launch | Draft | |
+| F-TEST-004 | `docs/testing.md` describes a CI job that does not exist and omits one that runs | Low | IMPROVE | Now | Draft | |
+| F-TEST-005 | No flaky-test policy, retry rule, or test-results visibility | Low | DEFER | Trigger: first end-to-end test in CI | Draft | |
+| F-TEST-006 | Security-critical logic is well tested and the tests bite; static boundary tests are worth keeping | Info | KEEP | n/a | Draft | |
 
 ## Tombstones
 
@@ -83,6 +89,6 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | --- | --- | --- | --- | --- | --- |
 | Critical | 0 | 0 | 0 | 0 | 0 |
 | High | 2 | 0 | 0 | 0 | 0 |
-| Medium | 20 | 0 | 0 | 0 | 0 |
-| Low | 26 | 0 | 0 | 0 | 0 |
-| Info | 12 | 0 | 0 | 0 | 0 |
+| Medium | 22 | 0 | 0 | 0 | 0 |
+| Low | 29 | 0 | 0 | 0 | 0 |
+| Info | 13 | 0 | 0 | 0 | 0 |

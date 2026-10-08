@@ -68,11 +68,11 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | ID | Input | Likely subject | Outcome | Pass |
 | --- | --- | --- | --- | --- |
 | P-78-O01 | Documentation volume and process weight (orchestrator rules, serialized merges, revalidation of open PRs) heavy for a single reviewer; keep invariants, cut the rest | DEVOS | Merged → F-DEVOS-003 (volume) and F-DEVOS-009 (process weight is right-sized; the cost is documentation volume, not ceremony) | 2 DEVOS |
-| P-78-O02 | Test Value Review for every new test discourages tests; replace with a short rubric | TEST | Pending | |
+| P-78-O02 | Test Value Review for every new test discourages tests; replace with a short rubric | TEST | Rejected as stated (no evidence of suppressed tests); gap is F-TEST-001 | 2 TEST |
 | P-78-O03 | Parallel-work ceremony; default to sequential | DEVOS | Rejected (two real parallel batches on 2026-10-01; the rules govern actual throughput; the missing control is "require up to date", F-DEVOS-002, F-DEVOS-009) | 2 DEVOS |
 | P-78-O04 | Boilerplate export/init tooling, three reports, markers inside product docs: verify how many apps will be created; freeze if fewer than two | BOIL | Adopted → F-BOIL-001, Q-012 | 2 BOIL |
 | P-78-O05 | `docs/ideas/` fine as parking lot; session replay/analytics carry privacy implications | AUTH/DEVOS | DEVOS part: Not applicable (`docs/ideas/` is 5 files, 125 lines; no volume problem); privacy part → F-AUTH-003 | 2 DEVOS (partial) |
-| P-78-O06 | Static source-text security tests give false confidence; prefer linter boundary rules | TEST/SEC | Pending | |
+| P-78-O06 | Static source-text security tests give false confidence; prefer linter boundary rules | TEST/SEC | Modified → F-TEST-006 (static tests bite; lint rules only on a miss) | 2 TEST |
 | P-78-O07 | `APP_ENV` plus `DATABASE_ENV` plus four environments with unprovisioned Stage is more than needed; do not build Stage until M01 to M09 | REL | Agreed in part → F-REL-002 | 2 REL |
 | P-78-O08 | Team-of-one: no reviewers, CODEOWNERS, multi-approver rules yet | DEVOS | Adopted as KEEP → F-DEVOS-009 (none exist; correct); path-based gates deferred, F-DEVOS-007 | 2 DEVOS |
 | P-78-K | Keep as-is: explicit environment identity and prod-refusal guards; server-only imports; Zod at boundaries; forward-only migrations with expand/contract; per-environment secrets; no merge rights for the agent; never-commit-secrets tests | several | Partly KEEP → F-SEC-009, F-SEC-010; "no merge rights for the agent" modified (DEVOS): held behaviorally, 38 of 38 merges by the owner, F-DEVOS-008 KEEP, but not technically enforced, F-SEC-001, F-SEC-002; remaining items pending DATA, ARCH | 2 SEC, 2 DEVOS (partial) |
@@ -93,7 +93,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CH-10 | Time and identifier conventions | ARCH | | Adopted → F-ARCH-001 | 2 ARCH |
 | P-CH-11 | External dependency failure handling | ARCH/OPS | P-78-T10 | Client side → F-ARCH-002; server side stays with OPS | 2 ARCH |
 | P-CH-12 | Upload, notification, search, geospatial contracts | ARCH/REQ | | Trigger-gated list inside F-ARCH-001; geospatial → F-DATA-008 | 2 ARCH |
-| P-CH-13 | Test taxonomy and flaky-test policy | TEST | | Pending | |
+| P-CH-13 | Test taxonomy and flaky-test policy | TEST | | Adopted, deferred → F-TEST-005 | 2 TEST |
 | P-CH-14 | Accessibility | UX | P-78-M11, P-78-T05 | Pending | |
 | P-CH-15 | Performance, capacity, cost | OPS | P-78-T08, P-78-T09 | Pending | |
 | P-CH-16 | SLI/SLO and incident response | OPS | P-78-T07 | Pending | |
@@ -134,7 +134,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | ID | Input | Likely subject | Outcome | Pass |
 | --- | --- | --- | --- | --- |
 | P-GAP-01 | No real Clerk-authenticated mobile call exists | ARCH/AUTH | Adopted → F-AUTH-005 | 2 AUTH |
-| P-GAP-02 | No CI job for integration/E2E (needs secrets) | TEST/REL | Not REL: routed to TEST | 2 REL |
+| P-GAP-02 | No CI job for integration/E2E (needs secrets) | TEST/REL | Not REL: routed to TEST → F-TEST-002 | 2 REL, 2 TEST |
 | P-GAP-03 | Stage hosting mechanism undecided | REL | Deferred → F-REL-002 | 2 REL |
 | P-GAP-04 | Production migration procedure not automated or defined | DATA | Adopted → F-DATA-001 | 2 DATA |
 | P-GAP-05 | `docs/deployment.md` section 7 stale about `ci.yml` | DEVOS | Adopted → F-DEVOS-003 (confirmed, ledger C-22; fix in the reconciliation slice) | 2 DEVOS |
@@ -154,7 +154,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-SEC-05 | `claude-code-review.yml` has read-only permissions (recorded as correct) | SEC | Confirmed correct (read-only contents, PRs, issues; carries id-token write); no finding | 2 SEC |
 | P-SEC-06 | Gaps: rate limiting, security headers/CSP, audit logging, automated dependency scanning; API: no rate limiting, CORS, request logging | SEC | Merged → F-SEC-004, F-SEC-005, F-SEC-006; CORS not needed for native clients (INFER, ARCH); audit → F-AUTH-004; logging pending OPS | 2 SEC |
 | P-SEC-07 | Least-privilege roles recommended, not configured | DATA | Adopted → F-DATA-005 | 2 DATA |
-| P-SEC-08 | Static source-text security checks do not follow transitive imports; `server-only` is the build-time backstop | TEST/SEC | Pending | |
+| P-SEC-08 | Static source-text security checks do not follow transitive imports; `server-only` is the build-time backstop | TEST/SEC | Recorded as a limit → F-TEST-006 | 2 TEST |
 
 ## Roadmap and notes (product inputs that engineering depends on)
 
@@ -163,4 +163,4 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-RM-01 | Not yet scheduled: real roles and authorization, Church-managed data, real submission flow, real admin entry, bulk ingestion, multiple users per organization, product schema | REQ/AUTH/DATA | AUTH part adopted → F-AUTH-001; product questions → Q-010 | 2 AUTH |
 | P-RM-02 | Data concepts surfaced by the admin mock: provenance, moderation decisions, duplicate/conflict rules, organization-manager relationships, import batches, lifecycle states, audit/history, orphan events | REQ/DATA | Pending | |
 | P-NOTES-01 | Unresolved product questions from Issue 76: who is an admin/moderator and how granted; anonymous submissions; moderation outcomes and reversibility; duplicate/conflict definition and precedence; imports creating organizations; staff editing manager records; permanent vs reversible removal | REQ/AUTH | Routed → Q-010, F-AUTH-001, F-AUTH-004 (AUTH); REQ part pending; these still need a durable home before F-DEVOS-005 removes `notes.md` | 2 AUTH (partial) |
-| P-NOTES-02 | Verification not performed on Issue 76: Playwright, root `pnpm validate`, browser rendering, iPhone Safari | TEST | Pending | |
+| P-NOTES-02 | Verification not performed on Issue 76: Playwright, root `pnpm validate`, browser rendering, iPhone Safari | TEST | Adopted → F-TEST-003 | 2 TEST |

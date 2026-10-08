@@ -37,7 +37,7 @@ Not examined, and why: the Clerk dashboard (sign-up restrictions, bot protection
 
 **Affects**: `proxy.ts` (unchanged), `app/admin/layout.tsx`, `app/dashboard/church/layout.tsx`, `lib/auth/authorize.ts`, `docs/auth.md`, `docs/services.md`, a new server-only configuration variable (`docs/environment.md`).
 
-**Depends on / sequencing**: Q-010 (roles) before the schema; F-AUTH-002 (identity keys) in the same design pass; F-AUTH-004 (audit log) at the first privileged write.
+**Depends on / sequencing**: F-TEST-001 (the page-protection test is this finding's tripwire, evidenced by a mutation that no test caught); Q-010 (roles) before the schema; F-AUTH-002 (identity keys) in the same design pass; F-AUTH-004 (audit log) at the first privileged write.
 
 **Verification**: A signed-in user outside the allow-list receives a not-found response from `/admin/*`; the matrix test fails when a service method gains an allow path without a test row; the static tripwire fails on a new admin file with no rule.
 
