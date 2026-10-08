@@ -4,7 +4,7 @@ One line per finding. The finding's home is `findings/<CODE>.md`; this file neve
 
 Conventions: `methodology.md` section 6. IDs are never reused or renumbered. Merged, rejected, and superseded findings move to the Tombstones table with a pointer.
 
-Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH, REL, BOIL, ARCH, TEST, OPS, REQ, CODE.
+Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: all twelve subjects (Pass 2 complete).
 
 ## Active findings
 
@@ -94,6 +94,11 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | F-CODE-003 | Strict mode is on, but one recommended extra check would flag 29 places | Low | DEFER | Trigger: before the first service that reads real product data | Draft | |
 | F-CODE-004 | About 4,500 lines of mock code are labelled, but nothing stops real code importing mock types as contracts | Low | IMPROVE | Trigger: first real slice | Draft | |
 | F-CODE-005 | Small, strictly typed code with no type escapes and test-enforced layering | Info | KEEP | n/a | Draft | |
+| F-UX-001 | The shadcn/ui rule is violated in 19 places and nothing prevents new violations | Medium | ADD | Now (guard); with #91 (conversion) | Draft | |
+| F-UX-002 | Accessibility is a documented principle, but nothing enforces or measures it | Medium | ADD | Before first real users | Draft | |
+| F-UX-003 | Colour, brand and mobile styling are not fully routed through the design system | Low | IMPROVE | Trigger: first success/warning state; first real mobile screen | Draft | |
+| F-UX-004 | Text and formatting are hard-coded English though the plan is worldwide | Low | DEFER | Trigger: a second language or country | Draft | |
+| F-UX-005 | UI architecture is documented, shadcn-based, tokenised and responsive | Info | KEEP | n/a | Draft | |
 
 ## Tombstones
 
@@ -107,6 +112,6 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | --- | --- | --- | --- | --- | --- |
 | Critical | 0 | 0 | 0 | 0 | 0 |
 | High | 2 | 0 | 0 | 0 | 0 |
-| Medium | 28 | 0 | 0 | 0 | 0 |
-| Low | 37 | 0 | 0 | 0 | 0 |
-| Info | 17 | 0 | 0 | 0 | 0 |
+| Medium | 30 | 0 | 0 | 0 | 0 |
+| Low | 39 | 0 | 0 | 0 | 0 |
+| Info | 18 | 0 | 0 | 0 | 0 |

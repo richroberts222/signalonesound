@@ -62,7 +62,7 @@ Not examined, and why: line-by-line review of the mock components (disposable un
 
 **Evidence**: `apps/web/package.json` lists `"cn": "^0.4.0"` (READ). No file in the repository imports it (RUN, import search). The real helper is `cn` in `apps/web/lib/utils.ts`, built from `clsx` and `tailwind-merge`. During the paused shadcn work in this session the shadcn command-line tool generated `import { cn } from "cn"` in new component files, which is the wrong source; it was corrected by hand (RECOLLECTION of this session; the generated files are on an unpushed local branch). The earlier audit's suspicion of typosquatting was checked and rejected (the package is published by the shadcn-ui organisation and has no install scripts; recorded in `inputs-reconciliation.md` row P-78-E).
 
-**Observation**: The package is harmless as a threat but harmful as a trap: a correct-looking `import { cn } from "cn"` resolves to an installed package instead of failing, so a wrong import can survive until someone notices the helper behaves differently. With the package removed, the same mistake becomes a compile error the first time it is written.
+**Observation**: The package is harmless as a threat but harmful as a trap. A wrong `import { cn } from "cn"` typechecks and builds because the package is installed, and fails only when a dynamically rendered page uses the component (documented in `apps/web/components/ui/imports.test.ts`, which is a regression guard for exactly this, but only for the `components/ui` folder). With the package removed, the same mistake becomes a compile error everywhere the first time it is written.
 
 **Consequence**: An AI session or a copy-pasted shadcn snippet silently uses the wrong helper; style merging behaves unexpectedly.
 

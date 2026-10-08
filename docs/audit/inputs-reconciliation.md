@@ -40,7 +40,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-78-M08 | Rate limiting on `/api/v1` and auth-adjacent routes | SEC | Adopted, modified → F-SEC-006 (platform rate limit first; no new vendor) | 2 SEC |
 | P-78-M09 | Lazy env validation ships a broken prod env green; add post-deploy smoke check or health route | REL | Adopted, modified → F-REL-001 | 2 REL |
 | P-78-M10 | Privacy basics before collecting member data: policy, terms, data inventory, deletion/export decision | AUTH | Adopted → F-AUTH-003 | 2 AUTH |
-| P-78-M11 | Automated accessibility check (jsx-a11y lint, axe in Playwright on key pages) | UX | Pending | |
+| P-78-M11 | Automated accessibility check (jsx-a11y lint, axe in Playwright on key pages) | UX | Adopted, as a warning first → F-UX-002 | 2 UX |
 | P-78-M12 | Transaction decision: `neon-http` lacks interactive transactions vs `data-mutations.md` requirement | DATA | Resolved → F-DATA-010 (`AtomicRunner`, `db.batch`; limit recorded) | 2 DATA |
 | P-78-M13 | Deny-by-default authorization test pattern in the service layer before the first role-based feature | AUTH | Adopted → F-AUTH-001 | 2 AUTH |
 | P-78-M14 | Clerk-to-Neon webhook handling if app data keys off users: signature, idempotency, replay | AUTH | Adopted, modified → F-AUTH-002 | 2 AUTH |
@@ -54,7 +54,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-78-T02 | Feature flags, staged rollout (first real cohort or risky release) | REL | Rollback part → F-REL-001; feature flags and staged rollout deferred (no cohort exists) | 2 REL |
 | P-78-T03 | Real Stage environment (before first production launch with real data) | REL | Deferred, modified → F-REL-002 (manual promotion, no Stage project) | 2 REL |
 | P-78-T04 | Mobile release engineering: signing, store review, OTA, minimum API version; API deprecation rules | REL/ARCH | REL part adopted → F-REL-005; API deprecation stays with ARCH | 2 REL |
-| P-78-T05 | Accessibility audit with assistive technology (pre-launch) | UX | Pending | |
+| P-78-T05 | Accessibility audit with assistive technology (pre-launch) | UX | Adopted → F-UX-002 | 2 UX |
 | P-78-T06 | SBOM/provenance, gitleaks, CodeQL after M03; enable GitHub secret scanning now (**verified enabled in Phase 0**, `progress.md` fact 2) | SEC | Merged → F-SEC-004 (SBOM/provenance and CodeQL DEFER with triggers; gitleaks Rejected: push protection enabled and history scan clean, F-SEC-010) | 2 SEC |
 | P-78-T07 | Uptime monitoring, status page, alert routing, on-call (first production traffic) | OPS | Uptime and alert → F-OPS-001; status page and on-call deferred (F-OPS-002) | 2 OPS |
 | P-78-T08 | Load/performance budgets, Core Web Vitals (before public launch) | OPS | Informal targets → F-OPS-005; baseline → F-OPS-003 | 2 OPS |
@@ -94,7 +94,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CH-11 | External dependency failure handling | ARCH/OPS | P-78-T10 | Client side → F-ARCH-002; server side → F-OPS-004 | 2 ARCH, 2 OPS |
 | P-CH-12 | Upload, notification, search, geospatial contracts | ARCH/REQ |  | Trigger-gated list inside F-ARCH-001; geospatial → F-DATA-008; REQ part → F-REQ-004, F-REQ-006 | 2 ARCH, REQ |
 | P-CH-13 | Test taxonomy and flaky-test policy | TEST | | Adopted, deferred → F-TEST-005 | 2 TEST |
-| P-CH-14 | Accessibility | UX | P-78-M11, P-78-T05 | Pending | |
+| P-CH-14 | Accessibility | UX | P-78-M11, P-78-T05 | Adopted → F-UX-002 | 2 UX |
 | P-CH-15 | Performance, capacity, cost | OPS | P-78-T08, P-78-T09 | Adopted → F-OPS-003 | 2 OPS |
 | P-CH-16 | SLI/SLO and incident response | OPS | P-78-T07 | Adopted → F-OPS-002, F-OPS-005 | 2 OPS |
 | P-CH-17 | Supply-chain security, SBOM, provenance | SEC | P-78-M03, P-78-T06 | Merged → F-SEC-004 (SBOM/provenance DEFER) | 2 SEC |
@@ -121,10 +121,10 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 
 | ID | Input | Likely subject | Outcome | Pass |
 | --- | --- | --- | --- | --- |
-| P-CQ-F1 | Raw palette colors instead of semantic tokens; no `success`/`warning` token | UX | Pending | |
-| P-CQ-F2 | Proof panel hand-builds form controls instead of shared primitives (note: `components/ui/input.tsx` now exists) | UX | Pending | |
-| P-CQ-F3 | Brand text duplicated; shortened product name in copy; no brand asset (note: `components/brand/brand-wordmark.tsx` now exists) | UX | Pending | |
-| P-CQ-F4 | Mobile uses literal style values; no mobile theme module | UX | Pending | |
+| P-CQ-F1 | Raw palette colors instead of semantic tokens; no `success`/`warning` token | UX | Adopted, trigger-gated → F-UX-003 | 2 UX |
+| P-CQ-F2 | Proof panel hand-builds form controls instead of shared primitives (note: `components/ui/input.tsx` now exists) | UX | Adopted, widened to every raw control, ratchet test → F-UX-001 | 2 UX |
+| P-CQ-F3 | Brand text duplicated; shortened product name in copy; no brand asset (note: `components/brand/brand-wordmark.tsx` now exists) | UX | Wordmark exists (kept); remaining copy → F-REQ-003, F-UX-003 | 2 UX |
+| P-CQ-F4 | Mobile uses literal style values; no mobile theme module | UX | Adopted, trigger-gated → F-UX-003 | 2 UX |
 | P-CQ-P1 | Services import `DatabaseError`/`Database` type from `db/`; documented as acceptable; open question only if services move to a shared package | ARCH | Resolved → F-ARCH-004 (type and error class only) | 2 ARCH |
 | P-CQ-P2 | `packages/shared/src/env.ts` size (cohesive; no action) | CODE | Not applicable: cohesive, no action → F-CODE-005 | 2 CODE |
 | P-CQ-P3 | Uncommented `* 2` looseness on client `maxLength` | CODE | Not applicable: proof slice only, intentional → F-CODE-005 | 2 CODE |
