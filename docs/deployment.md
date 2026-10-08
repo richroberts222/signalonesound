@@ -13,6 +13,8 @@ Authoritative deployment architecture for Signal One. Variable reference and val
 | Stage (final pre-production) | `stage` | `stage` | stage (protected) | development | see section 4 |
 | Production | `prod` | `prod` | prod (protected) | production | `production` |
 
+**Actual state (read 2026-10-08, owner-relayed console reads; Preview values not read):** Production is a Vercel deployment of `main` with no custom domain. It uses a Clerk **development** instance, and the Production scope holds none of the `APP_ENV`, `DATABASE_ENV` or `DATABASE_URL` variables; no production Clerk instance exists. The table above is the plan; this paragraph is what exists. Update it whenever the console state changes.
+
 Environment identity is explicit configuration, never inferred from hostnames or branch names.
 
 ## 2. Vercel (Web)
@@ -93,7 +95,7 @@ feature branch -> PR
 
 * **Automated now:** Vercel builds a Preview for each PR and a production deployment for `main`; `.github/workflows/claude.yml` and `claude-code-review.yml` run Claude (not a general CI pipeline).
 * **Manual now:** running `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` and reporting results in the PR (`/docs/testing.md`); Stage and Production database migrations; setting Vercel variables.
-* **Planned, not built:** a GitHub Actions validation workflow running those same commands. It will be owned by the Testing Foundation work (`/docs/testing.md`) and is deliberately not created here. When it exists it should be a required check before merge, using no production secrets, and may call the environment guards with fake qa values. Workflow files are edited by a human (the Claude GitHub App cannot edit them).
+* **Built:** `.github/workflows/ci.yml` runs `pnpm validate` on pull requests and pushes to `main`, and the `Validate` check is required by the `Protect main` repository ruleset (`/docs/security.md`). It uses no production secrets. Workflow files are edited by a human (the Claude GitHub App cannot edit them).
 * **Planned, not built:** automated Stage promotion, post-deploy smoke checks, preview-environment configuration checks.
 
 ## 8. Mobile deployment boundary (not built)
@@ -122,7 +124,7 @@ Rules: mobile builds receive only `EXPO_PUBLIC_*` client-safe values per profile
 
 Verified in the repository: validation guards (unit tests in `packages/shared/src/env.test.ts`), production build without env vars, absence of committed secrets/`vercel.json`.
 
-Not verified (no cloud access in this work): Vercel project settings, actual Preview/Production variable values, Preview using qa, any cloud deployment, Neon branches, Clerk instances.
+Read back on 2026-10-08 (owner-relayed console reads and `gh`): the `Protect main` ruleset, Production deployment on merge, Preview protection, Production variable names. Not verified: Preview variable values, whether Preview uses qa, Neon branch settings, Clerk dashboard settings.
 
 ## Mobile release
 
