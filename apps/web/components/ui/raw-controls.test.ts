@@ -17,7 +17,6 @@ const REMAINING_RAW_CONTROLS: Record<string, number> = {
   "components/church/manage-actions.tsx": 2,
   "components/discover/discover-filters.tsx": 1,
   "components/member/notification-preferences.tsx": 1,
-  "components/proof/proof-items-panel.tsx": 2,
 };
 
 const ROOT = join(__dirname, "..", "..");
@@ -36,6 +35,8 @@ function rawCounts(): Record<string, number> {
     for (const file of tsxFiles(join(ROOT, top))) {
       const rel = relative(ROOT, file).split(sep).join("/");
       if (rel.startsWith("components/ui/")) continue;
+      // The demo slice is deleted from generated applications, so it cannot be listed here (issue #91 covers it).
+      if (rel.startsWith("components/proof/")) continue;
       const n = (readFileSync(file, "utf8").match(RAW) ?? []).length;
       if (n > 0) counts[rel] = n;
     }
