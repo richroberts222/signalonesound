@@ -276,6 +276,7 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 **History**: 2026-10-06 created. Merges P-CH-26 (emergency access) and P-CH-27 (credential lifecycle).
 
+**History (2026-10-08)**: Owner reports that the business partner views the product by using the owner's own Vercel login (RECOLLECTION). A shared login removes per-person attribution, ties the partner's access to the owner's password and second factor (Vercel's team 2FA indicator was reported off, UI-RELAY), and cannot be revoked for one person without changing the owner's credentials. Production is already public and needs no login; unmerged Preview deployments can be shared with a link or by adding a seat. Recommendation: stop sharing the login; use the Production URL for merged work and a Vercel shareable link for a specific Preview (INFER on plan availability), or add a paid seat if per-person access is needed (F-REL-007). The second platform admin must have her own Clerk account (Q-010).
 ---
 
 ### F-SEC-008 The API body-size cap measures characters after fully buffering the body

@@ -47,6 +47,7 @@ Not examined, and why: the generated application's build, tests and lint (above)
 
 **History**: 2026-10-08 created. Absorbs P-78-O04; incident from Pass 1 fact 20 and Q-002.
 
+**History (2026-10-08)**: Q-012 answered: a second application will be built. The freeze recommendation is replaced by: keep the gate, reduce its false alarms structurally (one directory convention), and invest nothing else in the template until Signal One's foundation fixes land.
 ---
 
 ### F-BOIL-002 The copy routines include the private local environment file and untracked files, and the proof script leaves its copy behind on failure
@@ -158,6 +159,7 @@ Not examined, and why: the generated application's build, tests and lint (above)
 
 **History**: 2026-10-08 created. Absorbs P-GAP-09 (export not refreshed since 2026-10-01).
 
+**History (2026-10-08)**: Q-012 answered. The template will be reused, so the repository is kept, refreshed after the foundation fixes, and made private now (owner action in the repository's settings).
 ---
 
 ### F-BOIL-005 Two historical reports and a few stale references add reading weight to the template
@@ -195,6 +197,7 @@ Not examined, and why: the generated application's build, tests and lint (above)
 
 **History**: 2026-10-08 created.
 
+**History (2026-10-08)**: Owner approved removal. Applied in issue #89 and PR #90 (open at the time of writing).
 ---
 
 ### F-BOIL-006 The init and export design is sound: one manifest, dry run, identity validation, negative controls

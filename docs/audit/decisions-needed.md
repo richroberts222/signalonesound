@@ -250,4 +250,6 @@ Engineering decisions (Claude):
 
 **Blocks**: F-BOIL-001, -003, -004, -005 (what to do, not whether it is a problem).
 
-**Status**: Open. Default until answered: option 1 (freeze). Engineering recommendation: option 1.
+**Status**: Answered 2026-10-08 by the owner (RECOLLECTION): another application **will** be built from this foundation, but the priority is to get Signal One Sound operational first, "the sooner the better on both." The owner also approved removing misleading reports.
+
+Engineering decisions (Claude): this selects option 2 with sequencing, not a freeze. (1) Keep the template tooling and its gate, but invest only in small safe fixes now: the two historical reports are removed (issue #89, PR #90), the copy-routine safety fix (F-BOIL-002) and the Windows fix (F-BOIL-003) are cheap and scheduled with the fix plan. (2) Reduce the false-alarm surface of the gate (F-BOIL-001) once, structurally, instead of freezing: all reference-only documents live under a small set of directories that init removes and the scan ignores. (3) Defer the template refresh and any publication until the Signal One foundation fixes from this audit have landed, so the second app starts from a corrected foundation. (4) The published template repository (F-BOIL-004) stays out of public view: **owner action** to make it private in the repository settings.

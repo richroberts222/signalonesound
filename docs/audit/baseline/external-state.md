@@ -291,3 +291,5 @@ Each item: where to look, what the audit expects to find, and which subject need
 **U-21 answered 2026-10-08 (CONSOLE, Vercel API, plus an unauthenticated request):** Vercel Authentication is on in the "all except custom domains" mode. Previews are protected; the Production `*.vercel.app` domain is public (an unauthenticated request returns 200). No custom domain exists (U-20).
 
 **Vercel variable names by target (CONSOLE, 2026-10-08; names and targets only, no value read):** Preview: `DATABASE_URL`, `DATABASE_ENV`, `APP_ENV`, the two Clerk keys. Development: the two Clerk keys. Production: the two Clerk keys only. U-02 (the Preview values) remains open.
+
+**U-16/U-17 partly answered 2026-10-08 (RECOLLECTION):** the business partner accesses Vercel through the owner's login (shared credential). Whether other services (Clerk, GitHub, Neon) are shared the same way was not stated and stays UNVERIFIED. See F-SEC-007 History.
