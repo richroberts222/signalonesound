@@ -10,6 +10,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -19,7 +20,9 @@
     "zod": "^4"
   },
   "devDependencies": {
+    "eslint": "^9.39.5",
     "typescript": "^5",
+    "typescript-eslint": "^8.71.1",
     "vitest": "^5.0.2"
   }
 }
