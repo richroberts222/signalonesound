@@ -191,6 +191,8 @@ Residual-risk decision still with the owner: launching in the United States on a
 
 Collection gate (unchanged in substance): no real user data is collected until a privacy policy page, terms acceptance at sign-up, and the 18+ confirmation exist. Legal review is not part of that gate for a US-only start, but is a hard gate for any non-US user.
 
+Addendum 2026-10-08 (owner): use a generic terms agreement and privacy policy now, and have an attorney review and update them later. This is consistent with the position above for a US-only start. The hard gate before the first non-US user is unchanged.
+
 ### Q-010 Who are admins, moderators and Church/Ministry managers, and how is each granted?
 
 **Question**: Which kinds of people can act on the platform beyond an ordinary member (platform admin, moderator, Church/Ministry manager)? How is each role granted and revoked? May an organization have several managers? Are anonymous submissions allowed? Can a moderation decision be reversed?
@@ -219,3 +221,18 @@ Engineering decisions (Claude):
 2. **Platform admins** are a server-only allow-list of Clerk user IDs, so adding the second admin takes two steps: she creates her own Clerk account, then the owner adds her ID to the configuration (a Vercel environment variable change, an owner action). Move to a database-backed admin flag only if the admin count grows.
 3. Defaults for the unanswered items, to be revised only if the owner objects: admins also act as moderators for now; anonymous submissions are not allowed at first; moderation decisions are recorded and reversible (F-AUTH-004); an organization may have several managers.
 4. **Paid membership is a new topic, not an AUTH one.** A payment provider, hosted checkout, tax, refunds and the Apple/Google in-app-purchase rules for the mobile apps are undesigned (REQ/ARCH; the plan marks pricing UNDECIDED). Nothing in AUTH assumes payment.
+
+### Q-011 What is the mobile app's public identity (name, store identifiers, developer accounts)?
+
+**Question**: What name should the iPhone and Android apps show, what permanent store identifiers (iOS bundle identifier, Android package name) should be used, and who will own the Apple and Google developer accounts?
+
+**Why the audit cannot decide**: it is a brand and account decision, and the identifiers cannot be changed after the first published release without creating a new app. `app.config.ts` currently holds placeholders (`com.example.signalone`, the name "Signal One"), while the official product name is "Signal One Sound" (`naming-conventions.md`).
+
+**Options and consequences**:
+
+1. Decide at the first internal build (when the mobile slice starts). Nothing is needed now; the placeholders are harmless until a build is made. Recommended.
+2. Decide now. Possible, but there is no mobile feature yet and a custom domain does not exist; the choice would likely be revisited.
+
+**Blocks**: nothing today. Blocks F-REL-005 at its trigger (the first internal or store build) and the Clerk native sign-in redirect configuration (F-AUTH-005).
+
+**Status**: Open. Default until answered: option 1.

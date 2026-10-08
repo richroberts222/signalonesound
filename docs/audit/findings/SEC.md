@@ -50,7 +50,7 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 **History**: 2026-10-06 created. Differs from issue 78 M01 ("required review"): reviews required set to zero for a single-owner repository; severity High, not Critical, because production deployment is UNVERIFIED and the realistic exploit needs F-SEC-002.
 
-**History (2026-10-07)**: Partly applied by the owner: ruleset `Protect main` is active (deletion and force-push blocked; pull request required with 0 approvals; `Validate` required; up-to-date off; bypass list empty). Documented in `docs/security.md` (PR #86). Deploy-on-merge (U-01) is still unverified, so severity is not yet downgraded; Pass 4 decides. Tag protection for `signal-one-foundation-v1` is not covered.
+**History (2026-10-07)**: Partly applied by the owner: ruleset `Protect main` is active (deletion and force-push blocked; pull request required with 0 approvals; `Validate` required; up-to-date off; bypass list empty). Documented in `docs/security.md` (PR #86). Deploy-on-merge is now **evidenced** (U-01 answered 2026-10-08: a merge to `main` deploys Production within seconds), which supports keeping the severity until Pass 4 verifies that the ruleset is the only path to `main`. Tag protection for `signal-one-foundation-v1` is not covered.
 ---
 
 ### F-SEC-002 The Claude job concentrates secrets, write access, and arbitrary code execution

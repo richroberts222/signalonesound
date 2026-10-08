@@ -4,7 +4,7 @@ One line per finding. The finding's home is `findings/<CODE>.md`; this file neve
 
 Conventions: `methodology.md` section 6. IDs are never reused or renumbered. Merged, rejected, and superseded findings move to the Tombstones table with a pointer.
 
-Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH.
+Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH, REL.
 
 ## Active findings
 
@@ -52,6 +52,14 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | F-AUTH-008 | State-changing API routes depend on cookie SameSite alone against cross-site requests | Low | IMPROVE | Trigger: first real write endpoint | Draft | |
 | F-AUTH-009 | Server authentication boundary fails closed, in code and on the deployed site | Info | KEEP | n/a | Draft | |
 | F-AUTH-010 | Authorization primitives are small and deny by default; do not replace with a framework | Info | KEEP | n/a | Draft | |
+| F-REL-001 | A release is only a merge: Production deployed without its configuration; no deployment check or rollback runbook | Medium | ADD | Before first real users | Draft | |
+| F-REL-002 | Every merge redeploys Production and Stage is not provisioned; use manual promotion at the trigger, not a Stage project | Low | DEFER | Trigger: before the first real users | Draft | |
+| F-REL-003 | Node and pnpm versions differ between CI, Vercel and the developer machine and are pinned in several places | Low | IMPROVE | Now | Draft | |
+| F-REL-004 | Production functions run in US East while the database is in US West | Low | IMPROVE | Before real traffic | Draft | |
+| F-REL-005 | Mobile release is scaffold-only: placeholder store identifiers, no accounts, no OTA or minimum-version policy | Low | DEFER | Trigger: first internal or store build | Draft | |
+| F-REL-006 | `docs/deployment.md` and `docs/environment.md` describe an environment that does not exist | Low | IMPROVE | Now | Draft | |
+| F-REL-007 | The Vercel plan and its terms may not fit a commercial product (unverified) | Low | DEFER | Trigger: before taking payment or public launch | Draft | |
+| F-REL-008 | Environment guards, frozen installs, protected Previews and merge-only Production are sound | Info | KEEP | n/a | Draft | |
 
 ## Tombstones
 
@@ -65,6 +73,6 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | --- | --- | --- | --- | --- | --- |
 | Critical | 0 | 0 | 0 | 0 | 0 |
 | High | 2 | 0 | 0 | 0 | 0 |
-| Medium | 17 | 0 | 0 | 0 | 0 |
-| Low | 14 | 0 | 0 | 0 | 0 |
-| Info | 9 | 0 | 0 | 0 | 0 |
+| Medium | 18 | 0 | 0 | 0 | 0 |
+| Low | 20 | 0 | 0 | 0 | 0 |
+| Info | 10 | 0 | 0 | 0 | 0 |

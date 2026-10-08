@@ -38,7 +38,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-78-M06 | Production migration procedure: who, how, verification | DATA | Adopted → F-DATA-001 | 2 DATA |
 | P-78-M07 | Error monitoring and structured logs with redaction | OPS | Pending | |
 | P-78-M08 | Rate limiting on `/api/v1` and auth-adjacent routes | SEC | Adopted, modified → F-SEC-006 (platform rate limit first; no new vendor) | 2 SEC |
-| P-78-M09 | Lazy env validation ships a broken prod env green; add post-deploy smoke check or health route | REL | Pending | |
+| P-78-M09 | Lazy env validation ships a broken prod env green; add post-deploy smoke check or health route | REL | Adopted, modified → F-REL-001 | 2 REL |
 | P-78-M10 | Privacy basics before collecting member data: policy, terms, data inventory, deletion/export decision | AUTH | Adopted → F-AUTH-003 | 2 AUTH |
 | P-78-M11 | Automated accessibility check (jsx-a11y lint, axe in Playwright on key pages) | UX | Pending | |
 | P-78-M12 | Transaction decision: `neon-http` lacks interactive transactions vs `data-mutations.md` requirement | DATA | Resolved → F-DATA-010 (`AtomicRunner`, `db.batch`; limit recorded) | 2 DATA |
@@ -51,9 +51,9 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | ID | Input | Likely subject | Outcome | Pass |
 | --- | --- | --- | --- | --- |
 | P-78-T01 | Audit log of privileged actions (first admin/moderator role) | AUTH | Deferred → F-AUTH-004 | 2 AUTH |
-| P-78-T02 | Feature flags, staged rollout (first real cohort or risky release) | REL | Pending | |
-| P-78-T03 | Real Stage environment (before first production launch with real data) | REL | Pending | |
-| P-78-T04 | Mobile release engineering: signing, store review, OTA, minimum API version; API deprecation rules | REL/ARCH | Pending | |
+| P-78-T02 | Feature flags, staged rollout (first real cohort or risky release) | REL | Rollback part → F-REL-001; feature flags and staged rollout deferred (no cohort exists) | 2 REL |
+| P-78-T03 | Real Stage environment (before first production launch with real data) | REL | Deferred, modified → F-REL-002 (manual promotion, no Stage project) | 2 REL |
+| P-78-T04 | Mobile release engineering: signing, store review, OTA, minimum API version; API deprecation rules | REL/ARCH | REL part adopted → F-REL-005; API deprecation stays with ARCH | 2 REL |
 | P-78-T05 | Accessibility audit with assistive technology (pre-launch) | UX | Pending | |
 | P-78-T06 | SBOM/provenance, gitleaks, CodeQL after M03; enable GitHub secret scanning now (**verified enabled in Phase 0**, `progress.md` fact 2) | SEC | Merged → F-SEC-004 (SBOM/provenance and CodeQL DEFER with triggers; gitleaks Rejected: push protection enabled and history scan clean, F-SEC-010) | 2 SEC |
 | P-78-T07 | Uptime monitoring, status page, alert routing, on-call (first production traffic) | OPS | Pending | |
@@ -73,7 +73,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-78-O04 | Boilerplate export/init tooling, three reports, markers inside product docs: verify how many apps will be created; freeze if fewer than two | BOIL | Pending | |
 | P-78-O05 | `docs/ideas/` fine as parking lot; session replay/analytics carry privacy implications | AUTH/DEVOS | DEVOS part: Not applicable (`docs/ideas/` is 5 files, 125 lines; no volume problem); privacy part → F-AUTH-003 | 2 DEVOS (partial) |
 | P-78-O06 | Static source-text security tests give false confidence; prefer linter boundary rules | TEST/SEC | Pending | |
-| P-78-O07 | `APP_ENV` plus `DATABASE_ENV` plus four environments with unprovisioned Stage is more than needed; do not build Stage until M01 to M09 | REL | Pending | |
+| P-78-O07 | `APP_ENV` plus `DATABASE_ENV` plus four environments with unprovisioned Stage is more than needed; do not build Stage until M01 to M09 | REL | Agreed in part → F-REL-002 | 2 REL |
 | P-78-O08 | Team-of-one: no reviewers, CODEOWNERS, multi-approver rules yet | DEVOS | Adopted as KEEP → F-DEVOS-009 (none exist; correct); path-based gates deferred, F-DEVOS-007 | 2 DEVOS |
 | P-78-K | Keep as-is: explicit environment identity and prod-refusal guards; server-only imports; Zod at boundaries; forward-only migrations with expand/contract; per-environment secrets; no merge rights for the agent; never-commit-secrets tests | several | Partly KEEP → F-SEC-009, F-SEC-010; "no merge rights for the agent" modified (DEVOS): held behaviorally, 38 of 38 merges by the owner, F-DEVOS-008 KEEP, but not technically enforced, F-SEC-001, F-SEC-002; remaining items pending DATA, ARCH | 2 SEC, 2 DEVOS (partial) |
 
@@ -98,12 +98,12 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CH-15 | Performance, capacity, cost | OPS | P-78-T08, P-78-T09 | Pending | |
 | P-CH-16 | SLI/SLO and incident response | OPS | P-78-T07 | Pending | |
 | P-CH-17 | Supply-chain security, SBOM, provenance | SEC | P-78-M03, P-78-T06 | Merged → F-SEC-004 (SBOM/provenance DEFER) | 2 SEC |
-| P-CH-18 | Progressive delivery and rollback | REL | P-78-T02 | Pending | |
+| P-CH-18 | Progressive delivery and rollback | REL | P-78-T02 | Adopted → F-REL-001, F-REL-002 | 2 REL |
 | P-CH-19 | AI-agent prompt/context safety and provenance | SEC/DEVOS | P-78-D, P-78-M02 | Merged → F-SEC-002 | 2 SEC |
 | P-CH-20 | Standards governance | DEVOS | | Merged → F-DEVOS-003 (claims name a mechanism or say "convention"; doc-existence tripwire; ADRs rejected as ceremony for one decision-maker) | 2 DEVOS |
 | P-CH-21 | Long-term compatibility | ARCH | P-78-T04 | Pending | |
-| P-CH-22 | Reproducible builds | SEC/REL |  | Rejected as a finding for now (frozen lockfile, pinned pnpm; floating Node minor in CI is Low); revisit in REL | 2 SEC |
-| P-CH-23 | Configuration validation | REL | P-78-M09 | Pending | |
+| P-CH-22 | Reproducible builds | SEC/REL |  | Rejected as a finding for now (frozen lockfile, pinned pnpm; floating Node minor in CI is Low); re-opened narrowly in REL → F-REL-003 (Node and pnpm pins) | 2 SEC |
+| P-CH-23 | Configuration validation | REL | P-78-M09 | Adopted → F-REL-001 | 2 REL |
 | P-CH-24 | Operational ownership | OPS | | Pending | |
 | P-CH-25 | Institutional-memory survival | DEVOS | | Merged → F-DEVOS-003 (task-to-doc map; about 63,000 tokens of required reading), F-DEVOS-005 (the memory file is overwritten per slice), and F-SEC-007 (single owner, credentials) | 2 DEVOS |
 | P-CH-26 | Emergency access recovery | SEC/OPS |  | Merged → F-SEC-007 | 2 SEC |
@@ -134,8 +134,8 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | ID | Input | Likely subject | Outcome | Pass |
 | --- | --- | --- | --- | --- |
 | P-GAP-01 | No real Clerk-authenticated mobile call exists | ARCH/AUTH | Adopted → F-AUTH-005 | 2 AUTH |
-| P-GAP-02 | No CI job for integration/E2E (needs secrets) | TEST/REL | Pending | |
-| P-GAP-03 | Stage hosting mechanism undecided | REL | Pending | |
+| P-GAP-02 | No CI job for integration/E2E (needs secrets) | TEST/REL | Not REL: routed to TEST | 2 REL |
+| P-GAP-03 | Stage hosting mechanism undecided | REL | Deferred → F-REL-002 | 2 REL |
 | P-GAP-04 | Production migration procedure not automated or defined | DATA | Adopted → F-DATA-001 | 2 DATA |
 | P-GAP-05 | `docs/deployment.md` section 7 stale about `ci.yml` | DEVOS | Adopted → F-DEVOS-003 (confirmed, ledger C-22; fix in the reconciliation slice) | 2 DEVOS |
 | P-GAP-06 | `neon-http` cannot do interactive transactions; decision needed before first mutation feature (historical; check current `AtomicRunner`) | DATA | Resolved → F-DATA-010 | 2 DATA |

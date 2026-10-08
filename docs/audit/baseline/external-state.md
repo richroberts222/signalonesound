@@ -285,3 +285,9 @@ Each item: where to look, what the audit expects to find, and which subject need
 **U-24 answered 2026-10-07 (CONSOLE, `gh pr list --json statusCheckRollup` for the `Validate` result on each merged PR's head, `gh api .../commits/<sha>/check-runs` for its merge commit):** of the 30 merged PRs that have a `Validate` result on their head, 22 were green, 7 were **red at the head** (#32, #33, #34, #40, #56, #58, #59) and 1 was cancelled (#67); the merge-commit results agree. All seven red merges were red before they merged; none is merge skew. The 11 PRs before #31 predate the check. PR #80's merge commit shows no `Validate` result in the check-runs read (cause not examined). Corrects the "two mechanisms" reading in F-DEVOS-002.
 
 **U-10 partly answered 2026-10-07:** see the Clerk and production note above.
+
+**U-01 answered 2026-10-08 (CONSOLE, Vercel API):** a merge to `main` deploys Production automatically from the Git integration. The deployment for the merge of PR #86 (commit `97dd927`) is `source: git`, `target: production`, was created seconds after the merge, built in about 38 seconds, and is READY. Docs-only merges deploy Production too. Production functions run in region `iad1` (US East); the project runs Node `24.x`; Production deployments are rollback candidates.
+
+**U-21 answered 2026-10-08 (CONSOLE, Vercel API, plus an unauthenticated request):** Vercel Authentication is on in the "all except custom domains" mode. Previews are protected; the Production `*.vercel.app` domain is public (an unauthenticated request returns 200). No custom domain exists (U-20).
+
+**Vercel variable names by target (CONSOLE, 2026-10-08; names and targets only, no value read):** Preview: `DATABASE_URL`, `DATABASE_ENV`, `APP_ENV`, the two Clerk keys. Development: the two Clerk keys. Production: the two Clerk keys only. U-02 (the Preview values) remains open.
