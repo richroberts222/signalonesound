@@ -72,7 +72,7 @@ Then verify there: `pnpm install`, `pnpm test:boilerplate`, `pnpm prove:init --f
 | **Signal One specific** | The name "Signal One" / `signalone` / `@signalone/*` / `com.example.signalone` everywhere. There is **no Signal One domain code or table yet**; the product domain does not exist in this repository, so there is nothing domain-specific to exclude. When Signal One gains domain features, add their paths to a manifest list (alongside `PROOF_PATHS`) and have init remove them, so extraction stays clean. |
 | **Proof-only** (removed by init) | The generic `proof-item` vertical slice: contracts + client (`packages/validation/src/proof-item*.ts`), API route and route definitions, service, repo and fake, `proof_item` and `migration_proof` tables and **all migrations** (`apps/web/drizzle/`), web `/proof` page and panel, mobile `src/proof/`, acceptance suite, integration, unit, route-wiring and E2E tests for the slice. Full list: `PROOF_PATHS` in `scripts/boilerplate/manifest.mjs`. |
 | **Optional** (kept, enable as needed) | Playwright E2E and the dev-database integration run (need Clerk dev test user + dev Neon; not in CI), `db:reset`/`db:seed`/`db:refresh` (dev/qa), Expo/EAS (`eas.json`), the `dashboard` example page, `claude-code-review.yml`. |
-| **Template-only** (removed by init) | `docs/boilerplate.md`, `docs/boilerplate-gap-report.md`, `docs/boilerplate-references-report.md`, `scripts/boilerplate/`, `init:app`/`check:boilerplate`/`test:boilerplate` scripts. |
+| **Template-only** (removed by init) | `docs/boilerplate.md`, `scripts/boilerplate/`, `init:app`/`check:boilerplate`/`test:boilerplate` scripts. |
 
 ### Proof-only database artifacts
 
@@ -90,4 +90,4 @@ A new application starts with **no migrations and an empty schema**: the proof t
 
 ## Known gaps
 
-See `docs/boilerplate-gap-report.md` (historical) and the notes of the extraction PR (#51). Notably: no real Clerk-authenticated mobile call, no CI job for integration/E2E (needs secrets), Stage hosting undecided, production migration procedure not automated, and `docs/deployment.md` section 7 still describes the validation workflow as planned although `ci.yml` exists.
+See the notes of the extraction PR (#51). Notably: no real Clerk-authenticated mobile call, no CI job for integration/E2E (needs secrets), Stage hosting undecided, production migration procedure not automated, and `docs/deployment.md` section 7 still describes the validation workflow as planned although `ci.yml` exists.

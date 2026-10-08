@@ -28,8 +28,6 @@ export const PROOF_PATHS = [
 /** Files that only make sense in the template repository. */
 export const TEMPLATE_ONLY_PATHS = [
   "docs/boilerplate.md",
-  "docs/boilerplate-gap-report.md",
-  "docs/boilerplate-references-report.md",
   "scripts/boilerplate",
 ];
 
@@ -44,8 +42,6 @@ export const EXPORT_EXCLUDED_PATHS = [
   "scripts/boilerplate/export-template.mjs",
   "scripts/boilerplate/templates/standalone",
   "docs/boilerplate.md",
-  "docs/boilerplate-gap-report.md",
-  "docs/boilerplate-references-report.md",
   "docs/notes.md",
   ...REFERENCE_ONLY_PATHS,
 ];
