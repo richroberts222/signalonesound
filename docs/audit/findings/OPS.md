@@ -158,6 +158,7 @@ Not examined, and why: the Vercel plan tier and its log retention (not exposed t
 
 **History**: 2026-10-08 created. Absorbs P-CH-11 (server side) and P-CH-32 (safe bulk operations).
 
+**History (Pass 3, 2026-10-08, S-08)**: `proxy.ts` runs the identity middleware on every page and API request except static files (RUN, matcher read), so public discovery pages are inside the identity provider's request path. Whether a provider outage takes down public pages is therefore a real, untested question; the verification step above is the test, and the middleware may need a public-route bypass at the first real public page.
 ---
 
 ### F-OPS-005 Service targets (availability, speed) are not defined, and should stay informal until there are users

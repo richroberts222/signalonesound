@@ -165,6 +165,7 @@ New CONSOLE facts established in this pass, not in Pass 1:
 
 **History**: 2026-10-06 created. Differs from issue 78 M03: audit step non-blocking and runtime-focused (a blocking audit would fail today on unpatchable transitive advisories); gitleaks rejected as redundant with enabled push protection plus the clean history scan; CodeQL and SBOM deferred with triggers.
 
+**History (Pass 3, 2026-10-08, S-06)**: All six workflow `uses:` references are version tags, not commit hashes (`actions/checkout@v4` three times, `actions/setup-node@v4` once, `anthropics/claude-code-action@v1` twice; RUN). Pinning to commit hashes, kept current by the update tool this finding recommends, is part of the recommendation. Mitigating fact: `pnpm-workspace.yaml` sets `allowBuilds` to false for the three packages that request install scripts (RUN).
 ---
 
 ### F-SEC-005 The application sets no security response headers
