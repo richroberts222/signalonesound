@@ -76,7 +76,7 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld, narrowed)
 
 **Consequence**: A user on a bad connection sees a generic "something went wrong" or a spinner that never ends; the first incompatible API change strands installed apps with no way to tell them to update.
 
-**Recommendation**: In the shared client: apply a request timeout (for example 15 seconds) with `AbortController`; return a distinct client-side `network` outcome (not a new wire code) for "no response", so screens can show an offline message; retry only GETs and idempotent creates, with a small bounded backoff. Add `X-Client-Version` and `X-Client-Platform` request headers; add `minSupportedClientVersion` to `GET /api/v1/status`; and add one additive error code (`upgrade_required`, HTTP 426) returned for clients below the minimum. Write the deprecation rule: a field or version is announced, kept for at least one store-review cycle plus a margin, then removed.
+**Recommendation** (at the trigger, as one mobile-readiness slice with F-AUTH-005 and F-REL-005; nothing now): In the shared client: apply a request timeout (for example 15 seconds) with `AbortController`; return a distinct client-side `network` outcome (not a new wire code) for "no response", so screens can show an offline message; retry only GETs and idempotent creates, with a small bounded backoff. Add `X-Client-Version` and `X-Client-Platform` request headers; add `minSupportedClientVersion` to `GET /api/v1/status`; and add one additive error code (`upgrade_required`, HTTP 426) returned for clients below the minimum. Write the deprecation rule: a field or version is announced, kept for at least one store-review cycle plus a margin, then removed.
 
 **Alternatives and tradeoffs**: Rely on store update nagging (no control). Force updates through the stores only (slow, no signal). Do nothing until the first break (the cost is a stranded install base).
 
@@ -95,10 +95,16 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (disposition ADD to DEFER)
   Evidence re-checked: READ `packages/validation/src/api-client.ts`: no timeout; catch-all becomes `internal`. READ `docs/api.md` Versioning. Not run.
   Result: The observations are accurate; the disposition ADD implied work now. DEFER with its stated trigger, and fold the three mobile items (token, client contract, release policy) into one mobile-readiness slice when the trigger fires. Low.
 
+Challenge (Pass 4b, 2026-10-08): verdict Upheld
+  Re-checked: RUN `grep -c 'AbortController\|timeout' packages/validation/src/api-client.ts`: 0 (no timeout). Trigger is a mobile feature that does not exist.
+  Result: Low / DEFER holds; body labelled trigger-time. Grade: RUN.
+
 **History**: 2026-10-08 created. Absorbs P-CH-11 (client side), P-CH-21, and the ARCH part of P-78-T04. The server side of dependency failures (Clerk or database unavailable) fails closed or returns a generic 500 and is recorded under OPS.
 
 
 **History (Pass 4, 2026-10-08)**: ADD to DEFER; the work is gated by a mobile feature that does not exist.
+
+**History (Pass 4b, 2026-10-08)**: Recommendation labelled as trigger-time work, folded with F-AUTH-005 and F-REL-005.
 
 ---
 

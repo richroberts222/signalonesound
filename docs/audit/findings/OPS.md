@@ -73,7 +73,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 **Consequence**: Slow, improvised response; actions taken in the wrong order (for example, rotating a credential before checking what it exposed); extended exposure.
 
-**Recommendation**: Write one page, `docs/operations.md`, and keep it short enough to follow from a phone: (1) the five incidents to prepare for and the first three steps of each: bad deploy (roll back in Vercel, F-REL-001), credential leak (rotate in this order: Neon, Clerk, Vercel, GitHub; where each lives), abusive sign-ups (restrict sign-ups in Clerk; turn on Vercel's Attack Challenge Mode), data incident (stop, preserve, then decide on notice; get advice), outage of a vendor (check its status page; nothing to fix). (2) The **kill switches that already exist** and where to find them: Clerk sign-up restriction, Vercel Attack Challenge Mode, Vercel deployment pause or rollback, Neon branch connection reset by rotating the role password. (3) Who can do what: record the second owner or recovery contact for each vendor (F-SEC-007), turn on two-factor on every account, and give the business partner her own login or a shareable link instead of the owner's. (4) Subscribe the owner to the vendors' status pages. (5) A blameless note after each incident: three lines in the repository.
+**Recommendation**: Write one page, `docs/operations.md`, and keep it short enough to follow from a phone: (1) the five incidents to prepare for and the first three steps of each: bad deploy (roll back in Vercel, F-REL-001), credential leak (rotate in this order: Neon, Clerk, Vercel, GitHub; where each lives), abusive sign-ups (restrict sign-ups in Clerk; turn on Vercel's Attack Challenge Mode), data incident (stop, preserve, then decide on notice; get advice), outage of a vendor (check its status page; nothing to fix). (2) The **kill switches that already exist** and where to find them: Clerk sign-up restriction, Vercel Attack Challenge Mode, Vercel deployment pause or rollback, Neon branch connection reset by rotating the role password. (3) Who can do what: record the second owner or recovery contact for each vendor (F-SEC-007), turn on two-factor on every account. [The 'own login' clause was dropped on the merge into F-SEC-007: the owner accepted one shared login. Two-factor is also declined for now, see F-SEC-007 History.] (4) Subscribe the owner to the vendors' status pages. (5) A blameless note after each incident: three lines in the repository.
 
 **Alternatives and tradeoffs**: A full incident-management process or paging service (heavy for one person). Do nothing until the first incident (the cheapest until it is not).
 
@@ -92,10 +92,16 @@ Challenge (Pass 4, 2026-10-08): verdict Merged into F-SEC-007
   Evidence re-checked: READ F-OPS-002 recommendation (1) to (5) against F-SEC-007 recommendation and the F-SEC-007 History of 2026-10-08. RUN `gh secret list`: two secrets.
   Result: Merged: kill switches, first-three-steps incident list and status-page subscriptions move to F-SEC-007 (`docs/operations.md`); the own-login clause is dropped; the rollback step points to F-REL-001. ID kept as a tombstone.
 
+Challenge (Pass 4b, 2026-10-08): verdict Upheld (merge)
+  Re-checked: READ both bodies; the merge is correct (same page, same owner action list, same single-owner root cause) and the earlier-created finding survives per the tie-break. RUN `gh secret list`: two secrets.
+  Result: the 'own login' clause in this body is now marked dropped. Index Tombstones entry is accurate. Grade: READ.
+
 **History**: 2026-10-08 created. Absorbs P-CH-24 (operational ownership), P-CH-31 (kill switches), the incident-response half of P-CH-16, the runbook half of P-78-T10 (vendor-outage runbook), and F-DATA-002's runbook carry-forward. Emergency access (P-CH-26) is owned by F-SEC-007.
 
 
 **History (Pass 4, 2026-10-08)**: merged into F-SEC-007.
+
+**History (Pass 4b, 2026-10-08)**: Body marked: the 'own login' clause is dropped; content lives in F-SEC-007 (contradiction 3).
 
 ---
 
@@ -136,6 +142,10 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (disposition ADD to DEFER)
   Strongest case against: Confidence is Low (plan limits unread), the discovery path does not exist, and the recommendation is a design decision for a data path not yet designed (test 9).
   Evidence re-checked: READ `docs/ideas/observability.md` and the finding's evidence; vendor plan limits UNVERIFIED (U-18).
   Result: Keep the caching design principle as a note on the discovery slice, and read vendor limits at the pre-launch checkpoint. DEFER with trigger 'the real discovery data path'. Low.
+
+Challenge (Pass 4b, 2026-10-08): verdict Upheld
+  Re-checked: READ the finding and F-REL-007; vendor limits remain UNVERIFIED (U-18). The discovery path does not exist.
+  Result: Low / DEFER holds; it also belongs on the pre-launch checklist (roadmap Wave 2 addendum). Grade: READ, UNVERIFIED.
 
 **History**: 2026-10-08 created. Absorbs P-CH-15 (performance, capacity, cost), P-78-T08 (performance budgets), P-78-T09 (cost budgets and alerts), the cached-read-path half of P-78-T10, and the OPS part of F-REL-007.
 

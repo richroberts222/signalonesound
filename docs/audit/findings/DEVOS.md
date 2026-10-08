@@ -36,9 +36,9 @@ New facts established in this pass, not in Pass 1 (also in `progress.md`):
 
 **Observation**: The plugin reads the PR with `gh` subcommands and, when it finds nothing, reports that with a PR comment; the workflow grants neither (INFER from the plugin's design and the vendor's published example for it, which the audit could not re-read in this session; confirm against the current vendor documentation). The result is a job that is green whether it found nothing, could not read the PR, or could not post. A green check that cannot be told apart from "did not run" gives false assurance. The human step is the only other review, and it leaves no trace either (no review objects; U-19 asks whether Previews were opened). The automated reviewer is also the same model family as the implementer, so it is a lint-grade second look, not independent review (`phase-0-critique.md` 3.3).
 
-**Consequence**: The owner merges a large agent PR within minutes believing a review happened. A defect in the first real authorization rule, or injected text in a PR (F-SEC-002), passes both gates unobserved. Today the code is mock UI plus a proof slice, hence Medium.
+**Consequence**: The owner merges a large agent PR within minutes believing a review happened. A defect in the first real authorization rule, or injected text in a PR (F-SEC-002), passes both gates unobserved. Today the code is mock UI plus a proof slice, hence Low (Pass 4).
 
-**Recommendation**: Decide Q-008, then do one of two things, not neither. (A) Repair: grant the reviewer the minimum it needs (read the PR diff and metadata, post one summary comment and inline comments), then prove it with a seeded-defect PR; a clean PR must also produce a visible "reviewed, nothing found" signal. (B) Remove `claude-code-review.yml` and the three doc references that presuppose it. In both cases state in `issues.md` that the automated review is an aid and not an independent control. Do not add a required human approval (F-SEC-001 rationale: a team of one cannot approve their own PR).
+**Recommendation**: Q-008 is decided (2026-10-07): remove. Option (A) is withdrawn and kept only for the record; the 'human review is untraceable' half is dropped as process theater for a team of one. (A, withdrawn) Repair: grant the reviewer the minimum it needs (read the PR diff and metadata, post one summary comment and inline comments), then prove it with a seeded-defect PR; a clean PR must also produce a visible "reviewed, nothing found" signal. (B, chosen) Remove `claude-code-review.yml` and the three doc references that presuppose it. In both cases state in `issues.md` that the automated review is an aid and not an independent control. Do not add a required human approval (F-SEC-001 rationale: a team of one cannot approve their own PR).
 
 **Alternatives and tradeoffs**: Keep as is: costs about $0.07 per PR and teaches the owner to ignore it. A second model as reviewer (Q-004) buys real independence at a vendor and a secret; not recommended before real data. Cost of (A): one workflow edit (human-only) and tokens per PR, larger than the idle run today; bounded by the diff.
 
@@ -57,10 +57,16 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low)
   Evidence re-checked: RUN `gh api` on PRs #84, #86, #88: submitted reviews 0, inline comments 0, issue comments from `vercel[bot]` only. RUN `gh run list --workflow='Claude Code Review'`: the latest runs all `success`. READ `claude-code-review.yml`: only `mcp__github_inline_comment__create_inline_comment` is allowed, `pull-requests: read`.
   Result: The silent-green observation stands and was reproduced on three further PRs. But the decision (Q-008 option 2) collapses 'repair or remove' to removal plus three doc edits, and the human-trace half should be dropped. Removal also deletes one more floating-tag workflow from F-SEC-002's surface. Low.
 
+Challenge (Pass 4b, 2026-10-08): verdict Upheld (reworded body)
+  Re-checked: RUN `ls .github/workflows`: `claude-code-review.yml` still present (Q-008 is Decided, not applied). READ Q-008 Decision: option 2, remove.
+  Result: Low / IMPROVE holds. The body still read 'decide Q-008, then do one of two things' and 'hence Medium'; rewritten to the decided removal (contradiction 7). Grade: READ, RUN.
+
 **History**: 2026-10-06 created (Pass 2). Confirms the SEC carry-forward ("Claude Code Review runs green but leaves no visible comments") with a log-level observation and narrows the claim: silence is indistinguishable from "found nothing", which is the defect; the audit does not claim the reviewer would miss a defect.
 
 
 **History (Pass 4, 2026-10-08)**: Medium to Low. Q-008 decided removal; the untraceable-human-review half is dropped as theater for a team of one.
+
+**History (Pass 4b, 2026-10-08)**: Recommendation rewritten to the decided outcome: remove (Q-008); the human-trace half dropped (contradiction 7).
 
 ---
 
@@ -83,7 +89,7 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low)
 
 **Consequence**: A tripwire failure (a secret-shape hit, a boundary violation, a migration guard) merges because red is easy to dismiss. This audit's own PR is a live example: it is red for a reason the audit predicted (Q-002), and the Windows-only failures recorded in Phase 0 and Pass 1 hid that the Linux result for the audit's own files would be red.
 
-**Recommendation**: (1) Make the agent able to run the CI gate: either add `corepack enable` plus `pnpm install --frozen-lockfile` steps to `claude.yml` (human edit), or document `corepack pnpm install --frozen-lockfile` and `corepack pnpm validate` as the agent's commands and keep exactly those in the narrowed allow-list (F-SEC-002). Prefer the workflow step: it caches and keeps the allow-list short. Remove `DATABASE_URL` first (F-SEC-002, Q-007), because `validate` needs no database. (2) Make red a technical stop: the `Validate` required check in F-SEC-001, plus the ruleset option "require branches to be up to date before merging", which enforces the documented merge-skew rule for parallel PRs at the cost of one "Update branch" click each. (3) Hand the Windows false failures to TEST so a red local run means something. (4) For PR #82: Q-002 decides how the audit directory stops tripping the leak check.
+**Recommendation**: (1) First, document that the agent validates with the exact commands its narrowed allow-list permits and that CI is the gate; this closes the immediate gap. An install step is added to `claude.yml` only after F-SEC-002 has narrowed the allow-list, because it enlarges the executable surface that finding shrinks. The original options: either add `corepack enable` plus `pnpm install --frozen-lockfile` steps to `claude.yml` (human edit), or document `corepack pnpm install --frozen-lockfile` and `corepack pnpm validate` as the agent's commands and keep exactly those in the narrowed allow-list (F-SEC-002). Prefer the workflow step: it caches and keeps the allow-list short. Remove `DATABASE_URL` first (F-SEC-002, Q-007), because `validate` needs no database. (2) Make red a technical stop: the `Validate` required check in F-SEC-001 (applied). The ruleset option "require branches to be up to date" is deliberately off (owner's choice) and is not recommended here; the merge-skew control stays the documented re-check before each merge. (3) Hand the Windows false failures to TEST so a red local run means something. (4) For PR #82: Q-002 decides how the audit directory stops tripping the leak check.
 
 **Alternatives and tradeoffs**: A merge queue is more machinery than one owner needs. Serializing all work removes the skew but costs the parallel batches that the history shows are actually used (P-78-O03 rejected). Doing nothing keeps the audit's own tripwires advisory.
 
@@ -91,7 +97,7 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low)
 
 **Depends on / sequencing**: After Q-007 and F-SEC-002 narrowing (same file); the ruleset belongs with F-SEC-001. U-24 refines the diagnosis and is not a blocker.
 
-**Verification**: A Claude job on a throwaway issue runs the same command as CI and reports its real result; a PR with a failing `Validate` cannot be merged; two parallel PRs cannot merge without the second being brought up to date; `docs/issues.md` no longer needs the "if the sandbox prevents it" sentence.
+**Verification**: A Claude job on a throwaway issue runs the same command as CI and reports its real result; a PR with a failing `Validate` cannot be merged; `docs/issues.md` no longer needs the "if the sandbox prevents it" sentence.
 
 **Decisions needed**: Q-007 (existing), Q-002 (existing).
 
@@ -102,11 +108,17 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low)
   Evidence re-checked: READ `claude.yml`: checkout and the action only; no corepack, no install. RUN `gh api .../rulesets/24677009`: required check `Validate`, `strict_required_status_checks_policy: false`. RUN `gh run list --workflow=CI`: latest runs green on the audit and fix branches. READ `git log origin/main`: #88 merged.
   Result: Reworded to a documentation fix first: state that the agent validates with the allowed commands and CI is the gate; add an install step only after F-SEC-002 has narrowed the allow-list. Recommendation (2) is already applied (up-to-date stays off by owner choice). Low.
 
+Challenge (Pass 4b, 2026-10-08): verdict Upheld (reworded body)
+  Re-checked: READ `claude.yml`: still no install step. RUN ruleset: required `Validate`, `strict_required_status_checks_policy: false`. The recommendation and verification still demanded the up-to-date option the owner keeps off, and an install step ahead of the F-SEC-002 narrowing.
+  Result: Low holds. Body rewritten (contradictions 1 and 8); carry-forward lines repeating the up-to-date advice corrected. Grade: READ, RUN.
+
 **History**: 2026-10-06 created. Modifies the SEC carry-forward "seven PRs merged on a failing check": the data show the *merge commit* red, not that each PR was red when merged; part may be merge skew. The process side of F-SEC-001 stands, with a sharper cause.
 
 **History (2026-10-07)**: U-24 answered. 7 of the 30 PRs with a head `Validate` result (23%) merged red at the head (#32, #33, #34, #40, #56, #58, #59); #67 merged with a cancelled run; 22 were green. The `Protect main` ruleset (required `Validate`, 0 approvals, up-to-date requirement off) now blocks a red merge, so recommendation (2) is applied for red-at-head. The up-to-date requirement is deliberately off. The agent-job validation gap (recommendation 1) is unchanged.
 
 **History (Pass 4, 2026-10-08)**: Medium to Low. Red-merge half is closed by the ruleset; the install step conflicts with F-SEC-002 and is sequenced after it.
+
+**History (Pass 4b, 2026-10-08)**: Recommendation rewritten: documentation fix first, install step only after F-SEC-002; the up-to-date ruleset option removed from the recommendation and verification because the owner keeps it off (contradictions 1 and 8). Carry-forward lines that repeated the up-to-date advice corrected.
 
 ---
 
@@ -215,7 +227,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 **Consequence**: Low: a stale merge instruction on `main`, occasional conflicts. The unresolved product questions inside it (P-NOTES-01) are the valuable part and are at risk of being overwritten.
 
-**Recommendation**: Stop using `docs/notes.md`: manual review steps and omissions go in the PR description; unresolved product questions go to `docs/product/roadmap.md` or a feature spec (REQ decides). Preserve the Issue 76 questions first. Update `issues.md`, `product-development.md`, `new-app-setup.md` and the init reset step (BOIL).
+**Recommendation**: Stop using `docs/notes.md`: manual review steps and omissions go in the PR description; unresolved product questions go to `docs/product/roadmap.md` or a feature spec (REQ decides). Preserve the Issue 76 questions first. Until then, the PR that uses `notes.md` empties it before merge (Pass 4 interim rule). Update `issues.md`, `product-development.md`, `new-app-setup.md` and the init reset step (BOIL).
 
 **Alternatives and tradeoffs**: Keep as optional: costs nothing but the drift above. Per-issue notes files: more files, same staleness.
 
@@ -234,10 +246,16 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (disposition REMOVE to DEFER)
   Evidence re-checked: RUN grep for `notes.md` outside `docs/audit`: 12 files (`CLAUDE.md`, `docs/boilerplate.md`, `customization-map.md`, `issues.md`, `new-app-setup.md`, `product-development.md`, `stack.md`, three scripts under `scripts/boilerplate/`, one template doc, and `nav-config.ts`). READ `docs/notes.md`: 38 lines; `git log` shows #73, #75 and #77 each rewrote it.
   Result: The problem is real but small; the cure touches the tooling under test. Defer removal into the documentation-reconciliation slice (F-DEVOS-003) and, meanwhile, adopt the cheap rule: the PR that uses `notes.md` empties it before merge. Low.
 
+Challenge (Pass 4b, 2026-10-08): verdict Upheld
+  Re-checked: RUN `grep -rl notes.md` outside `docs/audit`: 12 tracked files (`CLAUDE.md`, 6 docs, 3 scripts, a template doc, `nav-config.ts`), matching Pass 4. Interim rule written into the body.
+  Result: Low / DEFER holds. Grade: RUN.
+
 **History**: 2026-10-06 created (new; the Phase 0 reading of `notes.md` recorded it as optional and did not examine its use).
 
 
 **History (Pass 4, 2026-10-08)**: REMOVE to DEFER; 12 referencing files make a standalone removal poor value.
+
+**History (Pass 4b, 2026-10-08)**: Interim rule added to the recommendation (the PR that uses `notes.md` empties it before merge).
 
 ---
 
@@ -266,7 +284,7 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (disposition REMOVE to DEFER)
 
 **Affects**: `.github/workflows/claude.yml`, optionally `ci.yml` (human edits).
 
-**Depends on / sequencing**: Same edit window as F-SEC-002 and F-DEVOS-002.
+**Depends on / sequencing**: Same edit window as F-SEC-002 and F-DEVOS-002. The trigger (the next edit to `claude.yml`) is met by the planned narrowing edit (F-SEC-002); add the one line then, not as a separate change.
 
 **Verification**: Two `@claude` comments in succession on a throwaway PR run one after the other.
 
@@ -279,10 +297,16 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (disposition ADD to DEFER)
   Evidence re-checked: READ `claude.yml` and `ci.yml`: no `concurrency:` key. No evidence of a double run in `baseline/history.md` (not re-queried in full; UNVERIFIED beyond a read of the finding).
   Result: Keep as a one-line addition to the edit window already needed for F-SEC-002, but do not open a standalone change for it. DEFER with trigger: the first observed double run. Low.
 
+Challenge (Pass 4b, 2026-10-08): verdict Upheld (reworded)
+  Re-checked: READ `claude.yml`, `ci.yml`: no `concurrency:`. No double run evidence re-queried (UNVERIFIED).
+  Result: DEFER holds, but its trigger ('the next edit to `claude.yml`') is met by Wave 1 item 1; the roadmap now lists it there as a one-line ride-along instead of only in Wave 3. Not a disposition reversal.
+
 **History**: 2026-10-06 created (new).
 
 
 **History (Pass 4, 2026-10-08)**: ADD to DEFER; hypothetical, ride along with the next `claude.yml` edit.
+
+**History (Pass 4b, 2026-10-08)**: Sequencing: the trigger is met by the F-SEC-002 narrowing edit; ride along, no separate change.
 
 ---
 
@@ -373,7 +397,7 @@ KEEP. Evidence (READ, Glob, git): there is no `CODEOWNERS`, no PR or issue templ
 * **Phase 0 and Pass 1, "audit docs introduce no offender" / "all gate failures are Windows-only"** (`progress.md` facts 16, 19; `inventory.md` section 7): true of the baseline, false of the audit branch. On Linux CI the audit directory breaks `test:boilerplate` (RUN, run `37534967908`). The Windows failures masked this because the local run stopped earlier. Q-002 therefore **does** block something: a green check on PR #82. Corrected in `decisions-needed.md` and `progress.md`.
 * **P-78-A "docs describe a different repository"**: modified (extent, not mechanism): see F-DEVOS-003.
 * **P-78-B "~7,800 lines restating each other; consolidate"**: the size is right (8,039 non-audit lines); the restatement is modest; the remedy (consolidate) is rejected for now in favor of targeted fixes.
-* **P-78-O03 "default to sequential"**: rejected; parallel batches are real. The better control is the up-to-date requirement (F-DEVOS-002).
+* **P-78-O03 "default to sequential"**: rejected; parallel batches are real. The control is the documented re-check before each merge (the up-to-date ruleset option is deliberately off).
 * **SEC carry-forward "seven PRs merged on a failing check"**: narrowed, see F-DEVOS-002 History; U-24 verifies.
 * **SEC carry-forward "review control may not exist in practice"**: confirmed and sharpened, see F-DEVOS-001.
 * **Calibration**: no DEVOS finding is High. The High-severity process failures (no technical merge gate, agent concentration) already live in F-SEC-001 and F-SEC-002; DEVOS findings would be fixed by different, cheaper changes, so they are not merged into them.
@@ -396,7 +420,7 @@ KEEP. Evidence (READ, Glob, git): there is no `CODEOWNERS`, no PR or issue templ
 
 * **BOIL**: Q-002 now has a visible consequence (red `test:boilerplate` on the audit branch; the manifest has no entry for `docs/audit/` or the charter); `docs/notes.md` is reset by init and referenced by the manifest (F-DEVOS-005 removal touches it); the public repository has no `LICENSE`; `boilerplate.md:72` rule "add domain paths to a manifest list" was not followed for the product mocks (C-58).
 * **TEST**: Windows-only gate failures (path separators, CRLF, no `.gitattributes`) make the owner's local `pnpm validate` red on the baseline (facts 16, 19); fix so local red means something (F-DEVOS-002 point 3). The doc-existence tripwire (F-DEVOS-003 point 4) belongs with the static tests.
-* **REL**: merge skew in parallel batches (F-DEVOS-002); ruleset option "require branches up to date"; whether Previews are opened before merge (U-19).
+* **REL**: merge skew in parallel batches (F-DEVOS-002); ruleset option "require branches up to date" (deliberately off, owner's choice); whether Previews are opened before merge (U-19).
 * **REQ**: no feature specs exist (`features/README.md` 13 lines); requirements-to-release traceability (P-CH-01) has nothing to trace to yet; open product questions in `notes.md` (P-NOTES-01) need a new home before F-DEVOS-005 is applied.
-* **SEC**: F-SEC-002 point 5 is superseded by F-DEVOS-004 (grant `git merge`/`git merge-base` with exact patterns); F-SEC-001 verification should also include the up-to-date option.
+* **SEC**: F-SEC-002 point 5 is superseded by F-DEVOS-004 (grant `git merge`/`git merge-base` with exact patterns); the up-to-date option is deliberately off and is not part of F-SEC-001 verification.
 * **OPS / DATA / AUTH / ARCH / CODE / UX**: nothing carried.

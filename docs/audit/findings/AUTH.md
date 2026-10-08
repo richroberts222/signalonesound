@@ -31,7 +31,7 @@ Not examined, and why: the Clerk dashboard (sign-up restrictions, bot protection
 
 **Consequence**: The first real admin or church feature built on the current layouts is open to every account. A moderation queue or import tool reachable by an anonymous sign-up is an integrity and privacy incident, not an inconvenience.
 
-**Recommendation**: (1) Decide the role model before real data (Q-010: product decisions for Rich; the mechanism is an engineering decision below). (2) Mechanism (engineering, recommended): platform admin is an allow-list of Clerk user IDs in server-only configuration, evaluated by a named `isPlatformAdmin` rule through `authorize`; organization-scoped roles (manager, moderator) are rows in the application database keyed by the Clerk user ID (the roadmap already treats roles as product-domain, and multiple managers per organization is a relational fact). Do **not** adopt Clerk Organizations for this: it adds vendor surface the product does not need yet. (3) Make `/admin` and `/dashboard/church` call `authorize` and respond with not-found for non-members, now, even for the mock; the cost is one rule and two lines per layout. (4) Add the deny-by-default test pattern (P-78-M13, P-CH-06): a table-driven matrix per service method over actor classes (anonymous, other user, owner, platform admin) asserting deny unless an allow rule exists, plus a static tripwire that every file under `app/admin/**` and every `auth: "required"` route names an authorization rule or an explicit "any signed-in user" marker.
+**Recommendation**: (1) Decide the role model before real data (Q-010: product decisions for Rich; the mechanism is an engineering decision below). (2) Mechanism (engineering, recommended): platform admin is an allow-list of Clerk user IDs in server-only configuration, evaluated by a named `isPlatformAdmin` rule through `authorize`; organization-scoped roles (manager, moderator) are rows in the application database keyed by the Clerk user ID (the roadmap already treats roles as product-domain, and multiple managers per organization is a relational fact). Do **not** adopt Clerk Organizations for this: it adds vendor surface the product does not need yet. (3) Make `/admin` and `/dashboard/church` call `authorize` and respond with not-found for non-members, shipped with the first real admin write (application code is paused; Pass 4 moved this from 'now'); the route-protection test (F-TEST-001) proceeds now; the cost is one rule and two lines per layout. (4) Add the deny-by-default test pattern (P-78-M13, P-CH-06): a table-driven matrix per service method over actor classes (anonymous, other user, owner, platform admin) asserting deny unless an allow rule exists, plus a static tripwire that every file under `app/admin/**` and every `auth: "required"` route names an authorization rule or an explicit "any signed-in user" marker.
 
 **Alternatives and tradeoffs**: Do nothing until the schema review (cheapest, but the copy-the-pattern risk stays and an unauthorised mock reveals the product's admin layout to any account). Clerk Organizations or Clerk metadata roles (fewer tables, but roles split across two systems and Clerk becomes part of the product model; wrong for per-organization managers). A full RBAC library (rejected: L8, the product has not named three roles yet).
 
@@ -54,6 +54,8 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
 
 
 **History (Pass 4, 2026-10-08)**: reworded. Layout changes move to the first real admin write (application code is paused); the test is carried by F-TEST-001.
+
+**History (Pass 4b, 2026-10-08)**: Layout change moved from 'now' to the first real admin write in the recommendation (contradiction 6).
 
 ---
 
@@ -95,6 +97,10 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low; ADD to DEFER)
   Evidence re-checked: READ `apps/web/db/schema.ts:19`: `owner_id text`, no foreign key. READ `app/api`: only `v1/proof-items` and `v1/status`; no webhook route. READ F-AUTH-002 recommendation text.
   Result: Defer with the trigger 'first user-owned domain table'. It shares one design pass with F-AUTH-003's deletion path and F-DATA-009; do not open it separately. Low.
 
+Challenge (Pass 4b, 2026-10-08): verdict Upheld
+  Re-checked: READ `db/schema.ts:19` (`owner_id` text, no foreign key); RUN `ls apps/web/app/api`: no webhook route. The recommendation itself is gated 'at the design pass for the first user-owned table'.
+  Result: Low / DEFER holds. Grade: READ, RUN.
+
 **History**: 2026-10-07 created. Absorbs P-78-M14; carry-forward from DATA (Clerk user-deleted handling and webhook idempotency, F-DATA-009).
 
 
@@ -109,7 +115,7 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low; ADD to DEFER)
 | Status | Challenged |
 | Severity | Medium |
 | Confidence | Medium (the legal characterisation is INFER and needs counsel; the absence of any policy is READ) |
-| Timing | Before real data (and before any public sign-up) |
+| Timing | Before real data (and, for the production Clerk instance, before any public sign-up; the development instance is already open, F-AUTH-011) |
 | Disposition | ADD |
 | Scope | BOTH |
 | Trigger class | Foundational |
@@ -141,6 +147,8 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
   Result: Upheld: the cost of the gate (a written rule) is near zero and the downside (religion plus location data collected without a policy) cannot be undone. Narrowed: the gate wording goes into `docs/auth.md` now; the inventory, coarse-location design and export wait for the first data-bearing slice. Overlap with F-DATA-009 is one design pass; keep both, cross-referenced.
 
 **History**: 2026-10-07 created. Absorbs P-78-M10, P-CH-07, P-CH-33, P-78-T11, and the privacy part of P-78-O05. 2026-10-08: Q-009 answered. Age 18 or over; US first with worldwide planning; terms and privacy acceptance at sign-up; legal review undecided (owner's residual-risk decision; hard gate before any non-US user).
+
+**History (Pass 4b, 2026-10-08)**: Timing text now distinguishes the production Clerk instance from the already open development instance (F-AUTH-011).
 
 ---
 
@@ -218,6 +226,10 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low; ADD to DEFER)
   Strongest case against: Mobile is a placeholder screen; the owner has paused application work; the finding itself says 'not before'. A trigger-gated spike is a Low, DEFER item (test 9). It also overlaps F-REQ-004's 'first slice includes one mobile read'.
   Evidence re-checked: READ `apps/mobile/src/proof/proofClient.ts:17` (`noToken`); `apps/mobile/package.json` has no `@clerk/expo`. RUN grep: no test sends a valid bearer token. Not run against Clerk.
   Result: The unproven success path is genuine and is the central premise of 'one platform, three clients', so the spike must happen before any mobile feature needs a user. But severity measures consequence now: schedule risk, not harm. Low, DEFER with the stated trigger. F-REQ-004 refers here for the token proof rather than repeating it.
+
+Challenge (Pass 4b, 2026-10-08): verdict Upheld
+  Re-checked: READ `apps/mobile/src/proof/proofClient.ts:17` (`noToken`); RUN `grep -c clerk apps/mobile/package.json`: 0. Success path unproven, no mobile feature needs a user.
+  Result: Low / DEFER holds. Owned real-token proof referenced from F-REQ-004 and F-TEST-002. Grade: READ, RUN.
 
 **History**: 2026-10-07 created. Absorbs P-GAP-01.
 
@@ -381,6 +393,10 @@ KEEP. Evidence: `lib/auth/authorize.ts` is 50 lines; `can` converts a throwing r
 **Decisions needed**: whether anyone outside the team should be able to register before launch (owner).
 
 **Challenge log**: (Pass 4) Created during Pass 4; Low severity and not eligible for a challenge entry. Re-examine in the next adversarial pass.
+
+Challenge (Pass 4b, 2026-10-08): verdict Upheld
+  Re-checked: RUN read-only GETs of the public Production site: `/sign-up` 200 with a test-type publishable key in the HTML (value not recorded); `/sign-in` 200; anonymous `/dashboard`, `/account`, `/proof` and `/admin` answer 404 (protected); anonymous `/api/v1/proof-items` 401. Clerk dashboard settings remain UNVERIFIED.
+  Result: the condition is current and real, Low is right (fictional data, no real users) and Now / owner action is cheap. No other finding duplicates it. F-AUTH-003 timing text corrected as this finding asked. Grade: RUN.
 
 **History**: 2026-10-08 created in Pass 4 from a read-only request to the public site (test 9: a current problem that earlier findings framed as future).
 

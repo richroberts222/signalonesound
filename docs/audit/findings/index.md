@@ -108,7 +108,7 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 
 ## Counts (updated each pass)
 
-After Pass 4 (2026-10-08). Severity is the current value after calibration.
+After Pass 4 (2026-10-08), unchanged by Pass 4b (2026-10-08: 0 severity or disposition changes among 20 re-checked items; no new findings). Severity is the current value after calibration.
 
 | Severity | Draft | Challenged | Accepted | Rejected/Merged | Deferred |
 | --- | --- | --- | --- | --- | --- |

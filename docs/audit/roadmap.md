@@ -11,27 +11,29 @@ Plain-language summary: the audit looked at 12 areas and wrote 89 findings. A fr
 | Rules on `main`: pull request required, `Validate` required, no force-push or delete | ruleset "Protect main" (F-SEC-001) |
 | Audit files no longer break the template check | #84 |
 | Windows test fixes (paths, line endings, template proof) | #88, #93 |
-| Misleading historical reports removed | #90 |
+| Misleading historical reports removed | #90 (F-BOIL-005) |
 
-## 1. Waiting for you to merge (all checks written and tested; each is its own small PR)
+## 1. Waiting for you to merge (each is its own small PR; checked live on 2026-10-08 in Pass 4b: #95, #99 and #101 are green, **#97 is red**)
 
 | PR | Covers |
 | --- | --- |
 | #95 route-protection test | F-TEST-001 (proven gap) |
-| #97 shadcn guard test | F-UX-001 (guard half) |
+| #97 shadcn guard test | F-UX-001 (guard half). Its `Validate` fails in `test:boilerplate`: the new test lists a `components/proof/...` path, which the template leak check classifies as a proof reference. Needs the one-line manifest fix in F-BOIL-001 first, or the path rewritten |
 | #99 lint the shared packages | F-CODE-001 |
 | #101 stale docs corrected | F-AUTH-006, F-TEST-004, F-REL-006 |
 
-## 2. Wave 1, "Now": small, no product code (ranked)
+## 2. Wave 1, "Now": small, no product feature code (ranked)
+
+Mostly half-day items. Two are larger: the documentation reconciliation (F-DEVOS-003, about one to three days) and the offline migration drift check (F-DATA-003, the first half is small). Item 7 touches application dependencies and screens and waits for you to lift the app-code pause.
 
 | # | Work | Findings | Needs |
 | --- | --- | --- | --- |
-| 1 | **Narrow the Claude workflow**: remove the silent reviewer, drop database access and broad commands, pin actions, add an update tool, pin Node. One workflow-edit session. | F-SEC-002 (High), F-SEC-003, F-SEC-004, F-DEVOS-004, F-DEVOS-001, F-REL-003; Q-007, Q-008 | **You** edit the workflow files (I draft the exact text); a couple of GitHub settings clicks |
+| 1 | **Narrow the Claude workflow**: remove the silent reviewer, drop database access and broad commands, pin actions, add an update tool, pin Node. One workflow-edit session. | F-SEC-002 (High), F-SEC-003, F-SEC-004, F-DEVOS-004, F-DEVOS-001, F-DEVOS-002 (documentation first; install step only after the narrowing), F-DEVOS-006 (one-line ride-along), F-REL-003, F-SEC-001 residuals (protect the foundation tag, export the ruleset); Q-007, Q-008 | **You** edit the workflow files (I draft the exact text); a couple of GitHub settings clicks |
 | 2 | **Restrict public sign-up** in the Clerk dashboard | F-AUTH-011; Q-014 | Your decision, two minutes in Clerk |
 | 3 | **Put your decisions into the real product documents** and fix the roadmap | F-REQ-002, F-REQ-003 | Docs PR |
 | 4 | **Documentation reconciliation**: one index, fewer duplicates, issue template | F-DEVOS-003, F-DEVOS-010 | Docs PR |
 | 5 | **Offline migration drift check** in `pnpm validate` | F-DATA-003 (first half) | Tooling PR |
-| 6 | **Template tidy**: leak check out of the required gate, mark the template repo | F-BOIL-001, F-BOIL-002, F-BOIL-004 | Tooling PR; one GitHub toggle |
+| 6 | **Template tidy**: leak check out of the required gate, mark the template repo | F-BOIL-001 (urgent: it is blocking PR #97 now), F-BOIL-002, F-BOIL-003 (only if the template stays in use), F-BOIL-004 | Tooling PR; one GitHub toggle |
 | 7 | **Remove the stray `cn` package** and finish the shadcn conversion when app work resumes | F-CODE-002, F-UX-001 (#91) | Waits for you to lift the app-code pause |
 
 ## 3. Wave 2, the launch gate: before real users or real data
@@ -46,6 +48,7 @@ Not needed while the site is a private preview. Each line is one small piece of 
 | Conventions | Decide time zones and recurrence, money, units before the first event table | F-ARCH-001 |
 | Quality | Accessibility scan and one screen-reader pass; security headers; region match for database and functions | F-UX-002, F-SEC-005, F-REL-004 |
 | Real accounts | Production Clerk instance and domain | F-AUTH-011, F-REL-001 (owner-bought items) |
+| Also gate-relevant (listed in Wave 3 by trigger, but check before real users, real data or taking payment) | Release policy before the first real users (F-REL-002); read the Vercel plan terms for a commercial product (F-REL-007); vendor limits and cost alerts (F-OPS-003); vendor-outage behaviour (F-OPS-004); browser and accessibility smoke tests (F-TEST-003); retention, deletion and export (F-DATA-009, with F-AUTH-003); identity lifecycle (F-AUTH-002) and audit trail (F-AUTH-004) at the first user-owned table or admin write; rate limiting and request-forgery posture at the first public write endpoint (F-SEC-006, F-AUTH-008) | F-REL-002, F-REL-007, F-OPS-003, F-OPS-004, F-TEST-003, F-DATA-009, F-AUTH-002, F-AUTH-004, F-SEC-006, F-AUTH-008 |
 
 ## 4. Wave 3, triggers only (do nothing until the trigger happens)
 
@@ -57,7 +60,7 @@ Not needed while the site is a private preview. Each line is one small piece of 
 | First real mobile build | F-REL-005, F-ARCH-002, F-AUTH-005 |
 | First user-generated content or store submission | F-REQ-006 |
 | Before public launch or taking payment | F-REL-007, F-OPS-003, F-TEST-003, F-OPS-004, F-REL-002 |
-| First test of its kind or slice of its kind | F-TEST-005, F-DEVOS-005, F-DEVOS-006, F-DEVOS-007, F-OPS-005, F-UX-003, F-UX-004 |
+| First test of its kind or slice of its kind | F-TEST-005, F-DEVOS-005, F-DEVOS-006 (also a Wave 1 ride-along), F-DEVOS-007, F-OPS-005, F-UX-003, F-UX-004 |
 
 ## 5. What needs your approval
 
@@ -84,4 +87,4 @@ Every finding carries its own verification step. The pattern for tests is **brea
 
 ## 8. Audit status
 
-Pass 4 did not converge (51% of reviewed items changed; the limit is 5%). The honest next step is **one short re-check** of the changed items and the new finding, after this roadmap fixes the severity convention. See `pass-5-conformance.md`.
+Pass 4 did not converge (51% of reviewed items changed; the limit is 5%). The narrow re-check (Pass 4b, `pass-4b-review.md`) found 0 reversals among 20 reviewed items, fixed the contradictions in the finding bodies, and corrected this roadmap against the register (three missing findings added, one PR status corrected). Remaining for convergence: your acceptance of the High item (F-SEC-002) and of this roadmap. See `pass-5-conformance.md`.

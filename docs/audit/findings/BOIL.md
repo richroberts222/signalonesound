@@ -19,7 +19,7 @@ Not examined, and why: the generated application's build, tests and lint (above)
 | Status | Challenged |
 | Severity | Low |
 | Confidence | High for the mechanism and the incident; the recurring cost is INFER |
-| Timing | Now (a decision, Q-012; the fix is small) |
+| Timing | Now (the fix is small) |
 | Disposition | IMPROVE |
 | Scope | BOTH |
 | Trigger class | Foundational |
@@ -31,7 +31,7 @@ Not examined, and why: the generated application's build, tests and lint (above)
 
 **Consequence**: Recurring red CI on unrelated work, time spent on manifest maintenance, and documents cluttered with markers. The owner's priority is shipping the product.
 
-**Recommendation**: Decide how many applications will be built from this foundation (Q-012). If fewer than two in the next year (recommended default, P-78-O04): **freeze** the template. Concretely: remove `test:boilerplate` from `pnpm validate` and from the required check (keep the scripts and the self-test, run on demand with `pnpm test:boilerplate` before any export), add one line to `boilerplate.md` saying the template is frozen and when to unfreeze, and stop adding markers to product documents. If two or more are planned soon: keep the gate, but invert the boundary so it cannot be tripped by content: put every reference-only document under one directory that init deletes and the scan ignores, and scan only for the identity and proof paths, not for words in prose.
+**Recommendation**: Q-012 is answered (another application will be built), so the freeze option is withdrawn. Keep the gate and invert the boundary so ordinary content cannot trip it: put every reference-only document under the directories that init deletes and the scan ignores (`docs/audit`, `docs/features` and `docs/product` are already in `REFERENCE_ONLY_PATHS`), and scan for the identity and proof paths rather than for words in prose. Guard tests that list product paths (for example PR #97, which lists `components/proof/...`) are the next false alarm and need the same treatment.
 
 **Alternatives and tradeoffs**: Keep as is (the template stays continuously proven; the product pays for it on every change). Delete the template machinery entirely (cleanest, loses a working asset and the published copy; reversible from history). Move it to its own repository (clean, the most work).
 
@@ -41,7 +41,7 @@ Not examined, and why: the generated application's build, tests and lint (above)
 
 **Verification**: A product PR that adds a reference-only document, or mentions the proof slice, passes `Validate` without touching the manifest.
 
-**Decisions needed**: Q-012 (new).
+**Decisions needed**: Q-012 (answered 2026-10-08: keep the template).
 
 **Challenge log**:
 
@@ -50,11 +50,17 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low, reworded)
   Evidence re-checked: READ `scripts/boilerplate/manifest.mjs:40`: `REFERENCE_ONLY_PATHS` includes `docs/audit`, `docs/features`, `docs/product`. RUN `gh run list --workflow=CI`: green. READ Q-012 Status: option 2 chosen. `gh pr list`: PR #93 (CRLF/Windows tooling) and #90 (reports) are open.
   Result: The word denylist across all text still means any new document outside the reference-only directories that says 'Signal One' fails the required check. That is a real but small recurring cost, now with a known one-line remedy and a decided direction (invert the boundary). Reword to that: the 'freeze' branch is withdrawn. Low.
 
+Challenge (Pass 4b, 2026-10-08): verdict Upheld (new evidence; reworded body)
+  Re-checked: RUN `gh pr checks 97` and the failed log of CI run 37841207249: `Validate` fails in `test:boilerplate` (`scripts/boilerplate/boilerplate.test.mjs:70`) because the classifier gains a `proof-reference` category; the PR adds only a guard test that lists `components/proof/proof-items-panel.tsx`. Every other step (lint, typecheck, unit tests) passed.
+  Result: the Pass 4 premise 'incident fixed structurally' is only half true; the same mechanism has now turned red the owner-priority guard (F-UX-001) a day after Pass 4. Still Low (one-line manifest fix, no user impact) but the roadmap must not say all four open PRs are green. Freeze text removed from the body (contradiction 5). Grade: RUN.
+
 **History**: 2026-10-08 created. Absorbs P-78-O04; incident from Pass 1 fact 20 and Q-002.
 
 **History (2026-10-08)**: Q-012 answered: a second application will be built. The freeze recommendation is replaced by: keep the gate, reduce its false alarms structurally (one directory convention), and invest nothing else in the template until Signal One's foundation fixes land.
 
 **History (Pass 4, 2026-10-08)**: Medium to Low; incident fixed by #84, Q-012 answered 'keep the template', freeze option withdrawn.
+
+**History (Pass 4b, 2026-10-08)**: Recommendation, Decisions and Timing rewritten: the freeze option is withdrawn (contradiction 5). New live evidence recorded in the Challenge log (PR #97 red on the leak check).
 
 ---
 

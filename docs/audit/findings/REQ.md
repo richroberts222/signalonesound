@@ -37,7 +37,7 @@ Not examined, and why: whether the product is the right business or the revenue 
 
 **Affects**: `docs/product/product-plan.md`, `docs/features/README.md`, `docs/product-development.md`, the PR template.
 
-**Depends on / sequencing**: F-DEVOS-010 (the template); the first real-slice decision (F-REQ-004).
+**Depends on / sequencing**: F-DEVOS-010 (the template); the first real-slice decision. Order (no cycle): Q-013 and the slice choice first, then F-REQ-004's mobile-read rule becomes a line in that slice's spec, which this finding governs.
 
 **Verification**: The first real slice's pull request cites requirement identifiers, each has at least one acceptance criterion, and each criterion maps to a test or a named manual check.
 
@@ -54,6 +54,8 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld)
 
 
 **History (Pass 4, 2026-10-08)**: reworded; corrected the F-DEVOS-010 to F-DEVOS-010 cross-reference; identifiers only for lines a slice covers.
+
+**History (Pass 4b, 2026-10-08)**: Sequencing made acyclic with F-REQ-004 (Pass 4 ordering cycle).
 
 ---
 
@@ -155,13 +157,13 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld
 
 **Consequence**: The first real slice may be designed web-only and then found hard to consume from a phone (authentication redirect, offline, stale versions), at which point the cost is a redesign of a live contract, which the additive-only API rule makes expensive.
 
-**Recommendation**: When the first real slice is chosen, require that its acceptance criteria include one read of its data from the mobile app through the shared API, even as a bare screen. Do not build the map, push notifications or location until their own slices; do record in the slice's spec which minimum-scope lines are deferred and why, so the plan's mobile-first wording and the web-first sequence are reconciled in writing. See Q-013.
+**Recommendation**: When the first real slice is chosen, require that its acceptance criteria include one read of its data from the mobile app through the shared API, even as a bare screen. Do not build the map, push notifications or location until their own slices; do record in the slice's spec which minimum-scope lines are deferred and why, so the plan's mobile-first wording and the web-first sequence are reconciled in writing. See Q-013. The real-token proof is owned by F-AUTH-005 and is not repeated here.
 
 **Alternatives and tradeoffs**: Web-only until launch with mobile later (legitimate if the owner decides so, but then the plan's wording should say it); mobile-first now (against the owner's pause, and the placeholders are not ready, F-REL-005).
 
 **Affects**: The first slice's spec; `apps/mobile`; the product plan's wording.
 
-**Depends on / sequencing**: Q-013; F-REQ-001; F-ARCH-001 (contracts); F-REL-005 (mobile build readiness).
+**Depends on / sequencing**: Q-013 and the slice choice come first; F-REQ-004's rule is then written into the slice's spec, which F-REQ-001 governs (F-REQ-001 does not wait on this finding); F-ARCH-001 (contracts); F-REL-005 (mobile build readiness).
 
 **Verification**: The first real slice's acceptance criteria include a mobile read of its data, and the plan states the sequence it is following.
 
@@ -174,10 +176,16 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low)
   Evidence re-checked: READ `apps/mobile/src/App.tsx` (placeholder), `lib/discover/filters.ts` (fixed mock origins); RUN dependency search: no map, location or notification package. READ Q-013 (open, default option 1).
   Result: Evidence holds, severity does not: the consequence is a possible redesign later, not a present failure. Keep the single actionable rule (the first real slice includes one mobile read, with the plan's wording reconciled in writing) and let F-AUTH-005 own the token spike. Low.
 
+Challenge (Pass 4b, 2026-10-08): verdict Upheld
+  Re-checked: READ `apps/mobile/src/App.tsx` (placeholder) and Q-013 (open, default web first). Verified the ordering cycle with F-REQ-001 existed in both bodies; made acyclic.
+  Result: Low holds. Grade: READ.
+
 **History**: 2026-10-08 created. Absorbs the REQ part of P-CH-12 (the contract list itself stays in F-ARCH-001).
 
 
 **History (Pass 4, 2026-10-08)**: Medium to Low; overlaps F-AUTH-005, decision Q-013 pending.
+
+**History (Pass 4b, 2026-10-08)**: Sequencing made acyclic with F-REQ-001; real-token proof attributed to F-AUTH-005.
 
 ---
 
@@ -255,6 +263,10 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low; ADD to DEFER)
   Strongest case against: The finding says 'do not build any of it now' and the plan places UGC in later, unauthorised tiers. The store-policy content is RECOLLECTION and UNVERIFIED. A checklist for a slice that may never exist is a hypothetical (test 9).
   Evidence re-checked: READ `product-plan.md` sections B and C1 (reviews, prayer requests, photos, videos); the finding's own UNVERIFIED note. No store policy text was fetched.
   Result: Keep as a pointer: when a UGC slice or the first store submission is chosen, read the then-current Apple and Google rules and apply the two checklists. DEFER with the existing trigger. Low.
+
+Challenge (Pass 4b, 2026-10-08): verdict Upheld
+  Re-checked: READ `docs/product/product-plan.md` UGC lines and the finding's own UNVERIFIED store-policy note; no store text was fetched (and none should be until submission).
+  Result: Low / DEFER holds. Grade: READ, UNVERIFIED for policy text.
 
 **History**: 2026-10-08 created. UNVERIFIED: the exact current Apple and Google rules (read the published policies at the time of the first submission; nothing in this session fetched them).
 

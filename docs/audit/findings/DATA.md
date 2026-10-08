@@ -165,11 +165,11 @@ Challenge (Pass 4, 2026-10-08): verdict Reworded (Medium upheld, timing split)
 
 **Consequence**: One copy-paste error removes real data, recoverable only inside the 6-hour window (F-DATA-002).
 
-**Recommendation**: Give each database an environment fingerprint, written once at provisioning by a migration or tooling step (a one-row table or a database-level setting holding `dev|qa|stage|prod`). Make every connecting tool read it first and refuse when it differs from `DATABASE_ENV`; refuse when it is absent for reset and seed. This keeps "never infer from the URL" and adds a data-side check. Add a test with a fake executor.
+**Recommendation**: Give each database an environment fingerprint, written once at provisioning by a migration or tooling step (a one-row table in its own schema, or a database-level setting, holding `dev|qa|stage|prod`; never in `public` or in the tooling ledger schema `signalone_tooling`, because `db:reset` truncates every base table in both, F-DATA-007). Make every connecting tool read it first and refuse when it differs from `DATABASE_ENV`; refuse when it is absent for reset and seed. This keeps "never infer from the URL" and adds a data-side check. Add a test with a fake executor.
 
 **Alternatives and tradeoffs**: Rely on credential hygiene only (current): free and fragile. Separate Neon projects per environment, so prod credentials never share a project with dev: stronger isolation, more accounts to run, and see F-DATA-006. Fingerprint plus roles (F-DATA-005) together make reset impossible for a runtime role.
 
-**Affects**: `db/tooling/*`, a new migration, `docs/database.md` section 2; inherited by generated apps (a template feature: the init step stamps the environment).
+**Affects**: `db/tooling/*`, a provisioning step that creates the fingerprint outside `public`, `docs/database.md` section 2; inherited by generated apps (a template feature: the init step stamps the environment).
 
 **Depends on / sequencing**: Ships with the first product migration or before real data, whichever first.
 
@@ -184,10 +184,16 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low)
   Evidence re-checked: READ `apps/web/db/tooling/reset.ts:5,19-25` (truncates all `public` base tables with CASCADE); READ `guard.ts:20-26`; READ `claude.yml` (dev URL only). Not run.
   Result: The idea is sound but not Medium: nobody but the dev-scoped tooling runs `db:reset`, and no production credential is on any machine the audit saw. If built, the fingerprint must live outside `public` (own schema or a database setting) and must be a migration-free provisioning step. Prefer first: keep production credentials off every dev path and use separate roles. Low, before real data.
 
+Challenge (Pass 4b, 2026-10-08): verdict Upheld (reworded body)
+  Re-checked: READ `apps/web/db/tooling/reset.ts`: truncates every base table in `public`, plus the seed ledger table in schema `signalone_tooling` (`seed.ts:3`); the `drizzle` schema is untouched.
+  Result: Low / ADD holds. Pass 4 said the fingerprint must live outside `public`; it must also avoid `signalone_tooling`. Body and Affects rewritten (contradiction 2); DATA-007 cross-referenced. Grade: READ.
+
 **History**: 2026-10-07 created (Pass 2). Maps P-CH-29 (database part) and the label/branch-name question.
 
 
 **History (Pass 4, 2026-10-08)**: Medium to Low. Found a design conflict: the fingerprint would be truncated by `db:reset`; it must live outside `public`.
+
+**History (Pass 4b, 2026-10-08)**: Recommendation and Affects rewritten: the fingerprint lives outside `public` and outside `signalone_tooling` (both are truncated by `db:reset`), and is created by a provisioning step, not a `public` migration (contradiction 2).
 
 ---
 
@@ -295,7 +301,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 
 **Affects**: `db/tooling/reset.ts`, `db/tooling/tooling.test.ts`.
 
-**Depends on / sequencing**: F-DATA-008.
+**Depends on / sequencing**: F-DATA-008. Any environment fingerprint (F-DATA-004) must live outside `public` so this reset cannot erase it.
 
 **Verification**: The test asserts an extension-owned table is not truncated.
 
@@ -304,6 +310,8 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld (narrowed)
 **Challenge log**: (Pass 4)
 
 **History**: 2026-10-07 created (Pass 2).
+
+**History (Pass 4b, 2026-10-08)**: Dependency on F-DATA-004's fingerprint placement recorded (contradiction 2).
 
 ---
 

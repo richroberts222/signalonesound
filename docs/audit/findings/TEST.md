@@ -79,7 +79,7 @@ Challenge (Pass 4, 2026-10-08): verdict Upheld
 
 **Consequence**: The first real feature's most likely failures (a misconfigured Clerk instance, a database role missing a privilege, a migration not applied) are found by a person on a Preview.
 
-**Recommendation**: Add one scheduled and on-demand workflow (a human edit, F-SEC-002 window) that runs the integration tests and one Playwright happy path against the **qa** database branch with a dedicated qa role (F-DATA-005) and a Clerk development test user, using a GitHub environment with the qa secret only. Run it nightly on `main` and on manual dispatch, not on every pull request. Make its failure visible (an issue or a notification), not blocking. Until the qa role exists, run it on the development branch the same way `claude.yml` already uses a development secret.
+**Recommendation**: Add one scheduled and on-demand workflow (a human edit, F-SEC-002 window) that runs the integration tests and one Playwright happy path against the **qa** database branch with a dedicated qa role (F-DATA-005) and a Clerk development test user, using a GitHub environment with the qa secret only. At the trigger, prefer a manual-dispatch run before each release over a nightly schedule (Pass 4), and combine it with the F-AUTH-005 spike so the real-token test exists once; not on every pull request. Make its failure visible (an issue or a notification), not blocking. Until the qa role exists, run it on the development branch the same way `claude.yml` already uses a development secret.
 
 **Alternatives and tradeoffs**: Per-PR runs (slow, secret exposure on pull requests from forks of a public repository: not recommended). Manual only (the current state). A hosted test service (premature).
 
@@ -98,10 +98,16 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low; ADD to DEFER)
   Evidence re-checked: RUN `ls .github/workflows`: three workflows, none runs integration or Playwright. READ `docs/testing.md`: both 'not part of validate', 'neither runs in CI yet'. READ `apps/web/db/proof-items.integration.test.ts`: needs a Neon URL.
   Result: The unproven join is real, but the consequence today is nil. Re-trigger at the first product table or endpoint, and then prefer a manual-dispatch workflow before each release over a nightly job. Combine with the F-AUTH-005 spike so the real-token test exists once. Low, DEFER.
 
+Challenge (Pass 4b, 2026-10-08): verdict Upheld
+  Re-checked: RUN `ls .github/workflows`: three workflows, none runs integration or Playwright. READ the Recommendation: it still said nightly; updated to manual dispatch before release, combined with F-AUTH-005.
+  Result: Low / DEFER holds. Grade: RUN, READ.
+
 **History**: 2026-10-08 created. Absorbs P-GAP-02 and C-51.
 
 
 **History (Pass 4, 2026-10-08)**: Medium to Low and ADD to DEFER; nothing to integrate yet, overlaps F-AUTH-005 and F-DATA-003.
+
+**History (Pass 4b, 2026-10-08)**: Recommendation updated to Pass 4: manual-dispatch before release, combined with F-AUTH-005.
 
 ---
 

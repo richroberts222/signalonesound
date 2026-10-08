@@ -29,7 +29,7 @@ Not examined, and why: visual design quality and colour contrast (no rendered re
 
 **Consequence**: Every new session or contributor can add a raw control and nothing fails. The set of violations only grows, so the eventual cleanup (#91) gets bigger, and the design system stops being the single place to change look and behaviour.
 
-**Recommendation**: (1) Add a ratchet test now: a static test, of the kind already used for security boundaries, that lists the files allowed to contain raw `<button>`, `<input>`, `<select>`, `<textarea>`, `<label>` and `<table>` (the current violators plus `components/ui` itself) and fails on any other file. New violations fail immediately; the allowlist only shrinks. It changes no application code. (2) When application work resumes, finish #91 and delete each file from the allowlist as it is converted; the allowlist reaching "ui only" is the done signal. (3) Install the missing shadcn components (label, checkbox, radio group, switch, table) in the same pull request as the conversion, not before.
+**Recommendation**: (1) Add a ratchet test now: a static test, of the kind already used for security boundaries, that lists the files allowed to contain raw `<button>`, `<input>`, `<select>`, `<textarea>`, `<label>` and `<table>` (the current violators plus `components/ui` itself) and fails on any other file. New violations fail immediately; the allowlist only shrinks. It changes no application code. Pass 4 preferred an ESLint `no-restricted-syntax` rule with a per-file override list; PR #97 implements the same ratchet as a static test (`components/ui/raw-controls.test.ts`), which gives the same effect and is acceptable. (2) When application work resumes, finish #91 and delete each file from the allowlist as it is converted; the allowlist reaching "ui only" is the done signal. (3) Install the missing shadcn components (label, checkbox, radio group, switch, table) in the same pull request as the conversion, not before.
 
 **Alternatives and tradeoffs**: An ESLint `no-restricted-syntax` rule for raw elements (equivalent and arguably more idiomatic; the static test is the repository's established pattern and also covers files ESLint ignores). Convert everything now (blocked by the owner's directive and by Q-005: some of these screens may be discarded).
 
@@ -48,10 +48,16 @@ Challenge (Pass 4, 2026-10-08): verdict Downgraded (Medium to Low)
   Evidence re-checked: RUN grep for raw elements outside `components/ui`: `<label` 13, `<input` 4, `<button` 1, `<table` 1, `<select` 0, `<textarea` 0 (matches the finding). READ `apps/web/eslint.config.mjs`: only `next/core-web-vitals` and `typescript` presets; no restricted-syntax rule.
   Result: Counts are exact and the guard is cheap and owner-directed, so keep it at Now. Prefer an ESLint `no-restricted-syntax` rule with a per-file override list (the same ratchet, one existing mechanism, no custom test). Low severity; priority is high by owner instruction.
 
+Challenge (Pass 4b, 2026-10-08): verdict Upheld (reworded body)
+  Re-checked: RUN grep outside `components/ui`: 13 `<label`, 4 `<input`, 1 `<button`, 1 `<table` = 19, as stated. READ PR #97: the guard is a static test (`raw-controls.test.ts`), not the ESLint rule Pass 4 preferred; same ratchet, same effect.
+  Result: Low, Now holds. PR #97 is red for a reason outside its own logic (F-BOIL-001), so the roadmap's 'all checks tested and ready' is wrong for #97; corrected. Grade: RUN.
+
 **History**: 2026-10-08 created. Absorbs P-CQ-F2 and the owner directive of 2026-10-08.
 
 
 **History (Pass 4, 2026-10-08)**: Medium to Low; owner priority recorded separately from severity. ESLint rule preferred over a bespoke test.
+
+**History (Pass 4b, 2026-10-08)**: Recommendation notes the ESLint preference of Pass 4 and that PR #97 implements the ratchet as a static test.
 
 ---
 
