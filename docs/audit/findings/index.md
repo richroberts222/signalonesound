@@ -4,7 +4,7 @@ One line per finding. The finding's home is `findings/<CODE>.md`; this file neve
 
 Conventions: `methodology.md` section 6. IDs are never reused or renumbered. Merged, rejected, and superseded findings move to the Tombstones table with a pointer.
 
-Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA.
+Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL. A subject file exists only once that subject has been examined. Examined so far: SEC, DEVOS, DATA, AUTH.
 
 ## Active findings
 
@@ -42,6 +42,16 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | F-DATA-009 | No data-lifecycle rules: retention, deletion, export, vendor exit, corruption detection | Low | DEFER | Trigger: first user-owned real data | Draft | |
 | F-DATA-010 | Data layer foundations are sound | Info | KEEP | n/a | Draft | |
 | F-DATA-011 | Root branch name `production` is documented; nothing depends on it | Info | KEEP | n/a | Draft | |
+| F-AUTH-001 | Only ownership is authorized; every signed-in user reaches admin and church areas; role model undecided | Medium | ADD | Before real data | Draft | |
+| F-AUTH-002 | Identity lifecycle undefined: bare owner IDs, no user-deleted handling, no webhook pattern | Medium | ADD | Before real data | Draft | |
+| F-AUTH-003 | No privacy, data-classification, age or deletion policy though the plan implies sensitive data | Medium | ADD | Before real data | Draft | |
+| F-AUTH-004 | No audit trail or moderation accountability for privileged actions | Low | DEFER | Trigger: first real admin or moderator write | Draft | |
+| F-AUTH-005 | The mobile authentication path has never carried a real token | Medium | ADD | Before real mobile authentication | Draft | |
+| F-AUTH-006 | The `docs/auth.md` appendix is stale in four places | Low | IMPROVE | Now | Draft | |
+| F-AUTH-007 | Deleting another user's item answers forbidden, confirming it exists | Low | IMPROVE | Trigger: first resource whose existence is sensitive | Draft | |
+| F-AUTH-008 | State-changing API routes depend on cookie SameSite alone against cross-site requests | Low | IMPROVE | Trigger: first real write endpoint | Draft | |
+| F-AUTH-009 | Server authentication boundary fails closed, in code and on the deployed site | Info | KEEP | n/a | Draft | |
+| F-AUTH-010 | Authorization primitives are small and deny by default; do not replace with a framework | Info | KEEP | n/a | Draft | |
 
 ## Tombstones
 
@@ -55,6 +65,6 @@ Subject codes: REQ, ARCH, AUTH, DATA, CODE, UX, TEST, SEC, REL, OPS, DEVOS, BOIL
 | --- | --- | --- | --- | --- | --- |
 | Critical | 0 | 0 | 0 | 0 | 0 |
 | High | 2 | 0 | 0 | 0 | 0 |
-| Medium | 13 | 0 | 0 | 0 | 0 |
-| Low | 10 | 0 | 0 | 0 | 0 |
-| Info | 7 | 0 | 0 | 0 | 0 |
+| Medium | 17 | 0 | 0 | 0 | 0 |
+| Low | 14 | 0 | 0 | 0 | 0 |
+| Info | 9 | 0 | 0 | 0 | 0 |

@@ -39,18 +39,18 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-78-M07 | Error monitoring and structured logs with redaction | OPS | Pending | |
 | P-78-M08 | Rate limiting on `/api/v1` and auth-adjacent routes | SEC | Adopted, modified → F-SEC-006 (platform rate limit first; no new vendor) | 2 SEC |
 | P-78-M09 | Lazy env validation ships a broken prod env green; add post-deploy smoke check or health route | REL | Pending | |
-| P-78-M10 | Privacy basics before collecting member data: policy, terms, data inventory, deletion/export decision | AUTH | Pending | |
+| P-78-M10 | Privacy basics before collecting member data: policy, terms, data inventory, deletion/export decision | AUTH | Adopted → F-AUTH-003 | 2 AUTH |
 | P-78-M11 | Automated accessibility check (jsx-a11y lint, axe in Playwright on key pages) | UX | Pending | |
 | P-78-M12 | Transaction decision: `neon-http` lacks interactive transactions vs `data-mutations.md` requirement | DATA | Resolved → F-DATA-010 (`AtomicRunner`, `db.batch`; limit recorded) | 2 DATA |
-| P-78-M13 | Deny-by-default authorization test pattern in the service layer before the first role-based feature | AUTH | Pending | |
-| P-78-M14 | Clerk-to-Neon webhook handling if app data keys off users: signature, idempotency, replay | AUTH | Pending | |
+| P-78-M13 | Deny-by-default authorization test pattern in the service layer before the first role-based feature | AUTH | Adopted → F-AUTH-001 | 2 AUTH |
+| P-78-M14 | Clerk-to-Neon webhook handling if app data keys off users: signature, idempotency, replay | AUTH | Adopted, modified → F-AUTH-002 | 2 AUTH |
 | P-78-M15 | Least-privilege DB roles (separate migration and runtime users) | DATA | Adopted → F-DATA-005 (Low confidence until roles are read) | 2 DATA |
 
 ## Issue #78 later maturity practices (trigger-gated)
 
 | ID | Input | Likely subject | Outcome | Pass |
 | --- | --- | --- | --- | --- |
-| P-78-T01 | Audit log of privileged actions (first admin/moderator role) | AUTH | Pending | |
+| P-78-T01 | Audit log of privileged actions (first admin/moderator role) | AUTH | Deferred → F-AUTH-004 | 2 AUTH |
 | P-78-T02 | Feature flags, staged rollout (first real cohort or risky release) | REL | Pending | |
 | P-78-T03 | Real Stage environment (before first production launch with real data) | REL | Pending | |
 | P-78-T04 | Mobile release engineering: signing, store review, OTA, minimum API version; API deprecation rules | REL/ARCH | Pending | |
@@ -60,7 +60,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-78-T08 | Load/performance budgets, Core Web Vitals (before public launch) | OPS | Pending | |
 | P-78-T09 | Cost budgets and alerts on Vercel, Neon, Clerk (before launch) | OPS | Pending | |
 | P-78-T10 | Vendor-outage runbook; cached/static read path for public discovery | OPS | Pending | |
-| P-78-T11 | Data retention and data-subject request automation | AUTH/DATA | Pending | |
+| P-78-T11 | Data retention and data-subject request automation | AUTH/DATA | Adopted → F-AUTH-003 (data side F-DATA-009) | 2 AUTH |
 | P-78-T12 | Second-region or multi-cloud DR (not foreseeable) | OPS | Pending | |
 
 ## Issue #78 overengineering flags and removals
@@ -71,7 +71,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-78-O02 | Test Value Review for every new test discourages tests; replace with a short rubric | TEST | Pending | |
 | P-78-O03 | Parallel-work ceremony; default to sequential | DEVOS | Rejected (two real parallel batches on 2026-10-01; the rules govern actual throughput; the missing control is "require up to date", F-DEVOS-002, F-DEVOS-009) | 2 DEVOS |
 | P-78-O04 | Boilerplate export/init tooling, three reports, markers inside product docs: verify how many apps will be created; freeze if fewer than two | BOIL | Pending | |
-| P-78-O05 | `docs/ideas/` fine as parking lot; session replay/analytics carry privacy implications | AUTH/DEVOS | DEVOS part: Not applicable (`docs/ideas/` is 5 files, 125 lines; no volume problem); privacy part pending AUTH | 2 DEVOS (partial) |
+| P-78-O05 | `docs/ideas/` fine as parking lot; session replay/analytics carry privacy implications | AUTH/DEVOS | DEVOS part: Not applicable (`docs/ideas/` is 5 files, 125 lines; no volume problem); privacy part → F-AUTH-003 | 2 DEVOS (partial) |
 | P-78-O06 | Static source-text security tests give false confidence; prefer linter boundary rules | TEST/SEC | Pending | |
 | P-78-O07 | `APP_ENV` plus `DATABASE_ENV` plus four environments with unprovisioned Stage is more than needed; do not build Stage until M01 to M09 | REL | Pending | |
 | P-78-O08 | Team-of-one: no reviewers, CODEOWNERS, multi-approver rules yet | DEVOS | Adopted as KEEP → F-DEVOS-009 (none exist; correct); path-based gates deferred, F-DEVOS-007 | 2 DEVOS |
@@ -85,9 +85,9 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CH-02 | Independent diff review | DEVOS | P-78-M01, P-78-O08 | Merged → F-DEVOS-001 (no independent reviewer exists or is needed for one owner; the automated reviewer is silent and must be repaired or removed, and described as an aid) | 2 DEVOS |
 | P-CH-03 | Definition of Ready / Done | DEVOS | | Done: Rejected as new ceremony; `product-development.md` section 9 exists and its provable parts are covered by F-DEVOS-002 and F-SEC-001. Ready: Pending (issue bodies not readable in the DEVOS session; see `progress.md` open items) | 2 DEVOS (partial) |
 | P-CH-04 | Risk-based gates | DEVOS/REL | | Merged → F-DEVOS-002 (general gate) and F-DEVOS-007 (path-based gates, DEFER with trigger) | 2 DEVOS |
-| P-CH-05 | Threat / abuse modeling | AUTH/SEC |  | Partly covered by F-SEC-002 and F-SEC-006 (attack paths); formal threat and abuse model pending AUTH and Pass 3 | 2 SEC |
-| P-CH-06 | Authorization matrices and deny-by-default server enforcement | AUTH | P-78-M13 | Pending | |
-| P-CH-07 | Data classification, lifecycle, privacy | AUTH/DATA | P-78-M10, P-78-T11 | Pending | |
+| P-CH-05 | Threat / abuse modeling | AUTH/SEC |  | Partly covered by F-SEC-002 and F-SEC-006 (attack paths); AUTH part → F-AUTH-001, -004, -008; the formal threat and abuse model stays with Pass 3 scenarios | 2 SEC |
+| P-CH-06 | Authorization matrices and deny-by-default server enforcement | AUTH | P-78-M13 | Adopted → F-AUTH-001 | 2 AUTH |
+| P-CH-07 | Data classification, lifecycle, privacy | AUTH/DATA | P-78-M10, P-78-T11 | Adopted → F-AUTH-003 | 2 AUTH |
 | P-CH-08 | Migrations, backup and tested restore | DATA | P-78-M05, P-78-M06 | Adopted → F-DATA-001, F-DATA-002, F-DATA-003 | 2 DATA |
 | P-CH-09 | Idempotency and concurrency | ARCH/DATA | P-78-M12 | Pending | |
 | P-CH-10 | Time and identifier conventions | ARCH | | Pending | |
@@ -113,7 +113,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-CH-30 | Vendor exit and data portability | DATA/OPS | | Deferred → F-DATA-009; dump in F-DATA-002; topology F-DATA-006 | 2 DATA |
 | P-CH-31 | Operational kill switches | OPS | | Pending | |
 | P-CH-32 | Safe bulk operations | OPS/DATA | | Pending | |
-| P-CH-33 | Legal and compliance triggers | AUTH/REQ | P-78-M10 | Pending | |
+| P-CH-33 | Legal and compliance triggers | AUTH/REQ | P-78-M10 | Adopted → F-AUTH-003 (counsel review is the owner's action) | 2 AUTH |
 | P-CH-34 | Charter restatement of the previous Claude audit (drift and duplication; security as prose; workflow permissions; floating tags; `cn`; branch protection; dependency scanning; CSP/headers; untested restore; prod migration; monitoring; rate limiting; lazy env validation; privacy decisions; accessibility enforcement; transactions; authorization tests; webhook integrity; least-privilege roles) | several | P-78-A to E, M01 to M15 | Covered by the 78 rows | |
 | P-CH-35 | Charter restatement of overengineering warnings (doc/process ceremony, bureaucratic tests, premature parallel work, premature environments, team-scale controls) | several | P-78-O01 to O08 | Covered by the 78 rows | |
 
@@ -133,7 +133,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 
 | ID | Input | Likely subject | Outcome | Pass |
 | --- | --- | --- | --- | --- |
-| P-GAP-01 | No real Clerk-authenticated mobile call exists | ARCH/AUTH | Pending | |
+| P-GAP-01 | No real Clerk-authenticated mobile call exists | ARCH/AUTH | Adopted → F-AUTH-005 | 2 AUTH |
 | P-GAP-02 | No CI job for integration/E2E (needs secrets) | TEST/REL | Pending | |
 | P-GAP-03 | Stage hosting mechanism undecided | REL | Pending | |
 | P-GAP-04 | Production migration procedure not automated or defined | DATA | Adopted → F-DATA-001 | 2 DATA |
@@ -152,7 +152,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | P-SEC-03 | `id-token: write` in both workflows; confirm needed | SEC | Adopted → F-SEC-002 (verify, do not assume removable) | 2 SEC |
 | P-SEC-04 | Floating action tags; pin to SHAs | SEC | Adopted → F-SEC-002, F-SEC-004 | 2 SEC |
 | P-SEC-05 | `claude-code-review.yml` has read-only permissions (recorded as correct) | SEC | Confirmed correct (read-only contents, PRs, issues; carries id-token write); no finding | 2 SEC |
-| P-SEC-06 | Gaps: rate limiting, security headers/CSP, audit logging, automated dependency scanning; API: no rate limiting, CORS, request logging | SEC | Merged → F-SEC-004, F-SEC-005, F-SEC-006; CORS not needed for native clients (INFER, ARCH); logging and audit pending OPS, AUTH | 2 SEC |
+| P-SEC-06 | Gaps: rate limiting, security headers/CSP, audit logging, automated dependency scanning; API: no rate limiting, CORS, request logging | SEC | Merged → F-SEC-004, F-SEC-005, F-SEC-006; CORS not needed for native clients (INFER, ARCH); audit → F-AUTH-004; logging pending OPS | 2 SEC |
 | P-SEC-07 | Least-privilege roles recommended, not configured | DATA | Adopted → F-DATA-005 | 2 DATA |
 | P-SEC-08 | Static source-text security checks do not follow transitive imports; `server-only` is the build-time backstop | TEST/SEC | Pending | |
 
@@ -160,7 +160,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 
 | ID | Input | Likely subject | Outcome | Pass |
 | --- | --- | --- | --- | --- |
-| P-RM-01 | Not yet scheduled: real roles and authorization, Church-managed data, real submission flow, real admin entry, bulk ingestion, multiple users per organization, product schema | REQ/AUTH/DATA | Pending | |
+| P-RM-01 | Not yet scheduled: real roles and authorization, Church-managed data, real submission flow, real admin entry, bulk ingestion, multiple users per organization, product schema | REQ/AUTH/DATA | AUTH part adopted → F-AUTH-001; product questions → Q-010 | 2 AUTH |
 | P-RM-02 | Data concepts surfaced by the admin mock: provenance, moderation decisions, duplicate/conflict rules, organization-manager relationships, import batches, lifecycle states, audit/history, orphan events | REQ/DATA | Pending | |
-| P-NOTES-01 | Unresolved product questions from Issue 76: who is an admin/moderator and how granted; anonymous submissions; moderation outcomes and reversibility; duplicate/conflict definition and precedence; imports creating organizations; staff editing manager records; permanent vs reversible removal | REQ/AUTH | Pending (REQ/AUTH); these need a durable home before F-DEVOS-005 removes `notes.md` | |
+| P-NOTES-01 | Unresolved product questions from Issue 76: who is an admin/moderator and how granted; anonymous submissions; moderation outcomes and reversibility; duplicate/conflict definition and precedence; imports creating organizations; staff editing manager records; permanent vs reversible removal | REQ/AUTH | Routed → Q-010, F-AUTH-001, F-AUTH-004 (AUTH); REQ part pending; these still need a durable home before F-DEVOS-005 removes `notes.md` | 2 AUTH (partial) |
 | P-NOTES-02 | Verification not performed on Issue 76: Playwright, root `pnpm validate`, browser rendering, iPhone Safari | TEST | Pending | |

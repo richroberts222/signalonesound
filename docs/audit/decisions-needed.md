@@ -156,3 +156,34 @@ Follow-up (human-applied, because the agent cannot edit `.github/workflows`): de
 **Blocks**: nothing further. F-DEVOS-001's recommendation is now final: remove the bot; review evidence comes from required CI checks and the Step 7 audit.
 
 **Status**: Decided (not yet applied).
+
+### Q-009 Who may use the product, where, and what may it collect? (age floor, jurisdictions, legal review, collection gate)
+
+**Question**: What is the minimum age for an account, in which countries will the product operate, will you obtain legal review of a privacy policy before public sign-up, and until then may the product collect precise location, notification preferences or any other user data?
+
+**Why the audit cannot decide**: it is a product, legal and residual-risk decision, and the audit is not legal advice. The plan implies data that reveals religious belief together with location (F-AUTH-003); the law that applies depends on the answers.
+
+**Options and consequences**:
+
+1. United States only, adults 18 and over, minimal collection (coarse location, notification preferences optional), counsel reviews the policy before public sign-up. Smallest obligations; matches a first launch.
+2. Include minors with parental consent, or serve the EU/UK. Larger legal and engineering work (consent flows, data-subject rights, possibly representatives); not recommended before the product exists.
+3. Collect nothing real until a later date; the product stays mock. No risk, no learning from real use.
+
+**Blocks**: F-AUTH-003 (all of it); F-AUTH-002's deletion behaviour; the notification and location data model (F-DATA-008); any public sign-up.
+
+**Status**: Open. Default until answered: option 3 (no real collection). Engineering recommendation: option 1.
+
+### Q-010 Who are admins, moderators and Church/Ministry managers, and how is each granted?
+
+**Question**: Which kinds of people can act on the platform beyond an ordinary member (platform admin, moderator, Church/Ministry manager)? How is each role granted and revoked? May an organization have several managers? Are anonymous submissions allowed? Can a moderation decision be reversed?
+
+**Why the audit cannot decide**: it is product policy (`docs/product/roadmap.md` lists these as not yet decided; `naming-conventions.md` marks Organizer UNDECIDED). Engineering decides the mechanism once the roles are named (F-AUTH-001).
+
+**Options and consequences**:
+
+1. Minimal start: one platform admin (the owner, an allow-list of identities), organization managers invited by the admin, moderation by the admin only, no anonymous submissions, decisions recorded and reversible. Smallest surface; matches the mocks built so far.
+2. Broader from the start: moderators as a separate role, self-service organization claim and verification, anonymous submissions. More product value earlier, much larger abuse and moderation load.
+
+**Blocks**: F-AUTH-001 (role design), F-AUTH-004 (what the audit trail records), the product schema design review.
+
+**Status**: Open. Default until answered: option 1. Engineering recommendation: option 1.
