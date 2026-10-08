@@ -282,6 +282,8 @@ This design direction was accepted after an independent Claude challenge as **AD
 | Low | Hygiene, clarity, minor inconsistency. |
 | Info | KEEP records and observations. |
 
+**Severity convention (stated in Pass 5 after Pass 4 found it applied unevenly):** severity is the consequence of leaving the item unfixed *at its stated Timing*, not the worst imaginable future. A finding gated by a trigger (a first real endpoint, first real data, first store build) is graded for what happens if the trigger arrives without the fix, and is capped at Medium unless it also defeats a core invariant (human-only merge, no production credentials in automation, server-authoritative rules, clients never touch the database). A control that already exists in the current mode is graded for its present effect only. High therefore means "live now, or one step from live, and invariant-defeating", and a long list of Mediums is expected to be mostly "before real data" gates, not emergencies.
+
 **Timing**: `Now` | `Before real data` | `Before public launch` | `Trigger: <named condition>` | `Never unless <condition>`. Timing is separate from severity so that a serious-but-not-yet concern is neither inflated nor lost.
 
 **Confidence**: `High` (RUN, READ, or CONSOLE evidence; the full path examined) | `Medium` (partial examination or inference) | `Low` (speculative, or depends on an UNVERIFIED item). A Low-confidence finding cannot be scheduled as Critical or High in the roadmap; it generates a verification item in `baseline/external-state.md` instead.

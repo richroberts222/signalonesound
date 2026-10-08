@@ -10,6 +10,10 @@ Started 2026-10-06 at baseline commit `31ec6ba` (`main`). The current baseline i
 | --- | --- | --- |
 | `methodology.md` | The operating method: scope, rules of engagement, subjects, lenses, passes, record standards, scales, convergence criteria, session discipline. Authoritative over the charter's *method* (not its mission or constraints). | Phase 0 |
 | `phase-0-critique.md` | Why the method differs from the charter's proposal: weaknesses found in the charter, the adversarial review of the method itself, residual risks accepted. | Phase 0 |
+| `roadmap.md` | The short ranked plan for the owner: done, waiting, Wave 1 now, launch gate, triggers, approvals. Derived from the register. | Pass 5 |
+| `pass-5-conformance.md` | Charter conformance, industry-standards cross-map, rule-integrity summary, coverage gates and stability status. | Pass 5 |
+| `pass-4-review.md` | The adversarial review: calibration, deduplication, contradictions, over-engineering check, convergence assessment. | Pass 4 |
+| `scenarios/` | Fourteen scenario walkthroughs (Pass 3). | Pass 3 |
 | `progress.md` | Resumable state: current baseline, current pass and subject, pass log with metrics (this is also the change log), facts observed early that later passes must not lose. | Every session |
 | `decisions-needed.md` | `Q-nnn` questions only Rich can answer, with what each one blocks. | Any pass |
 | `inputs-reconciliation.md` | `P-nnn` inventory of every prior concern the audit was handed, and what became of each (adopted, rejected, merged). | Phase 0 inventory; mapped in Passes 2 to 4 |

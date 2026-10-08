@@ -268,3 +268,18 @@ Engineering decisions (Claude): this selects option 2 with sequencing, not a fre
 **Blocks**: nothing today. Shapes the order of the roadmap in Pass 5.
 
 **Status**: Open. Default until answered: option 1. Not needed before the roadmap is presented.
+
+### Q-014 Should public sign-up stay open on the live site before launch?
+
+**Question**: The live Production site (the `vercel.app` address) runs Clerk's development mode and anyone who finds `/sign-up` can create an account. There is no terms page, privacy notice or age check yet (F-AUTH-011). Do you want sign-up restricted until launch?
+
+**Why the audit cannot decide**: it is a risk-appetite decision. No real users or data exist, so nothing is lost today; the risk is a stranger creating accounts that later become real data, or a minor signing up before the 18+ rule is enforced (Q-009).
+
+**Options and consequences**:
+
+1. Restrict sign-up in the Clerk dashboard now (invite-only or an allow-list of your and your partner's email addresses). Two minutes, reversible, no code. Anyone you want to test with is added by hand. Recommended.
+2. Leave it open until the real Clerk setup, the privacy notice and the age check exist. Acceptable while the site is unknown to anyone; the risk grows if the address is shared.
+
+**Blocks**: nothing. Informs F-AUTH-003 and the launch gate in `roadmap.md`.
+
+**Status**: Open. Default until answered: option 2 (your existing risk stance). Recorded here so it is a decision, not an oversight.

@@ -83,7 +83,7 @@ Likely subject is a routing hint only; the home is decided when a finding is cre
 | --- | --- | --- | --- | --- | --- |
 | P-CH-01 | Requirements-to-release traceability | REQ/DEVOS |  | DEVOS part: PR to issue links work through GitHub; nothing to trace to because no feature spec exists (`features/README.md` is 13 lines); remainder pending REQ; REQ part: Adopted, scaled down → F-REQ-001 | 2 DEVOS (partial), REQ |
 | P-CH-02 | Independent diff review | DEVOS | P-78-M01, P-78-O08 | Merged → F-DEVOS-001 (no independent reviewer exists or is needed for one owner; the automated reviewer is silent and must be repaired or removed, and described as an aid) | 2 DEVOS |
-| P-CH-03 | Definition of Ready / Done | DEVOS | | Done: Rejected as new ceremony; `product-development.md` section 9 exists and its provable parts are covered by F-DEVOS-002 and F-SEC-001. Ready: Pending (issue bodies not readable in the DEVOS session; see `progress.md` open items) | 2 DEVOS (partial) |
+| P-CH-03 | Definition of Ready / Done | DEVOS | | Done: Rejected as new ceremony; `product-development.md` section 9 exists and its provable parts are covered by F-DEVOS-002 and F-SEC-001. Ready: resolved by F-DEVOS-010 (issue bodies were read later; see `progress.md` open items) | 2 DEVOS (partial) |
 | P-CH-04 | Risk-based gates | DEVOS/REL | | Merged → F-DEVOS-002 (general gate) and F-DEVOS-007 (path-based gates, DEFER with trigger) | 2 DEVOS |
 | P-CH-05 | Threat / abuse modeling | AUTH/SEC |  | Partly covered by F-SEC-002 and F-SEC-006 (attack paths); AUTH part → F-AUTH-001, -004, -008; the formal threat and abuse model stays with Pass 3 scenarios | 2 SEC |
 | P-CH-06 | Authorization matrices and deny-by-default server enforcement | AUTH | P-78-M13 | Adopted → F-AUTH-001 | 2 AUTH |
