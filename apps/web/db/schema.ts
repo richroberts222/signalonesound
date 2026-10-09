@@ -1,4 +1,5 @@
-import { boolean, index, integer, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { boolean, index, integer, pgTable, text, timestamp, unique, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 // Domain-free. Signal One schema design has not been established yet.
 // `migration_proof` exists only to prove the migration workflow (Issue 43); it
@@ -47,4 +48,65 @@ export const policyAcceptance = pgTable(
     acceptedAt: timestamp("accepted_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("policy_acceptance_user_idx").on(t.userId)],
+);
+
+// S2 organizations and roles (docs/features/s2-organizations-and-roles.md). A Church/Ministry is
+// public once it has an approved manager. `name_key` is the lower-cased name, so a second claim of
+// the same name attaches to the same organization instead of creating a duplicate.
+export const organization = pgTable("organization", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  nameKey: text("name_key").notNull().unique(),
+  description: text("description").notNull().default(""),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const organizationLink = pgTable(
+  "organization_link",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id").notNull(),
+    url: text("url").notNull(),
+    position: integer("position").notNull(),
+  },
+  (t) => [unique("organization_link_position_unique").on(t.orgId, t.position)],
+);
+
+// A person's claim on, or standing in, an organization. The person-to-church link is sensitive; it is
+// never shown publicly. `contact_email` is kept only until the request is decided.
+export const organizationMember = pgTable(
+  "organization_member",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id").notNull(),
+    userId: text("user_id").notNull(),
+    role: text("role").notNull().default("manager"),
+    status: text("status").notNull().default("pending"),
+    contactEmail: text("contact_email"),
+    requestedAt: timestamp("requested_at", { withTimezone: true }).notNull().defaultNow(),
+    decidedAt: timestamp("decided_at", { withTimezone: true }),
+    decidedBy: text("decided_by"),
+    decisionReason: text("decision_reason"),
+  },
+  (t) => [
+    uniqueIndex("organization_member_open_unique")
+      .on(t.orgId, t.userId)
+      .where(sql`${t.status} in ('pending', 'approved')`),
+    index("organization_member_user_idx").on(t.userId),
+  ],
+);
+
+// Append-only record of role and moderation actions: who did what to whom, and when.
+export const auditLog = pgTable(
+  "audit_log",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    actorId: text("actor_id").notNull(),
+    action: text("action").notNull(),
+    subject: text("subject").notNull(),
+    detail: text("detail").notNull().default(""),
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("audit_log_at_idx").on(t.at)],
 );

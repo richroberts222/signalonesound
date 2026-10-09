@@ -31,4 +31,30 @@ New tables are added to the schema and to this table in the same pull request.
 | policy_acceptance.policy_kind | T1 | Which policy (terms or privacy) | Kept for the legal period | Kept without the person |
 | policy_acceptance.version | T1 | Which version was accepted | Kept for the legal period | Kept without the person |
 | policy_acceptance.accepted_at | T1 | When it was accepted (with the 18+ attestation) | Kept for the legal period | Kept without the person |
+| organization.id | T0 | Row identity for a Church/Ministry | Until removed by an admin | Removed with the organization |
+| organization.name | T0 | Public name of the Church/Ministry (plain text, 120 characters at most) | Until removed by an admin | Removed with the organization |
+| organization.name_key | T0 | Lower-cased name, so a repeated claim attaches to the same organization | Until removed by an admin | Removed with the organization |
+| organization.description | T0 | Public description (plain text, 1000 characters at most) | Until removed by an admin | Removed with the organization |
+| organization.status | T0 | Whether the organization is pending, approved or unpublished | Until removed by an admin | Removed with the organization |
+| organization.created_at | T0 | When the organization was first claimed | Until removed by an admin | Removed with the organization |
+| organization_link.id | T0 | Row identity | Until removed by an admin | Removed with the organization |
+| organization_link.org_id | T0 | Which organization the link belongs to | Until removed by an admin | Removed with the organization |
+| organization_link.url | T0 | Public website or social link (1 to 3 per organization) | Until removed by an admin | Removed with the organization |
+| organization_link.position | T0 | Order of the links | Until removed by an admin | Removed with the organization |
+| organization_member.id | T1 | Row identity for a claim or manager | Until the account is deleted | Deleted with the person's account |
+| organization_member.org_id | T3 | Which organization the person claimed or manages (a person-to-church link, never public) | Until the account is deleted | Delete the row on account deletion; an organization left with no manager returns to pending |
+| organization_member.user_id | T3 | The person claiming or managing (Clerk user id) | Until the account is deleted | Delete the row on account deletion |
+| organization_member.role | T1 | The role held (manager) | Until the account is deleted | Deleted with the row |
+| organization_member.status | T1 | Pending, approved, rejected or revoked | Until the account is deleted | Deleted with the row |
+| organization_member.contact_email | T2 | Where the admin can reach the claimant during review | Removed when the request is decided | Set to empty on decision; deleted with the row |
+| organization_member.requested_at | T1 | When the claim was made | Until the account is deleted | Deleted with the row |
+| organization_member.decided_at | T1 | When an admin decided | Until the account is deleted | Deleted with the row |
+| organization_member.decided_by | T2 | Which admin decided | Until the account is deleted | Deleted with the row |
+| organization_member.decision_reason | T1 | The admin's stated reason (plain text) | Until the account is deleted | Deleted with the row |
+| audit_log.id | T1 | Row identity | Kept (append-only) | Kept |
+| audit_log.actor_id | T2 | Who performed the action | Kept (append-only) | Anonymized on account deletion: replaced by an anonymous marker, the entry is kept without the person |
+| audit_log.action | T1 | What was done | Kept (append-only) | Kept |
+| audit_log.subject | T3 | What it was done to (organization and member ids, a person-to-church link) | Kept (append-only) | Anonymized on account deletion: the person's id in the subject is replaced |
+| audit_log.detail | T1 | The stated reason or the fields changed (plain text) | Kept (append-only) | Kept |
+| audit_log.at | T1 | When it happened | Kept (append-only) | Kept |
 <!-- boilerplate:proof:end -->

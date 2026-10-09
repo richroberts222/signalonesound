@@ -29,6 +29,7 @@ Application code asks these helpers for the environment instead of comparing raw
 | `DATABASE_URL` | server only | Neon connection string |
 | `CLERK_SECRET_KEY` | server only | |
 | `CLERK_WEBHOOK_SIGNING_SECRET` | server only | Verifies the Clerk webhook signature (S1). Set it from the Clerk dashboard when the webhook endpoint is created; the route refuses every request without it. Read by Clerk's helper, never committed |
+| `ADMIN_USER_IDS` | server only | Optional. Comma-separated Clerk user ids of the platform admins (`user_...`). Empty or unset means nobody is an admin. Set by the owner per Vercel environment and in `apps/web/.env.local`; never a client option and never in code (`/docs/permissions.md` rule 8). A malformed entry fails startup validation and grants nobody |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | client-safe | |
 | `NEXT_PUBLIC_APP_ENV` | client-safe | Optional display hint; not authoritative |
 | `VERCEL_ENV` | platform | Read for the Preview guard |

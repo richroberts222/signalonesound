@@ -110,6 +110,23 @@ Until this is done the webhook refuses every request (this is the safe default).
 
 ---
 
+## 6b. Make yourself a platform admin (needed to approve church requests)
+
+Admins are people whose Clerk user id is in a list in the settings. Nobody is an admin until you do this.
+
+1. In the Clerk dashboard (development instance), open **Users**, click your user, and copy the **User ID** (it starts with `user_`).
+2. Put it in the web app's settings file `apps\web\.env.local` (git ignores it):
+   ```
+   ADMIN_USER_IDS=<your user id>
+   ```
+   For a second admin, separate the ids with a comma: `ADMIN_USER_IDS=<id one>,<id two>`.
+3. For the Vercel preview and production sites, add the same variable in the Vercel project settings, **Environment Variables**.
+4. Restart the web app (`pnpm --filter web dev`) so it picks the value up.
+
+Then sign in, claim a church at `/claim-church`, and approve the request at `/admin/manager-requests`. Anyone who is not on the list sees nothing at that page.
+
+---
+
 ## 7. Database restore drill (about 20 minutes, in the Neon console)
 
 This proves the database can be restored, which is a launch requirement. The steps and the log to fill in are in `/docs/database.md` section 12.4. Ask Claude to walk you through it when you are at the PC; it needs your Neon login.

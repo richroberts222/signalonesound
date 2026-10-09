@@ -55,6 +55,8 @@ export function createFakeMemberRepo(): MemberRepo {
         user_profile: profile ? [copy(profile)] : [],
         policy_acceptance: acceptances.filter((a) => a.userId === userId).map(copy),
         proof_item: [],
+        organization_member: [],
+        audit_log: [],
       };
     },
     async eraseAll(userId) {

@@ -123,6 +123,21 @@ Delete the files above, the `proof_item` export in `db/schema.ts`, the `/proof(.
 
 A member endpoint other than the three allowed ones answers `403` with the code `policy_reacceptance_required` until the member accepts the current policy version. A handler that must see the exact request bytes (a signed webhook) receives the raw request as the third argument of `handle`.
 
+## Organization endpoints (S2, reference application)
+
+| Endpoint | Auth | Purpose |
+| --- | --- | --- |
+| `POST /api/v1/organizations/claim` | member, policy accepted | Claim a Church/Ministry (name, 1 to 3 web links, contact email). Creates a pending request; gives no rights. At most 5 a day |
+| `GET /api/v1/organizations/:id` | public | Name, description, links and status of an **approved** organization; anything else is `404` |
+| `PATCH /api/v1/organizations/:id` | manager of that organization, or admin | Change name, description or links; anyone else gets `404` |
+| `POST /api/v1/organizations/:id/managers/:userId/revoke` | manager of that organization, or admin | Remove a manager, with a reason. Takes effect on their next request |
+| `GET /api/v1/me/organizations` | member | The caller's own organizations and their standing in each |
+| `GET /api/v1/admin/manager-requests` | admin | Claims waiting for a decision |
+| `POST /api/v1/admin/manager-requests/:id/decision` | admin | Approve or reject, with a required reason. A decision cannot be repeated (`409`) |
+| `GET /api/v1/admin/audit` | admin | The append-only audit log |
+
+Admin endpoints answer `404` to everyone who is not an admin. Path parameters are declared on the route (`params: { schema }`) and validated; a malformed one is `404`.
+
 ## Unexpected-error reporting
 
 `apiRoute` passes `reportUnexpectedError` (`lib/api/report.ts`) as the adapter's `onUnexpected` hook. It writes one structured stderr line with the error class and, for `DatabaseError`, the operation and kind only (never message, cause, stack, request data, or identity). This is a stopgap sink, not a logging system; replace the sink when one is chosen. The adapter also reports failures that escape the normal path (for example response serialization).
