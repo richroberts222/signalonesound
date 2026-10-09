@@ -1,171 +1,76 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working in the Signal One repository.
+Guidance for Claude Code in the Signal One repository. This file is the entry point: the rules that always apply, and a map of where the detail lives. When you need a rule's detail, follow the link; do not rely on memory.
+
+---
+
+# Operating rules (read first)
+
+1. **Documentation is the source of truth.** Read the relevant `/docs` file before significant work (§3). A missing or empty document means no rules yet, never invented rules. Undecided stays undecided; ask Rich (§17).
+2. **One platform, many clients.** The server is authoritative; clients never touch the database; replaceable boundaries get an interface (port); dependencies point inward (§4, §6, §7, `/docs/code-quality.md` §12).
+3. **Stay in scope, then stop.** Work to the issue's scope fence, numbered acceptance criteria and controls; when every item is proven, report "done, with proof" and stop. Recommend the next slice; never start it (`/docs/qa-strategy.md` §3).
+4. **Tests must be meaningful.** Every new test must be shown failing when the behavior it protects is broken (`/docs/automation/test-value-review.md`). Never weaken, skip or disable a test, guard or validation to make a failure pass (§12).
+5. **Prove before claiming.** Run `pnpm validate`; commit, push and open a pull request only after it exits cleanly; report exact commands and results; never claim CI passed unless it ran.
+6. **No secrets in committed files** (§18).
+7. **Git:** work on a branch, open a pull request, never commit or push to `main`. Merge only when Rich has explicitly authorized it (a named pull request or a stated class), and only a pull request that is open, not draft, mergeable and has `Validate` passing (§10, §19; `/docs/git-workflow.md`).
+8. **Ask before spending** on any vendor, account, plan, domain or tool.
+9. **Database:** change schema only through the documented migration process; never touch `prod` (§13).
+10. **Legal gates:** no real user data is collected until the gates in `/docs/risk-and-legal.md` are met. That document is a checklist, not legal advice.
+11. **Workflow files, repository settings and security configuration** change only through a reviewed pull request or by the owner.
+12. **Surface conflicts.** If instructions, documents and the repository disagree, say what was assumed, what exists and why it matters; stop and ask if the difference is material.
 
 ---
 
 # 1. Project Overview
 
-Signal One is a multi-client application consisting of:
-
-* Web application
-* Android application
-* iPhone application
-* Shared backend/API
-* Shared authentication
-* Shared data layer
-
-Signal One is **one platform with multiple clients**, not three independent applications.
-
-The architecture must allow Web, Android, and iPhone to work together while sharing the appropriate backend, authentication, data, contracts, and business rules.
+Signal One is **one platform with multiple clients**: a web application, an Android application, an iPhone application, a shared backend/API, shared authentication, and a shared data layer. It is not three independent applications. The user-facing product name is **Signal One Sound** (`/docs/naming-conventions.md`).
 
 ---
 
 # 2. Architectural Authority
 
-Before implementing significant functionality, Claude MUST understand the applicable architectural rules.
-
-The primary architectural rules are:
-
-`/docs/architecture-rules.md`
-
-This document takes precedence over assumptions about how a particular framework or feature should be implemented.
-
-Before making an architectural change, Claude MUST read the relevant documentation in `/docs`.
+`/docs/architecture-rules.md` is the primary architectural authority and takes precedence over assumptions about how a framework or feature should be implemented. Before an architectural change, read the relevant documentation in `/docs`.
 
 ---
 
 # 3. Documentation-First Development
 
-Before generating or significantly modifying code, Claude MUST check the relevant documentation in `/docs`.
+Before generating or significantly modifying code, check the relevant documentation. Not every listed document exists in every copy of the repository.
 
-Expected documentation includes:
+| Area | Documents |
+| --- | --- |
+| Architecture and code | `architecture-rules.md` (authority), `code-quality.md`, `services.md`, `shared-code.md`, `stack.md` |
+| Web and mobile | `web.md`, `mobile.md`, `ui.md`, `routing.md`, `server-components.md` |
+| Data | `database.md`, `data-fetching.md`, `data-mutations.md` |
+| API and integrations | `api.md`, `integrations.md`, `payments.md` |
+| Identity and security | `auth.md`, `permissions.md`, `security.md`, `environment.md` |
+| Quality | `testing.md`, `qa-strategy.md`, `automation/` (unit, integration, acceptance, e2e, playwright, coverage, reporting, test-value-review) |
+| Delivery | `git-workflow.md`, `issues.md` (required for any issue or pull request), `deployment.md`, `release.md` |
+| Product | `product-development.md`, `naming-conventions.md`, `product/product-plan.md`, `product/roadmap.md`, `features/` |
+| Risk | `risk-and-legal.md` |
+| Template | <!-- boilerplate:template:start -->`boilerplate.md`, <!-- boilerplate:template:end -->`new-app-setup.md`, `customization-map.md` |
 
-* `/docs/architecture-rules.md`
-* `/docs/auth.md`
-* `/docs/api.md`
-* `/docs/database.md`
-* `/docs/web.md`
-* `/docs/mobile.md`
-* `/docs/shared-code.md`
-* `/docs/testing.md`
-* `/docs/qa-strategy.md` (test layers, definition of done, regression policy, security testing)
-* `/docs/deployment.md`
-* `/docs/git-workflow.md`
-* `/docs/ui.md`
-* `/docs/data-fetching.md`
-* `/docs/data-mutations.md`
-* `/docs/routing.md`
-* `/docs/server-components.md`
-* `/docs/code-quality.md` (authoritative for code-quality, reuse, dependency-direction, and refactoring principles)
-* `/docs/issues.md` (required whenever working on a GitHub issue or PR; defines the GitHub-first review and non-discoverable-information rules)
-* `/docs/product-development.md` (product delivery process; required for product feature work)
-* `/docs/naming-conventions.md` (authoritative for naming and domain terminology)
-* `/docs/product/product-plan.md` and `/docs/product/roadmap.md` (product direction and sequencing; `/docs/product/source-product-plan.md` is the preserved source)
-* `/docs/features/` (approved feature specifications)
+(All paths are under `/docs`.) A test fails if a document in `/docs` is not linked from this table.
 
-Not all of these documents may exist yet.
-
-### Empty or Missing Documentation
-
-**If a referenced rule/documentation file exists but is empty, it means that the project has not yet established rules for that area. An empty file MUST NOT be interpreted as containing rules or requirements.**
-
-**If a referenced documentation file does not exist, do not invent its contents or assume undocumented requirements.**
-
-When a relevant document exists and contains rules, follow those rules.
-
-If a missing or empty document is necessary to make an architectural decision, identify that gap and determine whether the decision can safely be made from the existing architecture documentation.
-
-If it cannot be safely determined, request clarification rather than inventing an architectural rule.
+**Empty or missing documents.** An empty file means the project has not established rules for that area; it must not be read as containing rules. If a document is missing, do not invent its contents. If a missing or empty document is needed for an architectural decision and the decision cannot safely be made from existing documents, ask for clarification.
 
 ---
 
 # 4. Architecture Compatibility
 
-Signal One must maintain compatibility across the entire platform.
-
-Whenever adding, removing, replacing, or significantly modifying an architectural component, Claude MUST consider:
-
-* Web
-* Android
-* iPhone
-* API
-* Authentication
-* Database
-* Shared code
-* Business logic
-* Testing
-* Deployment
-* Environment configuration
-
-Use `/docs/architecture-rules.md` for the required compatibility process.
-
-Do not optimize one client at the expense of the platform as a whole.
-
-If a proposed implementation creates an architectural conflict, stop and explain the conflict before proceeding.
+When adding, replacing or significantly changing an architectural component, consider Web, Android, iPhone, API, authentication, database, shared code, business logic, testing, deployment and environment configuration. Use `/docs/architecture-rules.md` for the compatibility check. Do not optimize one client at the expense of the platform. If a proposal creates a conflict, stop and explain it first.
 
 ---
 
 # 5. Technology Architecture
 
-The intended architecture includes:
-
-### Web
-
-* Next.js
-* React
-* TypeScript
-* Next.js App Router
-* Tailwind CSS where appropriate
-* Vercel deployment
-
-### Mobile
-
-* React Native
-* Expo
-* TypeScript
-* Android
-* iPhone
-
-### Authentication
-
-* Clerk
-
-### Backend
-
-* Next.js server-side functionality and API routes where appropriate
-* Server-authoritative business logic
-* APIs designed for use by Web and Mobile
-
-### Database
-
-* PostgreSQL
-* Neon
-* Drizzle ORM
-
-### Source Control
-
-* Git
-* GitHub
-* Pull Requests
-
-### Development Agent
-
-* Claude Code
-
-These technologies are architectural defaults, not permission to introduce incompatible patterns.
-
-Before replacing a technology or introducing another major framework or service, consult `/docs/architecture-rules.md`.
+Defaults, not permission to introduce incompatible patterns: Next.js (App Router), React and TypeScript with Tailwind and shadcn/ui on Vercel; React Native and Expo for Android and iPhone; Clerk for authentication; Next.js server code and API routes as the backend; PostgreSQL on Neon with Drizzle ORM; Git, GitHub and pull requests; Claude Code as the development agent. How they fit together: `/docs/stack.md`. Before replacing a technology or adding a major framework or service, consult `/docs/architecture-rules.md`.
 
 ---
 
 # 6. Backend Boundary
 
-Web, Android, and iPhone are clients of the Signal One backend.
-
-Clients must not directly access the production database.
-
-The intended relationship is:
+Web, Android and iPhone are clients of the Signal One backend and must never access the database directly. Authentication is validated at the server boundary; secrets and privileged database access stay server-side.
 
 ```text
 Web --------\
@@ -173,273 +78,99 @@ Android ------> Signal One API ---> Drizzle ---> Neon
 iPhone -------/
 ```
 
-Authentication must be validated at the appropriate server boundary.
-
-Server-side secrets and privileged database access must remain server-side.
-
 ---
 
 # 7. Shared Architecture
 
-Where appropriate, Signal One should share:
-
-* API contracts
-* TypeScript types
-* Validation schemas
-* Data models
-* Constants
-* Authoritative business rules
-
-Do not duplicate server-authoritative business logic independently across Web, Android, and iPhone.
-
-Shared code must not expose server-only functionality or secrets to client applications.
+Share API contracts, TypeScript types, validation schemas, data models, constants and authoritative business rules where appropriate. Do not duplicate server-authoritative logic across clients, and never expose server-only code or secrets to clients (`/docs/shared-code.md`).
 
 ---
 
 # 8. Web and Mobile Independence
 
-Web and mobile may have different:
-
-* User interfaces
-* Navigation
-* Layouts
-* Interaction patterns
-* Platform-specific behavior
-
-Do not force web UI architecture onto mobile.
-
-Do not create separate backend/data architectures merely because the user interfaces differ.
+Web and mobile may differ in UI, navigation, layout, interaction and platform behavior. Do not force web UI architecture onto mobile, and do not create separate backend or data architectures because the interfaces differ.
 
 ---
 
 # 9. Documentation as Source of Truth
 
-The `/docs` directory is part of the project's architecture.
-
-When implementation and documentation disagree:
-
-1. Identify the discrepancy.
-2. Determine whether the implementation or documentation is outdated.
-3. Do not silently establish a new architectural pattern.
-4. Update the appropriate documentation when an architectural decision changes.
-
-Documentation should remain synchronized with the actual architecture.
+When implementation and documentation disagree: identify the discrepancy, decide which is outdated, do not silently establish a new pattern, and update the documentation when an architectural decision changes. Material documentation drift is a defect; update documents in the same work.
 
 ---
 
 # 10. Git Workflow
 
-Use GitHub and Pull Requests for significant changes.
-
-Claude should:
-
-1. Inspect the issue/request.
-2. Read relevant project documentation.
-3. Inspect the existing implementation.
-4. Work on the appropriate branch.
-5. Make the required changes.
-6. Run appropriate validation/tests.
-7. Commit the changes.
-8. Push the branch.
-9. Create or update the Pull Request when appropriate.
-10. Report what changed and any relevant test/build results.
-
-Do not make significant unreviewed changes directly to `main`.
-
-Detailed Git rules belong in:
-
-`/docs/git-workflow.md`
-
-If `/docs/git-workflow.md` is empty, no additional project-specific Git rules have yet been established there.
+Inspect the issue, read the documents, inspect the implementation, work on the issue's branch, validate, commit, push, open or update the pull request, and report results. One issue is one canonical branch and one pull request. Do not make significant unreviewed changes to `main`. Detail and the merge-authorization rule: `/docs/git-workflow.md` and `/docs/issues.md`.
 
 ---
 
 # 11. Vercel
 
-Vercel is the deployment platform for the Signal One web application and applicable server-side functionality.
-
-Pull Requests should use Vercel preview deployments where available.
-
-A successful deployment does not by itself prove architectural compatibility.
-
-Architectural compatibility must still be evaluated according to `/docs/architecture-rules.md`.
+Vercel hosts the web application. Pull requests use Vercel Previews where available. A successful deployment does not by itself prove architectural compatibility.
 
 ---
 
 # 12. Testing
 
-Testing must protect the complete platform.
-
-When appropriate, consider:
-
-* Unit tests
-* API tests
-* Database tests
-* Web tests
-* Mobile tests
-* Authentication tests
-* Integration tests
-* End-to-end tests
-
-Testing requirements are documented in:
-
-`/docs/testing.md`
-
-If `/docs/testing.md` is empty, no additional project-specific testing rules have yet been established there.
+Testing protects the whole platform. The strategy, the per-feature definition of done and the layers are in `/docs/qa-strategy.md`; commands and status in `/docs/testing.md`. Never weaken a test or guard to pass; fix the cause.
 
 ---
 
 # 13. Database Safety
 
-Database changes must be handled through the documented database/migration process.
-
-Before modifying the database schema, read:
-
-`/docs/database.md`
-
-The project must maintain a reliable way to:
-
-* Apply migrations
-* Seed development/test data
-* Reset test data
-* Reproduce known test states
-
-Do not destroy migrations or required development configuration when resetting test data.
-
-Database-specific rules belong in `/docs/database.md`.
-
-If `/docs/database.md` is empty, do not invent project-specific database rules beyond the requirements established by the architecture documentation.
+Database changes follow the documented migration process in `/docs/database.md`. Keep a reliable way to apply migrations, seed development and test data, reset test data and reproduce known states. Never destroy migrations or required configuration when resetting data, and never target `prod` from local tooling or tests.
 
 ---
 
 # 14. Simplicity
 
-Prefer the simplest implementation that satisfies the requirements while preserving the architecture.
-
-Do not introduce additional:
-
-* Frameworks
-* Services
-* Dependencies
-* Databases
-* Authentication systems
-* Build systems
-* Abstraction layers
-
-unless there is a documented reason.
-
-Avoid unnecessary complexity.
+Prefer the simplest implementation that satisfies the requirements and preserves the architecture. Do not add frameworks, services, dependencies, databases, authentication systems, build systems or abstraction layers without a documented reason. Keep dependencies and tooling compatible with each other (versions, peers, the Expo SDK); upgrade deliberately, not automatically (`/docs/stack.md`).
 
 ---
 
 # 15. Architectural Changes
 
-A feature request does not automatically authorize an architectural change.
-
-If implementation requires a significant architectural decision that is not already documented, Claude should:
-
-1. Identify the architectural decision.
-2. Determine the affected components.
-3. Check Web compatibility.
-4. Check Android compatibility.
-5. Check iPhone compatibility.
-6. Check API compatibility.
-7. Check authentication compatibility.
-8. Check database compatibility.
-9. Check testing implications.
-10. Check deployment implications.
-11. Document the decision when appropriate.
-
-If the decision cannot safely be made from existing documentation, stop and request clarification rather than silently choosing an architecture.
+A feature request does not authorize an architectural change. If implementation needs an undocumented significant architectural decision, identify it, check the affected components and clients, document the decision when appropriate, and ask rather than silently choosing.
 
 ---
 
 # 16. Priority Order
 
-When making implementation decisions, use this priority:
-
-1. Existing documented Signal One architecture
-2. Existing project conventions
-3. Compatibility across all clients
-4. Security and data integrity
-5. Maintainability
-6. Simplicity
-7. Feature-specific convenience
-
-A convenient implementation that violates the architecture is not acceptable.
+1. Existing documented architecture. 2. Existing project conventions. 3. Compatibility across all clients. 4. Security and data integrity. 5. Maintainability. 6. Simplicity. 7. Feature-specific convenience. A convenient implementation that violates the architecture is not acceptable.
 
 ---
 
 # 17. Do Not Assume Undocumented Rules
 
-Claude MUST distinguish between:
-
-* Established project rules
-* Technology defaults
-* Existing implementation patterns
-* Reasonable suggestions
-* Undecided architectural questions
-
-Do not turn a suggestion or assumption into a project rule without establishing it in the appropriate documentation.
-
-If something has not yet been decided, it should be treated as **undecided**, not silently assumed.
+Distinguish established rules, technology defaults, existing patterns, suggestions and undecided questions. Do not turn a suggestion into a rule without recording it in the proper document. Treat anything undecided as undecided.
 
 ---
 
 # 18. Secrets in Committed Files
 
-Claude MUST NEVER put any of the following into `docs/notes.md`, other documentation, examples, comments, test descriptions, or any other committed file:
-
-* Real database URLs
-* Credential-shaped database URLs (any `scheme://user:password@host/...` form, even if fake)
-* API keys, tokens, passwords, private keys, or other secrets
-
-Use obvious placeholders instead, such as `<DEV_DATABASE_URL>`, `<API_KEY>`, or `<TOKEN>`.
-
-When reporting results or concerns, describe a value (for example, "a fake database URL") rather than reproducing it.
-
-The repository's security tests enforce this. Never change or weaken them to make a failure pass; remove the offending content instead.
+Never put real database URLs, credential-shaped URLs (any `scheme://user:password@host/...`, even fake), API keys, tokens, passwords or private keys into documentation, examples, comments, test descriptions or any committed file. Use obvious placeholders (`<DEV_DATABASE_URL>`, `<API_KEY>`, `<TOKEN>`) and describe a value instead of reproducing it. The security tests enforce this; never change them to make a failure pass; remove the offending content.
 
 ---
 
 # 19. Product Development System
 
-Detailed rules: `/docs/product-development.md`.
+Detail: `/docs/product-development.md`.
 
-* `/docs/naming-conventions.md` is authoritative for naming. The user-facing product name is **Signal One Sound**; do not rename technical identifiers without a compatibility evaluation. Terms marked UNDECIDED must not be invented; ask Rich.
-* `/docs/product/product-plan.md` is authoritative for product direction. Applicable specs under `/docs/features/` define approved feature behavior.
-* Future product knowledge does NOT authorize implementation; only an approved issue does. One issue = one canonical branch + one PR; independent issues may run in parallel only when scopes/files do not overlap or depend on each other (`/docs/issues.md`); dependent or conflicting work stays sequential. Recommend the next slice, never start it.
-* Repository-observed facts outrank external assumptions. Surface meaningful discrepancies (what was assumed, what exists, why it matters, recommended resolution); if material, stop and ask.
-* Exploratory UI/features must be reviewed (Vercel Preview where applicable) before merge. Claude merges a pull request only when the human developer (Rich) has explicitly authorized that merge, either for a named pull request or for a stated class such as "all pull requests that have passed". Without that authorization Claude never merges. Authorization is part of this rule, not an exception to it, and it does not waive any check: Claude merges only pull requests that are open, not draft, mergeable, and have the required `Validate` check passing; it re-checks each one immediately before merging and merges them one at a time. The authorization covers the pull requests that exist when it is given, not later ones. The repository ruleset remains the technical backstop.
-* GitHub (issue, canonical PR branch, commits/diff, comments, review threads, checks) is the live source of truth; reviewers inspect it directly. `docs/notes.md` is optional, not a status report: record only non-discoverable information (omissions, open questions, unperformed verification, manual-testing steps needing human judgment, follow-up lessons), preferably in the issue/PR conversation or permanent docs (`/docs/issues.md`).
-* ChatGPT/orchestrator rule (`/docs/issues.md`, "ChatGPT / orchestrator rule"): inspect live GitHub state before starting, reviewing, sequencing, or merging work; memory never overrides it; parallel development only when independence is verified (otherwise sequential); integration into `main` is serialized with a full re-check before each merge and revalidation of affected open PRs afterward. This does not weaken Claude's no-merge restriction.
-* Material documentation drift is a defect; update docs in the same work.
+* Naming: `/docs/naming-conventions.md` is authoritative; do not invent terms marked UNDECIDED; ask Rich. Do not rename technical identifiers without a compatibility evaluation.
+* Direction: `/docs/product/product-plan.md` is authoritative; approved specs in `/docs/features/` define behavior. Knowledge of a future feature does not authorize implementing it; only an approved issue does.
+* One issue is one canonical branch and one pull request. Independent issues may run in parallel only when scopes and files do not overlap; otherwise stay sequential (`/docs/issues.md`).
+* Repository facts outrank external assumptions. Exploratory UI is reviewed on a Vercel Preview before merge.
+* **Merging:** Claude merges only when Rich explicitly authorizes it, either for a named pull request or for a stated class such as "all pull requests that have passed". Authorization is part of this rule, not an exception; it does not waive any check: the pull request must be open, not draft, mergeable and have `Validate` passing; re-check each one immediately before merging; merge one at a time. The authorization covers pull requests that exist when it is given. The repository ruleset is the technical backstop.
+* GitHub (issue, branch, diff, checks, threads) is the live source of truth. `docs/notes.md` is optional and holds only non-discoverable information. Inspect live GitHub state before starting, reviewing, sequencing or merging (`/docs/issues.md`).
 
 ---
 
 # 20. Code Quality, Reuse, and Refactoring
 
-* `/docs/code-quality.md` is authoritative for code-quality and refactoring principles.
-* `/docs/ui.md` is authoritative for UI, component, design-system, and brand-asset architecture.
-* Reuse existing behavior, components, tokens, and contracts before creating duplicates, but do not abstract coincidental similarity.
-* Respect meaningful architectural boundaries and dependency direction.
-* Abstractions and interfaces must provide concrete value; no speculative or "interface for interface's sake" layers.
-* Broad or repository-wide refactors require explicit authorization (a separate approved issue). Audit findings are reported, not silently fixed<!-- boilerplate:reference:start -->; `/docs/code-quality-audit.md` records the current baseline<!-- boilerplate:reference:end -->.
+`/docs/code-quality.md` is authoritative (Clean Code, SOLID, Clean Architecture; ports at replaceable boundaries) and `/docs/ui.md` for UI. Reuse existing behavior, components, tokens and contracts before creating duplicates, but do not abstract coincidental similarity. Broad or repository-wide refactors need explicit authorization (a separate approved issue). Audit findings are reported, not silently fixed<!-- boilerplate:reference:start -->; `/docs/code-quality-audit.md` records the current baseline<!-- boilerplate:reference:end -->.
 
 ---
 
 # 21. Final Rule
 
-Before implementing anything substantial, ask:
-
-> **"Does this work as part of the Signal One platform, or does it only work for the feature/client I am currently looking at?"**
-
-Signal One must remain a coherent platform across:
-
-**Web + Android + iPhone + API + Clerk + Neon + Drizzle + Vercel.**
-
-When in doubt, consult:
-
-`/docs/architecture-rules.md`
-
-and the relevant `/docs/*.md` documentation before proceeding.
+Before implementing anything substantial, ask: **"Does this work as part of the Signal One platform, or does it only work for the feature or client I am currently looking at?"** Signal One must stay coherent across Web, Android, iPhone, the API, Clerk, Neon, Drizzle and Vercel. When in doubt, consult `/docs/architecture-rules.md` and the relevant document before proceeding.
