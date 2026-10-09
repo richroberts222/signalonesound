@@ -48,6 +48,8 @@ export type EventsServiceDeps = {
   admins: AdminDirectory;
   requireAccepted: (userId: string) => Promise<void>;
   geocoder?: Geocoder;
+  /** Told when an event is published or changes (alerts). A failure here never fails the request. */
+  onEvent?: (kind: "published" | "changed", eventId: string) => Promise<void>;
   now?: () => Date;
 };
 
@@ -100,7 +102,7 @@ function toView(e: EventFull): EventView {
 /** "2026-10-14T19:00" split into its date and time parts. */
 const splitLocal = (value: string): { date: string; time: string } => ({ date: value.slice(0, 10), time: value.slice(11) });
 
-export function createEventsService({ repo, isManager, admins, requireAccepted, geocoder = noGeocoder, now = () => new Date() }: EventsServiceDeps) {
+export function createEventsService({ repo, isManager, admins, requireAccepted, geocoder = noGeocoder, onEvent = async () => {}, now = () => new Date() }: EventsServiceDeps) {
   const mayManage = async (ctx: ServiceContext, orgId: string): Promise<boolean> =>
     admins.isAdmin(ctx.actor.userId) || (await isManager(orgId, ctx.actor.userId));
 
@@ -227,6 +229,7 @@ export function createEventsService({ repo, isManager, admins, requireAccepted, 
         }
         throw error;
       }
+      if (input.publish) for (const e of events) await onEvent("published", e.id);
       const created = await repo.getById(events[0].id);
       return { event: toView(created!), occurrences: events.length };
     },
@@ -341,6 +344,7 @@ export function createEventsService({ repo, isManager, admins, requireAccepted, 
         },
       });
       if (!applied) throw conflict("This event was changed by someone else. Reload and try again.");
+      if (current.status === "published" && (timeChanged || addressChanged)) await onEvent("changed", current.id);
       return toView((await repo.getById(current.id))!);
     },
 
@@ -349,19 +353,26 @@ export function createEventsService({ repo, isManager, admins, requireAccepted, 
       await requireAccepted(ctx.actor.userId);
       const current = await loadManaged(ctx, id);
       if (current.startsAt.getTime() < now().getTime()) throw conflict("A past event cannot be published");
-      return transition(ctx, current, ["draft"], "published", "event.publish");
+      const result = await transition(ctx, current, ["draft"], "published", "event.publish");
+      await onEvent("published", current.id);
+      return result;
     },
 
     /** Marks a published event cancelled; it stays visible as cancelled until its date passes. */
     async cancel(ctx: ServiceContext, id: string): Promise<EventStatusResult> {
       await requireAccepted(ctx.actor.userId);
-      return transition(ctx, await loadManaged(ctx, id), ["published"], "cancelled", "event.cancel");
+      const result = await transition(ctx, await loadManaged(ctx, id), ["published"], "cancelled", "event.cancel");
+      await onEvent("changed", id);
+      return result;
     },
 
     /** Soft delete: hidden everywhere, kept for the audit trail. Allowed for past events too. */
     async remove(ctx: ServiceContext, id: string): Promise<EventStatusResult> {
       await requireAccepted(ctx.actor.userId);
-      return transition(ctx, await loadManaged(ctx, id), ["draft", "published", "cancelled"], "deleted", "event.delete");
+      const current = await loadManaged(ctx, id);
+      const result = await transition(ctx, current, ["draft", "published", "cancelled"], "deleted", "event.delete");
+      if (current.status !== "draft") await onEvent("changed", id);
+      return result;
     },
   };
 }

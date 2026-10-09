@@ -34,13 +34,15 @@ export type ModerationServiceDeps = {
   emails: EmailLookup;
   /** Key for hashing network addresses; any value of at least 16 characters. */
   addressSalt: string;
+  /** Told when an event is hidden (so people who saved it hear). A failure here never fails the action. */
+  onEventHidden?: (eventId: string) => Promise<void>;
   now?: () => Date;
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const APPEAL = "To appeal this decision, use the contact page on the Signal One Sound website.";
 
-export function createModerationService({ repo, admins, email, emails, addressSalt, now = () => new Date() }: ModerationServiceDeps) {
+export function createModerationService({ repo, admins, email, emails, addressSalt, onEventHidden = async () => {}, now = () => new Date() }: ModerationServiceDeps) {
   const requireAdmin = (ctx: ServiceContext): void => {
     if (!admins.isAdmin(ctx.actor.userId)) throw notFound(); // admin tools do not reveal themselves
   };
@@ -134,6 +136,7 @@ export function createModerationService({ repo, admins, email, emails, addressSa
       const changed = await repo.setEventModeration({ id, from, to, action, reason: input.reason, actorId: ctx.actor.userId, subject: subjectOf("event", id) });
       if (!changed) throw conflict("This event has already been changed");
       if (to === "hidden") {
+        await onEventHidden(id);
         await notify(await repo.managerIdsOfEvent(id), "One of your events was hidden", "An event of your church or ministry was hidden from public view by a platform admin.", input.reason);
       }
       return { id, state: to };

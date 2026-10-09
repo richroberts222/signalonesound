@@ -116,4 +116,36 @@ New tables are added to the schema and to this table in the same pull request.
 | report_rate_limit.id | T1 | Row identity | 24 hours | Deleted by the daily retention job |
 | report_rate_limit.address_hash | T2 | A keyed hash of the sender's network address, only to stop one address flooding the form; it cannot be turned back into an address and is not linked to any report | 24 hours | Deleted by the daily retention job |
 | report_rate_limit.created_at | T1 | When it was sent (for the daily limit) | 24 hours | Deleted by the daily retention job |
+| user_profile.reminders | T1 | Whether the member wants reminders for the events they save | Until the account is deleted | Deleted with the profile |
+| alert_rule.id | T1 | Row identity | Until the member deletes the alert or the account | Deleted with the alert or the account |
+| alert_rule.user_id | T3 | Whose alert this is (interest in a place and in kinds of gatherings is sensitive) | Until the account is deleted | Deleted on account deletion (S1 path) |
+| alert_rule.place_label | T3 | The place the member typed, for display (a chosen place, not where they are) | Until the alert is deleted | Deleted with the alert; replaced when the place is edited (no history) |
+| alert_rule.lat | T3 | The chosen place as a point rounded to about 1 km | Until the alert is deleted | Deleted with the alert; replaced when the place is edited (no history) |
+| alert_rule.lng | T3 | The chosen place as a point rounded to about 1 km | Until the alert is deleted | Deleted with the alert; replaced when the place is edited (no history) |
+| alert_rule.radius_miles | T3 | How far from the place to be told about | Until the alert is deleted | Deleted with the alert |
+| alert_rule.timeframe_days | T3 | How soon (7, 14 or 30 days) | Until the alert is deleted | Deleted with the alert |
+| alert_rule.types | T3 | Kinds of gathering wanted (none means all) | Until the alert is deleted | Deleted with the alert |
+| alert_rule.immediate | T1 | Whether the member wants alerts as they happen (at most one a day) | Until the alert is deleted | Deleted with the alert |
+| alert_rule.paused | T1 | Whether the alert is paused | Until the alert is deleted | Deleted with the alert |
+| alert_rule.created_at | T1 | When the alert was made | Until the alert is deleted | Deleted with the alert |
+| push_token.id | T1 | Row identity | Until the phone signs out, the push service rejects it, or the account is deleted | Deleted with the token |
+| push_token.user_id | T2 | Whose phone this is | Same | Deleted on account deletion (S1 path) |
+| push_token.token | T2 | The phone's push address (a credential for messaging that phone; never exported or logged) | Same | Deleted when revoked, when rejected by the push service, and on account deletion |
+| push_token.platform | T1 | iPhone or Android | Same | Deleted with the token |
+| push_token.created_at | T1 | When it was added | Same | Deleted with the token |
+| notification_queue.id | T1 | Row identity | 30 days after it is sent or dropped | Removed by the daily job, or on account deletion |
+| notification_queue.user_id | T3 | Who a message is for | 30 days after it is sent or dropped | Deleted on account deletion (S1 path) |
+| notification_queue.kind | T1 | New event, change or reminder | Same | Same |
+| notification_queue.channel | T1 | Immediate or in the daily digest | Same | Same |
+| notification_queue.event_id | T3 | Which event a message is about (a person-to-church link) | Same | Same |
+| notification_queue.org_id | T3 | Which church it is about (for the weekly cap) | Same | Same |
+| notification_queue.dedupe_key | T1 | Makes queuing safe to repeat | Same | Same |
+| notification_queue.send_after | T1 | When it may be sent (after quiet hours) | Same | Same |
+| notification_queue.status | T1 | Pending, sent or dropped | Same | Same |
+| notification_queue.attempts | T1 | How many times sending was tried | Same | Same |
+| notification_queue.created_at | T1 | When it was queued | Same | Same |
+| notification_queue.sent_at | T1 | When it was sent or dropped | Same | Same |
+| org_mute.user_id | T3 | Whose choice this is | Until the member undoes it or deletes the account | Deleted on account deletion (S1 path) |
+| org_mute.org_id | T3 | The church the member stopped hearing about (a person-to-church link) | Same | Same |
+| org_mute.created_at | T1 | When they stopped | Same | Same |
 <!-- boilerplate:proof:end -->

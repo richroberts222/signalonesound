@@ -2,7 +2,7 @@ import { asc, eq, sql } from "drizzle-orm";
 
 import type { Database } from "./client";
 import { withDbErrors } from "./errors";
-import { auditLog, idempotencyRecord, inviteToken, organizationMember, policyAcceptance, proofItem, savedEvent, userProfile } from "./schema";
+import { alertRule, auditLog, idempotencyRecord, inviteToken, notificationQueue, orgMute, organizationMember, policyAcceptance, proofItem, pushToken, savedEvent, userProfile } from "./schema";
 
 // Data access for the member's own data (S1, docs/features/s1-identity-and-policy.md). Server-only
 // by convention (like all of db/). It owns the Drizzle queries and DatabaseError wrapping and
@@ -15,7 +15,7 @@ export type AcceptanceRow = typeof policyAcceptance.$inferSelect;
  * deletion are built from this one list; a guard test fails if the schema gains a member-owned
  * table that is not listed here (docs/data-inventory.md, "Deletion path").
  */
-export const MEMBER_TABLES = ["user_profile", "policy_acceptance", "proof_item", "organization_member", "audit_log", "idempotency_record", "saved_event", "invite_token"] as const;
+export const MEMBER_TABLES = ["user_profile", "policy_acceptance", "proof_item", "organization_member", "audit_log", "idempotency_record", "saved_event", "invite_token", "alert_rule", "push_token", "notification_queue", "org_mute"] as const;
 
 export type ProfilePatch = { displayName?: string; emailPref?: boolean; timeZone?: string };
 
@@ -62,7 +62,7 @@ export function createMemberRepo(db: Database) {
     /** Every row held about the member, keyed by table name (see MEMBER_TABLES). */
     exportAll: (userId: string): Promise<Record<string, Record<string, unknown>[]>> =>
       withDbErrors("member.exportAll", async () => {
-        const [profiles, acceptances, items, memberships, audit, keys, saves, invites] = await Promise.all([
+        const [profiles, acceptances, items, memberships, audit, keys, saves, invites, rules, tokens, queued, mutes] = await Promise.all([
           db.select().from(userProfile).where(eq(userProfile.clerkUserId, userId)),
           db.select().from(policyAcceptance).where(eq(policyAcceptance.userId, userId)),
           db.select().from(proofItem).where(eq(proofItem.ownerId, userId)),
@@ -71,6 +71,11 @@ export function createMemberRepo(db: Database) {
           db.select().from(idempotencyRecord).where(eq(idempotencyRecord.userId, userId)),
           db.select().from(savedEvent).where(eq(savedEvent.userId, userId)),
           db.select().from(inviteToken).where(eq(inviteToken.createdBy, userId)),
+          db.select().from(alertRule).where(eq(alertRule.userId, userId)),
+          // A push address is a credential for sending to the person's phone: the export names the device kind and when it was added, not the token.
+          db.select({ id: pushToken.id, platform: pushToken.platform, createdAt: pushToken.createdAt }).from(pushToken).where(eq(pushToken.userId, userId)),
+          db.select().from(notificationQueue).where(eq(notificationQueue.userId, userId)),
+          db.select().from(orgMute).where(eq(orgMute.userId, userId)),
         ]);
         return {
           user_profile: profiles,
@@ -81,6 +86,10 @@ export function createMemberRepo(db: Database) {
           idempotency_record: keys,
           saved_event: saves,
           invite_token: invites,
+          alert_rule: rules,
+          push_token: tokens,
+          notification_queue: queued,
+          org_mute: mutes,
         };
       }),
 
@@ -104,6 +113,10 @@ export function createMemberRepo(db: Database) {
           db.delete(idempotencyRecord).where(eq(idempotencyRecord.userId, userId)),
           db.delete(savedEvent).where(eq(savedEvent.userId, userId)),
           db.delete(inviteToken).where(eq(inviteToken.createdBy, userId)),
+          db.delete(alertRule).where(eq(alertRule.userId, userId)),
+          db.delete(pushToken).where(eq(pushToken.userId, userId)),
+          db.delete(notificationQueue).where(eq(notificationQueue.userId, userId)),
+          db.delete(orgMute).where(eq(orgMute.userId, userId)),
           db.delete(proofItem).where(eq(proofItem.ownerId, userId)),
           db
             .update(policyAcceptance)

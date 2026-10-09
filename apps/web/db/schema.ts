@@ -36,6 +36,8 @@ export const userProfile = pgTable("user_profile", {
   // True while an admin has suspended the member: they can browse, export and delete, but cannot
   // change events or submit claims (S8). The reason is in the audit log.
   suspended: boolean("suspended").notNull().default(false),
+  // Reminders for saved events (a day before and two hours before). On by default; the member can turn them off.
+  reminders: boolean("reminders").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -253,4 +255,77 @@ export const reportRateLimit = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("report_rate_limit_idx").on(t.addressHash, t.createdAt)],
+);
+
+// S7 alerts and push (docs/features/s7-alerts-and-push.md). A rule is what a member wants to hear about:
+// a place (stored only as a point rounded to about 1 km, with the typed label), a distance, a timeframe
+// and kinds of gathering. The location is the member's choice of place, not where they are, and no
+// history of places is kept. Interest in a place and in kinds of gatherings is sensitive (T3).
+export const alertRule = pgTable(
+  "alert_rule",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id").notNull(),
+    placeLabel: text("place_label").notNull(),
+    lat: doublePrecision("lat").notNull(),
+    lng: doublePrecision("lng").notNull(),
+    radiusMiles: integer("radius_miles"),
+    timeframeDays: integer("timeframe_days").notNull(),
+    types: text("types").notNull().default(""),
+    immediate: boolean("immediate").notNull().default(false),
+    paused: boolean("paused").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("alert_rule_user_idx").on(t.userId)],
+);
+
+// A phone's address for push messages. Deleted when the phone signs out, when the push service says it
+// is no longer valid, and with the account.
+export const pushToken = pgTable(
+  "push_token",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id").notNull(),
+    token: text("token").notNull().unique(),
+    platform: text("platform").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("push_token_user_idx").on(t.userId)],
+);
+
+// Messages waiting to be sent or recently sent. `dedupe_key` makes queuing idempotent: the same event
+// for the same member is queued once however many times the matching job runs. Rows are removed
+// 30 days after they are sent or dropped.
+export const notificationQueue = pgTable(
+  "notification_queue",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id").notNull(),
+    kind: text("kind").notNull(),
+    channel: text("channel").notNull(),
+    eventId: uuid("event_id").notNull(),
+    orgId: uuid("org_id").notNull(),
+    dedupeKey: text("dedupe_key").notNull(),
+    sendAfter: timestamp("send_after", { withTimezone: true }).notNull(),
+    status: text("status").notNull().default("pending"),
+    attempts: integer("attempts").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+  },
+  (t) => [
+    unique("notification_queue_dedupe_unique").on(t.userId, t.dedupeKey),
+    index("notification_queue_due_idx").on(t.status, t.sendAfter),
+    index("notification_queue_user_idx").on(t.userId, t.sentAt),
+  ],
+);
+
+// A church the member has asked to stop hearing about (one-tap unsubscribe).
+export const orgMute = pgTable(
+  "org_mute",
+  {
+    userId: text("user_id").notNull(),
+    orgId: uuid("org_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.orgId] })],
 );

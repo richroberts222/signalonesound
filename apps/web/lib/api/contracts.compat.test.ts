@@ -129,6 +129,12 @@ const OPTIONAL_CONTRACTS: Record<string, { exportName: string; direction: Direct
   moderationResultResponse: { exportName: "moderationResultSchema", direction: "output" },
   overviewResponse: { exportName: "overviewSchema", direction: "output" },
   auditQueryRequest: { exportName: "auditQuerySchema", direction: "input" },
+  createAlertRequest: { exportName: "createAlertSchema", direction: "input" },
+  patchAlertRequest: { exportName: "patchAlertSchema", direction: "input" },
+  alertResponse: { exportName: "alertSchema", direction: "output" },
+  alertListResponse: { exportName: "alertListSchema", direction: "output" },
+  registerPushTokenRequest: { exportName: "registerPushTokenSchema", direction: "input" },
+  notificationSettingsResponse: { exportName: "notificationSettingsSchema", direction: "output" },
 };
 for (const [name, { exportName, direction }] of Object.entries(OPTIONAL_CONTRACTS)) {
   const schema = (validation as Record<string, unknown>)[exportName] as z.ZodType | undefined;

@@ -32,6 +32,8 @@ Application code asks these helpers for the environment instead of comparing raw
 | `ADMIN_USER_IDS` | server only | Optional. Comma-separated Clerk user ids of the platform admins (`user_...`). Empty or unset means nobody is an admin. Set by the owner per Vercel environment and in `apps/web/.env.local`; never a client option and never in code (`/docs/permissions.md` rule 8). A malformed entry fails startup validation and grants nobody |
 | `CRON_SECRET` | server only | Optional but required for scheduled jobs. At least 16 characters. The platform scheduler sends it as `Authorization: Bearer <secret>` to `/api/v1/internal/jobs/*`; with none set every job call is refused. Set it in Vercel project settings (Vercel sends it automatically to cron calls) and in `apps/web/.env.local` if you run jobs locally |
 | `RATE_LIMIT_SALT` | server only | Optional. At least 16 characters. The key used to hash the network address on the public report form (the address is kept only as a keyed hash for 24 hours). If unset, a random key is made each time the server starts, so the limit still works but resets on a restart |
+| `UNSUBSCRIBE_SECRET` | server only | Optional. At least 32 characters. Signs the one-tap unsubscribe links in notifications. Keep it the same over time (changing it invalidates links already sent). Without it unsubscribe links are not available |
+| `PUSH_PROVIDER` | server | Optional. `expo` sends push messages through Expo's free push service; `none` (the default) sends nothing, so development never messages anyone |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | client-safe | |
 | `NEXT_PUBLIC_APP_ENV` | client-safe | Optional display hint; not authoritative |
 | `VERCEL_ENV` | platform | Read for the Preview guard |
