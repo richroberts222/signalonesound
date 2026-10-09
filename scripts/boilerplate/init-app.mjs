@@ -107,14 +107,15 @@ export function stripProofSlice({ root, step }) {
     ["composition.ts", "apps/web/lib/composition.ts"],
     ["schema.ts", "apps/web/db/schema.ts"],
     ["App.tsx", "apps/mobile/src/App.tsx"],
+    ["app-shell.tsx", "apps/web/components/shell/app-shell.tsx"],
   ]) {
     step(`reset ${dest} to the domain-free starting point`, () => copyFileSync(path.join(templates, tpl), abs(dest)));
   }
 
   const edit = (file, fn) => step(`edit ${file}`, () => writeFileSync(abs(file), fn(readFileSync(abs(file), "utf8"))));
-  edit("apps/web/proxy.ts", (t) => t.replace(', "/proof(.*)"', "").replace(', "/hello(.*)"', ""));
+  edit("apps/web/proxy.ts", (t) => t.replace(', "/proof(.*)"', "").replace(', "/accept-terms(.*)"', ""));
   edit("packages/validation/src/index.ts", (t) =>
-    t.split("\n").filter((l) => !/proof-item|proof-only|\.\/hello/.test(l)).join("\n"));
+    t.split("\n").filter((l) => !/proof-item|proof-only|\.\/profile/.test(l)).join("\n"));
 }
 
 export function initApp({ root, name, slug, scope = slug, bundleId, dryRun = false, log = console.log }) {

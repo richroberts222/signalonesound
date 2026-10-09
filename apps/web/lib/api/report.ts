@@ -1,4 +1,6 @@
 import { DatabaseError } from "../../db/errors";
+import { redactText } from "../observability/redact";
+import { noopErrorTracker, type ErrorTrackerPort } from "../observability/ports";
 
 // Server-side record of unexpected API failures, wired to the adapter's existing
 // `onUnexpected` hook (/docs/api.md). No logging system exists yet, so this is
@@ -11,6 +13,7 @@ import { DatabaseError } from "../../db/errors";
 export function reportUnexpectedError(
   error: unknown,
   write: (line: string) => void = (line) => console.error(line),
+  tracker: ErrorTrackerPort = noopErrorTracker,
 ): void {
   const record: Record<string, string> = {
     event: "api.unexpected_error",
@@ -24,5 +27,14 @@ export function reportUnexpectedError(
     write(JSON.stringify(record));
   } catch {
     // Reporting must never break the response path.
+  }
+  try {
+    // The tracker only ever receives redacted text (S1 AC9); the default adapter does nothing.
+    tracker.capture({
+      name: record.errorName,
+      message: error instanceof Error ? redactText(error.message) : undefined,
+    });
+  } catch {
+    // A failing tracker must not break the response path either.
   }
 }

@@ -76,3 +76,12 @@ Terms and Privacy text (assistant drafts a generic version; attorney review befo
 ## Done checklist
 
 AC1 to AC12 and every control ticked [Fable] with its proof; collection gate items in `/docs/risk-and-legal.md` marked; `pnpm validate` clean; CI green; docs updated.
+
+## Build notes (decisions made while building)
+
+* **Acceptance step instead of a sign-up checkbox.** Clerk owns the sign-up form, so the 18+ and policy confirmations are collected on a dedicated `/accept-terms` step that a signed-in member who has not accepted the current version is sent to. The API enforces the same rule (`403 policy_reacceptance_required`), so nothing member-owned works without it. AC1 and AC2 are proven at the API; the redirect is the friendly side.
+* **Export and deletion do not require re-accepting.** A member can always take their data out and delete their account, even before accepting a new policy version. Only `GET /me` and `POST /me/policy-acceptance` were allowed in the draft; `GET /me/export` and `DELETE /me` are added on purpose.
+* **Contact address.** The Contact page says plainly that contact details will be published before launch; the address is an owner decision (S9 launch gate).
+* **Automated accessibility scan (AC10)** needs the axe tooling and a running server; it is added with the accessibility work in S9. The pages use real headings, labels and links meanwhile.
+* **Analytics and error tracking** are ports with do-nothing adapters (`lib/observability/`): analytics events are a name only, and error text is redacted before any tracker sees it. A vendor is chosen later with the owner's approval.
+* **Terms and Privacy** are plain-language drafts, not attorney reviewed (owner decision 2026-10-09: that happens before launch).

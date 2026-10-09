@@ -20,3 +20,5 @@ export const validationFailed = (
   message = "Invalid input",
   fieldErrors?: Record<string, string[]>,
 ) => new ServiceError("validation_failed", message, fieldErrors);
+export const policyReacceptanceRequired = () =>
+  new ServiceError("policy_reacceptance_required", "Please accept the current Terms and Privacy Policy to continue");

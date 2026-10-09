@@ -25,7 +25,7 @@ export type ApiClientOptions = {
 };
 
 export type RequestOptions<S extends z.ZodType> = {
-  method: "GET" | "POST" | "PUT" | "DELETE";
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   path: string;
   query?: Record<string, string>;
   body?: unknown;

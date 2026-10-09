@@ -1,9 +1,10 @@
 import "server-only";
 
-import { createHelloRepo } from "../db/hello";
+import { createMemberRepo } from "../db/member";
 import { createProofItemRepo } from "../db/proof-items";
+import { clerkIdentityAdmin } from "./auth/clerk-identity-admin";
 import { getDb } from "../db";
-import { createHelloService, type HelloService } from "./services/hello";
+import { createMemberService, type MemberService } from "./services/member";
 import { createProofItemService, type ProofItemService } from "./services/proof-items";
 
 // Composition root (/docs/services.md): the only place that wires `getDb()` to
@@ -15,8 +16,8 @@ export function getProofItemService(): ProofItemService {
   return (proofItems ??= createProofItemService({ repo: createProofItemRepo(getDb()) }));
 }
 
-let hello: HelloService | undefined;
+let member: MemberService | undefined;
 
-export function getHelloService(): HelloService {
-  return (hello ??= createHelloService({ repo: createHelloRepo(getDb()) }));
+export function getMemberService(): MemberService {
+  return (member ??= createMemberService({ repo: createMemberRepo(getDb()), identity: clerkIdentityAdmin }));
 }

@@ -28,6 +28,9 @@ export default async function AccountPage() {
   return (
     <>
       <h1 className="font-heading text-3xl font-extrabold tracking-tight">My account</h1>
+      <Link href="/account/settings" data-testid="account-settings-link" className={buttonVariants({ variant: "outline", className: "w-fit" })}>
+        Account settings, export and delete
+      </Link>
       <MemberMockNotice />
 
       <Card>
