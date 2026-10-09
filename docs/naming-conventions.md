@@ -39,6 +39,9 @@ Meanings are resolved here ONLY where `/docs/product/source-product-plan.md` (vi
 | Ministry | Appears only inside "Church/Ministry" and later-phase concepts. | UNDECIDED as a standalone term. |
 | Organizer | Not used in the source. | UNDECIDED |
 | Gathering | Appears only in later-phase product names ("Fire Gatherings", "Revival Gatherings") and in the Revival Type "Prayer gatherings". Not defined as a general domain term. | UNDECIDED (relationship to Event and Revival unresolved) |
+| Member | An ordinary signed-in user who searches and follows events. Needs no approval. The owner expects members to pay (tentative; pricing is undecided, see `/docs/product/product-plan.md`). | RESOLVED (owner decision 2026-10-08, Q-010). Technical identifier not yet defined. |
+| Church/Ministry manager | A person who manages the events and profile of a Church/Ministry account. They request the role when signing up and a platform admin approves; a user never chooses their own role. An organization may have several managers (default, revisable). Not the same as the Church/Ministry account itself. | RESOLVED (owner decision 2026-10-08, Q-010). Technical identifier not yet defined. |
+| Platform admin | A person on the server-side allow-list who approves manager requests and moderates submissions. The owner and the business partner currently share one login by choice. Admins also act as moderators for now. | RESOLVED (owner decision 2026-10-08, Q-010). Technical identifier not yet defined. |
 
 Rich should not need to re-decide resolved terms. When Rich resolves another term, record its meaning, its relationship to neighboring terms, and (separately) the technical identifier used in code/DB, then remove UNDECIDED.
 
