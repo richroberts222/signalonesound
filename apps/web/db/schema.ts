@@ -22,3 +22,12 @@ export const proofItem = pgTable(
   },
   (t) => [unique("proof_item_owner_label_unique").on(t.ownerId, t.label)],
 );
+
+// `hello_note` is the S0 walking-skeleton record (docs/features/s0-walking-skeleton.md):
+// one short note per signed-in user, keyed by the Clerk user id. Throwaway; S1
+// replaces it with the real profile and drops it. Never expose this row type to clients.
+export const helloNote = pgTable("hello_note", {
+  userId: text("user_id").primaryKey(),
+  note: text("note").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});

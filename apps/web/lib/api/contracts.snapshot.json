@@ -177,6 +177,33 @@
         "nextCursor"
       ],
       "additionalProperties": false
+    },
+    "helloRequest": {
+      "type": "object",
+      "properties": {
+        "note": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "note"
+      ],
+      "additionalProperties": false
+    },
+    "helloResponse": {
+      "type": "object",
+      "properties": {
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "note"
+      ],
+      "additionalProperties": false
     }
   }
 }

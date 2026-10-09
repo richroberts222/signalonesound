@@ -4,7 +4,7 @@ import { CURRENT_API_VERSION } from "@signalone/shared";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
-import { apiErrorSchema, emailSchema, idSchema, paginatedSchema, paginationSchema, resultSchema, uuidSchema } from "@signalone/validation";
+import { apiErrorSchema, emailSchema, helloSchema, idSchema, putHelloSchema, paginatedSchema, paginationSchema, resultSchema, uuidSchema } from "@signalone/validation";
 
 // API contract compatibility (docs/api.md "Versioning", docs/shared-code.md). Mobile apps cannot be
 // force-updated, so inside one API version a contract may only grow. This test compares each
@@ -23,7 +23,8 @@ export function breakingChanges(path: string, before: Json, after: Json, directi
   const out: string[] = [];
   const at = (message: string) => out.push(`${path}: ${message}`);
 
-  if (before.type !== after.type) at(`type changed from ${String(before.type)} to ${String(after.type)}`);
+  // Compared by value: a nullable type is an array (["string","null"]) and must not differ by identity.
+  if (JSON.stringify(before.type) !== JSON.stringify(after.type)) at(`type changed from ${JSON.stringify(before.type)} to ${JSON.stringify(after.type)}`);
 
   const beforeEnum = before.enum as unknown[] | undefined;
   const afterEnum = (after.enum as unknown[] | undefined) ?? [];
@@ -83,6 +84,8 @@ const CONTRACTS: Record<string, { direction: Direction; schema: z.ZodType }> = {
   apiError: { direction: "output", schema: apiErrorSchema },
   resultEnvelope: { direction: "output", schema: resultSchema(z.object({ value: z.string() })) },
   paginatedEnvelope: { direction: "output", schema: paginatedSchema(idSchema) },
+  helloRequest: { direction: "input", schema: putHelloSchema },
+  helloResponse: { direction: "output", schema: helloSchema },
 };
 
 const toJson = (name: string): Json => {
@@ -141,6 +144,13 @@ describe("shared API contracts are compatible within an API version", () => {
     const optionalNow = clone();
     optionalNow.required = [];
     expect(breakingChanges("c", base, optionalNow, "output")[0]).toMatch(/no longer always present/);
+
+    const nullableBefore: Json = { type: "object", properties: { note: { type: ["string", "null"] } }, required: ["note"] };
+    const nullableAfter = JSON.parse(JSON.stringify(nullableBefore)) as Json;
+    expect(breakingChanges("c", nullableBefore, nullableAfter, "output")).toEqual([]); // an unchanged nullable field is not a change
+    const nullableDropped = JSON.parse(JSON.stringify(nullableBefore)) as Json;
+    (nullableDropped.properties as Record<string, Json>).note.type = "string";
+    expect(breakingChanges("c", nullableBefore, nullableDropped, "output")[0]).toMatch(/type changed/);
 
     const tighter = clone();
     props(tighter).id.maxLength = 50;
