@@ -37,5 +37,6 @@ After the review, a second independent Fable pass (the owner has remaining credi
 | 12 | Template documents (`boilerplate.md`, `new-app-setup.md`, `customization-map.md`, `notes.md`, `features/README.md`) | Done (PR 151) |
 | 13 | New rule documents: `qa-strategy.md`, `release.md`, `risk-and-legal.md`, `permissions.md`, `payments.md`, `integrations.md`; `CLAUDE.md` concise rewrite and guard; route-protection test fix for generated apps | Done (PRs 153, 155, 157, 159) |
 | 14 | Proof sweep, rule scorecard, dependency compatibility rule (`stack.md`) | Done (PR 161) |
-| 15 | Independent verification (Fable) and the fixes it prompted: widened guards, text hygiene, lessons log, future readiness | This pull request: see `scorecard.md` section 4 |
+| 15 | Independent verification (Fable) and the fixes it prompted: widened guards, text hygiene, lessons log, future readiness | Done (PRs 165, 167, 169, 171) |
+| 16 | Owner suggestions register (`owner-suggestions.md`); second narrow Fable re-check | This pull request; re-check pending |
 | 9 | Product requirements (`product-plan.md`, roadmap, features), after Q-005 | Queued |
