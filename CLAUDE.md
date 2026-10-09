@@ -11,7 +11,7 @@ Guidance for Claude Code in the Signal One repository. This file is the entry po
 3. **Stay in scope, then stop.** Work to the issue's scope fence, numbered acceptance criteria and controls; when every item is proven, report "done, with proof" and stop. Recommend the next slice; never start it (`/docs/qa-strategy.md` §3).
 4. **Tests must be meaningful.** Every new test must be shown failing when the behavior it protects is broken (`/docs/automation/test-value-review.md`). Never weaken, skip or disable a test, guard or validation to make a failure pass (§12).
 5. **Prove before claiming.** Run `pnpm validate`; commit, push and open a pull request only after it exits cleanly; report exact commands and results; never claim CI passed unless it ran.
-6. **No secrets in committed files** (§18).
+6. **Secure by default.** No secrets in committed files (§18); meet `/docs/secure-coding.md` (hostile input, data tiers: never store Social Security numbers, card numbers or medical records, no raw HTML).
 7. **Git:** work on a branch, open a pull request, never commit or push to `main`. Merge only when Rich has explicitly authorized it (a named pull request or a stated class), and only a pull request that is open, not draft, mergeable and has `Validate` passing (§10, §19; `/docs/git-workflow.md`).
 8. **Ask before spending** on any vendor, account, plan, domain or tool.
 9. **Database:** change schema only through the documented migration process; never touch `prod` (§13).
@@ -44,7 +44,7 @@ Before generating or significantly modifying code, check the relevant documentat
 | Web and mobile | `web.md`, `mobile.md`, `ui.md`, `routing.md`, `server-components.md` |
 | Data | `database.md`, `data-fetching.md`, `data-mutations.md` |
 | API and integrations | `api.md`, `integrations.md`, `payments.md` |
-| Identity and security | `auth.md`, `permissions.md`, `security.md`, `environment.md` |
+| Identity and security | `auth.md`, `permissions.md`, `security.md`, `secure-coding.md`, `environment.md` |
 | Quality | `testing.md`, `qa-strategy.md`, `unit.md`, `integration.md`, `acceptance.md`, `e2e.md`, `playwright.md`, `coverage.md`, `reporting.md`, `test-value-review.md` (all in `automation/`) |
 | Delivery | `git-workflow.md`, `issues.md` (required for any issue or pull request), `deployment.md`, `release.md` |
 | Product | `product-development.md`, `naming-conventions.md`, `product/product-plan.md`, `product/roadmap.md`, `features/` |
