@@ -1,6 +1,6 @@
 # S6 Saved Events and Invites
 
-**Status: DRAFT, not approved.** Source: blueprint slice S6; product plan ("Save favorite events", "Invite friends to join", "Share event links"). The fire-emoji recommendation (Later Phase 1) is included only if the owner confirms. Depends on: S4. Owner decision recorded: attendee privacy posture (minimal saves).
+**Status: DRAFT, not approved.** Source: blueprint slice S6; product plan ("Save favorite events", "Invite friends to join", "Share event links"). The fire-emoji recommendation (Later Phase 1) is included only if the owner confirms. Depends on: S4 for the web parts and S5 for the mobile controls (ship the mobile parts after S5; AC1 is complete only when both exist). Owner decision recorded: attendee privacy posture (minimal saves). [Fable]
 
 ## Purpose
 
@@ -14,19 +14,20 @@ Let a signed-in member keep a short list of events they care about and invite fr
 
 ## Out of scope
 
-Revival journey log (UNDECIDED in the source: "coming soon"), following churches, comments, reviews, messaging, referral rewards.
+Revival journey log (the source says "concept coming soon"; deferred, not specified) [Fable], following churches, comments, reviews, messaging, referral rewards.
 
 ## Acceptance criteria
 
 * **AC1** A member can save and unsave an event on web and mobile; the Saved list matches on both.
 * **AC2** Saving the same event twice results in one row (idempotent); unsaving a non-saved event succeeds quietly.
 * **AC3** Only the owner can read or change their saved list; no endpoint or count reveals who saved an event.
-* **AC4** Aggregate saved counts shown to managers are anonymous and shown only when 5 or more people have saved (small-number protection).
+* **AC4** Saved counts are not shown to managers or anyone by default (not in the source). If the owner later enables them, they are aggregate only and shown only when 5 or more people have saved (small-number protection). [Fable]
 * **AC5** Saved rows for past events are removed 30 days after the event; a scheduled job and its test prove it.
 * **AC6** Deleting the account deletes the saved list and reactions (extends the S1 export and delete tests).
-* **AC7** The invite link carries no personal data in the URL beyond a random token; using it takes the person to sign-up and records only an anonymous count of arrivals.
+* **AC7** The invite link carries no personal data in the URL beyond a random token of at least 128 bits; using it takes the person to sign-up and records only an anonymous count of arrivals; no row ever links inviter and invitee; tokens expire after 30 days (proposed). [Fable]
 * **AC8** A member can save at most 500 events and send invites at a limited rate.
 * **AC9** (If confirmed) one fire reaction per member per event; the public count updates; reaction rows are not exposed.
+* **AC10** Only published, non-deleted events can be saved (`404` otherwise); a saved event that is later cancelled, hidden or deleted stays in the list with that state shown until the retention job removes it. [Fable]
 
 ## Controls inventory
 
@@ -61,4 +62,4 @@ Include the fire reaction in Phase 1? The 30-day retention and the minimum of 5 
 
 ## Done checklist
 
-AC1 to AC9 (AC9 if confirmed) and controls ticked; `pnpm validate` clean; CI green; docs updated.
+AC1 to AC10 (AC9 if confirmed) and controls ticked [Fable]; `pnpm validate` clean; CI green; docs updated.
