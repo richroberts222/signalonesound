@@ -180,7 +180,8 @@ describe("committed files contain no real secrets", () => {
       });
     const offenders = [...textFiles.flatMap((f) => scan(f, false)), ...testFiles.flatMap((f) => scan(f, true))];
     expect(offenders).toEqual([]);
-  });
+    // The scan reads every committed text file, so it grows with the repository: allow 30 seconds, not 5.
+  }, 30_000);
 
   it("env files are gitignored except .env.example", () => {
     const root = read(join(repo, ".gitignore"));

@@ -1,0 +1,1 @@
+ALTER TABLE "event" ADD COLUMN "edit_token" uuid;

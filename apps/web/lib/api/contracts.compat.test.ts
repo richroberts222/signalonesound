@@ -104,6 +104,13 @@ const OPTIONAL_CONTRACTS: Record<string, { exportName: string; direction: Direct
   adminRequestsResponse: { exportName: "adminRequestsSchema", direction: "output" },
   decisionResultResponse: { exportName: "decisionResultSchema", direction: "output" },
   auditLogResponse: { exportName: "auditLogSchema", direction: "output" },
+  createEventRequest: { exportName: "createEventSchema", direction: "input" },
+  patchEventRequest: { exportName: "patchEventSchema", direction: "input" },
+  eventListQueryRequest: { exportName: "eventListQuerySchema", direction: "input" },
+  eventResponse: { exportName: "eventSchema", direction: "output" },
+  createdEventResponse: { exportName: "createdEventSchema", direction: "output" },
+  eventListResponse: { exportName: "eventListSchema", direction: "output" },
+  eventStatusResponse: { exportName: "eventStatusResultSchema", direction: "output" },
 };
 for (const [name, { exportName, direction }] of Object.entries(OPTIONAL_CONTRACTS)) {
   const schema = (validation as Record<string, unknown>)[exportName] as z.ZodType | undefined;

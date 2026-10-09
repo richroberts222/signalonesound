@@ -138,6 +138,22 @@ A member endpoint other than the three allowed ones answers `403` with the code 
 
 Admin endpoints answer `404` to everyone who is not an admin. Path parameters are declared on the route (`params: { schema }`) and validated; a malformed one is `404`.
 
+## Event endpoints (S3, reference application)
+
+All require an approved manager of the event's organization (or an admin); anyone else gets `404`. The public read arrives with search (S4).
+
+| Endpoint | Purpose |
+| --- | --- |
+| `POST /api/v1/organizations/:id/events` | Create an event or a recurring series. Needs an `Idempotency-Key` header (8 to 128 letters, digits, `-`, `_`); a repeat within 24 hours returns the first result. Times are local wall-clock (`startLocal`, `endLocal`) plus `timeZone`; the response also has the exact moment (`startsAt`, UTC). `publish: false` saves a draft. An overlapping event at the same venue needs `duplicateOverrideReason` (`409` without it) |
+| `GET /api/v1/organizations/:id/events?filter=upcoming\|past\|drafts&cursor=&limit=` | The organization's events, keyset-paged (default 20, maximum 50). Deleted events are never listed |
+| `GET /api/v1/events/:id` | One event in any state, including deleted |
+| `PATCH /api/v1/events/:id` | Edit. `version` is required (`409` if stale); `scope` is `this` (the occurrence becomes an exception) or `series` (the later occurrences that follow the series). Past events cannot be edited |
+| `POST /api/v1/events/:id/publish` | Draft to published (not for a past event) |
+| `POST /api/v1/events/:id/cancel` | Published to cancelled (stays visible as cancelled until its date passes) |
+| `DELETE /api/v1/events/:id` | Soft delete; allowed for past events |
+
+A recurring series (weekly or monthly by weekday up to a date, or a list of dates) is expanded into ordinary event rows, at most 104 and within two years, each keeping the same local time of day across daylight-saving changes. The path parameter and the cursor are validated; a malformed id is `404`.
+
 ## Unexpected-error reporting
 
 `apiRoute` passes `reportUnexpectedError` (`lib/api/report.ts`) as the adapter's `onUnexpected` hook. It writes one structured stderr line with the error class and, for `DatabaseError`, the operation and kind only (never message, cause, stack, request data, or identity). This is a stopgap sink, not a logging system; replace the sink when one is chosen. The adapter also reports failures that escape the normal path (for example response serialization).

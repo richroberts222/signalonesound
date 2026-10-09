@@ -57,6 +57,7 @@ export function createFakeMemberRepo(): MemberRepo {
         proof_item: [],
         organization_member: [],
         audit_log: [],
+        idempotency_record: [],
       };
     },
     async eraseAll(userId) {

@@ -7,6 +7,9 @@ export * from "./profile-client";
 // S2 organizations and roles (docs/features/s2-organizations-and-roles.md)
 export * from "./organization";
 export * from "./organization-client";
+// S3 events (docs/features/s3-events-church-portal.md)
+export * from "./event";
+export * from "./event-client";
 // proof-only (removed by the boilerplate init; see /docs/boilerplate.md)
 export * from "./proof-item";
 export * from "./proof-item-client";

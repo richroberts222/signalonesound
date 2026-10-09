@@ -57,4 +57,43 @@ New tables are added to the schema and to this table in the same pull request.
 | audit_log.subject | T3 | What it was done to (organization and member ids, a person-to-church link) | Kept (append-only) | Anonymized on account deletion: the person's id in the subject is replaced |
 | audit_log.detail | T1 | The stated reason or the fields changed (plain text) | Kept (append-only) | Kept |
 | audit_log.at | T1 | When it happened | Kept (append-only) | Kept |
+| event_series.id | T0 | Row identity of a recurring series | Until removed by an admin or the organization | Removed with the organization's events |
+| event_series.org_id | T0 | Which organization the series belongs to | Until removed by an admin or the organization | Removed with the organization's events |
+| event_series.rule | T0 | How the series repeats (weekly, monthly by weekday, or a date list) | Until removed by an admin or the organization | Removed with the organization's events |
+| event_series.created_at | T0 | When the series was created | Until removed by an admin or the organization | Removed with the organization's events |
+| event.id | T0 | Row identity of an event | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.org_id | T0 | Which Church/Ministry holds the event | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.series_id | T0 | The recurring series the event belongs to, if any | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.is_exception | T0 | True when one occurrence was edited on its own, so series edits skip it | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.title | T0 | Public title (plain text, 3 to 120 characters) | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.description | T0 | Public description (plain text, 4000 characters at most) | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.status | T0 | Draft, published, cancelled or deleted (a soft delete kept for the audit trail) | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.moderation_state | T0 | Whether an admin has held or hidden the event (S8) | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.starts_at | T0 | The exact start moment (UTC) | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.ends_at | T0 | The exact end moment (UTC), if given | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.time_zone | T0 | The IANA zone the event happens in, so local times display correctly | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.venue_name | T0 | Public venue name | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.street | T0 | Public street address of the event | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.city | T0 | Public city | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.state | T0 | Public US state code | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.zip | T0 | Public ZIP code | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.lat | T0 | Latitude of the venue (never a person's location), for distance search | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.lng | T0 | Longitude of the venue, for distance search | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.speakers | T0 | Speakers named by the organizer (plain text); must not name minors or private individuals | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.directions | T0 | Directions note (plain text) | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.version | T0 | Edit counter used to detect two people editing at once | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.edit_token | T0 | Random value written with each edit so a stale edit changes nothing | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.created_at | T0 | When the event was created | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event.updated_at | T0 | When the event was last changed | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| event_revival_type.event_id | T0 | Which event is tagged | Until removed by an admin or the organization | Removed with the event |
+| event_revival_type.type_slug | T0 | One of the twelve revival types | Until removed by an admin or the organization | Removed with the event |
+| event_link.id | T0 | Row identity | Until removed by an admin or the organization | Removed with the event |
+| event_link.event_id | T0 | Which event the link belongs to | Until removed by an admin or the organization | Removed with the event |
+| event_link.url | T0 | Public website or social link (1 to 3 per event) | Until removed by an admin or the organization | Removed with the event |
+| event_link.position | T0 | Order of the links | Until removed by an admin or the organization | Removed with the event |
+| idempotency_record.id | T1 | Row identity | 24 hours | Deleted after 24 hours or with the account |
+| idempotency_record.user_id | T2 | Which person made the create request, so a repeated request returns the first result | 24 hours | Deleted with the person's account (S1 deletion path); expired records are replaced on reuse |
+| idempotency_record.key | T1 | The random key the client sent with a create (not a secret) | 24 hours | Deleted after 24 hours or with the account |
+| idempotency_record.event_id | T0 | The event that request produced | 24 hours | Deleted after 24 hours or with the account |
+| idempotency_record.created_at | T1 | When the key was first used | 24 hours | Deleted after 24 hours or with the account |
 <!-- boilerplate:proof:end -->
