@@ -22,10 +22,20 @@ describe("CLAUDE.md entry point", () => {
     const automation = existsSync(join(docs, "automation"))
       ? readdirSync(join(docs, "automation")).filter((f) => f.endsWith(".md") && f !== "README.md")
       : [];
-    // A document counts as linked only when its file name appears as a code span (`name.md`) or a
-    // /docs path; the same word in ordinary prose does not count.
-    const linked = (name: string) => claude.includes("`" + name + "`") || claude.includes("/docs/" + name);
-    const missing = [...top.filter((f) => !linked(f)), ...automation.filter((f) => !linked(f))];
+    // Only the section 3 table counts: a mention in the operating rules or elsewhere is not the map.
+    const start = claude.indexOf("# 3. Documentation-First Development");
+    const end = claude.indexOf("# 4.", start);
+    const table = start >= 0 && end > start ? claude.slice(start, end) : "";
+    expect(table.length, "CLAUDE.md section 3 (the document table) must exist").toBeGreaterThan(200);
+    // A document counts as linked only when its file name appears as a code span (`name.md`) in that table.
+    const linked = (name: string) => table.includes("`" + name + "`");
+    const product = existsSync(join(docs, "product"))
+      ? readdirSync(join(docs, "product"))
+          .filter((f) => f.endsWith(".md") && f !== "source-product-plan.md") // the preserved source is not a rule document
+          .map((f) => `product/${f}`)
+      : [];
+    const features = existsSync(join(docs, "features")) ? ["features/"] : [];
+    const missing = [...top, ...automation, ...product, ...features].filter((f) => !linked(f));
     expect(missing, "add these documents to the table in CLAUDE.md section 3").toEqual([]);
   });
 });

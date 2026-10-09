@@ -23,14 +23,48 @@ describe("API route conformance", () => {
     expect(files.length).toBeGreaterThan(0);
   });
 
-  it("every versioned route goes through the shared apiRoute wrapper (authentication, validation, size cap, safe errors)", () => {
-    const offenders = files.filter((f) => {
-      const text = readFileSync(f, "utf8");
-      const usesWrapper = /\bapiRoute\b/.test(text) && /lib\/api\/route["']/.test(text);
-      const plainHandler = /export\s+(?:async\s+)?function\s+(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\b/.test(text);
-      return !usesWrapper || plainHandler;
-    });
-    expect(offenders.map((f) => relative(__dirname, f))).toEqual([]);
+  const METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"];
+
+  // Every exported HTTP handler in a route file, with the text that defines it. A handler is
+  // acceptable only when it is built by apiRoute (directly, or by a helper that is handed apiRoute).
+  function handlerProblems(text: string): string[] {
+    const problems: string[] = [];
+    const found = new Set<string>();
+    for (const m of text.matchAll(/export\s+(?:async\s+)?function\s+([A-Z]+)\b/g)) {
+      if (METHODS.includes(m[1])) problems.push(`${m[1]} is a plain function`);
+    }
+    for (const m of text.matchAll(/export\s*\{[^}]*\b(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\b[^}]*\}/g)) {
+      problems.push(`${m[1]} is re-exported without the wrapper`);
+    }
+    // The right-hand side is read with a lookahead so one export never swallows the next one.
+    for (const m of text.matchAll(/export\s+const\s+(\{[^}]*\}|[A-Za-z_]\w*)\s*=\s*(?=([\s\S]{0,160}))/g)) {
+      const names = m[1].replace(/[{}\s]/g, "").split(",").filter((n) => METHODS.includes(n));
+      const rhs = m[2];
+      for (const name of names) {
+        found.add(name);
+        const wrapped = /^\s*apiRoute\s*\(/.test(rhs) || /^\s*[A-Za-z_]\w*\(\s*apiRoute\b/.test(rhs);
+        if (!wrapped) problems.push(`${name} is not built by apiRoute`);
+      }
+    }
+    if (found.size === 0) problems.push("exports no handler built by apiRoute");
+    return problems;
+  }
+
+  it("every exported handler of every versioned route is built by the shared apiRoute wrapper (authentication, validation, size cap, safe errors)", () => {
+    const offenders = files.flatMap((f) =>
+      handlerProblems(readFileSync(f, "utf8")).map((p) => `${relative(__dirname, f)}: ${p}`),
+    );
+    expect(offenders).toEqual([]);
+  });
+
+  it("the handler scan understands the shapes it must reject", () => {
+    expect(handlerProblems("export const GET = apiRoute({ auth: 'public' });")).toEqual([]);
+    expect(handlerProblems("export const { GET, POST } = routes(apiRoute, svc);")).toEqual([]);
+    expect(handlerProblems("export const GET = apiRoute({});\nexport const POST = async () => Response.json({});")).toEqual([
+      "POST is not built by apiRoute",
+    ]);
+    expect(handlerProblems("export async function GET() { return Response.json({}); }")).toHaveLength(2);
+    expect(handlerProblems("export { GET } from './other';")).toHaveLength(2);
   });
 });
 

@@ -389,6 +389,43 @@ Migrations already applied to a shared environment are never edited; fix forward
 
 ---
 
+## 12.4 Backups and the restore drill
+
+**A backup that has never been restored is not a backup.** Backups are the only control that protects against data loss once real data exists, so the restore procedure is rehearsed before the first real data is stored (a launch gate, audit F-DATA-002).
+
+**What the platform provides.** Neon keeps a history of each branch that allows creating a branch from an earlier point in time. How far back depends on the plan; the audit recorded a recovery window of about six hours and no scheduled snapshot, and the exact plan limits are console facts the owner confirms. Treat the vendor's history as the first line, not the only one.
+
+**Targets (proposed; the owner adjusts before launch).**
+
+| Target | Meaning | Proposal |
+| --- | --- | --- |
+| Recovery point (how much data may be lost) | The age of the newest data that can be restored | One hour or better once real users exist |
+| Recovery time (how long a restore takes) | From deciding to restore until the app is serving again | Under four hours, measured by the drill |
+
+If the vendor's history window is shorter than the recovery point requires, there are two options and **each has a cost, so the owner decides before any spending:** a plan with a longer history window, or scheduled logical dumps (`pg_dump`) stored separately from the vendor. Record the choice here.
+
+**Restore drill (run before real data, then quarterly and after major schema changes).**
+
+1. Note the time. Choose a recovery moment inside the history window.
+2. In the Neon console, create a branch of the production database from that moment, named `restore-drill-<date>`. Record the exact console steps used in this section the first time (they are not yet verified).
+3. Point a temporary local configuration at the drill branch labelled `qa` (the tooling guard accepts only `dev` or `qa` labels), using the drill branch's own credential. Never reuse the production credential.
+4. Verify the restored state read-only: `pnpm --filter web db:migrate:status --env=qa` and `db:migrate:verify --env=qa` (nothing pending, no unknown history), then spot-check row counts and the newest rows of the key tables.
+5. Record the measured recovery point and recovery time, and anything that surprised you.
+6. Delete the drill branch and the temporary credential.
+7. Log the result in the table below and in `/docs/lessons.md` if the drill exposed a gap.
+
+**Before a production migration** a restore point is created and confirmed (section 12.3).
+
+**Drill log.**
+
+| Date | Recovery moment | Recovery point achieved | Recovery time | Result and notes |
+| --- | --- | --- | --- | --- |
+| (none yet) | | | | No drill has been run. Required before the first real data. |
+
+**Enforcement and proof status.** Procedural: no automated check can prove a restore works. The proof is a dated entry in the drill log. Until that entry exists this control is **not proven**, and the scorecard keeps it at None.
+
+---
+
 # 13. Neon Branching
 
 Neon branches are infrastructure environments, not Git feature branches.
