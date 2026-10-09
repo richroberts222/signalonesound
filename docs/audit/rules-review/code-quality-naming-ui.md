@@ -69,7 +69,7 @@ Optional later (already tracked, F-CODE-003): the stricter `noUncheckedIndexedAc
 
 ## Owner decisions
 
-1. **Add the three role terms (member, Church/Ministry manager, platform admin) to `naming-conventions.md`?** Recommendation: yes. This is a vocabulary change that the document says needs your approval, so it is not applied here.
+1. **Add the three role terms (member, Church/Ministry manager, platform admin) to `naming-conventions.md`?** Approved by the owner on 2026-10-09; applied in the pull request that closes issue 129.
 
 ## Open items (tracked elsewhere)
 
