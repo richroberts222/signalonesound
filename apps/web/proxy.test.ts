@@ -1,4 +1,4 @@
-import { readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -34,13 +34,19 @@ async function run(pathname: string) {
 describe("proxy.ts route protection", () => {
   beforeEach(() => protect.mockClear());
 
-  it.each(["/dashboard", "/dashboard/church/events/new", "/admin", "/admin/import", "/account", "/proof"])(
+  it.each(["/dashboard", "/dashboard/church/events/new", "/admin", "/admin/import", "/account"])(
     "protects %s",
     async (path) => {
       await run(path);
       expect(protect).toHaveBeenCalledTimes(1);
     },
   );
+
+  // The demo slice is deleted from a generated application, so its route is checked only where it exists.
+  it.skipIf(!existsSync(join(__dirname, "app", "proof")))("protects /proof", async () => {
+    await run("/proof");
+    expect(protect).toHaveBeenCalledTimes(1);
+  });
 
   it.each(["/", "/discover", "/discover/some-event", "/sign-in", "/sign-up"])("leaves %s public", async (path) => {
     await run(path);
@@ -52,6 +58,9 @@ describe("proxy.ts route protection", () => {
     const routes = readdirSync(appDir)
       .filter((name) => statSync(join(appDir, name)).isDirectory())
       .sort();
-    expect(routes).toEqual([...PROTECTED, ...PUBLIC].sort());
+    const decided = new Set([...PROTECTED, ...PUBLIC]);
+    // Every directory that exists must have a recorded decision. A listed directory may be absent
+    // (a generated application removes the demo slice and the product mocks).
+    expect(routes.filter((name) => !decided.has(name))).toEqual([]);
   });
 });
