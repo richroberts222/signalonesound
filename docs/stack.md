@@ -65,7 +65,7 @@ Both call the same `/api/v1` endpoints through `createApiClient` (`packages/vali
 
 1. The client signs in with Clerk (web: Clerk components at `/sign-in`, `/sign-up`; mobile: future Clerk Expo SDK).
 2. Each API request carries the session/token. `proxy.ts` gates web pages; the API handler verifies identity again server-side.
-3. The handler builds an `Actor` (Clerk user id and roles). Authorization (`lib/auth`) and the service decide what that actor may do. Client checks are convenience only.
+3. The handler builds an `Actor` (today only the Clerk user id; roles arrive with the permissions model). Authorization (`lib/auth`) and the service decide what that actor may do. Client checks are convenience only.
 4. Records that belong to a user store the Clerk user id.
 
 ## Environments
@@ -99,7 +99,7 @@ The framework existing is not a reason to write tests: each new test passes the 
 
 ## CI and deployment
 
-* `ci.yml` runs `pnpm validate` (lint, typecheck, unit tests, build) on pull requests with fake env values and no secrets. Branch protection should require `CI / Validate` and a human merge.
+* `ci.yml` runs `pnpm validate` (lint, typecheck, unit tests, template tests, build) on pull requests with fake env values and no secrets. The `Protect main` ruleset requires the `Validate` check and a pull request; merging is the human's decision (see `/docs/git-workflow.md`).
 * `claude.yml` runs the Claude workflow; the app cannot edit workflow files. Node is pinned once in `.node-version` (24, matching Vercel) and pnpm once in `packageManager`.
 * Vercel builds `apps/web` from every pull request (Preview = QA) and deploys `main` to Production. A deployment succeeding does not prove architectural compatibility.
 * Mobile: Expo/EAS profiles `development`, `qa`, `staging`, `production` map to `dev`, `qa`, `stage`, `prod`. Nothing is provisioned until a human runs `eas init`.

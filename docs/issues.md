@@ -48,7 +48,7 @@ This section governs ChatGPT (or any orchestrator) coordinating work. It does no
 * **Parallel development is allowed; integration into `main` is serialized.** Do not merge multiple PRs concurrently.
 * **Before each merge,** re-check the live PR, current `main`, merge/conflict state, relevant reviews and threads, and required validation/checks.
 * **After a merge,** any other open PR that could be materially affected by the new `main` must be updated (see "Incorporating main") and revalidated before it is eligible to merge.
-* Merging remains a human decision and action; this rule only defines the checks that precede it.
+* Merging remains the human's decision; the human may authorize Claude to perform it (see "Pull request safety"). This rule only defines the checks that precede it.
 
 ### Incorporating main
 
@@ -88,7 +88,7 @@ Plan issue
   -> subsequent Claude work occurs on the PR
   -> implementation and functional verification
   -> human/ChatGPT review of live GitHub state (issue, PR, diff, comments, checks)
-  -> human merges PR
+  -> human merges PR (or an explicitly authorized merge)
 ```
 
 ## Workflow configuration constraints

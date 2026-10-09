@@ -30,8 +30,8 @@ After the review, a second independent Fable pass (the owner has remaining credi
 | 7 | `api.md` | Done (PR 136) |
 | 8 | `services.md`, `shared-code.md`, `mobile.md`, `web.md` | Done (PR 140) |
 | 8b | Dependency compatibility pass (`@types/node`, Expo patch) | Done (PR 142) |
-| 9 | `security.md`, `environment.md` | This pull request |
+| 9 | `security.md`, `environment.md` | Done (PR 144) |
 | 7c | New rule documents proposed by the owner: user permissions and roles, payments, third-party connectors; plus a risk-and-legal document | Queued |
-| 10 | `deployment.md`, `stack.md`, `issues.md`, `product-development.md` | Next |
+| 10 | `deployment.md`, `stack.md`, `issues.md`, `product-development.md` | This pull request |
 | 8 | `testing.md` and `docs/automation/*`, template documents | Queued |
 | 9 | Product requirements (`product-plan.md`, roadmap, features), after Q-005 | Queued |
