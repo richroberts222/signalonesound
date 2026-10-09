@@ -40,6 +40,7 @@ export const PROOF_PATHS = [
   "packages/validation/src/profile-client.ts",
   "apps/web/e2e/identity.spec.ts",
   "apps/web/app/about",
+  "apps/web/lib/brand-name.test.ts",
   "apps/web/app/accept-terms",
   "apps/web/app/account/settings",
   "apps/web/app/contact",

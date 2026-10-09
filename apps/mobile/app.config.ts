@@ -6,7 +6,7 @@ import type { ExpoConfig } from "expo/config";
 // bundle: never read or embed secrets here. Environment values reach the app
 // through EXPO_PUBLIC_* variables parsed in src/config/env.ts.
 const config: ExpoConfig = {
-  name: "Signal One",
+  name: "Signal One Sound",
   slug: "signalone",
   scheme: "signalone",
   version: "0.0.0",

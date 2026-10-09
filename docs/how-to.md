@@ -72,7 +72,7 @@ npx eas-cli build --profile development --platform android
 
 When it asks to generate an Android keystore, say yes (Expo keeps it for you). The build runs in Expo's cloud and takes about 10 to 20 minutes. When it finishes it prints a link and a QR code.
 
-**4c. Install it on the phone.** Open the link or scan the QR code with the phone, download the file, and install it. Android will ask you to allow installing from this source: allow it for that browser only. The app is called Signal One.
+**4c. Install it on the phone.** Open the link or scan the QR code with the phone, download the file, and install it. Android will ask you to allow installing from this source: allow it for that browser only. The app is called Signal One Sound.
 
 **4d. Start it.**
 
