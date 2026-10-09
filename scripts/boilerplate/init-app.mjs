@@ -54,6 +54,8 @@ export function validateIdentity({ name, slug, scope, bundleId }) {
  * reference app and the neutral identity the standalone boilerplate ships with.
  */
 export const SOURCE_IDENTITIES = [
+  // The official product name first, so "Signal One Sound" becomes the new name and not "<name> Sound".
+  { name: "Signal One Sound", slug: "signal-one-sound", bundleId: "com.example.signalonesound" },
   { name: "Signal One", slug: "signalone", bundleId: "com.example.signalone" },
   { name: "App Boilerplate", slug: "app-boilerplate", bundleId: "com.example.appboilerplate" },
 ];

@@ -10,7 +10,7 @@ import { after, describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { checkBoilerplate } from "./check-boilerplate.mjs";
-import { initApp, stripMarkedRegions, validateIdentity } from "./init-app.mjs";
+import { applyIdentity, initApp, stripMarkedRegions, validateIdentity } from "./init-app.mjs";
 import { listSourceFiles, walk } from "./manifest.mjs";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -92,6 +92,11 @@ describe("boilerplate tooling", () => {
     assert.deepEqual(checkBoilerplate(out), []);
     assert.equal(JSON.parse(read(out, "package.json")).name, "harbor-notes");
     assert.match(read(out, "pnpm-lock.yaml"), /'@harbor\/shared'/);
+  });
+
+  it("renames the full product name, not just its first words", () => {
+    const out = applyIdentity("Welcome to Signal One Sound. SIGNAL ONE SOUND. Signal One. signal-one-sound.", { ...identity, name: "Harbor Notes", slug: "harbor-notes" });
+    assert.equal(out, "Welcome to Harbor Notes. HARBOR NOTES. Harbor Notes. harbor-notes.");
   });
 
   it("rejects identities that would leak the reference app or a placeholder", () => {

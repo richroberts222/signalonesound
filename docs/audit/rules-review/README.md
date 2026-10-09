@@ -19,6 +19,6 @@ After the review, a second independent Fable pass (the owner has remaining credi
 | --- | --- | --- |
 | 1 | `git-workflow.md` | Done (PR 121) |
 | 2 | `data-fetching.md`, `data-mutations.md` | Done (PR 123) |
-| 3 | `architecture-rules.md` | This pull request |
-| 4 | `code-quality.md`, `naming-conventions.md`, `ui.md` | Queued |
+| 3 | `architecture-rules.md` | Done (PR 126) |
+| 4 | `code-quality.md`, `naming-conventions.md`, `ui.md` | This pull request |
 | 5 | Remaining docs, then product requirements (after Q-005) | Queued |
