@@ -210,7 +210,9 @@ Paid memberships (after the payments decisions), reminders, event comments (afte
 
 **Open from the review:** Q-005 (which mock code survives), Q-011 (app name and store identity), the open-source license, the Git protection proposals, the GitHub security settings, the restore drill, any spending.
 
-**Proposed here, needing a yes or no (policy and product):** the attendee privacy posture (section 6); organizer verification before publishing; the notification policy; whether Venue is its own entity or only an address component; error tracking with log redaction before launch.
+**Decided 2026-10-09 (yes to all five, recorded in `/docs/features/README.md`):** private server-side analytics; no session replay on signed-in screens; error tracking with log redaction before launch; the attendee privacy posture; organizer verification. Draft specifications for slices S0 to S9 are in `/docs/features/`.
+
+**Still proposed, needing a yes or no (policy and product):** the attendee privacy posture (section 6); organizer verification before publishing; the notification policy; whether Venue is its own entity or only an address component; error tracking with log redaction before launch.
 
 **Technical choices the assistant will make and explain:** spatial search approach, recurrence modeling, job scheduling, token module for mobile styling, slice order adjustments.
 
