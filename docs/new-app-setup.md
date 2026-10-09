@@ -64,15 +64,15 @@ pnpm --filter web db:seed --env=dev             # dev | qa only
 
 | Value | Local dev | GitHub Actions | Vercel | Expo/EAS (future) |
 | --- | --- | --- | --- | --- |
-| `APP_ENV`, `DATABASE_ENV` | `apps/web/.env.local` (`dev`) | `claude.yml` env block (`dev`) | Preview `qa`, Production `prod` | `EXPO_PUBLIC_APP_ENV` per build profile in `eas.json` |
-| `DATABASE_URL` | `.env.local` (dev branch) | secret `NEON_DEV_DATABASE_URL` (dev only; `claude.yml`) | per scope, own value each | never |
+| `APP_ENV`, `DATABASE_ENV` | `apps/web/.env.local` (`dev`) | not set in workflows | Preview `qa`, Production `prod` | `EXPO_PUBLIC_APP_ENV` per build profile in `eas.json` |
+| `DATABASE_URL` | `.env.local` (dev branch) | none today (a future CI job may add a scoped dev secret) | per scope, own value each | never |
 | `CLERK_SECRET_KEY` | `.env.local` (`sk_test_`) | only if a workflow needs it | per scope (test / live) | never |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | `.env.local` | not needed by `ci.yml` | per scope | n/a |
 | `EXPO_PUBLIC_API_BASE_URL` | `apps/mobile/.env.local` | n/a | n/a | `eas.json` `env` or EAS variables per profile (`https` outside dev) |
 | `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` | `apps/mobile/.env.local` | n/a | n/a | EAS variables (public) |
 | E2E test user | `.env.local` | secret, dev Clerk user only | never | never |
 
-`ci.yml` needs no secrets: it runs `pnpm validate` against fake values. `claude.yml` needs the Claude token and, for database-backed work, the dev Neon secret; **no production credential belongs in GitHub Actions.**
+`ci.yml` needs no secrets: it runs `pnpm validate` against fake values. `claude.yml` needs only the Claude token; **no production credential belongs in GitHub Actions.**
 
 ## 8. Mobile / EAS (not provisioned by the boilerplate)
 

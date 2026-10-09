@@ -151,9 +151,49 @@ describe("workflow safety", () => {
     expect(offenders.map(rel)).toEqual([]);
   });
 
-  it("the review workflow cannot write to the repository", () => {
-    const text = read(join(repo, ".github/workflows/claude-code-review.yml"));
-    expect(text).toMatch(/contents:\s*read/);
-    expect(text).not.toMatch(/(contents|pull-requests|issues):\s*write/);
+  it("only the Claude workflow holds write permissions", () => {
+    const offenders = workflows
+      .filter((f) => !f.endsWith("claude.yml"))
+      .filter((f) => /(contents|pull-requests|issues|actions|id-token):\s*write/.test(read(f)));
+    expect(offenders.map(rel)).toEqual([]);
+  });
+
+  it("every action is pinned to a full commit hash", () => {
+    const unpinned = workflows.flatMap((f) =>
+      read(f)
+        .split(/\r?\n/)
+        .filter((line) => /^\s*(-\s*)?uses:/.test(line) && !/@[0-9a-f]{40}\b/.test(line))
+        .map((line) => `${rel(f)}: ${line.trim()}`),
+    );
+    expect(unpinned).toEqual([]);
+  });
+
+  describe("the Claude workflow", () => {
+    const text = read(join(repo, ".github/workflows/claude.yml"));
+    const args = /claude_args:\s*'([^\r\n]*)'/.exec(text)?.[1] ?? "";
+    const entries = [...args.matchAll(/Bash\(([^)]*)\)/g)].map((m) => m[1]);
+
+    it("has an allow-list to check", () => {
+      expect(entries.length).toBeGreaterThan(0);
+    });
+
+    it("has no wildcard on pnpm, npx or corepack, and only read subcommands of gh pr", () => {
+      const broad = entries.filter((e) => {
+        if (/^(pnpm|corepack)\b/.test(e)) return e.includes("*");
+        if (/^npx\b/.test(e)) return true;
+        if (/^gh pr\b/.test(e)) return !/^gh pr (view|list|diff|checks):\*$/.test(e);
+        return false;
+      });
+      expect(broad).toEqual([]);
+    });
+
+    it("can merge a local checkout but never a pull request", () => {
+      const mergers = entries.filter((e) => /merge/.test(e));
+      expect(mergers.sort()).toEqual(["git merge-base:*", "git merge:*"]);
+    });
+
+    it("carries no database credential", () => {
+      expect(text).not.toMatch(/DATABASE_URL|DATABASE_ENV|NEON_/);
+    });
   });
 });

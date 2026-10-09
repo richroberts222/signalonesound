@@ -100,7 +100,7 @@ The framework existing is not a reason to write tests: each new test passes the 
 ## CI and deployment
 
 * `ci.yml` runs `pnpm validate` (lint, typecheck, unit tests, build) on pull requests with fake env values and no secrets. Branch protection should require `CI / Validate` and a human merge.
-* `claude.yml` and `claude-code-review.yml` run the Claude workflow; the app cannot edit workflow files.
+* `claude.yml` runs the Claude workflow; the app cannot edit workflow files. Node is pinned once in `.node-version` (24, matching Vercel) and pnpm once in `packageManager`.
 * Vercel builds `apps/web` from every pull request (Preview = QA) and deploys `main` to Production. A deployment succeeding does not prove architectural compatibility.
 * Mobile: Expo/EAS profiles `development`, `qa`, `staging`, `production` map to `dev`, `qa`, `stage`, `prod`. Nothing is provisioned until a human runs `eas init`.
 
