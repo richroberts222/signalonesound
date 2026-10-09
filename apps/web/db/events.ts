@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, desc, eq, gt, gte, inArray, lt, ne, notInArray, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, gte, inArray, isNotNull, lt, ne, notInArray, or, sql } from "drizzle-orm";
 
 import type { Database } from "./client";
 import { withDbErrors } from "./errors";
-import { auditLog, event, eventLink, eventRevivalType, eventSeries, idempotencyRecord } from "./schema";
+import { auditLog, event, eventLink, eventRevivalType, eventSeries, idempotencyRecord, organization } from "./schema";
 
 // Data access for events (S3, docs/features/s3-events-church-portal.md). Server-only by convention
 // (like all of db/): it owns the Drizzle queries and DatabaseError wrapping and returns its own row
@@ -56,6 +56,23 @@ export type Cursor = { startsAt: Date; id: string };
 
 /** An event without an end is assumed to last this long when looking for overlaps. */
 export const DEFAULT_DURATION_MS = 3 * 60 * 60 * 1000;
+
+/** One public search result: the event, its organization's name and the distance when a position was given. */
+export type PublicRow = EventFull & { orgName: string; distance: number | null };
+export type SearchCursor = { distance: number | null; startsAt: Date; id: string };
+export type PublicSearch = {
+  now: Date;
+  position: { lat: number; lng: number } | null;
+  /** Miles; null means no limit. Ignored without a position. */
+  radius: number | null;
+  /** Calendar dates (YYYY-MM-DD) compared with each event's own local date. */
+  from?: string;
+  to?: string;
+  types: string[];
+  organizationId?: string;
+  cursor: SearchCursor | null;
+  limit: number;
+};
 
 export type EventsRepo = ReturnType<typeof createEventsRepo>;
 
@@ -252,6 +269,71 @@ export function createEventsRepo(db: Database) {
         const results = await db.batch(statements as unknown as Batch);
         const check = results[results.length - 1] as unknown[];
         return check.length > 0;
+      }),
+
+    /**
+     * The public search: published or cancelled events of approved organizations, not yet over, that
+     * no admin has held. Distance uses the great-circle formula, prefiltered by a bounding box; with a
+     * position the order is distance, then start time, then id (a keyset, so paging never repeats or
+     * skips). Nothing about the searcher is stored.
+     */
+    searchPublic: (p: PublicSearch): Promise<PublicRow[]> =>
+      withDbErrors("event.searchPublic", async () => {
+        const pos = p.position;
+        const distance = pos
+          ? sql<number>`round((3958.8 * acos(least(1, greatest(-1, cos(radians(${pos.lat})) * cos(radians(${event.lat})) * cos(radians(${event.lng}) - radians(${pos.lng})) + sin(radians(${pos.lat})) * sin(radians(${event.lat}))))))::numeric, 2)::float8`
+          : sql<number | null>`null::float8`;
+        const where = [
+          inArray(event.status, ["published", "cancelled"]),
+          eq(event.moderationState, "published"),
+          eq(organization.status, "approved"),
+          gte(event.startsAt, p.now),
+        ];
+        if (pos) {
+          where.push(isNotNull(event.lat), isNotNull(event.lng));
+          if (p.radius !== null) {
+            const dLat = p.radius / 69;
+            const dLng = p.radius / (69 * Math.max(0.01, Math.cos((pos.lat * Math.PI) / 180)));
+            where.push(sql`${event.lat} between ${pos.lat - dLat} and ${pos.lat + dLat}`, sql`${event.lng} between ${pos.lng - dLng} and ${pos.lng + dLng}`, sql`${distance} <= ${p.radius}`);
+          }
+        }
+        if (p.from) where.push(sql`((${event.startsAt} at time zone ${event.timeZone})::date) >= ${p.from}::date`);
+        if (p.to) where.push(sql`((${event.startsAt} at time zone ${event.timeZone})::date) <= ${p.to}::date`);
+        if (p.types.length > 0) {
+          where.push(
+            sql`exists (select 1 from event_revival_type t where t.event_id = ${event.id} and t.type_slug in (${sql.join(p.types.map((t) => sql`${t}`), sql`, `)}))`,
+          );
+        }
+        if (p.organizationId) where.push(eq(event.orgId, p.organizationId));
+        if (p.cursor) {
+          where.push(
+            pos
+              ? sql`(${distance}, ${event.startsAt}, ${event.id}) > (${p.cursor.distance ?? 0}::float8, ${p.cursor.startsAt.toISOString()}::timestamptz, ${p.cursor.id}::uuid)`
+              : sql`(${event.startsAt}, ${event.id}) > (${p.cursor.startsAt.toISOString()}::timestamptz, ${p.cursor.id}::uuid)`,
+          );
+        }
+        const rows = await db
+          .select({ row: event, orgName: organization.name, distance })
+          .from(event)
+          .innerJoin(organization, eq(organization.id, event.orgId))
+          .where(and(...where))
+          .orderBy(...(pos ? [asc(distance), asc(event.startsAt), asc(event.id)] : [asc(event.startsAt), asc(event.id)]))
+          .limit(p.limit + 1);
+        const full = await attach(rows.map((r) => r.row));
+        return rows.map((r, i) => ({ ...full[i], orgName: r.orgName, distance: r.distance ?? null }));
+      }),
+
+    /** One event for the public: published or cancelled, organization approved, not held by an admin. */
+    getPublic: (id: string): Promise<PublicRow | null> =>
+      withDbErrors("event.getPublic", async () => {
+        const [found] = await db
+          .select({ row: event, orgName: organization.name })
+          .from(event)
+          .innerJoin(organization, eq(organization.id, event.orgId))
+          .where(and(eq(event.id, id), inArray(event.status, ["published", "cancelled"]), eq(event.moderationState, "published"), eq(organization.status, "approved")))
+          .limit(1);
+        if (!found) return null;
+        return { ...(await attach([found.row]))[0], orgName: found.orgName, distance: null };
       }),
 
     /** Changes a status (publish, cancel, delete) atomically with its audit entry. Returns the new version, or null if the event was not in an allowed state. */

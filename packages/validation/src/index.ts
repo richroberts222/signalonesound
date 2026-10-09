@@ -10,6 +10,9 @@ export * from "./organization-client";
 // S3 events (docs/features/s3-events-church-portal.md)
 export * from "./event";
 export * from "./event-client";
+// S4 discover (docs/features/s4-discover-web.md)
+export * from "./discover";
+export * from "./discover-client";
 // proof-only (removed by the boilerplate init; see /docs/boilerplate.md)
 export * from "./proof-item";
 export * from "./proof-item-client";

@@ -154,6 +154,18 @@ All require an approved manager of the event's organization (or an admin); anyon
 
 A recurring series (weekly or monthly by weekday up to a date, or a list of dates) is expanded into ordinary event rows, at most 104 and within two years, each keeping the same local time of day across daylight-saving changes. The path parameter and the cursor are validated; a malformed id is `404`.
 
+## Discover endpoints (S4, reference application)
+
+All public: no sign-in, no identity read, and nothing recorded about who searched (analytics receive only the name of the event, never an identifier).
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /api/v1/events` | Search upcoming published and cancelled events of approved organizations. Query: `lat`, `lng` (both or neither; rounded to about 1 km, never stored), `radius` (miles up to the radius setting, or `any`; needs a position), `from`, `to` (calendar dates compared with each event's own local date), `types` (comma separated, any of), `organizationId`, `cursor`, `limit` (default 20, maximum 50). With a position, results are nearest first (events with no position are left out); otherwise soonest first. Unknown parameters (there is no free-text search) are `400` |
+| `GET /api/v1/events/:id/public` | One event as the public sees it; a draft, a deleted or held event, or one of an unapproved organization is `404`. (The manager's read of any state stays `GET /api/v1/events/:id`) |
+| `GET /api/v1/places/search?q=` | Turns a ZIP code or `City, ST` into positions from the US Census gazetteer shipped with the app (public domain; no outside service is called) |
+
+The radius "X" in the source plan is undecided: it is the single setting `RADIUS_X_MILES` (placeholder 100) in `packages/validation/src/discover.ts`.
+
 ## Unexpected-error reporting
 
 `apiRoute` passes `reportUnexpectedError` (`lib/api/report.ts`) as the adapter's `onUnexpected` hook. It writes one structured stderr line with the error class and, for `DatabaseError`, the operation and kind only (never message, cause, stack, request data, or identity). This is a stopgap sink, not a logging system; replace the sink when one is chosen. The adapter also reports failures that escape the normal path (for example response serialization).

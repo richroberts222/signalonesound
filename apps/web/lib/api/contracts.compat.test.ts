@@ -111,6 +111,11 @@ const OPTIONAL_CONTRACTS: Record<string, { exportName: string; direction: Direct
   createdEventResponse: { exportName: "createdEventSchema", direction: "output" },
   eventListResponse: { exportName: "eventListSchema", direction: "output" },
   eventStatusResponse: { exportName: "eventStatusResultSchema", direction: "output" },
+  eventSearchRequest: { exportName: "eventSearchQuerySchema", direction: "input" },
+  publicEventResponse: { exportName: "publicEventSchema", direction: "output" },
+  eventSearchResponse: { exportName: "eventSearchResultSchema", direction: "output" },
+  placeSearchRequest: { exportName: "placeSearchQuerySchema", direction: "input" },
+  placeSearchResponse: { exportName: "placeSearchResultSchema", direction: "output" },
 };
 for (const [name, { exportName, direction }] of Object.entries(OPTIONAL_CONTRACTS)) {
   const schema = (validation as Record<string, unknown>)[exportName] as z.ZodType | undefined;

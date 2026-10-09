@@ -76,3 +76,13 @@ Map and geocoding vendor (free tier first, you approve any cost); radius value "
 ## Done checklist
 
 AC1 to AC14 and controls ticked [Fable]; Preview reviewed; `pnpm validate` clean; CI green; docs updated.
+
+## Build notes (decisions made while building)
+
+* **Places come from data shipped with the app, not a vendor.** The US Census Bureau gazetteer (public domain: about 34,000 ZIP areas and 32,000 places, `apps/web/data/gazetteer.json`, rebuilt with `scripts/build-gazetteer.ts`) turns a ZIP code or `City, ST` into a position offline. It costs nothing, needs no account, and no visitor's search leaves our servers. Positions are the centre of the ZIP area or city, so the distance is accurate to a few miles: right for "within 10 miles", not for turn-by-turn directions. The same data locates event addresses (ZIP first, then city and state). A street-level geocoder can replace it later behind the same port.
+* **The map is not built.** Map tiles are a vendor and cost decision (the owner approves any cost). The search screen is list-first with the full set of filters; the map and the map/list toggle arrive when a map provider is chosen. `distanceMiles` and each event's `lat`/`lng` are already in the API for it.
+* **Public event read is `GET /api/v1/events/:id/public`** (the manager's read of any state keeps `GET /api/v1/events/:id`), because one path cannot serve two different shapes.
+* **The calendar file is built on the device** (`apps/web/lib/ics.ts`), so no server route is needed.
+* **Sitemap and search-engine pages:** the event and church pages are server-rendered with share previews. The sitemap needs the site's address, which exists only after the domain is chosen (S9 launch gate).
+* **Rate limits and the browser end-to-end test:** limits on every public endpoint arrive in the S9 gate; the end-to-end test needs the Clerk test environment.
+* **Speed (AC12):** proven against the dev database with 3,000 events (`apps/web/db/discover.integration.test.ts`; generous bound of 2 seconds including the network round trip to the hosted database).
