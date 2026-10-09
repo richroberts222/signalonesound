@@ -104,6 +104,19 @@ The framework existing is not a reason to write tests: each new test passes the 
 * Vercel builds `apps/web` from every pull request (Preview = QA) and deploys `main` to Production. A deployment succeeding does not prove architectural compatibility.
 * Mobile: Expo/EAS profiles `development`, `qa`, `staging`, `production` map to `dev`, `qa`, `stage`, `prod`. Nothing is provisioned until a human runs `eas init`.
 
+## Dependency and tooling compatibility
+
+Versions of the framework, the tools and the runtime must work together. Rules:
+
+1. **One runtime.** Node is pinned in `.node-version` (24, matching Vercel) and `engines`; pnpm only through `packageManager`. Type definitions for Node match the runtime major (`@types/node` ^24 in the web app).
+2. **The Expo SDK owns the mobile versions** of `expo`, `react` and `react-native`. They change only together, through the SDK upgrade, and `expo install --check` must report up to date. Never bump `react-native` or `react` for the mobile app on their own (Dependabot's grouped proposal to move React Native ahead of the SDK is why).
+3. **Unmet peer dependencies are defects.** `pnpm peers check` should be clean. The one documented exception today: the web app runs React 19.2.8 while Expo pins 19.2.3, which leaves one unmet React peer. Resolving it (one shared React version) is a recorded decision, not an accident.
+4. **Major upgrades are deliberate issues.** Dependabot does not open automatic major-version pull requests for npm (`.github/dependabot.yml`). Before a major upgrade of a core tool (Next.js, Expo, Clerk, Drizzle and the Neon driver, Playwright, TypeScript, ESLint, Vitest), read its release notes and open issues for breaking changes and known problems, and record the result in the issue.
+5. **Minor and patch updates are grouped and must pass `Validate`;** a failing update is held, not forced.
+6. **Check regularly.** A weekly job running `pnpm peers check` and `expo install --check` is planned (`/docs/release.md`); until it exists, run both before every release and every upgrade.
+
+Enforced today: Dependabot ignores npm majors, `Validate` runs on every update, the lockfile is frozen in CI. Not yet enforced: the peer and Expo checks are not in CI. Proof: the compatibility problems found in the audit (React Native 0.87 proposed against Expo 57, an outdated Node type package, an Expo patch behind) were found by these two commands and fixed.
+
 ## Development workflow
 
 `CLAUDE.md` is the entry point. One issue = one canonical branch + one pull request; GitHub (issue, PR, diff, checks) is the live handoff and `docs/notes.md` is optional for non-discoverable information only (no secrets); independent issues may run in parallel when scopes do not overlap; a human merges. `/docs/issues.md`, `/docs/git-workflow.md`. `docs/ideas/` lists optional future ideas; nothing there is a requirement.
