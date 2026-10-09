@@ -32,7 +32,7 @@ Real product features, store submission, push notifications, maps, production Cl
 * **AC2** A signed-in mobile user (physical device, development build) can save a note, and the same note appears on web.
 * **AC3** `GET`/`PUT /me/hello` return `401` with no token or an invalid token, on both clients' tokens (cookie session and bearer).
 * **AC4** A user can never read or write another user's note, including by changing an id in the request.
-* **AC5** The note is trimmed, limited to 140 characters, and rejects control characters, HTML is stored and rendered as plain text, and unknown fields are rejected.
+* **AC5** The note is trimmed, limited to 140 characters (counted in Unicode code points), single-line (newlines and all other control characters rejected), HTML is stored and rendered as plain text, and unknown fields are rejected. [Fable]
 * **AC6** The response uses the standard envelope and safe errors (no stack, no internals); the contract snapshot test covers both operations.
 * **AC7** The record is listed in `/docs/data-inventory.md` with tier T2, retention and deletion path, and a migration creates it forward-only.
 * **AC8** Sign-out clears the client session on both clients.
@@ -56,6 +56,8 @@ Real product features, store submission, push notifications, maps, production Cl
 | --- | --- | --- | --- | --- |
 | `GET /api/v1/me/hello` | Member | none | `{ note: string or null }` | 401 |
 | `PUT /api/v1/me/hello` | Member | `{ note: string (0 to 140) }` | `{ note }` | 400 validation, 401, 413, 429 |
+
+Conventions set here and reused by every later slice: list endpoints take `cursor` and `limit` (default 20, maximum 50) and return `{ items, nextCursor }`; rate-limited endpoints return `429` with `Retry-After`; validation errors name the field. [Fable]
 
 ## Data (database checkpoint summary)
 

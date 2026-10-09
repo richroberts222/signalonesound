@@ -8,10 +8,10 @@ Let an approved manager publish and maintain revival events: create, edit, remov
 
 ## Scope (in)
 
-* Event fields: title, description (plain text), Church/Ministry (from the manager's organizations), **dates and times** (start, optional end, the event's IANA time zone), **venue name, street, city, state, ZIP**, **revival types** (one or more of the twelve in the source), speakers as plain text (profile tagging is later), directions note, up to 3 event links.
-* Recurring events as a **series** (weekly, monthly by weekday, or a list of dates) with exceptions; one edit scope choice: this event or the series.
-* Draft, published, cancelled, and past (automatic) states; unlimited events per organization.
-* Geocoding of the address to coordinates through a port (adapter chosen in S4; a fake in tests); a manual "address not found" path that never blocks publishing.
+* Event fields: title, description (plain text), Church/Ministry (from the manager's organizations), **dates and times** (start, optional end, the event's IANA time zone), **venue name, street, city, state, ZIP**, **revival types** (one or more of the twelve in the source), speakers as plain text (profile tagging is later), directions note, up to 3 event links. Speakers and directions are "Expanded" portal items in the source pulled forward because they are plain text fields; they are optional and may be dropped from this slice without affecting any acceptance criterion but AC7. [Fable]
+* Recurring events as a **series** (weekly, monthly by weekday, or a list of dates) with exceptions; one edit scope choice: this event or the series. Occurrences are materialized as `event` rows (at most 104 per series) so search, saves and alerts work on plain events; an occurrence's local wall-clock time is kept constant across daylight-saving changes; "monthly by weekday" skips months without that occurrence (no 5th Friday); the "Replace" operation in the source is "edit" (any field may change) and needs no separate control. [Fable]
+* Draft, published, cancelled, and past (automatic) states; unlimited events per organization. Delete is a soft delete (status `deleted`, hidden everywhere, kept for the audit trail and so S6 saved rows resolve to a "removed" message); the editor shows a one-line rule: do not include personal information about minors or private individuals in any text field. [Fable]
+* Geocoding of the address to coordinates through a port (adapter chosen in S4; a fake in tests); a manual "address not found" path that never blocks publishing: an event without coordinates is flagged to the manager, appears in date and type searches, and is absent from radius searches until geocoded. [Fable]
 * Duplicate check (same organization, overlapping time, same venue) with a warning and override.
 * Event list, new event, and edit pages in the manager dashboard, re-wired from the existing mock screens (per Q-005).
 
@@ -24,7 +24,7 @@ Public search and map (S4), flyers, livestream links, comments, payments or tick
 * **AC1** Only an approved manager of the organization can create, edit, publish, cancel or delete its events.
 * **AC2** Required: title, organization, start, time zone, venue name, street, city, state, ZIP, at least one revival type; each missing field gives a specific message.
 * **AC3** Times are stored as UTC with the IANA zone; the displayed local time is correct across a daylight-saving change (test with dates either side).
-* **AC4** End must be after start; start may not be more than 2 years ahead; editing a past event is blocked.
+* **AC4** End must be after start; start may not be more than 2 years ahead; editing a past event is blocked (it can still be deleted). The time-zone select defaults to the organization's last used zone and is shown with the local-time preview. Phase 1 addresses are US only (state code and ZIP). [Fable]
 * **AC5** A recurring series produces correct occurrences (weekly, monthly by weekday, date list); editing "this event" creates an exception and leaves the series; editing "series" changes future occurrences only.
 * **AC6** State must be a valid US state code, ZIP a valid 5 or 9 digit format; links are http or https only, 1 to 3 per event.
 * **AC7** Title 3 to 120 characters, description up to 4000, plain text only; markup shown as text.
@@ -33,6 +33,7 @@ Public search and map (S4), flyers, livestream links, comments, payments or tick
 * **AC10** Every create, edit, cancel and delete writes an audit entry.
 * **AC11** A manager who is revoked can no longer change any event on their next request.
 * **AC12** Data inventory rows exist for new tables.
+* **AC13** `GET /events/:id` as the manager returns the event in any state; concurrent edits are detected by `version` in `PATCH` (stale version returns `409`); create requires an `Idempotency-Key` header, and a repeated key within 24 hours returns the first result instead of a second event. [Fable]
 
 ## Controls inventory
 
@@ -53,11 +54,11 @@ Public search and map (S4), flyers, livestream links, comments, payments or tick
 
 ## API
 
-`POST /organizations/:id/events`, `GET /organizations/:id/events` (manager, cursor pagination), `PATCH /events/:id` (with `scope`), `POST /events/:id/publish`, `POST /events/:id/cancel`, `DELETE /events/:id` (manager). Public reads arrive in S4. Idempotency key on create to prevent double submission.
+`POST /organizations/:id/events` (`Idempotency-Key` header required), `GET /organizations/:id/events` (manager, cursor pagination), `GET /events/:id` (manager, any state; the public read is S4) [Fable], `PATCH /events/:id` (with `scope` and `version`), `POST /events/:id/publish`, `POST /events/:id/cancel`, `DELETE /events/:id` (manager). Public reads arrive in S4. Idempotency key on create to prevent double submission.
 
 ## Data
 
-`event(id, org_id, title, description, status, series_id null, starts_at_utc, ends_at_utc null, time_zone, venue_name, street, city, state, zip, lat null, lng null, created_at)` T0; `event_revival_type(event_id, type_slug)` T0 with the twelve-type reference list; `event_series(id, org_id, rule, until)` T0; `event_link(event_id, url, position)` T0. Indexes for organization, start time, and later location (S4). Whether Venue is its own entity is UNDECIDED (owner); this slice stores it on the event.
+`event(id, org_id, title, description, status, moderation_state default published, series_id null, starts_at_utc, ends_at_utc null, time_zone, venue_name, street, city, state, zip, lat null, lng null, speakers null, directions null, version, created_at, updated_at)` T0 [Fable]; `event_revival_type(event_id, type_slug)` T0 with the twelve-type reference list; `event_series(id, org_id, rule, until)` T0; `event_link(event_id, url, position)` T0. Indexes for organization, start time, and later location (S4). Whether Venue is its own entity is UNDECIDED (owner); this slice stores it on the event.
 
 ## Hostile cases
 
@@ -69,8 +70,8 @@ Schema and recurrence unit tests (including DST); API tests for every operation 
 
 ## Owner decisions
 
-Is Venue its own entity (recommend: not in Phase 1)? Maximum recurrence length (proposed 104 occurrences). Whether managers can publish immediately after approval (proposed yes, with report-and-takedown from S8). Flyers and livestream links remain UNDECIDED.
+Is Venue its own entity (recommend: not in Phase 1)? Maximum recurrence length (proposed 104 occurrences). Whether managers can publish immediately after approval (proposed yes; S8 may add a quarantine for a new organization's first event if the owner chooses, using `moderation_state`; nothing is public before S9 anyway). [Fable] Flyers and livestream links remain UNDECIDED.
 
 ## Done checklist
 
-AC1 to AC12 and controls ticked; `pnpm validate` clean; CI green; Preview reviewed by the owner; docs updated.
+AC1 to AC13 and controls ticked [Fable]; `pnpm validate` clean; CI green; Preview reviewed by the owner; docs updated.

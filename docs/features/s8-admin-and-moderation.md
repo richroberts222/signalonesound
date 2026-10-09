@@ -8,11 +8,11 @@ Give the platform admins the tools to keep listings trustworthy and lawful: revi
 
 ## Scope (in)
 
-* Report content: any visitor (rate limited) or member can report an event or Church/Ministry profile with a reason; a visible "Report" control on event and profile pages.
+* Report content: any visitor (rate limited) or member can report an event or Church/Ministry profile with a reason from a fixed list (not a real event or scam; wrong or misleading church; personal information about a minor or private person; harassment or hateful content; copyright or other legal; other) plus optional details; a visible "Report" control on event and profile pages. [Fable]
 * Admin dashboard (re-wired from the existing mock screens per Q-005): overview counts, report queue, organizations, events, users (limited view), audit log.
 * Actions: hide an event, restore it, unpublish an organization, suspend a manager, reject or revoke a claim, with a reason stored.
-* Notification to the affected manager by email with the reason and the appeal address (email port from S7).
-* Quarantine rules: events from a new organization's first post and any event with more than 1 link to a new domain are held for admin review before they become public (proposed; the owner decides).
+* Notification to the affected manager by email with the reason and the appeal address (email port shared with S7; whichever slice lands first introduces it with a logging adapter, so S8 does not depend on S7). [Fable]
+* Quarantine rules: events from a new organization's first post and any event with more than 1 link to a new domain are held for admin review before they become public (proposed; the owner decides; if declined, AC6 is marked not applicable and S3's immediate publishing stands). [Fable]
 * Audit views: filter by actor, subject, date; export for a legal request.
 
 ## Out of scope
@@ -21,16 +21,17 @@ Comment or review moderation (those features are held), automatic content classi
 
 ## Acceptance criteria
 
-* **AC1** Anyone can submit a report without signing in; reports are rate limited by network address and stored without personal data.
+* **AC1** Anyone can submit a report without signing in; reports are rate limited by a hashed network address kept no longer than 24 hours; no reporter identity is stored (signed-in or not); the form tells the reporter not to include personal data; details are limited to 1000 characters of plain text. [Fable]
 * **AC2** Only admins can see the queue and act; every action writes an audit entry with actor, time and reason.
 * **AC3** A hidden event disappears from search, event pages (replaced by a "removed" page), the sitemap and cached listings within one minute.
-* **AC4** A suspended manager cannot change events; their existing published events follow the admin's choice (stay or hide) recorded in the action.
+* **AC4** A suspended manager cannot change events or submit claims (`user_profile.suspended`, checked by `can()` on every request); they can still browse, export and delete their account; their existing published events follow the admin's choice (stay or hide) recorded in the action. [Fable]
 * **AC5** The affected manager receives an email stating what happened and how to appeal; the email contains no other person's data.
 * **AC6** Quarantined events are invisible to the public and visible to their manager as "pending review"; approving publishes with a single click.
 * **AC7** Admin pages are unreachable by non-admins by direct URL and by API (permission matrix test) and return `404` to non-admins.
 * **AC8** The audit log can be filtered and exported, and cannot be edited.
 * **AC9** Admin actions are protected from CSRF and double-submit.
 * **AC10** The admin allow-list is checked on the server per request, not only at sign-in.
+* **AC11** Every admin write requires a non-empty reason (`400` otherwise) and a decision on an already-decided report or a repeated hide/restore returns `409`; the audit export is admin-only and contains person-to-church links, so it is logged as an audit action itself. [Fable]
 
 ## Controls inventory
 
@@ -63,8 +64,8 @@ Permission matrix extension; API and hostile tests; cache and sitemap invalidati
 
 ## Owner decisions
 
-The quarantine policy (proposed above); appeal address and response time promise; whether the second admin (business partner) receives their own login or the shared login continues (accepted risk recorded, revisit at first real user).
+The quarantine policy (proposed above); appeal address and response time promise; whether the second admin (business partner) receives their own login or the shared login continues (accepted risk recorded, revisit at first real user; note that with one shared login the audit log cannot tell the two admins apart). [Fable]
 
 ## Done checklist
 
-AC1 to AC10 and controls ticked; `pnpm validate` clean; CI green; docs updated; takedown procedure added to `/docs/risk-and-legal.md`.
+AC1 to AC11 and controls ticked [Fable]; `pnpm validate` clean; CI green; docs updated; takedown procedure added to `/docs/risk-and-legal.md`.
