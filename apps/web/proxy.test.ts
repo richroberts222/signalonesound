@@ -9,6 +9,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // (3) every top-level route in app/ is a conscious choice (deny by default for new routes).
 
 const protect = vi.fn();
+const middlewareOptions = vi.hoisted(() => ({ value: undefined as unknown }));
 
 vi.mock("@clerk/nextjs/server", () => ({
   // Mirrors Clerk's "/prefix(.*)" patterns closely enough for path-prefix routes.
@@ -16,7 +17,10 @@ vi.mock("@clerk/nextjs/server", () => ({
     const regexes = patterns.map((p) => new RegExp(`^${p}$`));
     return (req: { nextUrl: { pathname: string } }) => regexes.some((r) => r.test(req.nextUrl.pathname));
   },
-  clerkMiddleware: (handler: (auth: { protect: typeof protect }, req: unknown) => Promise<void>) => handler,
+  clerkMiddleware: (handler: (auth: { protect: typeof protect }, req: unknown) => Promise<void>, options?: unknown) => {
+    middlewareOptions.value = options;
+    return handler;
+  },
 }));
 
 // Every top-level entry in app/ must be listed here. Adding a route directory fails
@@ -41,6 +45,11 @@ describe("proxy.ts route protection", () => {
       expect(protect).toHaveBeenCalledTimes(1);
     },
   );
+
+  it("sends a signed-out visitor to this app's own sign-in and sign-up pages, not Clerk's hosted page", async () => {
+    await run("/dashboard");
+    expect(middlewareOptions.value).toEqual({ signInUrl: "/sign-in", signUpUrl: "/sign-up" });
+  });
 
   it.skipIf(!existsSync(join(__dirname, "app", "accept-terms")))("protects /accept-terms (S1)", async () => {
     await run("/accept-terms");
