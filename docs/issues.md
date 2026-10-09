@@ -2,7 +2,7 @@
 
 ## Rule
 
-GitHub is the source of truth for the live state of an issue and its pull request. Reviewers (Rich, ChatGPT, other humans) inspect the actual issue, the canonical PR branch, commits, diff, code, comments, review threads, and checks directly. Claude does not maintain a duplicate handoff/status report. `docs/notes.md` is **not** mandatory for any issue or PR; see "Recording non-discoverable information" below.
+GitHub is the source of truth for the live state of an issue and its pull request. Reviewers (Rich, other humans, independent Claude reviewers) inspect the actual issue, the canonical PR branch, commits, diff, code, comments, review threads, and checks directly. Claude does not maintain a duplicate handoff/status report. `docs/notes.md` is **not** mandatory for any issue or PR; see "Recording non-discoverable information" below.
 
 ## Canonical branch and pull request
 
@@ -38,9 +38,9 @@ Rules:
 * A docs/governance-only issue may run alongside a feature issue only when it does not modify that feature's files. If a file is already being modified by another open issue/PR, stop and report the overlap instead of creating a conflict.
 * Claude never starts the next slice on its own; it may recommend one. Parallelism does not relax any other rule (CI, review, security, protected `main`, human-only merge).
 
-### ChatGPT / orchestrator rule
+### Orchestrator rule
 
-This section governs ChatGPT (or any orchestrator) coordinating work. It does not grant Claude any merge authority; merging by Claude is governed only by "Pull request safety" and `/docs/git-workflow.md` (the human's explicit authorization).
+This section governs any orchestrator (a person or an AI session) coordinating work across issues. It does not grant Claude any merge authority; merging by Claude is governed only by "Pull request safety" and `/docs/git-workflow.md` (the human's explicit authorization).
 
 * **Live state first.** Before deciding what work to start, review, sequence, or merge, inspect the live GitHub/repository state (issues, branches, PRs, commits/diff/code, comments, review threads, checks, current `main`). Memory is navigation/context only and never overrides live repository truth.
 * **Parallel only when verified independent.** Coordinate multiple issues in parallel only after verifying their scopes do not create unsafe file/code overlap, dependency conflicts, schema/contract conflicts, or sequencing dependencies.
@@ -87,7 +87,7 @@ Plan issue
   -> PR branch becomes canonical workspace
   -> subsequent Claude work occurs on the PR
   -> implementation and functional verification
-  -> human/ChatGPT review of live GitHub state (issue, PR, diff, comments, checks)
+  -> human review of live GitHub state (issue, PR, diff, comments, checks)
   -> human merges PR (or an explicitly authorized merge)
 ```
 
