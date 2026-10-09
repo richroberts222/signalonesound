@@ -24,14 +24,15 @@ Church/Ministry management (stays on web in Phase 1; managers can view their eve
 * **AC1** Search, filters and results match the web for the same fixture data (a shared test fixture runs against both clients).
 * **AC2** No account is needed to browse; no identifier is stored on the server for a browsing visitor.
 * **AC3** Location permission is requested only after the person taps, a denial falls back to typing a place, and only rounded coordinates are sent.
-* **AC4** A shared event link opens the event in the app when installed and on the web page otherwise.
+* **AC4** A shared event link opens the event in the app when installed and on the web page otherwise. Universal and App Links need the production domain and its association files (S9 owner decision), so until then this AC is proven with the custom URL scheme on a development build and re-proven in S9 on the real domain. [Fable]
 * **AC5** The event screen handles an event that was cancelled or removed (clear message, no crash).
 * **AC6** The app shows a clear offline state and recovers when the connection returns; no stale data is presented as current.
 * **AC7** Screen-reader labels exist for every control; text scales to the largest system size without clipping; contrast meets WCAG 2.2 AA.
 * **AC8** The app contains no server secret and calls only the documented API; a guard fails on a secret name or a direct database library import in mobile code.
 * **AC9** Release builds are produced by a documented, repeatable EAS process (`/docs/release.md`), and the runtime version policy is documented before the first store build.
 * **AC10** Crash and error reports go through the error-tracking port with redaction.
-* **AC11** CI runs typecheck, unit tests and the shared fixture tests for mobile; a Maestro or Detox smoke on a device build is run manually before each store submission (E2E automation in CI is a follow-up decision).
+* **AC11** The mobile client handles `403 policy_reacceptance_required` (S1 AC2) with the re-accept dialog and treats `404` for an event as "removed" (AC5). [Fable]
+* **AC12** CI runs typecheck, unit tests and the shared fixture tests for mobile; a Maestro or Detox smoke on a device build is run manually before each store submission (E2E automation in CI is a follow-up decision).
 
 ## Controls inventory
 
@@ -59,4 +60,4 @@ Apple Developer Program and Google Play developer accounts (paid; asked and appr
 
 ## Done checklist
 
-AC1 to AC11 and controls ticked; device checklist completed on one iPhone and one Android phone; `pnpm validate` clean; CI green; docs updated.
+AC1 to AC12 and controls ticked [Fable]; device checklist completed on one iPhone and one Android phone; `pnpm validate` clean; CI green; docs updated.

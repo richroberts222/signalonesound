@@ -28,11 +28,12 @@ Sign up, tick age and policy boxes, create the account; first sign-in creates th
 ## Acceptance criteria
 
 * **AC1** Sign-up cannot complete without the age and policy boxes; the record stores version and time.
-* **AC2** A new policy version blocks protected pages until re-accepted.
+* **AC2** A new policy version blocks protected pages until re-accepted; the API returns `403` with code `policy_reacceptance_required` on every member endpoint except `GET /me` and `POST /me/policy-acceptance`, so the mobile client (S0 shell, S5 account tab) can show the same re-accept dialog. [Fable]
 * **AC3** `GET /me` returns only the caller's profile; `PATCH /me` changes only allowed fields (display name, email preference); other fields are rejected.
 * **AC4** `GET /me/export` returns every row owned by the caller across all tables, and nothing of anyone else's; a test fails if a new member-owned table is not included.
-* **AC5** `DELETE /me` removes or anonymizes everything per `/docs/data-inventory.md`, then removes the Clerk user; afterward the id returns `401` and no member-owned rows remain.
-* **AC6** The Clerk webhook rejects a missing or bad signature and replays of old timestamps; a delete event removes the profile.
+* **AC5** `DELETE /me` removes or anonymizes everything per `/docs/data-inventory.md`, then removes the Clerk user; afterward the id returns `401` and no member-owned rows remain. Deletion is idempotent: the Clerk delete webhook that follows finds nothing and succeeds; a second `DELETE /me` returns `401`. [Fable]
+* **AC6** The Clerk webhook rejects a missing or bad signature and replays of old timestamps; a delete event removes the profile and every member-owned row (same deletion path as AC5). [Fable]
+* **AC12** The email address is read from Clerk when needed and never copied into application tables; `email_pref` holds only the on/off choice. The user's IANA time zone (`time_zone`, T2, set by the client, used later for quiet hours in S7) is an allowed `PATCH /me` field. [Fable]
 * **AC7** Display name is plain text, 1 to 60 characters, no control characters.
 * **AC8** The analytics port records counts with no user identifier; a guard fails if an identifier field is added.
 * **AC9** No server error response exposes internals; logs redact emails, tokens and phone numbers (test with seeded values).
@@ -58,7 +59,7 @@ Sign up, tick age and policy boxes, create the account; first sign-in creates th
 
 ## Data
 
-`user_profile(id, clerk_user_id unique, display_name, email_pref, created_at)` T2; `policy_acceptance(user_id, policy_kind, version, accepted_at)` T2, kept for the legal period and anonymized on deletion; `hello_note` dropped. Migration is forward-only.
+`user_profile(id, clerk_user_id unique, display_name, email_pref, time_zone null, created_at)` T2 [Fable]; `policy_acceptance(user_id, policy_kind, version, accepted_at)` T2, kept for the legal period and anonymized on deletion; `hello_note` dropped. Migration is forward-only.
 
 ## Hostile cases
 
@@ -74,4 +75,4 @@ Terms and Privacy text (assistant drafts a generic version; attorney review befo
 
 ## Done checklist
 
-AC1 to AC11 and every control ticked with its proof; collection gate items in `/docs/risk-and-legal.md` marked; `pnpm validate` clean; CI green; docs updated.
+AC1 to AC12 and every control ticked [Fable] with its proof; collection gate items in `/docs/risk-and-legal.md` marked; `pnpm validate` clean; CI green; docs updated.
