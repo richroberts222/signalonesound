@@ -16,4 +16,4 @@ E2E tests exercise critical, real user journeys through the running application 
 
 E2E complements acceptance testing and does not replace it (`acceptance.md`). Business rules belong in unit/integration tests; E2E confirms the pieces work together for real users.
 
-Tooling: Playwright (`playwright.md`). Not yet installed.
+Tooling: Playwright (`playwright.md`), installed in `apps/web`.

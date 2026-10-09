@@ -2,7 +2,7 @@
 
 Automated tests are not free. Every test has ongoing execution, debugging, maintenance, CI, and AI/Claude costs. The project must not accumulate tests simply because tests can be written. Every test, or logical group of closely related tests, must provide meaningful value.
 
-Prefer the **smallest valuable test suite** that gives strong confidence in important behavior.
+Prefer the **smallest valuable test suite** that gives strong confidence in important behavior. "Smallest valuable" does not mean few: completeness comes from the acceptance criteria (every criterion has a test, `acceptance.md`), and this review makes each test earn its place. A test is valuable only if it can fail for the right reason (step 8 below).
 
 ## Workflow
 
@@ -26,6 +26,7 @@ Before adding new automated tests, determine and document (in the PR conversatio
 5. **Existing coverage**: whether another test or layer already protects this adequately.
 6. **Maintenance cost**: whether the value justifies the long-term execution, debugging, CI, and maintenance cost.
 7. **Priority**: Critical, High, Normal, or Low.
+8. **Proof it can fail (the breaker)**: how the test was shown to fail. Break the behavior it protects on purpose (remove the check, change the value, drop the guard) and confirm the test fails, then restore. A test that still passes with the protected behavior removed protects nothing and is rewritten or deleted. Report the break and the result in the PR conversation.
 
 A logical group of closely related tests may be reviewed together when that is clearer than documenting each assertion. A short table is enough; the review is not an essay.
 

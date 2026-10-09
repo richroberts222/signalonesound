@@ -25,6 +25,8 @@ Example: "submitting the form shows a success message" is not sufficient if the 
 ## Rules
 
 * Trace each test to a criterion; name tests so the criterion is recognizable.
+* Number the criteria in the spec or issue (AC1, AC2, ...) and put the number in the test title. Every numbered criterion has at least one test, or is listed as not automated with the reason. A criterion with no matching test is an open item, not a pass.
+* List the feature's controls (buttons, inputs, selects, links, toggles, menus) in the spec. Each control is exercised by an acceptance test that performs the action and checks the effect (state change, request, validation message, navigation), not only that the control renders.
 * Cover failure and denial criteria, not only the happy path.
 * Verify outcomes at the layer where they are observable (response, persisted state, visible UI), not just that a handler ran.
 * Use the lowest layer that can faithfully verify the criterion (service/API-level acceptance tests are often enough); use the browser only when the criterion is about user-facing behavior.
