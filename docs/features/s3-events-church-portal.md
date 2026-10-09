@@ -1,6 +1,6 @@
 # S3 Events (Church/Ministry Portal)
 
-**Status: DRAFT, not approved.** Source: blueprint slice S3; product plan "Signal One Sound Church Portal - Startup" and "Expanded"; `/docs/database.md`. Depends on: S2. Flyer uploads and livestream links are UNDECIDED in the source ("??") and are **out** of this slice.
+**Status: APPROVED by the owner on 2026-10-09 (reviewed once by an independent reviewer). Built as its own issue; items under Owner decisions still need the owner.** Source: blueprint slice S3; product plan "Signal One Sound Church Portal - Startup" and "Expanded"; `/docs/database.md`. Depends on: S2. Flyer uploads and livestream links are UNDECIDED in the source ("??") and are **out** of this slice.
 
 ## Purpose
 

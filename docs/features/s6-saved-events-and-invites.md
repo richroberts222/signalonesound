@@ -1,6 +1,6 @@
 # S6 Saved Events and Invites
 
-**Status: DRAFT, not approved.** Source: blueprint slice S6; product plan ("Save favorite events", "Invite friends to join", "Share event links"). The fire-emoji recommendation (Later Phase 1) is included only if the owner confirms. Depends on: S4 for the web parts and S5 for the mobile controls (ship the mobile parts after S5; AC1 is complete only when both exist). Owner decision recorded: attendee privacy posture (minimal saves). [Fable]
+**Status: APPROVED by the owner on 2026-10-09 (reviewed once by an independent reviewer). Built as its own issue; items under Owner decisions still need the owner.** Source: blueprint slice S6; product plan ("Save favorite events", "Invite friends to join", "Share event links"). The fire-emoji recommendation (Later Phase 1) is included only if the owner confirms. Depends on: S4 for the web parts and S5 for the mobile controls (ship the mobile parts after S5; AC1 is complete only when both exist). Owner decision recorded: attendee privacy posture (minimal saves). [Fable]
 
 ## Purpose
 

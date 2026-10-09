@@ -1,6 +1,6 @@
 # S7 Alerts and Push Notifications
 
-**Status: DRAFT, not approved.** Source: blueprint slice S7; product plan ("Push notifications: Revival coming near you!", "Set notification criteria based on locations and timeframes", "Create reminder notifications for user-selected events"). Depends on: S5, S6. Owner decisions recorded: attendee privacy posture (coarse location); notification policy (digest, caps, quiet hours, unsubscribe) is proposed and needs a yes.
+**Status: APPROVED by the owner on 2026-10-09 (reviewed once by an independent reviewer). Built as its own issue; items under Owner decisions still need the owner.** Source: blueprint slice S7; product plan ("Push notifications: Revival coming near you!", "Set notification criteria based on locations and timeframes", "Create reminder notifications for user-selected events"). Depends on: S5, S6. Owner decisions recorded: attendee privacy posture (coarse location); notification policy (digest, caps, quiet hours, unsubscribe) is proposed and needs a yes.
 
 ## Purpose
 

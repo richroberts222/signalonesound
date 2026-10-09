@@ -1,6 +1,6 @@
 # S2 Organizations and Roles
 
-**Status: DRAFT, not approved.** Source: blueprint slice S2; product plan (Church/Ministry accounts); `/docs/permissions.md`. Depends on: S1. Owner decision recorded: organizer verification (a church must be claimed and approved before it can publish).
+**Status: APPROVED by the owner on 2026-10-09 (reviewed once by an independent reviewer). Built as its own issue; items under Owner decisions still need the owner.** Source: blueprint slice S2; product plan (Church/Ministry accounts); `/docs/permissions.md`. Depends on: S1. Owner decision recorded: organizer verification (a church must be claimed and approved before it can publish).
 
 ## Purpose
 

@@ -17,7 +17,7 @@ Every specification also states, so that the work has a clear stop line:
 
 ## Index
 
-All specifications below are **DRAFT, not approved**. They are drafts of the Phase 1 slices in `/docs/product/blueprint.md`, awaiting an independent review and the owner's approval. A draft authorizes no work.
+The specifications below are the Phase 1 slices in `/docs/product/blueprint.md`. They were reviewed once by an independent reviewer and **approved by the owner on 2026-10-09**, who also lifted the application-code pause. Each slice is built as its own issue and pull request, in order, and only against its spec. Spending, accounts only the owner can create, the items a spec lists under Owner decisions, and anything the source plan marks UNDECIDED still need the owner.
 
 | Slice | Specification |
 | --- | --- |

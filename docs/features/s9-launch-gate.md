@@ -1,6 +1,6 @@
 # S9 Launch Gate
 
-**Status: DRAFT, not approved.** Source: blueprint slice S9; `/docs/release.md`, `/docs/risk-and-legal.md`, `/docs/database.md` section 12.4, `/docs/qa-strategy.md`. Depends on: S1 to S8. This slice is a gate, not a feature: nothing goes to real users until every item is proven.
+**Status: APPROVED by the owner on 2026-10-09 (reviewed once by an independent reviewer). Built as its own issue; items under Owner decisions still need the owner.** Source: blueprint slice S9; `/docs/release.md`, `/docs/risk-and-legal.md`, `/docs/database.md` section 12.4, `/docs/qa-strategy.md`. Depends on: S1 to S8. This slice is a gate, not a feature: nothing goes to real users until every item is proven.
 
 ## Purpose
 
