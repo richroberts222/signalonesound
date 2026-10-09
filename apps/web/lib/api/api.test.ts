@@ -8,7 +8,7 @@ import { DatabaseError } from "../../db/errors";
 import { authorize, isOwner } from "../auth/authorize";
 import { conflict, notFound } from "../services/errors";
 import type { ServiceContext } from "../services/context";
-import { API_VERSION_HEADER, STATUS_BY_CODE, createApiRoute, toResponse } from "./handler";
+import { API_VERSION_HEADER, MAX_BODY_BYTES, STATUS_BY_CODE, createApiRoute, toResponse } from "./handler";
 
 // Generic, test-only service proving the boundary:
 // Request -> adapter -> auth -> validation -> service (+ authorization) -> Response.
@@ -74,6 +74,21 @@ describe("API adapter: request lifecycle", () => {
       expect(res.status).toBe(400);
     }
     expect(serviceCalls).not.toHaveBeenCalled();
+  });
+
+  it("enforces the body size cap itself, not through schema validation", async () => {
+    // A well-formed, schema-valid body padded with whitespace: only the size cap can reject it.
+    const valid = JSON.stringify({ id: "a", label: "renamed" });
+    const atCap = valid + " ".repeat(MAX_BODY_BYTES - valid.length);
+    const overCap = atCap + " ";
+    serviceCalls.mockClear();
+    const ok = await makeRoute("user_1")(post(atCap, true));
+    expect(ok.status).toBe(200);
+    const tooBig = await makeRoute("user_1")(post(overCap, true));
+    expect(tooBig.status).toBe(400);
+    const body = (await tooBig.json()) as Result<never>;
+    expect(body.ok === false && body.error.message).toMatch(/too large/i);
+    expect(serviceCalls).toHaveBeenCalledTimes(1);
   });
 
   it("does not echo submitted values in validation errors", async () => {
