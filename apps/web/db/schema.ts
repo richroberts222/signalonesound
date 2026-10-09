@@ -33,6 +33,9 @@ export const userProfile = pgTable("user_profile", {
   displayName: text("display_name"),
   emailPref: boolean("email_pref").notNull().default(false),
   timeZone: text("time_zone"),
+  // True while an admin has suspended the member: they can browse, export and delete, but cannot
+  // change events or submit claims (S8). The reason is in the audit log.
+  suspended: boolean("suspended").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -220,4 +223,34 @@ export const inviteToken = pgTable(
     arrivals: integer("arrivals").notNull().default(0),
   },
   (t) => [index("invite_token_creator_idx").on(t.createdBy)],
+);
+
+// S8 moderation (docs/features/s8-admin-and-moderation.md). A report names what was reported and why.
+// It never records who reported: not an account, not an address. Admin decisions are written to the
+// audit log (append-only), not here.
+export const report = pgTable(
+  "report",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    subjectType: text("subject_type").notNull(),
+    subjectId: uuid("subject_id").notNull(),
+    reason: text("reason").notNull(),
+    details: text("details").notNull().default(""),
+    status: text("status").notNull().default("open"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    decidedAt: timestamp("decided_at", { withTimezone: true }),
+  },
+  (t) => [index("report_status_idx").on(t.status, t.createdAt)],
+);
+
+// Only a keyed hash of the network address and a time, kept at most 24 hours, so one address cannot
+// flood the report form. It cannot be turned back into an address and is not linked to any report.
+export const reportRateLimit = pgTable(
+  "report_rate_limit",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    addressHash: text("address_hash").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("report_rate_limit_idx").on(t.addressHash, t.createdAt)],
 );

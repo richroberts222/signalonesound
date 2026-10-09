@@ -2,6 +2,7 @@ import "server-only";
 
 import { createEventsRepo } from "../db/events";
 import { createMemberRepo } from "../db/member";
+import { createModerationRepo } from "../db/moderation";
 import { createSavedRepo } from "../db/saved";
 import { createOrganizationsRepo } from "../db/organizations";
 import { createAdminDirectory } from "./auth/admin";
@@ -14,7 +15,10 @@ import { createEventsService, type EventsService } from "./services/events";
 import { searchPlaces } from "./places/gazetteer";
 import { gazetteerGeocoder } from "./places/geocoder";
 import { createMemberService, type MemberService } from "./services/member";
+import { createModerationService, type ModerationService } from "./services/moderation";
 import { createOrganizationsService, type OrganizationsService } from "./services/organizations";
+import { clerkEmailLookup } from "./auth/clerk-email-lookup";
+import { createLoggingEmail } from "./messaging/email";
 import { createSavedService, type SavedService } from "./services/saved";
 import { createProofItemService, type ProofItemService } from "./services/proof-items";
 
@@ -39,7 +43,7 @@ export function getOrganizationsService(): OrganizationsService {
   return (organizations ??= createOrganizationsService({
     repo: createOrganizationsRepo(getDb()),
     admins: createAdminDirectory(getServerEnv().adminUserIds),
-    requireAccepted: (userId) => getMemberService().requireAccepted(userId),
+    requireAccepted: (userId) => getMemberService().requireActiveMember(userId),
   }));
 }
 
@@ -51,7 +55,7 @@ export function getEventsService(): EventsService {
     repo: createEventsRepo(getDb()),
     isManager: (orgId, userId) => organizationsRepo.isApprovedManager(orgId, userId),
     admins: createAdminDirectory(getServerEnv().adminUserIds),
-    requireAccepted: (userId) => getMemberService().requireAccepted(userId),
+    requireAccepted: (userId) => getMemberService().requireActiveMember(userId),
     geocoder: gazetteerGeocoder,
   }));
 }
@@ -82,4 +86,17 @@ export function getSavedService(): SavedService {
 /** The scheduler's secret from the server configuration, or null when none is set. */
 export function getCronSecret(): string | null {
   return getServerEnv().cronSecret;
+}
+
+let moderation: ModerationService | undefined;
+const processSalt = crypto.randomUUID() + crypto.randomUUID();
+
+export function getModerationService(): ModerationService {
+  return (moderation ??= createModerationService({
+    repo: createModerationRepo(getDb()),
+    admins: createAdminDirectory(getServerEnv().adminUserIds),
+    email: createLoggingEmail(),
+    emails: clerkEmailLookup,
+    addressSalt: getServerEnv().rateLimitSalt ?? processSalt,
+  }));
 }

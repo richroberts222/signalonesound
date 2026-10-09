@@ -16,6 +16,9 @@ export * from "./discover-client";
 // S6 saved events and invites (docs/features/s6-saved-events-and-invites.md)
 export * from "./saved";
 export * from "./saved-client";
+// S8 admin and moderation (docs/features/s8-admin-and-moderation.md)
+export * from "./moderation";
+export * from "./moderation-client";
 // proof-only (removed by the boilerplate init; see /docs/boilerplate.md)
 export * from "./proof-item";
 export * from "./proof-item-client";

@@ -82,3 +82,12 @@ Tick each item and record the proof before real users or real data.
 | Dependency licenses allow commercial use | **Planned:** a license scan (for example `license-checker`) run before launch, with the result recorded here | Not yet |
 | The collection gate, age confirmation, terms acceptance, deletion and export | Not built | Not proven; tracked as the launch gate |
 | Items in sections 3 and 5 that are owner actions | Checklist only | n/a |
+
+## Report and takedown procedure (S8)
+
+1. **Anyone can report** an event or a church from its public page (no account, no identity kept). Reasons are a fixed list; details are optional.
+2. **An admin reviews** the queue at `/admin/moderation`. To remove content, hide the event or unpublish the church (a reason is required and recorded); to stop a person changing listings, suspend them. A person who is suspended can still browse, download their data and delete their account.
+3. **The affected people are emailed** what happened, the reason, and how to appeal. They appeal through the contact page (the real contact address is an owner decision needed before launch).
+4. **A wrong decision is undone** by restoring the event or church or reinstating the member (also recorded).
+5. **Legal requests** (for example a court order or a copyright notice): an admin can export the audit log for a period at `/admin/audit`; the export is itself recorded. Respond to a legal request with a lawyer once real users exist.
+6. **Speed:** a hidden event disappears from search and its page at once.

@@ -164,7 +164,8 @@ describe("S1 identity and policy acceptance criteria (API boundary)", () => {
     expect((await api.patch({ timeZone: "Europe/London" })).status).toBe(200);
     expect((await api.patch({ email: "a@example.com" })).status).toBe(400);
     const row = await repo.findProfile(id);
-    expect(Object.keys(row ?? {}).sort()).toEqual(["clerkUserId", "createdAt", "displayName", "emailPref", "id", "timeZone"]);
+    // The only column about email is the on/off choice: the address itself is never stored.
+    expect(Object.keys(row ?? {}).filter((key) => /mail/i.test(key))).toEqual(["emailPref"]);
   });
 
   it("AC4 the export holds the caller's data and nothing about anyone else", async () => {

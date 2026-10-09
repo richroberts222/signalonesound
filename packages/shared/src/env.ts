@@ -100,6 +100,8 @@ export type ServerEnv = {
   adminUserIds: string[];
   /** Secret the platform scheduler sends to the job endpoints (CRON_SECRET). Null means jobs refuse every call. */
   cronSecret: string | null;
+  /** Key for hashing the network address on public forms (RATE_LIMIT_SALT). Null means a per-process random key is used. */
+  rateLimitSalt: string | null;
 };
 
 /** Reads ADMIN_USER_IDS: a comma-separated list of Clerk user ids. A malformed entry is reported. */
@@ -130,6 +132,8 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
   const adminUserIds = parseAdminUserIds(source, issues);
   const cronSecret = source.CRON_SECRET && source.CRON_SECRET.trim() !== "" ? source.CRON_SECRET : null;
   if (cronSecret !== null && cronSecret.length < 16) issues.push("CRON_SECRET must be at least 16 characters.");
+  const rateLimitSalt = source.RATE_LIMIT_SALT && source.RATE_LIMIT_SALT.trim() !== "" ? source.RATE_LIMIT_SALT : null;
+  if (rateLimitSalt !== null && rateLimitSalt.length < 16) issues.push("RATE_LIMIT_SALT must be at least 16 characters.");
 
   if (appEnv && databaseEnv) {
     // A prod app must use the prod database and nothing else may touch it.
@@ -155,7 +159,7 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
   }
 
   if (issues.length > 0 || !appEnv || !databaseEnv) throw new EnvValidationError(issues);
-  return { appEnv, databaseEnv, databaseUrl, clerkSecretKey, clerkPublishableKey, adminUserIds, cronSecret };
+  return { appEnv, databaseEnv, databaseUrl, clerkSecretKey, clerkPublishableKey, adminUserIds, cronSecret, rateLimitSalt };
 }
 
 export type ClientEnv = {

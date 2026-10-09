@@ -23,6 +23,7 @@ export function createFakeMemberRepo(): MemberRepo {
           displayName: null,
           emailPref: false,
           timeZone: null,
+          suspended: false,
           createdAt: new Date(Date.UTC(2026, 0, 1) + tick++ * 1000),
         });
       }

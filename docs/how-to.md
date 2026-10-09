@@ -127,6 +127,12 @@ Then sign in, claim a church at `/claim-church`, and approve the request at `/ad
 
 ---
 
+## 6d. Moderation (what to do when someone reports something)
+
+Sign in as an admin (see 6b) and open `/admin/moderation` for the report queue and `/admin/audit` for the record of what was done. Every action asks for a reason. Optional: set `RATE_LIMIT_SALT` (a long random value, at least 16 characters) in Vercel and `apps\web\.env.local`; it only makes the report-form limit survive a server restart. The real contact address (for appeals) is yours to choose; see section 10.
+
+---
+
 ## 6c. Set the secret for scheduled jobs (needed for the daily clean-up)
 
 The daily clean-up (saved events 30 days after an event, expired invite links) is called by Vercel with a secret. Without it the clean-up refuses to run (the safe default).

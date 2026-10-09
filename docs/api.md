@@ -180,6 +180,22 @@ The radius "X" in the source plan is undecided: it is the single setting `RADIUS
 
 Nothing returns who saved an event, and no count of saves is exposed. The schedule is in `apps/web/vercel.json`; a test fails if a scheduled path does not exist or a job route is not scheduled.
 
+## Reports and admin moderation (S8, reference application)
+
+| Endpoint | Auth | Purpose |
+| --- | --- | --- |
+| `POST /api/v1/reports` | public | Report an event or a church (`subjectType`, `subjectId`, `reason` from a fixed list, optional `details` up to 1000 characters). No sign-in, no reporter identity is read or stored. At most 5 per network address per day (the address is kept only as a keyed hash for 24 hours); only a public event or an approved church can be reported |
+| `GET /api/v1/admin/overview` | admin | Counts: open reports, pending claims, hidden events, unpublished churches, suspended members |
+| `GET /api/v1/admin/reports?status=` | admin | The report queue (`open`, `dismissed`, `actioned`) |
+| `POST /api/v1/admin/reports/:id/decision` | admin | Dismiss a report or mark it acted on (`409` if already decided) |
+| `POST /api/v1/admin/events/:id/hide` and `/restore` | admin | Hide an event from the public, or make it public again (`409` if it is already in that state) |
+| `POST /api/v1/admin/organizations/:id/unpublish` and `/restore` | admin | Unpublish or restore a church or ministry |
+| `POST /api/v1/admin/members/:userId/suspend` and `/reinstate` | admin | Suspend a member (they cannot change events or submit claims; they can still browse, export and delete); `eventsAction` says whether the events of the churches they manage stay public or are hidden. An admin cannot be suspended |
+| `GET /api/v1/admin/audit/search?actor=&subject=&from=&to=&limit=` | admin | The audit log, filtered |
+| `GET /api/v1/admin/audit/export` | admin | The same, for a legal request; the export is itself written to the audit log |
+
+Every admin write needs a non-empty reason and is written to the audit log in the same single database statement as the change, so a change without its entry (or the reverse) cannot happen and a repeated change writes nothing. Every admin route answers `404` to anyone who is not an admin, and the admin list is checked on every request. The people affected by a hide, an unpublish or a suspension are emailed what happened, the reason and how to appeal, with no one else's details; until an email provider is chosen the email port records only that nothing was sent.
+
 ## Unexpected-error reporting
 
 `apiRoute` passes `reportUnexpectedError` (`lib/api/report.ts`) as the adapter's `onUnexpected` hook. It writes one structured stderr line with the error class and, for `DatabaseError`, the operation and kind only (never message, cause, stack, request data, or identity). This is a stopgap sink, not a logging system; replace the sink when one is chosen. The adapter also reports failures that escape the normal path (for example response serialization).

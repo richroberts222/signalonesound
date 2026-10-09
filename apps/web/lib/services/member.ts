@@ -9,7 +9,7 @@ import {
 
 import type { AcceptanceRow, MemberRepo, ProfileRow } from "../../db/member";
 import type { ServiceContext } from "./context";
-import { policyReacceptanceRequired, validationFailed } from "./errors";
+import { ServiceError, policyReacceptanceRequired, validationFailed } from "./errors";
 
 // Service for the member's own identity data (S1, docs/features/s1-identity-and-policy.md). The
 // user id always comes from the authenticated context, never from a request, so a member can only
@@ -58,9 +58,23 @@ export function createMemberService({ repo, identity, now = () => new Date() }: 
     if (accepted !== CURRENT_POLICY_VERSION) throw policyReacceptanceRequired();
   }
 
+  /** A suspended member cannot change events or submit claims (S8); they can still browse, export and delete. */
+  async function requireNotSuspended(userId: string): Promise<void> {
+    const profile = await repo.findProfile(userId);
+    if (profile?.suspended) throw new ServiceError("forbidden", "Your account is suspended. See the contact page to appeal.");
+  }
+
+  /** What changing events and claiming churches need: the current policy accepted and not suspended. */
+  async function requireActiveMember(userId: string): Promise<void> {
+    await requireAccepted(userId);
+    await requireNotSuspended(userId);
+  }
+
   return {
     /** Throws `policy_reacceptance_required` unless the member accepted the current policy. */
     requireAccepted,
+    requireNotSuspended,
+    requireActiveMember,
 
     /** The caller's profile, created on first sign-in. Allowed before accepting the policy. */
     async getProfile(ctx: ServiceContext): Promise<Profile> {

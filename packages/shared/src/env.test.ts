@@ -255,3 +255,18 @@ describe("parseServerEnv CRON_SECRET", () => {
     expect(() => parseServerEnv({ ...base, CRON_SECRET: "short" })).toThrow(/CRON_SECRET/);
   });
 });
+
+describe("parseServerEnv RATE_LIMIT_SALT", () => {
+  const base = {
+    DATABASE_ENV: "dev",
+    DATABASE_URL: ["postgres", "://placeholder-user:placeholder-pass@placeholder.example/db"].join(""),
+    CLERK_SECRET_KEY: "sk_test_REPLACE_ME",
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_REPLACE_ME",
+  };
+
+  it("is null when unset and read when long enough; a short one is refused", () => {
+    expect(parseServerEnv(base).rateLimitSalt).toBeNull();
+    expect(parseServerEnv({ ...base, RATE_LIMIT_SALT: "a-long-enough-salt-value" }).rateLimitSalt).toBe("a-long-enough-salt-value");
+    expect(() => parseServerEnv({ ...base, RATE_LIMIT_SALT: "short" })).toThrow(/RATE_LIMIT_SALT/);
+  });
+});
