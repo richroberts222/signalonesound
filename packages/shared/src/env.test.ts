@@ -8,7 +8,7 @@ import {
   parseClientEnv,
   parseDatabaseEnv,
   parseMobileClientEnv,
-  parseServerEnv,
+  parseServerEnv, parseAdminUserIds,
 } from "./env";
 
 const valid = {
@@ -212,5 +212,27 @@ describe("isClientExposedName", () => {
     expect(isClientExposedName("NEXT_PUBLIC_X")).toBe(true);
     expect(isClientExposedName("EXPO_PUBLIC_X")).toBe(true);
     expect(isClientExposedName("DATABASE_URL")).toBe(false);
+  });
+});
+
+describe("parseAdminUserIds", () => {
+  it("is empty when unset (nobody is an admin by default)", () => {
+    expect(parseAdminUserIds({}, [])).toEqual([]);
+    expect(parseAdminUserIds({ ADMIN_USER_IDS: "  " }, [])).toEqual([]);
+  });
+
+  it("reads a comma-separated list of Clerk user ids, trimmed and de-duplicated", () => {
+    expect(parseAdminUserIds({ ADMIN_USER_IDS: "user_AAAAAAAA1, user_BBBBBBBB2 ,user_AAAAAAAA1" }, [])).toEqual([
+      "user_AAAAAAAA1",
+      "user_BBBBBBBB2",
+    ]);
+  });
+
+  it("reports a malformed entry and grants nobody (fails closed)", () => {
+    for (const bad of ["admin", "user_x", "user_AAAAAAAA1,*", "user_AAAAAAAA1;user_BBBBBBBB2"]) {
+      const issues: string[] = [];
+      expect(parseAdminUserIds({ ADMIN_USER_IDS: bad }, issues), bad).toEqual([]);
+      expect(issues, bad).toHaveLength(1);
+    }
   });
 });

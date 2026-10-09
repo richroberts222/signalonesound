@@ -22,3 +22,4 @@ export const validationFailed = (
 ) => new ServiceError("validation_failed", message, fieldErrors);
 export const policyReacceptanceRequired = () =>
   new ServiceError("policy_reacceptance_required", "Please accept the current Terms and Privacy Policy to continue");
+export const rateLimited = (message = "Too many requests. Please try again later.") => new ServiceError("rate_limited", message);

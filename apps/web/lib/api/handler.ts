@@ -3,7 +3,7 @@ import { parseInput } from "@signalone/validation";
 import type { z } from "zod";
 import { UnauthenticatedError } from "../auth/errors";
 import { createServiceContext, type ServiceContext } from "../services/context";
-import { validationFailed } from "../services/errors";
+import { notFound, validationFailed } from "../services/errors";
 import { runService } from "../services/run";
 
 // Reusable HTTP adapter for API route handlers (/docs/api.md). It owns
@@ -50,12 +50,16 @@ export type ApiRouteOptions<A extends Auth, S extends z.ZodType, T> = {
   auth: A;
   /** Untrusted input schema. `body` is parsed JSON; `query` is the URL search params. */
   input?: { schema: S; source?: "body" | "query" };
+  /** Path parameters (for example `[id]` in the route folder), validated like any other input. */
+  params?: { schema: z.ZodType };
   /** Thin: call a service with the validated input. Public routes get a null context. */
   handle: (
     ctx: A extends "required" ? ServiceContext : ServiceContext | null,
     input: z.output<S>,
     /** The raw request, for the rare handler that must verify the exact bytes (a signed webhook). */
     request: Request,
+    /** The validated path parameters; empty when the route declares none. */
+    params: Record<string, string>,
   ) => Promise<T>;
 };
 
@@ -81,8 +85,8 @@ async function readInput(request: Request, source: "body" | "query"): Promise<un
 export function createApiRoute(deps: ApiDeps) {
   return function route<A extends Auth, S extends z.ZodType, T>(
     options: ApiRouteOptions<A, S, T>,
-  ): (request: Request) => Promise<Response> {
-    return async (request) => {
+  ): (request: Request, routeContext?: { params?: Promise<Record<string, string>> }) => Promise<Response> {
+    return async (request, routeContext) => {
       try {
         const result = await runService(async () => {
           let ctx: ServiceContext | null = null;
@@ -100,7 +104,14 @@ export function createApiRoute(deps: ApiDeps) {
             }
             input = parsed.data;
           }
-          return options.handle(ctx as Parameters<typeof options.handle>[0], input, request);
+          let params: Record<string, string> = {};
+          if (options.params) {
+            const parsedParams = parseInput(options.params.schema, (await routeContext?.params) ?? {});
+            // A malformed path parameter can never name a real resource, so it is "not found".
+            if (!parsedParams.ok) throw notFound();
+            params = parsedParams.data as Record<string, string>;
+          }
+          return options.handle(ctx as Parameters<typeof options.handle>[0], input, request, params);
         }, deps.onUnexpected);
         return toResponse(result);
       } catch (error) {

@@ -96,7 +96,21 @@ export type ServerEnv = {
   /** SERVER ONLY. */
   clerkSecretKey: string;
   clerkPublishableKey: string;
+  /** Clerk user ids of the platform admins (ADMIN_USER_IDS, comma separated). Empty means nobody. */
+  adminUserIds: string[];
 };
+
+/** Reads ADMIN_USER_IDS: a comma-separated list of Clerk user ids. A malformed entry is reported. */
+export function parseAdminUserIds(source: EnvSource, issues: string[]): string[] {
+  const raw = source.ADMIN_USER_IDS;
+  if (raw === undefined || raw.trim() === "") return [];
+  const ids = raw.split(",").map((id) => id.trim()).filter((id) => id !== "");
+  if (ids.some((id) => !/^user_[A-Za-z0-9]{8,64}$/.test(id))) {
+    issues.push("ADMIN_USER_IDS must be a comma-separated list of Clerk user ids (user_...).");
+    return [];
+  }
+  return [...new Set(ids)];
+}
 
 /**
  * Validate server-side configuration. Every problem is collected and reported
@@ -111,6 +125,7 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
   const databaseUrl = readDatabaseUrl(source, issues);
   const clerkSecretKey = readRequired(source, "CLERK_SECRET_KEY", issues);
   const clerkPublishableKey = readRequired(source, "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", issues);
+  const adminUserIds = parseAdminUserIds(source, issues);
 
   if (appEnv && databaseEnv) {
     // A prod app must use the prod database and nothing else may touch it.
@@ -136,7 +151,7 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
   }
 
   if (issues.length > 0 || !appEnv || !databaseEnv) throw new EnvValidationError(issues);
-  return { appEnv, databaseEnv, databaseUrl, clerkSecretKey, clerkPublishableKey };
+  return { appEnv, databaseEnv, databaseUrl, clerkSecretKey, clerkPublishableKey, adminUserIds };
 }
 
 export type ClientEnv = {

@@ -94,6 +94,16 @@ const OPTIONAL_CONTRACTS: Record<string, { exportName: string; direction: Direct
   acceptPolicyRequest: { exportName: "acceptPolicySchema", direction: "input" },
   profileResponse: { exportName: "profileSchema", direction: "output" },
   dataExportResponse: { exportName: "dataExportSchema", direction: "output" },
+  claimOrganizationRequest: { exportName: "claimOrganizationSchema", direction: "input" },
+  patchOrganizationRequest: { exportName: "patchOrganizationSchema", direction: "input" },
+  decideRequestRequest: { exportName: "decideRequestSchema", direction: "input" },
+  revokeRequest: { exportName: "revokeSchema", direction: "input" },
+  publicOrganizationResponse: { exportName: "publicOrganizationSchema", direction: "output" },
+  myOrganizationsResponse: { exportName: "myOrganizationsSchema", direction: "output" },
+  claimResultResponse: { exportName: "claimResultSchema", direction: "output" },
+  adminRequestsResponse: { exportName: "adminRequestsSchema", direction: "output" },
+  decisionResultResponse: { exportName: "decisionResultSchema", direction: "output" },
+  auditLogResponse: { exportName: "auditLogSchema", direction: "output" },
 };
 for (const [name, { exportName, direction }] of Object.entries(OPTIONAL_CONTRACTS)) {
   const schema = (validation as Record<string, unknown>)[exportName] as z.ZodType | undefined;

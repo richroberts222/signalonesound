@@ -4,7 +4,7 @@ Who may do what, how roles are granted, and how every permission is checked. Aut
 
 **Standards followed** (established practice; confirm before citing externally): OWASP ASVS V4 (access control), OWASP API Security Top 10 (API1 object-level and API5 function-level authorization), role-based access control (NIST RBAC model), least privilege, deny by default.
 
-**Status:** the rules below are decided. **Only ownership checks exist in code today.** No role table, admin allow-list or request flow is built (F-AUTH-001, launch gate).
+**Status:** the rules below are decided. **Built in S2 (reference application):** the manager request-and-approve flow, the `organization_member` table (a person's claim or standing, with the admin's decision), the admin allow-list (`ADMIN_USER_IDS`), the append-only audit log, and denial tests per role and per organization (`apps/web/lib/api/organizations.acceptance.test.ts`). Ownership checks exist from earlier slices. Moderation roles are not built (S8).
 
 ## 1. Roles (decided by the owner, Q-010)
 
@@ -50,5 +50,5 @@ Each feature specification includes a permission table; the example below is the
 | --- | --- | --- |
 | Deny by default; ownership from the trusted actor | `authorize()` tests | Proven (five breaks, auth ledger) |
 | Every top-level route has a protection decision | `proxy.test.ts` | Proven (removing protection fails 5 of 12 tests) |
-| Roles in the database, request then approve, admin allow-list, audit trail | Not built | Not proven; launch gate (F-AUTH-001, F-AUTH-004) |
+| Roles in the database, request then approve, admin allow-list, audit trail | Built in S2 (`organization_member`, `ADMIN_USER_IDS`, `audit_log`) | Proven by break-it checks: removing the admin check, the per-organization check, the daily limit or the approved-only public view each fails a test |
 | A denial test per role per protected action | Feature acceptance criteria | Applies when features exist |

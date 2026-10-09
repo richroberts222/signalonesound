@@ -1,10 +1,14 @@
 import "server-only";
 
 import { createMemberRepo } from "../db/member";
+import { createOrganizationsRepo } from "../db/organizations";
+import { createAdminDirectory } from "./auth/admin";
+import { getServerEnv } from "./env/server";
 import { createProofItemRepo } from "../db/proof-items";
 import { clerkIdentityAdmin } from "./auth/clerk-identity-admin";
 import { getDb } from "../db";
 import { createMemberService, type MemberService } from "./services/member";
+import { createOrganizationsService, type OrganizationsService } from "./services/organizations";
 import { createProofItemService, type ProofItemService } from "./services/proof-items";
 
 // Composition root (/docs/services.md): the only place that wires `getDb()` to
@@ -20,4 +24,14 @@ let member: MemberService | undefined;
 
 export function getMemberService(): MemberService {
   return (member ??= createMemberService({ repo: createMemberRepo(getDb()), identity: clerkIdentityAdmin }));
+}
+
+let organizations: OrganizationsService | undefined;
+
+export function getOrganizationsService(): OrganizationsService {
+  return (organizations ??= createOrganizationsService({
+    repo: createOrganizationsRepo(getDb()),
+    admins: createAdminDirectory(getServerEnv().adminUserIds),
+    requireAccepted: (userId) => getMemberService().requireAccepted(userId),
+  }));
 }

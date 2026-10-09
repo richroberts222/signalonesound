@@ -36,6 +36,13 @@
       "when": 1791545843859,
       "tag": "0004_user_profile_and_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791548863496,
+      "tag": "0005_organizations_and_roles",
+      "breakpoints": true
     }
   ]
 }

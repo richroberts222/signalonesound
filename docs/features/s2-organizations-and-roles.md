@@ -69,3 +69,12 @@ Who in the platform may approve (the shared admin login for now); what evidence 
 ## Done checklist
 
 AC1 to AC13 and controls ticked with proof [Fable]; permission matrix doc and tests agree; CI green; docs updated.
+
+## Build notes (decisions made while building)
+
+* **Admin allow-list** is the environment value `ADMIN_USER_IDS` (a comma-separated list of Clerk user ids). The owner sets it per Vercel environment and in `apps/web/.env.local`; with no value nobody is an admin.
+* **Admin endpoints answer `404`** to everyone else, so they cannot be probed (the draft said `403` for the approval endpoints; `404` matches S8).
+* **Invite a manager** is a link to the claim page with the organization name filled in (`/claim-church?name=...`); the invited person submits their own request and an admin approves it. No invitee data is stored.
+* **Organization names** are matched case- and spacing-insensitively; a second claim on the same name attaches to the same organization (AC5).
+* **AC13 (a deleted sole manager)** is enforced in the account-deletion SQL (`db/member.ts`): the organization goes back to `pending`, the member rows are deleted and the audit log is unlinked from the person. It needs a database to prove, so it is covered by the integration test that runs with the dev database (`pnpm test:integration`).
+* **Screens:** `/claim-church` (the form), `/account/organizations` (the person's requests and their standing) and `/admin/manager-requests` (the queue). The existing mock dashboard and admin screens are re-wired in S3 and S8.

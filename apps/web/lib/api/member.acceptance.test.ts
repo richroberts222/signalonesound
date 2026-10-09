@@ -8,6 +8,7 @@ import {
   resultSchema,
 } from "@signalone/validation";
 
+import { MEMBER_TABLES } from "../../db/member";
 import { createFakeMemberRepo } from "../../db/member.fake";
 import { createMemberService, type IdentityAdmin } from "../services/member";
 import { createApiRoute } from "./handler";
@@ -175,7 +176,7 @@ describe("S1 identity and policy acceptance criteria (API boundary)", () => {
     const r = await a.exportData();
     expect(r.status).toBe(200);
     const parsed = dataExportSchema.parse(r.json.data);
-    expect(Object.keys(parsed.data).sort()).toEqual(["policy_acceptance", "proof_item", "user_profile"]);
+    expect(Object.keys(parsed.data).sort()).toEqual([...MEMBER_TABLES].sort()); // one list, so a new table cannot be forgotten
     const text = JSON.stringify(parsed);
     expect(text).toContain("Ada Export");
     expect(text).not.toContain("Bea Secret");

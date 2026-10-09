@@ -59,6 +59,9 @@ export function createMemberService({ repo, identity, now = () => new Date() }: 
   }
 
   return {
+    /** Throws `policy_reacceptance_required` unless the member accepted the current policy. */
+    requireAccepted,
+
     /** The caller's profile, created on first sign-in. Allowed before accepting the policy. */
     async getProfile(ctx: ServiceContext): Promise<Profile> {
       const row = await repo.ensureProfile(ctx.actor.userId);
