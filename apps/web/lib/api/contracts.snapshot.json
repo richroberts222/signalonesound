@@ -2456,6 +2456,326 @@
         }
       },
       "additionalProperties": false
+    },
+    "createAlertRequest": {
+      "type": "object",
+      "properties": {
+        "place": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "radius": {
+          "default": 25,
+          "anyOf": [
+            {
+              "type": "string",
+              "const": "any"
+            },
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          ]
+        },
+        "timeframeDays": {
+          "default": 30,
+          "anyOf": [
+            {
+              "type": "number",
+              "const": 7
+            },
+            {
+              "type": "number",
+              "const": 14
+            },
+            {
+              "type": "number",
+              "const": 30
+            }
+          ]
+        },
+        "types": {
+          "default": [],
+          "maxItems": 12,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "tent-revivals",
+              "church-revivals",
+              "baptisms",
+              "worship-nights",
+              "prayer-gatherings",
+              "healing-deliverance",
+              "conferences",
+              "youth-events",
+              "womens-events",
+              "mens-events",
+              "family-events",
+              "other"
+            ]
+          }
+        },
+        "immediate": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "place"
+      ],
+      "additionalProperties": false
+    },
+    "patchAlertRequest": {
+      "type": "object",
+      "properties": {
+        "place": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "radius": {
+          "anyOf": [
+            {
+              "type": "string",
+              "const": "any"
+            },
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          ]
+        },
+        "timeframeDays": {
+          "anyOf": [
+            {
+              "type": "number",
+              "const": 7
+            },
+            {
+              "type": "number",
+              "const": 14
+            },
+            {
+              "type": "number",
+              "const": 30
+            }
+          ]
+        },
+        "types": {
+          "maxItems": 12,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "tent-revivals",
+              "church-revivals",
+              "baptisms",
+              "worship-nights",
+              "prayer-gatherings",
+              "healing-deliverance",
+              "conferences",
+              "youth-events",
+              "womens-events",
+              "mens-events",
+              "family-events",
+              "other"
+            ]
+          }
+        },
+        "immediate": {
+          "type": "boolean"
+        },
+        "paused": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "alertResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "placeLabel": {
+          "type": "string"
+        },
+        "radius": {
+          "anyOf": [
+            {
+              "type": "string",
+              "const": "any"
+            },
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          ]
+        },
+        "timeframeDays": {
+          "anyOf": [
+            {
+              "type": "number",
+              "const": 7
+            },
+            {
+              "type": "number",
+              "const": 14
+            },
+            {
+              "type": "number",
+              "const": 30
+            }
+          ]
+        },
+        "types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "immediate": {
+          "type": "boolean"
+        },
+        "paused": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "placeLabel",
+        "radius",
+        "timeframeDays",
+        "types",
+        "immediate",
+        "paused",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    },
+    "alertListResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "placeLabel": {
+                "type": "string"
+              },
+              "radius": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": "any"
+                  },
+                  {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  }
+                ]
+              },
+              "timeframeDays": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "const": 7
+                  },
+                  {
+                    "type": "number",
+                    "const": 14
+                  },
+                  {
+                    "type": "number",
+                    "const": 30
+                  }
+                ]
+              },
+              "types": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "immediate": {
+                "type": "boolean"
+              },
+              "paused": {
+                "type": "boolean"
+              },
+              "createdAt": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "placeLabel",
+              "radius",
+              "timeframeDays",
+              "types",
+              "immediate",
+              "paused",
+              "createdAt"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "registerPushTokenRequest": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 200
+        },
+        "platform": {
+          "type": "string",
+          "enum": [
+            "ios",
+            "android"
+          ]
+        }
+      },
+      "required": [
+        "token",
+        "platform"
+      ],
+      "additionalProperties": false
+    },
+    "notificationSettingsResponse": {
+      "type": "object",
+      "properties": {
+        "reminders": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "reminders"
+      ],
+      "additionalProperties": false
     }
   }
 }

@@ -28,6 +28,9 @@ export default async function AccountPage() {
   return (
     <>
       <h1 className="font-heading text-3xl font-extrabold tracking-tight">My account</h1>
+      <Link href="/alerts" data-testid="account-alerts-link" className={buttonVariants({ variant: "outline", className: "w-fit" })}>
+        My alerts
+      </Link>
       <Link href="/saved" data-testid="account-saved-link" className={buttonVariants({ variant: "outline", className: "w-fit" })}>
         Saved events
       </Link>

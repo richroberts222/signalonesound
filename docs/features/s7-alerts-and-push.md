@@ -68,3 +68,14 @@ The notification policy values above (yes or adjust); push and email vendors and
 ## Done checklist
 
 AC1 to AC11 and controls ticked; real-device push verified on iPhone and Android; `pnpm validate` clean; CI green; docs updated.
+
+## Build notes (decisions made while building)
+
+* **Push is built and email is not.** Push is the source requirement; the email digest is conditional on an email vendor (cost) and is left out. The email port exists (from S8) for when the owner decides. The push adapter is Expo's free service, switched on by `PUSH_PROVIDER=expo`; the default sends nothing.
+* **How a phone gets a push address (AC6, the app asks permission when an alert is created)** is mobile code (S5); the API (`POST /me/push-tokens`) is built and tested.
+* **Quiet hours are fixed** (9 pm to 8 am) and use the member's time zone from their profile (set by the account page), with Central time if none. A member-editable quiet-hours control is not built; the spec's inventory lists it, but no acceptance criterion needs it.
+* **The scheduler.** The notification job runs once a day (`30 14 * * *`) because the free Vercel plan allows only daily jobs. Quiet hours and the 9 am digest are honored when the job runs, so a daily run delivers a day's queue at about 9:30 am Central. For alerts that arrive when they happen, the owner would need a plan that allows frequent scheduled jobs (about 20 dollars a month on Vercel Pro); this is a cost decision.
+* **Reminders** are queued by the same job from saved events (a day before and two hours before); with a daily run the two-hour reminder is only useful on a more frequent schedule.
+* **Who is told about a change:** members who saved the event. The hook runs after publish, edit (time or place), cancel, delete and hide, and never fails the action that caused it.
+* **Unsubscribe** needs `UNSUBSCRIBE_SECRET` (at least 32 characters, never changed afterwards); the links are for the email and for in-app messages that carry one. Push messages carry no link.
+* **Screens:** `/alerts` (create, pause, delete, reminders) and `/unsubscribe/<link>`. Mobile alert screens arrive in S5.

@@ -19,6 +19,9 @@ export * from "./saved-client";
 // S8 admin and moderation (docs/features/s8-admin-and-moderation.md)
 export * from "./moderation";
 export * from "./moderation-client";
+// S7 alerts and push (docs/features/s7-alerts-and-push.md)
+export * from "./alerts";
+export * from "./alerts-client";
 // proof-only (removed by the boilerplate init; see /docs/boilerplate.md)
 export * from "./proof-item";
 export * from "./proof-item-client";

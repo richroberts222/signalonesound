@@ -21,8 +21,8 @@ vi.mock("@clerk/nextjs/server", () => ({
 
 // Every top-level entry in app/ must be listed here. Adding a route directory fails
 // this test until its protection is decided and recorded.
-const PROTECTED = ["accept-terms", "account", "admin", "claim-church", "dashboard", "manage", "proof", "saved"];
-const PUBLIC = ["about", "api", "churches", "contact", "discover", "events", "invite", "privacy", "sign-in", "sign-up", "terms"]; // api routes authenticate themselves (docs/auth.md)
+const PROTECTED = ["accept-terms", "account", "admin", "alerts", "claim-church", "dashboard", "manage", "proof", "saved"];
+const PUBLIC = ["about", "api", "churches", "contact", "discover", "events", "invite", "privacy", "sign-in", "sign-up", "terms", "unsubscribe"]; // api routes authenticate themselves (docs/auth.md)
 
 async function run(pathname: string) {
   const mod = (await import("./proxy")) as unknown as {
@@ -63,6 +63,16 @@ describe("proxy.ts route protection", () => {
   it.skipIf(!existsSync(join(__dirname, "app", "saved")))("protects /saved (S6)", async () => {
     await run("/saved");
     expect(protect).toHaveBeenCalledTimes(1);
+  });
+
+  it.skipIf(!existsSync(join(__dirname, "app", "alerts")))("protects /alerts (S7)", async () => {
+    await run("/alerts");
+    expect(protect).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps an unsubscribe link public so it works without signing in (S7)", async () => {
+    await run("/unsubscribe/abcdefghijklmnopqrstuvwxyz.signature");
+    expect(protect).not.toHaveBeenCalled();
   });
 
   it("keeps an invite link public so a friend can open it without an account (S6)", async () => {

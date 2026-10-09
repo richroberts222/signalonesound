@@ -102,6 +102,10 @@ export type ServerEnv = {
   cronSecret: string | null;
   /** Key for hashing the network address on public forms (RATE_LIMIT_SALT). Null means a per-process random key is used. */
   rateLimitSalt: string | null;
+  /** Signs one-tap unsubscribe links (UNSUBSCRIBE_SECRET). Null means unsubscribe links are not available. */
+  unsubscribeSecret: string | null;
+  /** Which push service sends messages (PUSH_PROVIDER): "expo" or "none" (nothing is sent). */
+  pushProvider: "expo" | "none";
 };
 
 /** Reads ADMIN_USER_IDS: a comma-separated list of Clerk user ids. A malformed entry is reported. */
@@ -134,6 +138,11 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
   if (cronSecret !== null && cronSecret.length < 16) issues.push("CRON_SECRET must be at least 16 characters.");
   const rateLimitSalt = source.RATE_LIMIT_SALT && source.RATE_LIMIT_SALT.trim() !== "" ? source.RATE_LIMIT_SALT : null;
   if (rateLimitSalt !== null && rateLimitSalt.length < 16) issues.push("RATE_LIMIT_SALT must be at least 16 characters.");
+  const unsubscribeSecret = source.UNSUBSCRIBE_SECRET && source.UNSUBSCRIBE_SECRET.trim() !== "" ? source.UNSUBSCRIBE_SECRET : null;
+  if (unsubscribeSecret !== null && unsubscribeSecret.length < 32) issues.push("UNSUBSCRIBE_SECRET must be at least 32 characters.");
+  const rawPush = source.PUSH_PROVIDER?.trim() ?? "";
+  if (rawPush !== "" && rawPush !== "expo" && rawPush !== "none") issues.push('PUSH_PROVIDER must be "expo" or "none".');
+  const pushProvider: "expo" | "none" = rawPush === "expo" ? "expo" : "none";
 
   if (appEnv && databaseEnv) {
     // A prod app must use the prod database and nothing else may touch it.
@@ -159,7 +168,7 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
   }
 
   if (issues.length > 0 || !appEnv || !databaseEnv) throw new EnvValidationError(issues);
-  return { appEnv, databaseEnv, databaseUrl, clerkSecretKey, clerkPublishableKey, adminUserIds, cronSecret, rateLimitSalt };
+  return { appEnv, databaseEnv, databaseUrl, clerkSecretKey, clerkPublishableKey, adminUserIds, cronSecret, rateLimitSalt, unsubscribeSecret, pushProvider };
 }
 
 export type ClientEnv = {

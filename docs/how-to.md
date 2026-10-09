@@ -143,6 +143,17 @@ The daily clean-up (saved events 30 days after an event, expired invite links) i
 
 ---
 
+## 6e. Turn on push messages and unsubscribe links (when you are ready to test alerts)
+
+Alerts are built, but nothing is actually sent until you switch it on, so development never messages anyone.
+
+1. In Vercel, **Environment Variables**, add `PUSH_PROVIDER` with the value `expo` (Expo's push service is free at small scale; it sees the phone's push address and the short title and place, nothing else).
+2. Add `UNSUBSCRIBE_SECRET`: a long random value (at least 32 characters). Never change it afterwards, or links already sent stop working.
+3. Alerts are sent by the daily job (about 9:30 am Central). On the free Vercel plan jobs can run only once a day. If you want alerts to arrive as events are posted, you would need a paid Vercel plan (about 20 dollars a month); tell Claude and it will change the schedule.
+4. The phone app asks for permission to send messages when you create your first alert (this arrives with the phone screens).
+
+---
+
 ## 7. Database restore drill (about 20 minutes, in the Neon console)
 
 This proves the database can be restored, which is a launch requirement. The steps and the log to fill in are in `/docs/database.md` section 12.4. Ask Claude to walk you through it when you are at the PC; it needs your Neon login.

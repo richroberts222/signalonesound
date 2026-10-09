@@ -196,6 +196,20 @@ Nothing returns who saved an event, and no count of saves is exposed. The schedu
 
 Every admin write needs a non-empty reason and is written to the audit log in the same single database statement as the change, so a change without its entry (or the reverse) cannot happen and a repeated change writes nothing. Every admin route answers `404` to anyone who is not an admin, and the admin list is checked on every request. The people affected by a hide, an unpublish or a suspension are emailed what happened, the reason and how to appeal, with no one else's details; until an email provider is chosen the email port records only that nothing was sent.
 
+## Alerts, push and notification settings (S7, reference application)
+
+| Endpoint | Auth | Purpose |
+| --- | --- | --- |
+| `GET /api/v1/me/alerts`, `POST /api/v1/me/alerts` | member (create: policy accepted) | The caller's alerts; create one (`place` as a ZIP or `City, ST`, `radius` 1 to the radius setting or `any`, `timeframeDays` 7, 14 or 30, `types`, `immediate`). At most 10. The place becomes a point rounded to about 1 km with its label; an unknown place is `400` |
+| `PATCH /api/v1/me/alerts/:id`, `DELETE /api/v1/me/alerts/:id` | member | Edit, pause (`paused`) or delete; another member's alert is `404` |
+| `POST /api/v1/me/push-tokens`, `DELETE /api/v1/me/push-tokens/:id` | member | Register a phone's push address (a phone belongs to one member at a time); forget it |
+| `GET /api/v1/me/notification-settings`, `PUT` | member | Reminders for saved events on or off |
+| `PUT/DELETE /api/v1/me/organization-mutes/:orgId` | member | Stop (or resume) hearing about one church; always succeeds |
+| `POST /api/v1/unsubscribe/:token` | public (signed link) | One-tap unsubscribe: mutes the church or pauses the alert the link was made for; a forged, altered or expired link is `404`; with no `UNSUBSCRIBE_SECRET` configured it is `400` |
+| `GET /api/v1/internal/jobs/notifications` | scheduler secret | Queues reminders, sends what is due (quiet hours, caps and the monthly ceiling apply) and removes rows 30 days after they finish |
+
+**Policy** (`apps/web/lib/notifications/policy.ts`, proven by time-travel tests): nothing is sent between 9 pm and 8 am on the member's clock; a new-event alert goes in one daily digest at 9 am unless the member chose immediate alerts, and then only one immediate alert is sent a day; at most 3 new-event alerts per church per member per week; reminders and changes to a saved event are not capped but wait out quiet hours; changes to an event are coalesced to one message an hour. A message holds only a title and a place. Queuing is idempotent; a provider failure retries with backoff (2, 4, 8, 16 minutes) and then drops with a note; a push address the service rejects is deleted; a monthly ceiling (9,000) stops sending and raises a problem before the free tier is exceeded.
+
 ## Unexpected-error reporting
 
 `apiRoute` passes `reportUnexpectedError` (`lib/api/report.ts`) as the adapter's `onUnexpected` hook. It writes one structured stderr line with the error class and, for `DatabaseError`, the operation and kind only (never message, cause, stack, request data, or identity). This is a stopgap sink, not a logging system; replace the sink when one is chosen. The adapter also reports failures that escape the normal path (for example response serialization).

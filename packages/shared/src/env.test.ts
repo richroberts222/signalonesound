@@ -270,3 +270,25 @@ describe("parseServerEnv RATE_LIMIT_SALT", () => {
     expect(() => parseServerEnv({ ...base, RATE_LIMIT_SALT: "short" })).toThrow(/RATE_LIMIT_SALT/);
   });
 });
+
+describe("parseServerEnv UNSUBSCRIBE_SECRET and PUSH_PROVIDER", () => {
+  const base = {
+    DATABASE_ENV: "dev",
+    DATABASE_URL: ["postgres", "://placeholder-user:placeholder-pass@placeholder.example/db"].join(""),
+    CLERK_SECRET_KEY: "sk_test_REPLACE_ME",
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_REPLACE_ME",
+  };
+
+  it("default to no secret and no push provider", () => {
+    const env = parseServerEnv(base);
+    expect(env.unsubscribeSecret).toBeNull();
+    expect(env.pushProvider).toBe("none");
+  });
+
+  it("read a long secret and the expo provider; refuse a short secret or an unknown provider", () => {
+    const long = "a-long-enough-secret-value-of-32-chars";
+    expect(parseServerEnv({ ...base, UNSUBSCRIBE_SECRET: long, PUSH_PROVIDER: "expo" })).toMatchObject({ unsubscribeSecret: long, pushProvider: "expo" });
+    expect(() => parseServerEnv({ ...base, UNSUBSCRIBE_SECRET: "too-short" })).toThrow(/UNSUBSCRIBE_SECRET/);
+    expect(() => parseServerEnv({ ...base, PUSH_PROVIDER: "onesignal" })).toThrow(/PUSH_PROVIDER/);
+  });
+});

@@ -3,6 +3,7 @@ import "server-only";
 import { createEventsRepo } from "../db/events";
 import { createMemberRepo } from "../db/member";
 import { createModerationRepo } from "../db/moderation";
+import { createNotificationsRepo } from "../db/notifications";
 import { createSavedRepo } from "../db/saved";
 import { createOrganizationsRepo } from "../db/organizations";
 import { createAdminDirectory } from "./auth/admin";
@@ -15,7 +16,10 @@ import { createEventsService, type EventsService } from "./services/events";
 import { searchPlaces } from "./places/gazetteer";
 import { gazetteerGeocoder } from "./places/geocoder";
 import { createMemberService, type MemberService } from "./services/member";
+import { createAlertsService, type AlertsService } from "./services/alerts";
 import { createModerationService, type ModerationService } from "./services/moderation";
+import { createNotifier, type Notifier } from "./services/notifier";
+import { createExpoPush, createLoggingPush } from "./notifications/push";
 import { createOrganizationsService, type OrganizationsService } from "./services/organizations";
 import { clerkEmailLookup } from "./auth/clerk-email-lookup";
 import { createLoggingEmail } from "./messaging/email";
@@ -57,6 +61,7 @@ export function getEventsService(): EventsService {
     admins: createAdminDirectory(getServerEnv().adminUserIds),
     requireAccepted: (userId) => getMemberService().requireActiveMember(userId),
     geocoder: gazetteerGeocoder,
+    onEvent: (kind, eventId) => notifyEvent(kind, eventId),
   }));
 }
 
@@ -98,5 +103,41 @@ export function getModerationService(): ModerationService {
     email: createLoggingEmail(),
     emails: clerkEmailLookup,
     addressSalt: getServerEnv().rateLimitSalt ?? processSalt,
+    onEventHidden: (eventId) => notifyEvent("changed", eventId),
   }));
+}
+
+let alerts: AlertsService | undefined;
+
+export function getAlertsService(): AlertsService {
+  return (alerts ??= createAlertsService({
+    repo: createNotificationsRepo(getDb()),
+    places: searchPlaces,
+    requireAccepted: (userId) => getMemberService().requireAccepted(userId),
+    unsubscribeSecret: getServerEnv().unsubscribeSecret,
+  }));
+}
+
+let notifier: Notifier | undefined;
+
+export function getNotifier(): Notifier {
+  return (notifier ??= createNotifier({
+    repo: createNotificationsRepo(getDb()),
+    events: createEventsRepo(getDb()),
+    push: getServerEnv().pushProvider === "expo" ? createExpoPush() : createLoggingPush(),
+    onProblem: (name) => console.error(JSON.stringify({ event: "notifier.problem", name })),
+  }));
+}
+
+/**
+ * Tells the notifier about an event, and never lets that fail the request that caused it: a problem
+ * sending notifications must not stop someone publishing an event.
+ */
+export async function notifyEvent(kind: "published" | "changed", eventId: string): Promise<void> {
+  try {
+    if (kind === "published") await getNotifier().enqueueNewEvent(eventId);
+    else await getNotifier().enqueueEventChange(eventId);
+  } catch (error) {
+    console.error(JSON.stringify({ event: "notifier.enqueue_failed", kind, errorName: error instanceof Error ? error.name : typeof error }));
+  }
 }

@@ -24,6 +24,7 @@ export function createFakeMemberRepo(): MemberRepo {
           emailPref: false,
           timeZone: null,
           suspended: false,
+          reminders: true,
           createdAt: new Date(Date.UTC(2026, 0, 1) + tick++ * 1000),
         });
       }
@@ -61,6 +62,10 @@ export function createFakeMemberRepo(): MemberRepo {
         idempotency_record: [],
         saved_event: [],
         invite_token: [],
+        alert_rule: [],
+        push_token: [],
+        notification_queue: [],
+        org_mute: [],
       };
     },
     async eraseAll(userId) {
