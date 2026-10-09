@@ -1,37 +1,68 @@
+import { useAuth } from "@clerk/expo";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { useMemo } from "react";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { createApiClient, createHelloClient } from "@signalone/validation";
 
+import { AppAuthProvider } from "./auth/AppAuthProvider";
+import { SignInScreen } from "./auth/SignInScreen";
 import { getMobileEnv } from "./config/env";
-import { ProofItemsScreen } from "./proof/ProofItemsScreen";
-import { createMobileProofClient } from "./proof/proofClient";
+import { HelloScreen } from "./hello/HelloScreen";
 
-// Minimal shell that proves the app starts, compiles, loads validated
-// configuration, and can call the shared API client (generic proof feature,
-// Issue 49). No domain screens or navigation yet.
+// S0 walking skeleton (docs/features/s0-walking-skeleton.md): sign in with Clerk, then call the same
+// shared API as the web through the shared client with the session token as a bearer token. No
+// navigation library yet: the tab navigation arrives with the first real screens (S5).
 export default function App() {
-  let status: string;
-  let proof: ReturnType<typeof createMobileProofClient> | null = null;
+  let env: ReturnType<typeof getMobileEnv>;
   try {
-    const env = getMobileEnv();
-    status = `Environment: ${env.appEnv}`;
-    proof = createMobileProofClient({ baseUrl: env.apiBaseUrl });
+    env = getMobileEnv();
   } catch (error) {
     // Messages name the offending variables and never include values.
-    status = error instanceof Error ? error.message : "Invalid configuration.";
+    return <Message text={error instanceof Error ? error.message : "Invalid configuration."} />;
   }
+  if (!env.clerkPublishableKey) {
+    return <Message text="Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY. See docs/environment.md." />;
+  }
+  return (
+    <AppAuthProvider publishableKey={env.clerkPublishableKey}>
+      <Root baseUrl={env.apiBaseUrl} />
+      <StatusBar style="auto" />
+    </AppAuthProvider>
+  );
+}
 
+function Root({ baseUrl }: { baseUrl: string }) {
+  const { isLoaded, isSignedIn, getToken, signOut } = useAuth();
+  const client = useMemo(
+    () => createHelloClient(createApiClient({ baseUrl, getToken: () => getToken() })),
+    // getToken keeps a stable identity for a signed-in session; recreate only when the user changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [baseUrl, isSignedIn],
+  );
+
+  if (!isLoaded) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator accessibilityLabel="Loading" />
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Signal One</Text>
-      <Text style={styles.status}>{status}</Text>
-      {proof && <ProofItemsScreen client={proof} />}
-      <StatusBar style="auto" />
+      {isSignedIn ? <HelloScreen client={client} onSignOut={() => void signOut()} /> : <SignInScreen />}
+    </View>
+  );
+}
+
+function Message({ text }: { text: string }) {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.status}>{text}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
-  title: { fontSize: 24, fontWeight: "600" },
-  status: { marginTop: 12, textAlign: "center" },
+  status: { textAlign: "center" },
 });

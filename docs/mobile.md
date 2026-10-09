@@ -83,7 +83,7 @@ Mobile calls the API through the same shared client as Web (`createApiClient` / 
 
 ## Remaining scaffolding work
 
-1. Add `@clerk/expo`, secure token storage, and an API client (the API contract in `/docs/api.md` and the auth rules in `/docs/auth.md` now exist; this is the first step of the walking skeleton).
-2. Choose a navigation approach when the first feature screens are designed.
+1. ~~Add `@clerk/expo`, secure token storage, and an API client.~~ Done in S0 (`docs/features/s0-walking-skeleton.md`): `@clerk/expo` with the secure token cache (`expo-secure-store`), email and password sign-in, and the shared API client sending the session token as a bearer token. **Not yet proven on a physical device**: that needs the owner's `eas login` and a development build (Expo Go is not used for the proof). Native Clerk features (social sign-in, passkeys) are not set up.
+2. Navigation: S0 uses a single screen behind a sign-in gate and no navigation library. `expo-router` is chosen when the tabbed screens arrive in S5, not in S0, because S0 has one screen and a router would be unproven configuration that cannot be tested here.
 3. Decide store identifiers and EAS project setup.
 4. Decide a component-test approach (for example `jest-expo`) when the first interactive component warrants it.

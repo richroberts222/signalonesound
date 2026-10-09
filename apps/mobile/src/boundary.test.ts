@@ -58,6 +58,17 @@ describe("mobile backend boundary", () => {
     }
   });
 
+  // S0 AC9: the app bundle is public, so no server secret may be named or embedded in it.
+  it("names no server secret and embeds no secret-key shape", () => {
+    const names = ["CLERK_SECRET_KEY", "DATABASE_URL", "DATABASE_ENV", "NEON_API_KEY"];
+    const shapes = [/sk_(?:live|test)_[A-Za-z0-9]{8,}/, /postgres(?:ql)?:\/\/[^\s"']+:[^\s"']+@/];
+    for (const file of [...files, join(root, "eas.json")]) {
+      const text = readFileSync(file, "utf8");
+      for (const name of names) expect(text, `${file} names ${name}`).not.toContain(name);
+      for (const shape of shapes) expect(text, `${file} embeds a secret-shaped value`).not.toMatch(shape);
+    }
+  });
+
   it("does not declare server-only dependencies in package.json", () => {
     const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8")) as {
       dependencies?: Record<string, string>;

@@ -4,6 +4,7 @@ import { CURRENT_API_VERSION } from "@signalone/shared";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
+import * as validation from "@signalone/validation";
 import { apiErrorSchema, emailSchema, idSchema, paginatedSchema, paginationSchema, resultSchema, uuidSchema } from "@signalone/validation";
 
 // API contract compatibility (docs/api.md "Versioning", docs/shared-code.md). Mobile apps cannot be
@@ -23,7 +24,8 @@ export function breakingChanges(path: string, before: Json, after: Json, directi
   const out: string[] = [];
   const at = (message: string) => out.push(`${path}: ${message}`);
 
-  if (before.type !== after.type) at(`type changed from ${String(before.type)} to ${String(after.type)}`);
+  // Compared by value: a nullable type is an array (["string","null"]) and must not differ by identity.
+  if (JSON.stringify(before.type) !== JSON.stringify(after.type)) at(`type changed from ${JSON.stringify(before.type)} to ${JSON.stringify(after.type)}`);
 
   const beforeEnum = before.enum as unknown[] | undefined;
   const afterEnum = (after.enum as unknown[] | undefined) ?? [];
@@ -85,6 +87,17 @@ const CONTRACTS: Record<string, { direction: Direction; schema: z.ZodType }> = {
   paginatedEnvelope: { direction: "output", schema: paginatedSchema(idSchema) },
 };
 
+// Contracts of the throwaway demo slices exist only in the reference application: a generated
+// application removes them, so they are registered only when present and ignored when absent.
+const OPTIONAL_CONTRACTS: Record<string, { exportName: string; direction: Direction }> = {
+  helloRequest: { exportName: "putHelloSchema", direction: "input" },
+  helloResponse: { exportName: "helloSchema", direction: "output" },
+};
+for (const [name, { exportName, direction }] of Object.entries(OPTIONAL_CONTRACTS)) {
+  const schema = (validation as Record<string, unknown>)[exportName] as z.ZodType | undefined;
+  if (schema) CONTRACTS[name] = { direction, schema };
+}
+
 const toJson = (name: string): Json => {
   const { direction, schema } = CONTRACTS[name];
   const json = z.toJSONSchema(schema, { io: direction === "input" ? "input" : "output", unrepresentable: "any" }) as Json;
@@ -105,7 +118,7 @@ describe("shared API contracts are compatible within an API version", () => {
     const saved = JSON.parse(readFileSync(SNAPSHOT, "utf8")) as { apiVersion: string; contracts: Record<string, Json> };
     expect(saved.apiVersion, "the API version changed: create the new version's snapshot deliberately and keep the old version's routes working").toBe(CURRENT_API_VERSION);
     const problems = Object.keys(saved.contracts).flatMap((name) =>
-      name in CONTRACTS ? breakingChanges(name, saved.contracts[name], current.contracts[name], CONTRACTS[name].direction) : [`${name}: contract removed`],
+      name in CONTRACTS ? breakingChanges(name, saved.contracts[name], current.contracts[name], CONTRACTS[name].direction) : name in OPTIONAL_CONTRACTS ? [] : [`${name}: contract removed`],
     );
     expect(problems).toEqual([]);
   });
@@ -141,6 +154,13 @@ describe("shared API contracts are compatible within an API version", () => {
     const optionalNow = clone();
     optionalNow.required = [];
     expect(breakingChanges("c", base, optionalNow, "output")[0]).toMatch(/no longer always present/);
+
+    const nullableBefore: Json = { type: "object", properties: { note: { type: ["string", "null"] } }, required: ["note"] };
+    const nullableAfter = JSON.parse(JSON.stringify(nullableBefore)) as Json;
+    expect(breakingChanges("c", nullableBefore, nullableAfter, "output")).toEqual([]); // an unchanged nullable field is not a change
+    const nullableDropped = JSON.parse(JSON.stringify(nullableBefore)) as Json;
+    (nullableDropped.properties as Record<string, Json>).note.type = "string";
+    expect(breakingChanges("c", nullableBefore, nullableDropped, "output")[0]).toMatch(/type changed/);
 
     const tighter = clone();
     props(tighter).id.maxLength = 50;

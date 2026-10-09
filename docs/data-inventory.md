@@ -20,4 +20,7 @@ New tables are added to the schema and to this table in the same pull request.
 | proof_item.owner_id | T2 | Clerk user id of the row's owner, for ownership checks | Until the owner's account is deleted | Declared: delete the owner's rows on account deletion (not built; demo table) |
 | proof_item.label | T2 | User-typed label (free text, length-capped, never logged) | Until the owner's account is deleted | Removed with the row; declared: delete the owner's rows on account deletion |
 | proof_item.created_at | T1 | When the row was created | Until the row is deleted | Removed with the row |
+| hello_note.user_id | T2 | Clerk user id of the note's owner; one note per user (S0 walking skeleton, replaced in S1) | Until the owner's account is deleted | Delete the row on account deletion (S1 adds the cascade and drops this table) |
+| hello_note.note | T2 | The user's short greeting note (plain text, 140 characters at most, never logged) | Until the owner's account is deleted | Removed with the row; an empty save deletes it |
+| hello_note.updated_at | T1 | When the note was last saved | Until the row is deleted | Removed with the row |
 <!-- boilerplate:proof:end -->

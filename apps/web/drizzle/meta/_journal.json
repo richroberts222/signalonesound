@@ -15,6 +15,13 @@
       "when": 1790882504339,
       "tag": "0001_proof_item",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791543809573,
+      "tag": "0002_hello_note",
+      "breakpoints": true
     }
   ]
 }

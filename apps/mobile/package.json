@@ -16,9 +16,11 @@
     "export": "expo export --platform android --platform ios --output-dir dist"
   },
   "dependencies": {
+    "@clerk/expo": "^4.9.0",
     "@signalone/shared": "workspace:*",
     "@signalone/validation": "workspace:*",
     "expo": "~57.0.27",
+    "expo-secure-store": "~57.0.4",
     "expo-status-bar": "~57.0.1",
     "react": "19.2.3",
     "react-native": "0.86.3"
