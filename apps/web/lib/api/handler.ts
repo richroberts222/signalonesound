@@ -59,7 +59,8 @@ export type ApiRouteOptions<A extends Auth, S extends z.ZodType, T> = {
 async function readInput(request: Request, source: "body" | "query"): Promise<unknown> {
   if (source === "query") return Object.fromEntries(new URL(request.url).searchParams);
   const text = await request.text();
-  if (text.length > MAX_BODY_BYTES) throw validationFailed("Request body too large");
+  // Bytes, not characters: multi-byte text must not slip past the cap.
+  if (new TextEncoder().encode(text).length > MAX_BODY_BYTES) throw validationFailed("Request body too large");
   if (text.length === 0) return undefined;
   try {
     return JSON.parse(text);

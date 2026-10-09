@@ -42,7 +42,7 @@ Before generating or significantly modifying code, check the relevant documentat
 | --- | --- |
 | Architecture and code | `architecture-rules.md` (authority), `code-quality.md`<!-- boilerplate:reference:start -->, `code-quality-audit.md`<!-- boilerplate:reference:end -->, `services.md`, `shared-code.md`, `stack.md` |
 | Web and mobile | `web.md`, `mobile.md`, `ui.md`, `routing.md`, `server-components.md` |
-| Data | `database.md`, `data-fetching.md`, `data-mutations.md` |
+| Data | `database.md`, `data-inventory.md`, `data-fetching.md`, `data-mutations.md` |
 | API and integrations | `api.md`, `integrations.md`, `payments.md` |
 | Identity and security | `auth.md`, `permissions.md`, `security.md`, `secure-coding.md`, `environment.md` |
 | Quality | `testing.md`, `qa-strategy.md`, `unit.md`, `integration.md`, `acceptance.md`, `e2e.md`, `playwright.md`, `coverage.md`, `reporting.md`, `test-value-review.md` (all in `automation/`) |

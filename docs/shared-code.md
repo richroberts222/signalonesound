@@ -76,3 +76,11 @@ Data flows `database row -> domain model -> transport contract -> UI model`. Map
 * **Portability.** The two packages contain nothing application-specific, so they can be extracted into a boilerplate.
 
 API route wiring, HTTP status mapping and version routing are defined in `/docs/api.md`.
+
+### Contract compatibility test
+
+`apps/web/lib/api/contracts.compat.test.ts` compares every shared contract with a committed snapshot (`contracts.snapshot.json`, same folder) and fails on a breaking change inside the current API version: a removed property, a changed type, a removed enum value, a response field that is no longer always present, a request field that became required, or a request limit that got stricter. Adding fields passes. Rules:
+
+* A new domain contract is added to the test's list, with its direction (input or output), in the pull request that introduces it.
+* A compatible change updates the snapshot in the same pull request (`UPDATE_CONTRACT_SNAPSHOT=1 pnpm --filter web exec vitest run lib/api/contracts.compat.test.ts`), so a later removal is caught.
+* A breaking change needs a new API version (`/docs/api.md`): the new version gets its own snapshot and the old version's routes keep working for supported app versions.

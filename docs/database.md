@@ -385,6 +385,10 @@ Per-environment workflow (same migration files at every step; **no data is copie
 
 Migrations already applied to a shared environment are never edited; fix forward with a new migration.
 
+**Destructive migrations are guarded.** A migration that drops, retypes, renames, truncates or deletes, or that adds a NOT NULL constraint, fails `db/tooling/destructive-migrations.test.ts` unless it carries a line `-- allow-destructive: <issue or reason>` added after review. Prefer expand-then-contract (add the new shape, move data, remove the old shape in a later migration). Before a marked migration reaches `prod`, rehearse it on a Neon branch that holds a copy of production data and record the result in the pull request.
+
+**Every column is inventoried.** `/docs/data-inventory.md` lists each column with its data tier, purpose, retention and deletion path, and `db/schema-inventory.test.ts` fails when the schema and the inventory disagree, when a restricted (T4) tier appears, or when an owner column has no declared deletion path.
+
 **Forward-only, recovery and rollback.** Migrations are forward-only; Drizzle generates no down migrations. To undo a change, write a new forward migration. If a migration fails mid-way it is not recorded as applied (each runs in a transaction on Postgres), so fix and re-run. If data is damaged or a forward fix is not feasible, recovery is restoring from a Neon backup/point-in-time restore (or a branch from before the change), not reversing migrations. Backups protect data; migrations define schema; a restore returns to an earlier schema+data state, after which the committed migrations bring the schema forward again. Restore procedures themselves are not yet documented/exercised.
 
 ---
