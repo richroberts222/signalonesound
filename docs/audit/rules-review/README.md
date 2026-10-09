@@ -20,5 +20,9 @@ After the review, a second independent Fable pass (the owner has remaining credi
 | 1 | `git-workflow.md` | Done (PR 121) |
 | 2 | `data-fetching.md`, `data-mutations.md` | Done (PR 123) |
 | 3 | `architecture-rules.md` | Done (PR 126) |
-| 4 | `code-quality.md`, `naming-conventions.md`, `ui.md` | This pull request |
-| 5 | Remaining docs, then product requirements (after Q-005) | Queued |
+| 4 | `code-quality.md`, `naming-conventions.md`, `ui.md` | Done (PR 128) |
+| 5 | `database.md` | This pull request |
+| 6 | `auth.md`, then `api.md`, `services.md`, `shared-code.md`, `mobile.md`, `web.md` | Next |
+| 7 | `security.md`, `environment.md`, `deployment.md`, `stack.md`, `issues.md`, `product-development.md` | Queued |
+| 8 | `testing.md` and `docs/automation/*`, template documents | Queued |
+| 9 | Product requirements (`product-plan.md`, roadmap, features), after Q-005 | Queued |
