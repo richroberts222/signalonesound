@@ -4,7 +4,8 @@ import { CURRENT_API_VERSION } from "@signalone/shared";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
-import { apiErrorSchema, emailSchema, helloSchema, idSchema, putHelloSchema, paginatedSchema, paginationSchema, resultSchema, uuidSchema } from "@signalone/validation";
+import * as validation from "@signalone/validation";
+import { apiErrorSchema, emailSchema, idSchema, paginatedSchema, paginationSchema, resultSchema, uuidSchema } from "@signalone/validation";
 
 // API contract compatibility (docs/api.md "Versioning", docs/shared-code.md). Mobile apps cannot be
 // force-updated, so inside one API version a contract may only grow. This test compares each
@@ -84,9 +85,18 @@ const CONTRACTS: Record<string, { direction: Direction; schema: z.ZodType }> = {
   apiError: { direction: "output", schema: apiErrorSchema },
   resultEnvelope: { direction: "output", schema: resultSchema(z.object({ value: z.string() })) },
   paginatedEnvelope: { direction: "output", schema: paginatedSchema(idSchema) },
-  helloRequest: { direction: "input", schema: putHelloSchema },
-  helloResponse: { direction: "output", schema: helloSchema },
 };
+
+// Contracts of the throwaway demo slices exist only in the reference application: a generated
+// application removes them, so they are registered only when present and ignored when absent.
+const OPTIONAL_CONTRACTS: Record<string, { exportName: string; direction: Direction }> = {
+  helloRequest: { exportName: "putHelloSchema", direction: "input" },
+  helloResponse: { exportName: "helloSchema", direction: "output" },
+};
+for (const [name, { exportName, direction }] of Object.entries(OPTIONAL_CONTRACTS)) {
+  const schema = (validation as Record<string, unknown>)[exportName] as z.ZodType | undefined;
+  if (schema) CONTRACTS[name] = { direction, schema };
+}
 
 const toJson = (name: string): Json => {
   const { direction, schema } = CONTRACTS[name];
@@ -108,7 +118,7 @@ describe("shared API contracts are compatible within an API version", () => {
     const saved = JSON.parse(readFileSync(SNAPSHOT, "utf8")) as { apiVersion: string; contracts: Record<string, Json> };
     expect(saved.apiVersion, "the API version changed: create the new version's snapshot deliberately and keep the old version's routes working").toBe(CURRENT_API_VERSION);
     const problems = Object.keys(saved.contracts).flatMap((name) =>
-      name in CONTRACTS ? breakingChanges(name, saved.contracts[name], current.contracts[name], CONTRACTS[name].direction) : [`${name}: contract removed`],
+      name in CONTRACTS ? breakingChanges(name, saved.contracts[name], current.contracts[name], CONTRACTS[name].direction) : name in OPTIONAL_CONTRACTS ? [] : [`${name}: contract removed`],
     );
     expect(problems).toEqual([]);
   });

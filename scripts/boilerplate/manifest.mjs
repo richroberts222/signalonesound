@@ -24,6 +24,20 @@ export const PROOF_PATHS = [
   "packages/validation/src/proof-item.ts",
   "packages/validation/src/proof-item.test.ts",
   "packages/validation/src/proof-item-client.ts",
+  // S0 walking skeleton (docs/features/s0-walking-skeleton.md): a throwaway end-to-end slice, replaced in S1.
+  "apps/web/app/api/v1/me/hello",
+  "apps/web/app/hello",
+  "apps/web/components/hello",
+  "apps/web/db/hello.ts",
+  "apps/web/db/hello.fake.ts",
+  "apps/web/e2e/hello.spec.ts",
+  "apps/web/lib/api/hello.ts",
+  "apps/web/lib/api/hello.acceptance.test.ts",
+  "apps/web/lib/services/hello.ts",
+  "apps/mobile/src/hello",
+  "packages/validation/src/hello.ts",
+  "packages/validation/src/hello.test.ts",
+  "packages/validation/src/hello-client.ts",
 ];
 
 /** Files that only make sense in the template repository. */

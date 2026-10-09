@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { HELLO_NOTE_MAX, createApiClient, createHelloClient } from "@signalone/validation";
+import { createApiClient, createHelloClient, remainingCharacters } from "@signalone/validation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-
-import { remainingCharacters } from "./remaining";
 
 // S0 walking skeleton screen (docs/features/s0-walking-skeleton.md). It calls the API only
 // through the shared client; the browser sends the Clerk session cookie. No business rule lives
@@ -55,7 +53,7 @@ export function HelloPanel() {
     setPending(false);
   }
 
-  const remaining = remainingCharacters(draft, HELLO_NOTE_MAX);
+  const remaining = remainingCharacters(draft);
 
   return (
     <Card className="w-full max-w-md">

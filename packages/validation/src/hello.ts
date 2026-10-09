@@ -34,3 +34,11 @@ export type PutHelloInput = z.infer<typeof putHelloSchema>;
 /** What clients see. `note` is null when nothing is saved. */
 export const helloSchema = z.object({ note: z.string().nullable() });
 export type Hello = z.infer<typeof helloSchema>;
+
+/**
+ * Characters left before the note limit, counted in Unicode code points after trimming so every
+ * client counts exactly as the server does (a four-byte emoji is one character). Never negative.
+ */
+export function remainingCharacters(value: string, max: number = HELLO_NOTE_MAX): number {
+  return Math.max(0, max - codePoints(value.trim()));
+}

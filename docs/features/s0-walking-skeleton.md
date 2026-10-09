@@ -8,7 +8,7 @@ Prove the whole platform works end to end on the smallest real feature before an
 
 ## Scope (in)
 
-* Mobile app shell (Expo, expo-router) with Clerk sign-in on a physical iPhone and Android phone via an EAS development build; the bearer token is sent to the API.
+* Mobile app shell (Expo; `expo-router` is deferred to S5, where the tabs need it) with Clerk sign-in on a physical iPhone and Android phone via an EAS development build; the bearer token is sent to the API.
 * One shared endpoint pair, `GET /api/v1/me/hello` and `PUT /api/v1/me/hello`, storing a short greeting note for the signed-in user (`HelloNote`, a throwaway record; removed in S1).
 * Shared contract and validation in `packages/shared` and `packages/validation`; compatibility snapshot updated.
 * The same screen on web (replacing the proof slice page) and on mobile, with the shared test-id convention (`/docs/ui.md` section 9b).
