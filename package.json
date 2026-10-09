@@ -18,6 +18,7 @@
     "export:boilerplate": "node scripts/boilerplate/export-template.mjs",
     "prove:init": "node scripts/boilerplate/prove-init.mjs",
     "test:boilerplate": "node --test scripts/boilerplate/boilerplate.test.mjs",
-    "validate": "pnpm lint && pnpm typecheck && pnpm test:run && pnpm test:boilerplate && pnpm build"
+    "test:scripts": "node --test scripts/fix-has-guard.test.mjs",
+    "validate": "pnpm lint && pnpm typecheck && pnpm test:run && pnpm test:boilerplate && pnpm test:scripts && pnpm build"
   }
 }

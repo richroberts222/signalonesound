@@ -12,6 +12,22 @@ The rule: **every problem that is found becomes a guard or a written rule, in th
 
 Nothing secret goes in this log (`/CLAUDE.md` section 18).
 
+## How problems are found and closed (the feedback loop)
+
+A problem can arrive from several places. Whatever the source, it ends the same way: fixed, with a guard or a rule, and logged here.
+
+| Source | How it is noticed | How it is closed |
+| --- | --- | --- |
+| A pull request check fails (lint, tests, build, template proof) | CI turns red | Fix the cause; if the check missed the underlying risk, widen the check |
+| The weekly health run or the monthly tool risk review | Their summary and issue | Open an issue; fix or record the exception |
+| An independent review or the owner | A finding or a question | Verify against the code, then fix |
+| A user or tester reports a bug | The bug report form | Fix with a regression test |
+| A production error (once error tracking exists; open item) | An alert or a weekly errors-by-workflow review | The error becomes a bug issue using the same form, and the fix needs a regression test like any other fix |
+
+**Mechanical enforcement.** A pull request that is a fix (its title or branch starts with fix, bug or hotfix) fails the CI check `Fix has a guard` unless it adds or changes a test, or adds a lesson to this file explaining why no guard is possible. Dependency-only version bumps are exempt. This makes "fix it and make sure it cannot happen again" part of the pipeline instead of a habit. The check is informational until it has been green for a week, and can then be made a required check in the repository ruleset (an owner setting).
+
+**Detecting breaks in logs.** Today the detectors are CI, the weekly health run and reviews. When error tracking and structured logs exist (`/docs/ideas/observability.md`), a recurring error pattern is opened automatically as a bug issue, and the fix pull request must carry the regression test.
+
 ## Log
 
 | Date | What happened | Root cause | Now prevented by |
