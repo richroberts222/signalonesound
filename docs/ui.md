@@ -398,8 +398,11 @@ should be documented before becoming established project conventions.
 
 ---
 
-## 22. Signal One Sound Visual Identity
+## 22. Visual Identity
 
+Each application defines its own visual identity here: the direction, what to avoid, the name and wordmark treatment, and how the identity maps to the semantic tokens in sections 23 and 24. Feature code never re-creates the identity with hard-coded colors, shadows or typography.
+
+<!-- boilerplate:reference:start -->
 The Signal One Sound visual identity represents revival, awakening, movement, hope, energy, and light emerging from darkness.
 
 This section defines the authoritative visual direction of the product. Exact token values, spacing, glow intensity, individual component treatments, and layout details may evolve through product review without changing this identity.
@@ -498,6 +501,7 @@ Broad visual changes should be implemented through semantic tokens and reusable 
 The principles in this section are authoritative.
 
 The exact styling of an individual mock or feature is not permanently approved merely because it currently implements these principles.
+<!-- boilerplate:reference:end -->
 
 ---
 
@@ -521,10 +525,11 @@ Each level consumes the one above it. Feature code does not re-decide visual cho
 
 ## 24. Semantic Design Tokens
 
-The centralized theme is `apps/web/app/globals.css` (CSS variables on `:root` and `.dark`, exposed to Tailwind through `@theme inline`). Existing semantic tokens include `background`, `foreground`, `card`, `popover`, `primary` (+ `-foreground`), `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, `chart-*`, `sidebar-*`, and `radius`. Issue #66 added the exploratory Signal One Sound theme, revised to a dark-only direction: black/charcoal `background`/`card`, a luminous gold `primary`, `highlight` (bright gold), `ember` (amber-orange accent), `hero` (deepest band), and `glow` (shadow color) wired to `shadow-glow`/`shadow-glow-lg`. Atmosphere is built from tokens by the `bg-atmosphere`, `bg-hero-glow`, and `text-gradient-gold` utilities in `globals.css`. `font-heading` is Geist (no serif). `:root` and `.dark` share values and `<html>` carries `dark`. These values are exploratory and refined in `globals.css`, not in components.
+The centralized theme is `apps/web/app/globals.css` (CSS variables on `:root` and `.dark`, exposed to Tailwind through `@theme inline`). Existing semantic tokens include `background`, `foreground`, `card`, `popover`, `primary` (+ `-foreground`), `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, `chart-*`, `sidebar-*`, and `radius`. <!-- boilerplate:reference:start -->Issue #66 added the exploratory Signal One Sound theme, revised to a dark-only direction: black/charcoal `background`/`card`, a luminous gold `primary`, `highlight` (bright gold), `ember` (amber-orange accent), `hero` (deepest band), and `glow` (shadow color) wired to `shadow-glow`/`shadow-glow-lg`. Atmosphere is built from tokens by the `bg-atmosphere`, `bg-hero-glow`, and `text-gradient-gold` utilities in `globals.css`. `font-heading` is Geist (no serif). `:root` and `.dark` share values and `<html>` carries `dark`. These values are exploratory and refined in `globals.css`, not in components.<!-- boilerplate:reference:end -->
 
 * Use semantic tokens (`bg-primary`, `text-muted-foreground`, `border-border`, `rounded-lg`) instead of raw palette values (`text-red-600`) or literal colors (`#999`, `oklch(...)`) in components.
 * The goal: "change the application's primary brand color" is a change to the token values, not edits across components.
+* Enforced: `apps/web/components/ui/semantic-colors.test.ts` fails when a raw palette class (`text-red-600`) or an arbitrary color (`bg-[#999]`) appears outside `components/ui`. Its allowance list covers colors not yet converted and may only shrink.
 * Add a token when a visual value has meaning and is (or will clearly be) reused. Semantic states not yet present (for example `success`, `warning`) are added to the theme when first genuinely needed, with their `-foreground` pairing and dark-mode value, and wired through `@theme inline`. Do not create tokens for one-off values.
 * Typography, radius, and spacing conventions follow the theme and Tailwind scale; document a spacing/type convention once it is repeated (section 12).
 * Third-party UI (Clerk) is themed from the same variables (`lib/clerk-appearance.ts`); do not give it a separate palette.
@@ -628,7 +633,7 @@ Keep Web and Mobile UI appropriately independent while maintaining one coherent 
 shadcn/ui is initialized in `apps/web`.
 
 * Configuration: `apps/web/components.json` (style `base-nova`, base color `neutral`, CSS variables enabled, icon library `lucide`)
-* Components: `apps/web/components/ui` (`button.tsx` from `shadcn init`; `card.tsx` and `avatar.tsx` added for authentication UI; `tabs.tsx`, `badge.tsx`, `input.tsx` added for Discover Revival). Product components: `components/brand/brand-wordmark.tsx` (`BrandWordmark`, the temporary text wordmark; the one place the name is styled) and `components/discover/*` (`EventCard`, `RevivalTypeBadge`, `FilterChip`, `RevivalMap`, ...)
+* Components: `apps/web/components/ui` (`button.tsx` from `shadcn init`; `card.tsx` and `avatar.tsx` added for authentication UI<!-- boilerplate:reference:start -->; `tabs.tsx`, `badge.tsx`, `input.tsx` added for Discover Revival<!-- boilerplate:reference:end -->).<!-- boilerplate:reference:start --> Product components: `components/brand/brand-wordmark.tsx` (`BrandWordmark`, the temporary text wordmark; the one place the name is styled) and `components/discover/*` (`EventCard`, `RevivalTypeBadge`, `FilterChip`, `RevivalMap`, ...)<!-- boilerplate:reference:end -->
 * Utilities: `apps/web/lib/utils.ts` (`cn` built on `clsx` and `tailwind-merge`)
 * Theme variables: `apps/web/app/globals.css`
 
