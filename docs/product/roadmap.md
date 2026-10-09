@@ -17,7 +17,7 @@ All slices so far are mock-first: static data, no product schema, no persistence
 | Global App Shell and header navigation (Issue #68, PR #69) | none yet | Delivered |
 | Church/Ministry event management mock (Issue #70, PR #73) | none yet | Delivered |
 | Member account and notification preferences mock (Issue #74, PR #75) | none yet | Delivered |
-| Admin / Content Management mock (Issue #76): admin overview, Church/Ministry and event management, submission moderation queue, bulk CSV import (all mock) | none yet | Approved; in progress / in review (not merged) |
+| Admin / Content Management mock (Issue #76): admin overview, Church/Ministry and event management, submission moderation queue, bulk CSV import (all mock) | none yet | Delivered (Issue #76, PR #77) |
 
 ## Not yet scheduled
 

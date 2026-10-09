@@ -258,6 +258,20 @@ None of these may be resolved by implementation or inference. Ask Rich.
 | 9 | Wording of the "Prayed on the ROCK" slogan (legacy name) | E | Retained verbatim; branding unresolved |
 | 10 | Search radius value "X" | A1, B | "X" is unspecified in the source |
 
+## Accepted decisions (owner, 2026-10-08)
+
+These are Rich's decisions, recorded here so they govern future work. They do not authorize implementation; an approved issue still does. Each cites the audit question that holds the full wording (`docs/audit/decisions-needed.md`, reference only).
+
+* **Minimum age is 18.** Age is confirmed at sign-up by self-attestation and recorded with the policy acceptance. (Q-009)
+* **United States first, planned for worldwide use.** Region-specific compliance waits until a region is opened; legal review is recommended before the first non-US user. (Q-009)
+* **Terms and privacy policy:** sign-up requires agreeing to a generic terms agreement and privacy policy now; an attorney reviews and updates them later. No real user data is collected until the privacy policy page, terms acceptance and the 18+ confirmation exist. (Q-009)
+* **Platform admins:** the owner and one other person, who share one login by choice. Admins also act as moderators for now. (Q-010)
+* **Church/Ministry managers** request the role when signing up and an admin approves; a user never chooses their own role. Ordinary members need no approval. (Q-010)
+* **Members are expected to pay, tentatively** ("I think"). This is a leaning, not a final decision: it sits beside the minimum scope's "Free member/user accounts" and the pricing VOTE (K items 3 and 4), and neither is resolved by this note. Do not build payment or remove free accounts without Rich's decision. (Q-010)
+* **Apps are part of launch**, built in parallel with the web through one small real feature end to end on web and mobile against the shared API. (Q-013)
+* **Review happens on Vercel Preview.** A Production site is not needed before launch. (Q-013)
+* **Another application will be built from this foundation later**; getting Signal One Sound operational comes first. (Q-012)
+
 ## Rules
 
 * Do not add, remove, reinterpret, or materially change requirements here without Rich's decision.
