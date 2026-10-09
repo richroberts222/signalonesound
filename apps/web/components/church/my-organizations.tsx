@@ -55,7 +55,14 @@ export function MyOrganizationsList() {
                   <Badge data-testid={`orgs-status-${item.id}`}>{STANDING[item.membership] ?? item.membership}</Badge>
                 </CardDescription>
               </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">{item.description}</CardContent>
+              <CardContent className="flex flex-col gap-3 text-sm text-muted-foreground">
+                {item.description}
+                {item.membership === "approved" && (
+                  <Link href={`/manage/${item.id}/events`} className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit" })} data-testid={`orgs-manage-events-${item.id}`}>
+                    Manage events
+                  </Link>
+                )}
+              </CardContent>
             </Card>
           </li>
         ))}

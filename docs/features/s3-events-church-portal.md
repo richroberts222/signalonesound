@@ -75,3 +75,13 @@ Is Venue its own entity (recommend: not in Phase 1)? Maximum recurrence length (
 ## Done checklist
 
 AC1 to AC13 and controls ticked [Fable]; `pnpm validate` clean; CI green; Preview reviewed by the owner; docs updated.
+
+## Build notes (decisions made while building)
+
+* **Organization is chosen by the page address**, not a dropdown (`/manage/<organization>/events`); a person reaches it from "Manage events" on their organizations page. The `event-org-select` control in the draft inventory is therefore not built.
+* **Time zones** offered are the seven United States zones (Eastern, Central, Mountain, Arizona, Pacific, Alaska, Hawaii). The default is the device's zone when it is one of them, otherwise Central.
+* **Series edits ("this and the later events")** change the title, description, address, types, links and the time of day of the later occurrences that follow the series; each keeps its own date. An occurrence edited on its own ("this event only") becomes an exception and is skipped by later series edits. Cancel and delete act on the one event.
+* **Duplicate check** looks at the first occurrence of a new series only.
+* **Geocoding** is a port with no adapter yet (search, S4, adds it): events are saved without coordinates and flagged "Location not found yet" until then.
+* **Atomic edits on the real database.** The driver has no interactive transactions, so each edit writes a random token and every dependent statement runs only if the token matches; an edit that lost the version race changes nothing. Proven against the dev database (`apps/web/db/events.integration.test.ts`).
+* **Not built here:** flyers and livestream links (undecided in the source), the browser end-to-end test for the manager screens (needs the Clerk test users), and the mock dashboard re-wiring (Q-005).

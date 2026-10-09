@@ -40,6 +40,13 @@ export function daysBetween(a: string, b: string): number {
   return toDays(pb) - toDays(pa);
 }
 
+/** The calendar date `days` after (or before, if negative) the given "YYYY-MM-DD". */
+export function addDays(date: string, days: number): string {
+  const p = parseDate(date);
+  if (!p) throw new Error("invalid date");
+  return format(fromDays(toDays(p) + days));
+}
+
 /**
  * The calendar dates of a series, first date included, sorted, without duplicates, at most
  * MAX_OCCURRENCES and never beyond MAX_SERIES_DAYS after the first date.

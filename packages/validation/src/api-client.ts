@@ -29,6 +29,8 @@ export type RequestOptions<S extends z.ZodType> = {
   path: string;
   query?: Record<string, string>;
   body?: unknown;
+  /** Extra request headers (for example the Idempotency-Key of a create). */
+  headers?: Record<string, string>;
   /** Schema of the `data` field on success. */
   schema: S;
 };
@@ -42,7 +44,7 @@ export function createApiClient(options: ApiClientOptions) {
     try {
       const doFetch = options.fetch ?? (globalThis as { fetch?: FetchLike }).fetch;
       if (!doFetch) return fail("internal", GENERIC);
-      const headers: Record<string, string> = { Accept: "application/json" };
+      const headers: Record<string, string> = { Accept: "application/json", ...req.headers };
       const token = await options.getToken?.();
       if (token) headers.Authorization = `Bearer ${token}`;
       if (req.body !== undefined) headers["Content-Type"] = "application/json";

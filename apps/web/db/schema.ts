@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, index, integer, pgTable, text, timestamp, unique, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { boolean, doublePrecision, index, integer, pgTable, primaryKey, text, timestamp, unique, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 // Domain-free. Signal One schema design has not been established yet.
 // `migration_proof` exists only to prove the migration workflow (Issue 43); it
@@ -109,4 +109,87 @@ export const auditLog = pgTable(
     at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("audit_log_at_idx").on(t.at)],
+);
+
+// S3 events (docs/features/s3-events-church-portal.md). An event is an exact moment (UTC) plus the
+// IANA zone it happens in. A recurring series is expanded into ordinary event rows (at most 104), so
+// search, saves and alerts work on plain events; `event_series` only remembers the rule and links the
+// rows. `status` is draft, published, cancelled or deleted (deleted is a soft delete kept for the
+// audit trail). `version` supports optimistic concurrency. Event data is public once published (T0).
+export const eventSeries = pgTable("event_series", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  orgId: uuid("org_id").notNull(),
+  rule: text("rule").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const event = pgTable(
+  "event",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id").notNull(),
+    seriesId: uuid("series_id"),
+    isException: boolean("is_exception").notNull().default(false),
+    title: text("title").notNull(),
+    description: text("description").notNull().default(""),
+    status: text("status").notNull().default("draft"),
+    moderationState: text("moderation_state").notNull().default("published"),
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    endsAt: timestamp("ends_at", { withTimezone: true }),
+    timeZone: text("time_zone").notNull(),
+    venueName: text("venue_name").notNull(),
+    street: text("street").notNull(),
+    city: text("city").notNull(),
+    state: text("state").notNull(),
+    zip: text("zip").notNull(),
+    lat: doublePrecision("lat"),
+    lng: doublePrecision("lng"),
+    speakers: text("speakers"),
+    directions: text("directions"),
+    version: integer("version").notNull().default(1),
+    // A random value written with every change. Dependent statements in the same atomic batch run only
+    // if it matches, so a stale edit (lost the version race) changes nothing at all.
+    editToken: uuid("edit_token"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("event_org_start_idx").on(t.orgId, t.startsAt, t.id),
+    index("event_series_idx").on(t.seriesId),
+    index("event_start_idx").on(t.startsAt, t.id),
+  ],
+);
+
+export const eventRevivalType = pgTable(
+  "event_revival_type",
+  {
+    eventId: uuid("event_id").notNull(),
+    typeSlug: text("type_slug").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.eventId, t.typeSlug] })],
+);
+
+export const eventLink = pgTable(
+  "event_link",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    eventId: uuid("event_id").notNull(),
+    url: text("url").notNull(),
+    position: integer("position").notNull(),
+  },
+  (t) => [unique("event_link_position_unique").on(t.eventId, t.position)],
+);
+
+// Remembers the result of a create for 24 hours, so a double submit returns the first event instead of
+// making a second (S3 AC13). Holds only the person's key and the event it produced.
+export const idempotencyRecord = pgTable(
+  "idempotency_record",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id").notNull(),
+    key: text("key").notNull(),
+    eventId: uuid("event_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique("idempotency_record_user_key_unique").on(t.userId, t.key)],
 );

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { MAX_OCCURRENCES, MAX_SERIES_DAYS, daysBetween, expandOccurrences, parseDate } from "./recurrence";
+import { MAX_OCCURRENCES, MAX_SERIES_DAYS, addDays, daysBetween, expandOccurrences, parseDate } from "./recurrence";
 
 // S3 AC5: weekly, monthly-by-weekday and date-list series produce the right dates.
 describe("expandOccurrences", () => {
@@ -60,5 +60,15 @@ describe("parseDate and daysBetween", () => {
   it("counts whole days", () => {
     expect(daysBetween("2026-10-14", "2026-10-21")).toBe(7);
     expect(daysBetween("2026-12-31", "2027-01-01")).toBe(1);
+  });
+});
+
+describe("addDays", () => {
+  it("moves a date forward and back across month, year and leap-day boundaries", () => {
+    expect(addDays("2026-10-14", 1)).toBe("2026-10-15");
+    expect(addDays("2026-12-31", 1)).toBe("2027-01-01");
+    expect(addDays("2028-02-28", 1)).toBe("2028-02-29");
+    expect(addDays("2026-03-01", -1)).toBe("2026-02-28");
+    expect(addDays("2026-10-14", 0)).toBe("2026-10-14");
   });
 });
