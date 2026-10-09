@@ -76,6 +76,23 @@ The pull request template asks these (answer in a sentence; "none" is a valid an
 
 **The database.** Neon is a managed service: it patches PostgreSQL and the platform, which is why we cannot (and should not) scan the database software ourselves; we depend on the vendor's patching, and their security notices are part of the vendor review. What we control: clients never connect to it; the server uses parameterized queries only; each environment has its own credential; connections use TLS; migrations are reviewed; production is protected from destructive tooling; backups and a restore drill (open item). Neon states that data is encrypted at rest; **verify and record this in the vendor review before T3 data is stored.** Separate migration and runtime database roles are a launch-gate item.
 
+## 4a. Where we look for known problems (risk intelligence)
+
+Sources are named from established practice; check that each is still current before relying on it.
+
+| Question | Source |
+| --- | --- |
+| Is a package or tool we use known to be vulnerable? | GitHub Advisory Database, OSV.dev (and its scanner), the National Vulnerability Database and CVE.org, `pnpm audit` |
+| Is anyone exploiting it right now? | The CISA Known Exploited Vulnerabilities list (anything we use that appears there is fixed first); exploit-likelihood scores (EPSS) to rank the rest |
+| Is a package healthy and trustworthy? | OpenSSF Scorecard and deps.dev (security practices, dependency tree, licenses); Socket (malicious or hijacked npm packages, look-alike names) |
+| Is a vendor down or having incidents? | The status pages of Vercel, Neon, Clerk and GitHub; the vendors' published postmortems |
+| What goes wrong in practice, and which attacks matter? | The Verizon Data Breach Investigations Report, OWASP Top 10 and API Top 10, the CWE Top 25, MITRE ATT&CK, public postmortems |
+| Is a new version of a core tool safe to adopt? | That tool's release notes, security advisories and open regressions (Next.js, Expo and React Native, Clerk, Drizzle, the Neon driver, Playwright) |
+
+**Tool risk review.** Monthly, and before any major upgrade of a core tool (`/docs/stack.md`), read those sources for the core tools: new advisories, anything on the exploited list that touches us, unresolved regressions or breaking changes in the versions we run or plan to run, and vendor incidents since the last review. Record the findings in an issue, open follow-up issues for anything that needs action, and bring any cost to the owner. Claude can run the review on request.
+
+**Automation (existing and planned).** Existing: Dependabot, the weekly health workflow (`pnpm audit`, peers, Expo compatibility). Planned, each needing a repository setting or workflow change reviewed by the owner: GitHub security alerts for the core tool repositories (watch their advisories), OSV scanning of the lockfile in the weekly workflow, an OpenSSF Scorecard run for this repository, and GitHub CodeQL and secret scanning.
+
 ## 4b. Testing for hostile traffic
 
 * **Hostile-payload suite** (built): crafted bodies and query strings against the API adapter; each must produce the standard response, never a crash, never an echo, never a changed prototype, and never call the service for invalid input.
