@@ -17,6 +17,12 @@ Closes #
 - [ ] `pnpm validate` exit 0:
 - [ ] Other checks run (integration, browser, mobile build, accessibility):
 
+## Security (docs/secure-coding.md section 3; "none" is a valid answer)
+- Data tier touched (T0 to T4; no T4 data is stored by this platform):
+- Who can reach it and how the server checks it:
+- What a hostile caller could send to it, and what happens:
+- What happens if a vendor it depends on is down or compromised:
+
 ## Documentation and rules
 - [ ] Documentation matches the change (same pull request)
 - [ ] No secrets or credential-shaped values; no new dependency without a stated reason

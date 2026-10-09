@@ -193,6 +193,10 @@ Do not remove accessibility attributes or behaviors merely to achieve a visual r
 
 ---
 
+## 9b. Test identifiers
+
+Interactive controls and state containers carry stable test ids (`data-testid`) so automation does not depend on text or styling; the naming convention and the rule that the controls inventory lists them are in `/docs/automation/acceptance.md`. The mobile app uses `testID` with the same names.
+
 ## 10. Forms
 
 Web forms should use the established shadcn/ui form components and patterns where applicable.

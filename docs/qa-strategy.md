@@ -80,6 +80,8 @@ A feature is **done** when its checklist is complete and nothing else. The check
 
 ## 7. Security testing layers
 
+**Hostile-payload suite (built):** `apps/web/lib/api/hostile-payloads.test.ts` feeds the API adapter crafted bodies and query strings (nesting bombs, prototype-pollution keys, wrong types, huge values, injection-looking text, scripts); every one must end in the standard response, never a crash, never an echo of the input, and the service must not run for invalid input. Modern attacks are API requests with malicious payloads, so each new endpoint's acceptance tests add its own hostile cases (changed ids for object-level authorization, extra fields for mass assignment).
+
 | Layer | Tool | Cost | When |
 | --- | --- | --- | --- |
 | Code scanning | GitHub CodeQL, default setup | Free for a public repository | Now (a repository setting) |

@@ -29,7 +29,11 @@ Standards named in the ledgers come from established practice and are not re-fet
 | | Two-factor sign-in | **None** | Accepted risk (owner) |
 | **API** | Authenticate first, validate, one response envelope, safe errors, versioning | **High** | Authentication, caching header, internal-error text, size cap and off-by-one all broken and caught (api ledger) |
 | | Additive-only versioning, old mobile builds keep working | **Low** | Rule is sound; no contract-compatibility test yet |
-| | Rate limiting, security headers | **None** | Not in place (F-SEC-006, F-SEC-005) |
+| | Security headers (anti-framing, nosniff, referrer and permissions policy, HTTPS) | **High** | Four breaks caught; confirmed on a real running build (page and API route) |
+| | Full script policy (CSP script-src), rate limiting | **None** | Not in place (F-SEC-005, F-SEC-006) |
+| | Hostile API payloads (nesting bombs, prototype pollution, wrong types, injection-looking text) | **High** | New suite; two sabotages of the adapter caught |
+| | Cross-site scripting: no raw HTML, no eval, safe external links | **High** | Four lint rules, each broken by a probe and caught |
+| | Data tiers and secure-coding checklist (`secure-coding.md`) | **Low** | Documented; the pull request template asks the questions; enforcement is review plus the guards above |
 | **Service and architecture layers** | Services are framework-free; no Clerk, database client, `FormData` or `process.env` | **High** | Break caught (W4 and earlier) |
 | | Service error mapping (forbidden, conflict, internal text, reporting) | **High** | Four breaks caught (services ledger) |
 | | Client code never imports server, database or tooling modules | **High** | W5, W6 caught |
@@ -59,7 +63,7 @@ Standards named in the ledgers come from established practice and are not re-fet
 | | The product features are removed from a generated app | **None** | Gap (independent audit B1) |
 | **Legal and risk** | Collection gate, age rule, terms and privacy, deletion and export | **None** | Decided (`risk-and-legal.md`); not built |
 | | Compliance applicability, accepted risks, owner actions | **Low** | Documented checklist, not legal advice; owner actions pending |
-| | Dependency vulnerabilities known and handled | **Low** | Dependabot on; alerts setting pending; `pnpm audit` not in CI |
+| | Dependency vulnerabilities known and handled (CVE targets in `secure-coding.md`) | **Low** | Dependabot on; alerts setting pending; `pnpm audit` not in CI |
 | **Payments, third-party integrations** | Hosted checkout, signed idempotent webhooks, ports per vendor | **None** | Documented (`payments.md`, `integrations.md`); nothing built, all vendors undecided |
 
 ## 2. Proof sweep (this review): rules broken on purpose
@@ -110,3 +114,5 @@ An independent reviewer with no prior knowledge challenged this scorecard by rea
 | Template (A16) | Generated-app proof is run by hand | Planned: add it to CI (next step) | Pending |
 
 Fable's other gaps (its Task C) are now rows of their own and are tracked: monitoring and alerting, logging and personal data in logs, dependency licensing, data retention schedule, performance budgets, cross-site request forgery and cookie settings for server actions, backups prioritized above several High rows, and mobile-specific guards (secure token storage, deep links). See `/docs/future-readiness.md` and `/docs/lessons.md`.
+
+Added after the owner's questions on cross-site scripting, framing, API payloads and known and unknown vulnerabilities: the rows for headers, lint rules and hostile payloads above, and `/docs/secure-coding.md`.
