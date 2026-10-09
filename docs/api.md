@@ -110,6 +110,19 @@ Delete the files above, the `proof_item` export in `db/schema.ts`, the `/proof(.
 
 <!-- boilerplate:proof:end -->
 
+## Member endpoints (S1, reference application)
+
+| Endpoint | Auth | Purpose |
+| --- | --- | --- |
+| `GET /api/v1/me` | member | The caller's profile (created on first sign-in) with the policy status. Allowed before accepting the current policy |
+| `PATCH /api/v1/me` | member, policy accepted | Change `displayName`, `emailPref`, `timeZone` only; any other field is rejected |
+| `DELETE /api/v1/me` | member | Erase the caller's data, then the Clerk identity. Safe to repeat. Allowed without re-accepting the policy |
+| `POST /api/v1/me/policy-acceptance` | member | Accept the current Terms and Privacy Policy and attest to being 18 or older |
+| `GET /api/v1/me/export` | member | Everything held about the caller, as JSON. Allowed without re-accepting the policy |
+| `POST /api/v1/webhooks/clerk` | signature | Clerk calls it; a verified `user.deleted` event uses the same erase path. Needs `CLERK_WEBHOOK_SIGNING_SECRET` |
+
+A member endpoint other than the three allowed ones answers `403` with the code `policy_reacceptance_required` until the member accepts the current policy version. A handler that must see the exact request bytes (a signed webhook) receives the raw request as the third argument of `handle`.
+
 ## Unexpected-error reporting
 
 `apiRoute` passes `reportUnexpectedError` (`lib/api/report.ts`) as the adapter's `onUnexpected` hook. It writes one structured stderr line with the error class and, for `DatabaseError`, the operation and kind only (never message, cause, stack, request data, or identity). This is a stopgap sink, not a logging system; replace the sink when one is chosen. The adapter also reports failures that escape the normal path (for example response serialization).

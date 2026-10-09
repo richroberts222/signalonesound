@@ -28,6 +28,7 @@ Application code asks these helpers for the environment instead of comparing raw
 | `DATABASE_ENV` | server | Required; environment `DATABASE_URL` targets |
 | `DATABASE_URL` | server only | Neon connection string |
 | `CLERK_SECRET_KEY` | server only | |
+| `CLERK_WEBHOOK_SIGNING_SECRET` | server only | Verifies the Clerk webhook signature (S1). Set it from the Clerk dashboard when the webhook endpoint is created; the route refuses every request without it. Read by Clerk's helper, never committed |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | client-safe | |
 | `NEXT_PUBLIC_APP_ENV` | client-safe | Optional display hint; not authoritative |
 | `VERCEL_ENV` | platform | Read for the Preview guard |

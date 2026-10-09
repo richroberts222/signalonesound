@@ -17,7 +17,7 @@ export default function PrivacyPage() {
       <h2>Browsing needs no account</h2>
       <p>
         You can search and read about events without signing in. We do not keep a record of who you are or what you
-        search for. We count visits in total, without identifying anyone.
+        search for. We may count visits in total, without identifying anyone.
       </p>
       <h2>What we keep when you have an account</h2>
       <ul>
