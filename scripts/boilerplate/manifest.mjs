@@ -38,6 +38,16 @@ export const PROOF_PATHS = [
   "packages/validation/src/profile.ts",
   "packages/validation/src/profile.test.ts",
   "packages/validation/src/profile-client.ts",
+  "apps/web/app/about",
+  "apps/web/app/accept-terms",
+  "apps/web/app/account/settings",
+  "apps/web/app/contact",
+  "apps/web/app/privacy",
+  "apps/web/app/terms",
+  "apps/web/components/legal",
+  "apps/web/components/member/account-settings.tsx",
+  "apps/web/components/shell/policy-gate.tsx",
+  "apps/web/components/shell/site-footer.tsx",
 ];
 
 /** Files that only make sense in the template repository. */

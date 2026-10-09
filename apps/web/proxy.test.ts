@@ -21,8 +21,8 @@ vi.mock("@clerk/nextjs/server", () => ({
 
 // Every top-level entry in app/ must be listed here. Adding a route directory fails
 // this test until its protection is decided and recorded.
-const PROTECTED = ["account", "admin", "dashboard", "proof"];
-const PUBLIC = ["api", "discover", "sign-in", "sign-up"]; // api routes authenticate themselves (docs/auth.md)
+const PROTECTED = ["accept-terms", "account", "admin", "dashboard", "proof"];
+const PUBLIC = ["about", "api", "contact", "discover", "privacy", "sign-in", "sign-up", "terms"]; // api routes authenticate themselves (docs/auth.md)
 
 async function run(pathname: string) {
   const mod = (await import("./proxy")) as unknown as {
@@ -41,6 +41,16 @@ describe("proxy.ts route protection", () => {
       expect(protect).toHaveBeenCalledTimes(1);
     },
   );
+
+  it.skipIf(!existsSync(join(__dirname, "app", "accept-terms")))("protects /accept-terms (S1)", async () => {
+    await run("/accept-terms");
+    expect(protect).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(["/terms", "/privacy", "/about", "/contact"])("keeps %s public so anyone can read it before signing up", async (path) => {
+    await run(path);
+    expect(protect).not.toHaveBeenCalled();
+  });
 
   // The demo slice is deleted from a generated application, so its route is checked only where it exists.
   it.skipIf(!existsSync(join(__dirname, "app", "proof")))("protects /proof", async () => {
