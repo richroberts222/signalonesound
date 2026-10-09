@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { EnvValidationError } from "@signalone/shared";
@@ -92,6 +92,13 @@ describe("committed migration foundation", () => {
     const folder = path.join(webRoot, "drizzle");
     const journal = readJournal(folder);
     for (const entry of journal) expect(existsSync(path.join(folder, `${entry.tag}.sql`))).toBe(true);
+  });
+  it("has no SQL migration file that the journal does not list (a hand-added or half-removed migration)", () => {
+    const folder = path.join(webRoot, "drizzle");
+    const listed = new Set(readJournal(folder).map((entry) => `${entry.tag}.sql`));
+    // A new application starts with no migrations folder at all; that is a valid, empty state.
+    const onDisk = (existsSync(folder) ? readdirSync(folder) : []).filter((name) => name.endsWith(".sql"));
+    expect(onDisk.filter((name) => !listed.has(name))).toEqual([]);
   });
   it("never exposes drizzle-kit push as a package script", () => {
     const pkg = JSON.parse(readFileSync(path.join(webRoot, "package.json"), "utf8")) as { scripts: Record<string, string> };

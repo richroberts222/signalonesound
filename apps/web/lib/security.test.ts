@@ -31,7 +31,7 @@ const sources = (dir: string) => walk(dir).filter((f) => /\.(tsx?|mjs)$/.test(f)
 // Scanned text files: source, config, docs, workflows, env examples.
 const textFiles = walk(repo).filter(
   (f) =>
-    /\.(tsx?|mjs|json|md|ya?ml|example)$/.test(f) &&
+    /\.(tsx?|mjs|cjs|js|json|md|ya?ml|example|sample|sql|sh|toml|css|html|txt)$/.test(f) &&
     !f.endsWith("pnpm-lock.yaml") &&
     !isTest(f),
 );
@@ -96,7 +96,7 @@ describe("server-only modules", () => {
   it("the Clerk SDK is imported only in its adapter locations", () => {
     // docs/code-quality.md section 12: vendors stay behind ports. Services, the API adapter,
     // the data layer and ordinary components must stay agnostic of the identity vendor.
-    const allowed = [/^proxy\.ts$/, /^lib\/auth\//, /^lib\/clerk-appearance\.ts$/, /^components\/shell\//, /^app\//, /^e2e\//];
+    const allowed = [/^proxy\.ts$/, /^lib\/auth\//, /^lib\/clerk-appearance\.ts$/, /^components\/shell\//, /^app\/(?!api\/)/, /^e2e\//];
     const offenders = sources(web)
       .filter((f) => !isTest(f))
       .map((f) => relTo(web, f))
@@ -163,10 +163,22 @@ describe("committed files contain no real secrets", () => {
       ["credentialed postgres url", /postgres(?:ql)?:\/\/(?!USER:PASSWORD@)[^\s:@/]+:[^\s@/]+@(?!HOST)/],
       ["private key block", /-----BEGIN [A-Z ]*PRIVATE KEY-----/],
       ["github token", /gh[pousr]_[A-Za-z0-9]{30,}/],
+      ["aws access key id", /\bAKIA[0-9A-Z]{16}\b/],
+      ["google api key", /\bAIza[0-9A-Za-z_-]{35}\b/],
+      ["slack token", /\bxox[baprs]-[0-9A-Za-z-]{10,}/],
+      ["neon api key", /\bnapi_[a-z0-9]{30,}/],
+      ["json web token", /\beyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/],
     ];
-    const offenders = textFiles.flatMap((f) =>
-      patterns.filter(([, re]) => re.test(read(f))).map(([name]) => `${rel(f)}: ${name}`),
-    );
+    // Test files are scanned too. A real credential never carries one of these markers, so a
+    // fixture that does is accepted; anything else key-shaped in a test file is an offender.
+    const FAKE_MARKER = /SECRET|REPLACE|FAKE|PLACEHOLDER|dummy|example|\.invalid|localhost|:(?:p|pw)@|@host\b/i;
+    const testFiles = walk(repo).filter((f) => isTest(f) && /\.tsx?$/.test(f));
+    const scan = (f: string, tolerateFakes: boolean) =>
+      patterns.flatMap(([name, re]) => {
+        const hits = [...read(f).matchAll(new RegExp(re.source, "g"))].map((m) => m[0]);
+        return hits.filter((h) => !(tolerateFakes && FAKE_MARKER.test(h))).length > 0 ? [`${rel(f)}: ${name}`] : [];
+      });
+    const offenders = [...textFiles.flatMap((f) => scan(f, false)), ...testFiles.flatMap((f) => scan(f, true))];
     expect(offenders).toEqual([]);
   });
 

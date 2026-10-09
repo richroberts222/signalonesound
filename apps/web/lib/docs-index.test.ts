@@ -22,10 +22,10 @@ describe("CLAUDE.md entry point", () => {
     const automation = existsSync(join(docs, "automation"))
       ? readdirSync(join(docs, "automation")).filter((f) => f.endsWith(".md") && f !== "README.md")
       : [];
-    const missing = [
-      ...top.filter((f) => !claude.includes(f)),
-      ...automation.filter((f) => !claude.includes(f.replace(/\.md$/, ""))),
-    ];
+    // A document counts as linked only when its file name appears as a code span (`name.md`) or a
+    // /docs path; the same word in ordinary prose does not count.
+    const linked = (name: string) => claude.includes("`" + name + "`") || claude.includes("/docs/" + name);
+    const missing = [...top.filter((f) => !linked(f)), ...automation.filter((f) => !linked(f))];
     expect(missing, "add these documents to the table in CLAUDE.md section 3").toEqual([]);
   });
 });
