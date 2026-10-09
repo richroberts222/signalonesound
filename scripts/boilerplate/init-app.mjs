@@ -115,7 +115,7 @@ export function stripProofSlice({ root, step }) {
   const edit = (file, fn) => step(`edit ${file}`, () => writeFileSync(abs(file), fn(readFileSync(abs(file), "utf8"))));
   edit("apps/web/proxy.ts", (t) => t.replace(', "/proof(.*)"', "").replace(', "/accept-terms(.*)"', "").replace(', "/claim-church(.*)"', "").replace(', "/manage(.*)"', "").replace(', "/saved(.*)"', ""));
   edit("packages/validation/src/index.ts", (t) =>
-    t.split("\n").filter((l) => !/proof-item|proof-only|\.\/profile|\.\/organization|\.\/event|\.\/discover|\.\/saved/.test(l)).join("\n"));
+    t.split("\n").filter((l) => !/proof-item|proof-only|\.\/profile|\.\/organization|\.\/event|\.\/discover|\.\/saved|\.\/moderation/.test(l)).join("\n"));
 }
 
 export function initApp({ root, name, slug, scope = slug, bundleId, dryRun = false, log = console.log }) {

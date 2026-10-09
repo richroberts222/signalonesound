@@ -104,4 +104,16 @@ New tables are added to the schema and to this table in the same pull request.
 | invite_token.created_at | T1 | When the link was made (for the daily limit) | 30 days | Removed with the row |
 | invite_token.expires_at | T1 | When the link stops working | 30 days | Removed with the row |
 | invite_token.arrivals | T1 | How many people opened the link (a total; nothing about them is kept) | 30 days | Removed with the row |
+| user_profile.suspended | T1 | Whether an admin has suspended the member (they cannot change events or submit claims; they can still browse, export and delete) | Until the account is deleted | Deleted with the profile |
+| report.id | T1 | Row identity | Until an admin removes it | Removed with the report |
+| report.subject_type | T1 | Whether an event or a church was reported | Until an admin removes it | Removed with the report |
+| report.subject_id | T1 | Which event or church was reported | Until an admin removes it | Removed with the report |
+| report.reason | T1 | The reason chosen from a fixed list | Until an admin removes it | Removed with the report |
+| report.details | T2 | Optional free text from the reporter (1000 characters, plain text; the form asks for no personal data and no reporter identity is stored) | Until an admin removes it | Removed with the report |
+| report.status | T1 | Open, dismissed or acted on | Until an admin removes it | Removed with the report |
+| report.created_at | T1 | When it was sent | Until an admin removes it | Removed with the report |
+| report.decided_at | T1 | When an admin decided | Until an admin removes it | Removed with the report |
+| report_rate_limit.id | T1 | Row identity | 24 hours | Deleted by the daily retention job |
+| report_rate_limit.address_hash | T2 | A keyed hash of the sender's network address, only to stop one address flooding the form; it cannot be turned back into an address and is not linked to any report | 24 hours | Deleted by the daily retention job |
+| report_rate_limit.created_at | T1 | When it was sent (for the daily limit) | 24 hours | Deleted by the daily retention job |
 <!-- boilerplate:proof:end -->

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { eventSearchQuerySchema } from "@signalone/validation";
 
 import { EventCard } from "@/components/events/event-card";
+import { ReportButton } from "@/components/events/report-button";
 import { getDiscoverService, getOrganizationsService } from "@/lib/composition";
 import { ServiceError } from "@/lib/services/errors";
 
@@ -59,6 +60,7 @@ export default async function ChurchPage({ params }: { params: Promise<{ id: str
           ))}
         </ul>
       )}
+      <ReportButton subjectType="organization" subjectId={org.id} />
     </main>
   );
 }

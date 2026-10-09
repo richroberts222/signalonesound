@@ -69,3 +69,14 @@ The quarantine policy (proposed above); appeal address and response time promise
 ## Done checklist
 
 AC1 to AC11 and controls ticked [Fable]; `pnpm validate` clean; CI green; docs updated; takedown procedure added to `/docs/risk-and-legal.md`.
+
+## Build notes (decisions made while building)
+
+* **The quarantine (AC6) is not built.** The spec makes it the owner's decision ("proposed; if declined, AC6 is not applicable"). It stays off, so a new church's events publish immediately once the church is approved. The `moderation_state` column already supports a held state when the owner decides yes.
+* **Audit uses the existing append-only audit log** (the same table as S2 and S3) instead of a separate `moderation_action` table; every entry has the actor, the action, what it was done to, the reason and the time.
+* **Emails** go through an email port with a do-nothing default (it records only that nothing was sent, never an address or text). Choosing an email provider costs money and sees recipients, so it is the owner's decision. The address is read from the sign-in provider only at the moment of sending and is never stored.
+* **The appeal address** in the message says "use the contact page"; the real contact address is an owner decision (it is also needed for the Contact page).
+* **Suspension with "hide events"** hides the events of the churches the suspended person manages, in the same database statement; an admin cannot be suspended and nobody can suspend themselves.
+* **CSRF (AC9):** the API uses the sign-in provider's session cookie with same-site protection and JSON bodies with a JSON content type; a repeated submission is refused with `409` because every admin change is conditional on the current state. A dedicated token is added in the S9 security pass if the review wants one.
+* **"Cached listings within one minute" (AC3):** public pages and search are rendered on request (no caching), so a hidden event disappears immediately; the sitemap does not exist yet (S9).
+* **Screens:** `/admin/moderation` (counts, the report queue and actions) and `/admin/audit`; a Report button on every public event and church page. The existing mock admin screens are re-wired later (Q-005).

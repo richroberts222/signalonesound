@@ -64,6 +64,13 @@
       "when": 1791554247026,
       "tag": "0008_saved_events_and_invites",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791555656960,
+      "tag": "0009_moderation",
+      "breakpoints": true
     }
   ]
 }

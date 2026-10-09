@@ -120,6 +120,15 @@ const OPTIONAL_CONTRACTS: Record<string, { exportName: string; direction: Direct
   savedListResponse: { exportName: "savedListSchema", direction: "output" },
   savedResultResponse: { exportName: "savedResultSchema", direction: "output" },
   inviteResponse: { exportName: "inviteSchema", direction: "output" },
+  createReportRequest: { exportName: "createReportSchema", direction: "input" },
+  reportReceivedResponse: { exportName: "reportReceivedSchema", direction: "output" },
+  reportListResponse: { exportName: "reportListSchema", direction: "output" },
+  reportDecisionRequest: { exportName: "reportDecisionSchema", direction: "input" },
+  moderationReasonRequest: { exportName: "moderationReasonSchema", direction: "input" },
+  suspendMemberRequest: { exportName: "suspendMemberSchema", direction: "input" },
+  moderationResultResponse: { exportName: "moderationResultSchema", direction: "output" },
+  overviewResponse: { exportName: "overviewSchema", direction: "output" },
+  auditQueryRequest: { exportName: "auditQuerySchema", direction: "input" },
 };
 for (const [name, { exportName, direction }] of Object.entries(OPTIONAL_CONTRACTS)) {
   const schema = (validation as Record<string, unknown>)[exportName] as z.ZodType | undefined;

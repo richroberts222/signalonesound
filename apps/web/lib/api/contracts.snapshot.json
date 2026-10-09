@@ -2206,6 +2206,256 @@
         "expiresAt"
       ],
       "additionalProperties": false
+    },
+    "createReportRequest": {
+      "type": "object",
+      "properties": {
+        "subjectType": {
+          "type": "string",
+          "enum": [
+            "event",
+            "organization"
+          ]
+        },
+        "subjectId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "not_real",
+            "wrong_church",
+            "minor_personal_info",
+            "harassment_hate",
+            "copyright_legal",
+            "other"
+          ]
+        },
+        "details": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "subjectType",
+        "subjectId",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "reportReceivedResponse": {
+      "type": "object",
+      "properties": {
+        "received": {
+          "type": "boolean",
+          "const": true
+        }
+      },
+      "required": [
+        "received"
+      ],
+      "additionalProperties": false
+    },
+    "reportListResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "subjectType": {
+                "type": "string",
+                "enum": [
+                  "event",
+                  "organization"
+                ]
+              },
+              "subjectId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "subjectTitle": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "details": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "open",
+                  "dismissed",
+                  "actioned"
+                ]
+              },
+              "createdAt": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "subjectType",
+              "subjectId",
+              "subjectTitle",
+              "reason",
+              "details",
+              "status",
+              "createdAt"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "reportDecisionRequest": {
+      "type": "object",
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": [
+            "dismiss",
+            "action"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "decision",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "moderationReasonRequest": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "suspendMemberRequest": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "eventsAction": {
+          "type": "string",
+          "enum": [
+            "keep",
+            "hide"
+          ]
+        }
+      },
+      "required": [
+        "reason",
+        "eventsAction"
+      ],
+      "additionalProperties": false
+    },
+    "moderationResultResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "state"
+      ],
+      "additionalProperties": false
+    },
+    "overviewResponse": {
+      "type": "object",
+      "properties": {
+        "openReports": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "pendingClaims": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "hiddenEvents": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "unpublishedOrganizations": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "suspendedMembers": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "openReports",
+        "pendingClaims",
+        "hiddenEvents",
+        "unpublishedOrganizations",
+        "suspendedMembers"
+      ],
+      "additionalProperties": false
+    },
+    "auditQueryRequest": {
+      "type": "object",
+      "properties": {
+        "actor": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "subject": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "limit": {
+          "default": 100,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        }
+      },
+      "additionalProperties": false
     }
   }
 }

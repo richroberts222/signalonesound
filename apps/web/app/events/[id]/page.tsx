@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { REVIVAL_TYPES } from "@signalone/validation";
 
 import { EventActions } from "@/components/events/event-actions";
+import { ReportButton } from "@/components/events/report-button";
 import { SaveButton } from "@/components/events/save-button";
 import { whenText } from "@/components/events/event-card";
 import { Badge } from "@/components/ui/badge";
@@ -99,6 +100,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
       )}
       <SaveButton eventId={event.id} />
       <EventActions event={event} />
+      <ReportButton subjectType="event" subjectId={event.id} />
     </main>
   );
 }
