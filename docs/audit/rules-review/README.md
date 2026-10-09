@@ -27,8 +27,8 @@ After the review, a second independent Fable pass (the owner has remaining credi
 | 4 | `code-quality.md`, `naming-conventions.md`, `ui.md` | Done (PR 128) |
 | 5 | `database.md` | Done (PR 132) |
 | 6 | `auth.md` | Done (PR 134) |
-| 7 | `api.md` | This pull request |
-| 7b | `services.md`, `shared-code.md`, `mobile.md`, `web.md` | Next |
+| 7 | `api.md` | Done (PR 136) |
+| 8 | `services.md`, `shared-code.md`, `mobile.md`, `web.md` | This pull request |
 | 7c | New rule documents proposed by the owner: user permissions and roles, payments, third-party connectors; plus a risk-and-legal document | Queued |
 | 7 | `security.md`, `environment.md`, `deployment.md`, `stack.md`, `issues.md`, `product-development.md` | Queued |
 | 8 | `testing.md` and `docs/automation/*`, template documents | Queued |

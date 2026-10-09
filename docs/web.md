@@ -9,9 +9,9 @@ The Web application lives in `apps/web`.
 * shadcn/ui (see `/docs/ui.md`)
 * Deployed on Vercel
 
-Clerk is integrated in the Web app (see `/docs/auth.md`). Drizzle ORM and the Neon serverless driver are installed; the server-only connection lives in `apps/web/db` and no tables are defined yet (see `/docs/database.md`).
+Clerk is integrated in the Web app (see `/docs/auth.md`). Drizzle ORM and the Neon serverless driver are installed; the server-only connection lives in `apps/web/db` and no product tables are defined yet<!-- boilerplate:proof:start --> (the only tables are the generic demo ones, `migration_proof` and `proof_item`)<!-- boilerplate:proof:end --> (see `/docs/database.md`).
 
-Shared packages (`packages/shared`, `packages/validation`) exist but are not yet imported by the Web app. Add them to `transpilePackages` in `next.config.ts` at first import (see `/docs/shared-code.md`).
+Shared packages (`packages/shared`, `packages/validation`) are consumed as TypeScript source and are listed in `transpilePackages` in `next.config.ts`; add any new shared package there at its first import (see `/docs/shared-code.md`).
 
 ## Service layer
 
@@ -32,11 +32,13 @@ pnpm typecheck  # next typegen && tsc --noEmit
 pnpm build      # next build
 ```
 
-Database migration commands (Drizzle Kit). They read `DATABASE_ENV` (`dev|qa|stage|prod`) and `DATABASE_URL` from `apps/web/.env.local` (template: `apps/web/.env.example`) and refuse `prod`. Confirm the target environment before running `db:migrate`.
+Database migration commands (Drizzle Kit). They read `DATABASE_ENV` (`dev|qa|stage|prod`) and `DATABASE_URL` from `apps/web/.env.local` (template: `apps/web/.env.example`) and refuse `prod`. Reset and seed commands are in `/docs/database.md` section 12.2. Confirm the target environment before running `db:migrate`.
 
 ```text
-pnpm --filter web db:generate  # drizzle-kit generate (SQL migrations to apps/web/drizzle)
-pnpm --filter web db:migrate   # drizzle-kit migrate (applies committed migrations)
+pnpm --filter web db:generate --name=<slug>      # drizzle-kit generate (SQL migrations to apps/web/drizzle; no database access)
+pnpm --filter web db:migrate --env=dev|qa|stage # apply committed migrations (guarded; --env is mandatory; refuses prod)
+pnpm --filter web db:migrate:status --env=...   # read-only: applied vs pending
+pnpm --filter web db:migrate:verify --env=...   # read-only: nothing pending, no unknown history
 ```
 
 ## Global App Shell and navigation (Issue 68, experimental)
