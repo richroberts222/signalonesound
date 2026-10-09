@@ -1,6 +1,6 @@
 # S8 Admin and Moderation
 
-**Status: DRAFT, not approved.** Source: blueprint slice S8; `/docs/risk-and-legal.md` (report-and-takedown), `/docs/permissions.md`. Depends on: S2, S3. Owner decision recorded: organizer verification before publishing.
+**Status: APPROVED by the owner on 2026-10-09 (reviewed once by an independent reviewer). Built as its own issue; items under Owner decisions still need the owner.** Source: blueprint slice S8; `/docs/risk-and-legal.md` (report-and-takedown), `/docs/permissions.md`. Depends on: S2, S3. Owner decision recorded: organizer verification before publishing.
 
 ## Purpose
 

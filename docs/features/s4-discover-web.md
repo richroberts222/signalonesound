@@ -1,6 +1,6 @@
 # S4 Discover (Web)
 
-**Status: DRAFT, not approved.** Source: blueprint slice S4; product plan minimum features (interactive location map, search by distance, by date, by revival type, share links) and later Phase 1 (search by city, state or ZIP). Depends on: S3. Owner decisions recorded: attendee privacy posture (anonymous browsing, minimal saves, coarse location).
+**Status: APPROVED by the owner on 2026-10-09 (reviewed once by an independent reviewer). Built as its own issue; items under Owner decisions still need the owner.** Source: blueprint slice S4; product plan minimum features (interactive location map, search by distance, by date, by revival type, share links) and later Phase 1 (search by city, state or ZIP). Depends on: S3. Owner decisions recorded: attendee privacy posture (anonymous browsing, minimal saves, coarse location).
 
 ## Purpose
 

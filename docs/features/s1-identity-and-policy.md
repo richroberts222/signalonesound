@@ -1,6 +1,6 @@
 # S1 Identity and Policy
 
-**Status: DRAFT, not approved.** Source: blueprint slice S1; `/docs/auth.md` section 19 (account lifecycle), `/docs/risk-and-legal.md` (collection gate), `/docs/secure-coding.md`. Depends on: S0; terms and privacy text approved by the owner (generic now, attorney review before launch).
+**Status: APPROVED by the owner on 2026-10-09 (reviewed once by an independent reviewer). Built as its own issue; items under Owner decisions still need the owner.** Source: blueprint slice S1; `/docs/auth.md` section 19 (account lifecycle), `/docs/risk-and-legal.md` (collection gate), `/docs/secure-coding.md`. Depends on: S0; terms and privacy text approved by the owner (generic now, attorney review before launch).
 
 ## Purpose
 

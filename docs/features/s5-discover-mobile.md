@@ -1,6 +1,6 @@
 # S5 Discover (Mobile)
 
-**Status: DRAFT, not approved.** Source: blueprint slice S5; product plan ("Mobile app for iPhone/Android", map, search, share). Depends on: S4 (API stable), S0 (skeleton). Q-011 (app name and store identity) is needed before external testers.
+**Status: APPROVED by the owner on 2026-10-09 (reviewed once by an independent reviewer). Built as its own issue; items under Owner decisions still need the owner.** Source: blueprint slice S5; product plan ("Mobile app for iPhone/Android", map, search, share). Depends on: S4 (API stable), S0 (skeleton). Q-011 (app name and store identity) is needed before external testers.
 
 ## Purpose
 

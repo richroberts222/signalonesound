@@ -1,6 +1,6 @@
 # S0 Walking Skeleton
 
-**Status: DRAFT, not approved. Authorizes nothing until the owner approves the issue.** Source: `/docs/product/blueprint.md` slice S0; `/docs/product/product-plan.md` (Phase 1 minimum scope, mobile and web together). Depends on: Wave 0 (owner: lift the app-code pause; Expo account and `eas login`).
+**Status: APPROVED by the owner on 2026-10-09 (reviewed once by an independent reviewer). Built as its own issue; items under Owner decisions still need the owner.** Source: `/docs/product/blueprint.md` slice S0; `/docs/product/product-plan.md` (Phase 1 minimum scope, mobile and web together). Depends on: Wave 0 (owner: lift the app-code pause; Expo account and `eas login`).
 
 ## Purpose
 
