@@ -338,6 +338,8 @@ Client display formatting may use the user's locale/timezone, but server filteri
 
 Date-related bugs must not be fixed by arbitrary offset adjustments.
 
+**Gate:** the platform conventions for time zones, recurrence, money and units are not yet decided. They must be decided and written down before the first table that stores a date, time, amount or measurement is created (audit F-ARCH-001).
+
 ---
 
 # 15. Loading, Empty, Error, and Unauthorized States
