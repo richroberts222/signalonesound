@@ -382,6 +382,8 @@ Use them when the operation has a real atomicity requirement.
 
 Transaction boundaries should normally be controlled server-side at the service/data layer, not by client code.
 
+**Driver limit:** the `neon-http` driver has no interactive transactions (`db.transaction` throws). Use `db.batch([...])` for atomic multi-statement writes whose statements do not depend on each other's results; anything needing read-then-write inside one transaction is an architectural decision. See `/docs/database.md` (Driver decision) and `/docs/services.md`.
+
 ---
 
 # 15. Create Operations
@@ -606,6 +608,8 @@ Distinguish:
 Do not rely on accidental JavaScript timezone conversion.
 
 The server must validate and normalize values according to the feature's documented meaning.
+
+**Gate:** the platform conventions for time zones, recurrence, money and units are not yet decided. They must be decided and written down before the first table that stores a date, time, amount or measurement is created (audit F-ARCH-001).
 
 ---
 
