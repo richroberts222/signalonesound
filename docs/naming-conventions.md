@@ -17,7 +17,7 @@ User-facing text must not shorten the name to "Signal One", "ROCK", "ROCK SOS", 
 Observed state, not a target. The in-repo technical brand is "Signal One" / `signalone`, which predates this document:
 
 * Root package `signalone`; shared packages under the `@signalone/*` scope; workspaces `web`, `mobile`.
-* Docs and README use "Signal One"; the mobile Expo `name` is "Signal One". The web header wordmark, home page title, and page metadata now read "Signal One Sound" (Issue #66, via `BrandWordmark`). Other user-facing "Signal One" copy may exist in the apps (for example the dashboard, Clerk copy, and mobile); correcting it to "Signal One Sound" is a separate approved application slice, out of scope for documentation work.
+* Docs and README use "Signal One"; the mobile Expo display `name` is "Signal One Sound" (the slug, scheme and bundle identifiers keep the technical `signalone`). The web header wordmark, home page title, and page metadata now read "Signal One Sound" (Issue #66, via `BrandWordmark`). Other user-facing "Signal One" copy may exist in the apps (for example the dashboard, Clerk copy, and mobile); correcting it to "Signal One Sound" is a separate approved application slice, out of scope for documentation work.
 * Tooling ledger schema `signalone_tooling`.
 * No Expo bundle/application IDs, database names, or Neon/Clerk/Vercel project names are recorded in the repository.
 

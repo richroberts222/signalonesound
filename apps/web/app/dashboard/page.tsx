@@ -19,7 +19,7 @@ export default async function DashboardPage() {
   const name =
     [user.firstName, user.lastName].filter(Boolean).join(" ") ||
     user.username ||
-    "Signal One user";
+    "Signal One Sound member";
   const email = user.primaryEmailAddress?.emailAddress;
 
   return (
