@@ -32,3 +32,30 @@ jobs:
 
       - name: Run validation
         run: pnpm validate
+
+  template-proof:
+    # Generates a brand-new application from this repository and runs that application's own
+    # install, lint, typecheck, tests, build and first migration. Guard tests that only pass in
+    # the reference application are caught here (docs/lessons.md). Informational until it has
+    # been green for a week; then it can become a required check.
+    name: Template proof
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prove a generated application passes its own checks
+        run: pnpm prove:init --full

@@ -1,0 +1,45 @@
+name: Health
+
+# Weekly dependency and tooling health. Reports problems; never blocks a merge.
+# A failing step is a prompt to open an issue (docs/stack.md, docs/security.md).
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    name: Dependency and tooling health
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Known vulnerabilities in runtime dependencies (high and above)
+        continue-on-error: true
+        run: pnpm audit --prod --audit-level=high
+
+      - name: Unmet peer dependencies
+        continue-on-error: true
+        run: pnpm peers check
+
+      - name: Expo SDK compatibility
+        continue-on-error: true
+        working-directory: apps/mobile
+        run: pnpm check:deps

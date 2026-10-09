@@ -88,6 +88,7 @@ A new application starts with **no migrations and an empty schema**: the proof t
 * Product documents that name Signal One Sound belong under `docs/product`, `docs/features` or `docs/audit` (reference-only, never copied or scanned). A guard test or document outside those folders must not name proof-slice files or say "Signal One", or the detector reports a false leak.
 * Export, the self-test and `prove:init` copy only files git tracks, so untracked scratch files and local settings never travel; outside a git checkout they fall back to a folder walk. `prove:init` removes its temp copy on every exit, including a failed step (unless `--keep`).
 * Do not add Signal One domain code to files the init rewrites by text substitution without checking `pnpm test:boilerplate`.
+* The full generated-application proof (`pnpm prove:init --full`) runs in CI as the `Template proof` job on every pull request (informational until green for a week). Run it locally too whenever a guard test is added.
 * The self-test copies the repository to a temp directory, runs the real init with a non-Signal-One identity, and asserts the detector is clean and negative controls fire. It does not run `pnpm install` or a build (network, minutes); run `pnpm prove:init --full` for that when the template changes materially and record the result in the PR conversation.
 
 ## Known gaps
