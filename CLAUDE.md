@@ -49,6 +49,7 @@ Expected documentation includes:
 * `/docs/mobile.md`
 * `/docs/shared-code.md`
 * `/docs/testing.md`
+* `/docs/qa-strategy.md` (test layers, definition of done, regression policy, security testing)
 * `/docs/deployment.md`
 * `/docs/git-workflow.md`
 * `/docs/ui.md`
