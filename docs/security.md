@@ -106,7 +106,7 @@ The API foundation (`/docs/api.md`) implements the authenticate, validate, autho
 
 ### Dependencies
 
-`pnpm audit --prod` reported no known vulnerabilities when run for this issue. No dependency changes were made.
+`pnpm audit --prod` is not run in CI and its result changes over time. On 2026-10-09 it listed 5 advisories (4 high, 1 moderate): `node-forge` and `braces` (no patched version exists; transitive through Expo and shadcn tooling), `source-map-js` and `@modelcontextprotocol/sdk` (transitive development tooling), and one moderate. A high advisory in Next.js itself (server-side request forgery in image optimization) was fixed by updating to 16.3.8. Dependabot version updates are on; Dependabot alerts and security updates depend on a repository setting (owner action). Treat a high advisory in a runtime package as a stop-and-fix item; transitive items with no fix are recorded and revisited when a patch ships.
 
 ## Gaps (not yet implemented)
 
