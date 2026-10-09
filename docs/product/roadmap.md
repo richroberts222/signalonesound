@@ -35,3 +35,7 @@ Raised by Rich for a later Data Requirements Review; not approved and not design
 * Events not tied to any organization (for example some community submissions).
 
 Claude may recommend a next slice in the issue/PR conversation but must not start it without authorization.
+
+## Proposed full-application plan (draft)
+
+A draft blueprint of the whole application and its delivery slices (S0 to S9 for the Phase 1 minimum scope, then later waves) is in `/docs/product/blueprint.md`. It is a proposal for the owner's approval and an independent review; it does not approve or schedule any slice. Each slice still needs its own approved issue and specification.
