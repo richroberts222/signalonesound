@@ -81,6 +81,18 @@ describe("server-only modules", () => {
     expect(offenders).toEqual([]);
   });
 
+  it("the database libraries are imported only by the data layer and its tooling", () => {
+    // docs/database.md sections 5 and 8: queries and raw SQL live behind the data-access layer.
+    const allowedDirs = ["db/", "scripts/", "drizzle/"];
+    const allowedFiles = ["drizzle.config.ts"];
+    const offenders = sources(web)
+      .filter((f) => !isTest(f))
+      .map((f) => relTo(web, f))
+      .filter((f) => !allowedDirs.some((d) => f.startsWith(d)) && !allowedFiles.includes(f))
+      .filter((f) => /from\s+["'](?:drizzle-orm|drizzle-kit|@neondatabase\/)/.test(read(join(web, f))));
+    expect(offenders).toEqual([]);
+  });
+
   it("'use client' files never import server-only, db, or tooling modules", () => {
     const forbidden = /from\s+["'](?:server-only|@\/db(?:\/[^"']*)?|@\/lib\/env\/server|\.{1,2}\/[^"']*(?:\/db|lib\/env\/server|db\/env)[^"']*|drizzle-orm[^"']*|@neondatabase[^"']*|@clerk\/nextjs\/server)["']|import\s+["']server-only["']/;
     const offenders = sources(web)

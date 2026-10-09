@@ -410,6 +410,8 @@ Neon branching may be used later for temporary database testing if there is a do
 
 Resetting a Neon child branch from a parent can replace data/state. Such operations must be deliberate and must never be performed against production accidentally.
 
+A Neon child branch starts as a copy of its parent's data. While `prod` is empty this is harmless. **Once `prod` holds real user data, no child branch may be created, or reset from its parent, from `prod`**: that would copy real data into a lower environment. Before real data exists, decide between creating children from an empty baseline and placing `prod` in its own Neon project (audit F-DATA-006, decided together with F-DATA-004).
+
 ---
 
 # 14. Environment Variables
@@ -613,7 +615,7 @@ At the time this document is established:
 
 - Neon is the selected PostgreSQL host.
 - The Signal One Neon project exists.
-- Persistent `dev`, `qa`, `stage`, and production environments are being established.
+- The intended `dev`, `qa`, `stage`, and production environments are being established. Which branches actually exist is recorded in `/docs/deployment.md` (only the default `production` branch is confirmed).
 - Clerk authentication is operational.
 - Drizzle is the selected ORM/schema/migration layer.
 - Detailed Signal One application schema design is still to be developed.
