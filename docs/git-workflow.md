@@ -454,3 +454,13 @@ The preferred workflow is:
 Claude is responsible for maintaining the branch and preparing the Pull Request.
 
 **The human developer owns `main`.**
+
+## Slices, seeing everything together, and unplugging a slice
+
+Each product slice (`/docs/features/`) is its own issue, branch and pull request, as above. Three tools keep every slice easy to inspect, combine and take back out:
+
+1. **Revert.** Pull requests are merged with a merge commit, so one slice is removed by reverting that one merge commit (`git revert -m 1 <merge commit>`) in its own pull request. Nothing else changes. Each finished slice is also tagged (`slice-s0`, `slice-s1`, ...) so it can be found and compared.
+2. **Feature flags for unfinished or optional slices.** A slice that is merged but should not be visible yet (for example a screen that depends on a later slice) is hidden behind a flag read from the server configuration, off by default. Turning a slice off needs no code change. Database changes are forward-only and additive, so a hidden slice's tables can stay without harm; a reverted slice is cleaned up by a new migration, never by editing an old one.
+3. **An integration view.** To see several unmerged slices together before deciding, create a throwaway branch `integration/<name>` from `main` and merge the slice branches into it. Vercel publishes a preview of that branch. It is for looking only: it is never merged into `main`, is rebuilt from the slice branches when they change, and is deleted afterward. Slices that depend on each other are merged in their dependency order.
+
+`main` always stays releasable: only reviewed, validated pull requests reach it.
