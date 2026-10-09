@@ -2,6 +2,7 @@
 // `pnpm test:boilerplate`. Copies the repository to a temp directory, runs the
 // real init against a non-Signal-One identity, and checks the leak detector.
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -10,7 +11,7 @@ import { fileURLToPath } from "node:url";
 
 import { checkBoilerplate } from "./check-boilerplate.mjs";
 import { initApp, stripMarkedRegions, validateIdentity } from "./init-app.mjs";
-import { walk } from "./manifest.mjs";
+import { listSourceFiles, walk } from "./manifest.mjs";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const identity = { name: "Harbor Notes", slug: "harbor-notes", scope: "harbor", bundleId: "com.harbornotes.app" };
@@ -20,7 +21,7 @@ const isReference = existsSync(path.join(repo, "scripts/boilerplate/export-templ
 function copyTemplate() {
   const dir = mkdtempSync(path.join(tmpdir(), "boilerplate-"));
   temps.push(dir);
-  for (const file of walk(repo)) {
+  for (const file of listSourceFiles(repo)) {
     mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
     cpSync(path.join(repo, file), path.join(dir, file));
   }
@@ -110,6 +111,23 @@ describe("boilerplate tooling", () => {
     writeFileSync(path.join(root, "apps/web/.env.local"), `DATABASE_URL=${fake}\n`);
     const findings = checkBoilerplate(root);
     assert.deepEqual(findings.map((f) => `${f.rule}:${f.file}`), ["secret:apps/web/leak.ts"]);
+  });
+
+  it("copies only committed files: untracked files and local env files stay behind", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "boilerplate-git-"));
+    temps.push(dir);
+    const git = (...args) => spawnSync("git", args, { cwd: dir, encoding: "utf8" });
+    git("init", "-q");
+    writeFileSync(path.join(dir, "tracked.txt"), "kept");
+    git("add", "tracked.txt");
+    writeFileSync(path.join(dir, "untracked.txt"), "scratch");
+    writeFileSync(path.join(dir, ".env.local"), "SECRET=x");
+    assert.deepEqual(listSourceFiles(dir), ["tracked.txt"]);
+    // Not a git checkout (an exported template): fall back to the folder walk.
+    const plain = mkdtempSync(path.join(tmpdir(), "boilerplate-plain-"));
+    temps.push(plain);
+    writeFileSync(path.join(plain, "a.txt"), "a");
+    assert.deepEqual(listSourceFiles(plain), ["a.txt"]);
   });
 
   it("region stripping handles block and inline markers", () => {

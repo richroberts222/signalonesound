@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 
 import { checkBoilerplate } from "./check-boilerplate.mjs";
 import { initApp } from "./init-app.mjs";
-import { isLocalEnvFile, walk } from "./manifest.mjs";
+import { isLocalEnvFile, listSourceFiles } from "./manifest.mjs";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const identity = { name: "Harbor Notes", slug: "harbor-notes", scope: "harbor", bundleId: "com.harbornotes.app" };
@@ -24,11 +24,13 @@ const full = process.argv.includes("--full");
 const keep = process.argv.includes("--keep");
 
 const root = mkdtempSync(path.join(tmpdir(), "harbor-notes-"));
-for (const file of walk(repo)) {
+for (const file of listSourceFiles(repo)) {
   if (isLocalEnvFile(path.posix.basename(file))) continue; // never copy local secrets into the temp copy
   mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
   cpSync(path.join(repo, file), path.join(root, file));
 }
+// Remove the temp copy on every exit path (including a failed step), unless --keep.
+if (!keep) process.on("exit", () => rmSync(root, { recursive: true, force: true }));
 console.log(`== copied template to ${root}`);
 
 initApp({ root, ...identity });
@@ -72,4 +74,3 @@ if (full) {
 
 console.log(`\nPROOF OK (${full ? "full" : "init + leak check"})`);
 if (keep) console.log(`kept: ${root}`);
-else rmSync(root, { recursive: true, force: true });
