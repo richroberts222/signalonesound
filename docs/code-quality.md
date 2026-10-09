@@ -158,7 +158,7 @@ The owner chose Robert C. Martin's approach. This project follows **Clean Code**
 | --- | --- |
 | Single responsibility | Cohesive modules and focused functions (section 4). Martin favors very small functions; this project splits by responsibility and sets no numeric limit |
 | Open/closed | Extend through composition, variants and new adapters, not by editing stable code (section 1) |
-| Liskov substitution | The real and the fake repository are interchangeable: one acceptance suite runs against both (`proof-items.acceptance-suite.ts`) |
+| Liskov substitution | The real and the fake repository are interchangeable: one acceptance suite runs against both |
 | Interface segregation | Small contracts (`Actor`, `Rule`, a service's own repository type), not wide shared ones |
 | Dependency inversion | The service layer depends on ports it defines; adapters implement them; the composition root (`lib/composition.ts`) wires them (section 2) |
 | Dependency rule | Source dependencies point inward: UI, then API adapter, then services, then ports; infrastructure plugs in from outside (section 3) |
@@ -170,7 +170,7 @@ An interface is required wherever the platform meets something external or repla
 | Boundary | Port | Adapter (the only importer of the vendor SDK) | Status |
 | --- | --- | --- | --- |
 | Identity and sign-in | `getUserId` supplied to `createApiRoute`; `Actor` | `lib/auth` (Clerk) | Exists |
-| Data access | A repository type per service (for example `ProofItemRepo`) with a fake | `db/*` (Drizzle on Neon) | Exists |
+| Data access | A repository type per service, with a fake | `db/*` (Drizzle on Neon) | Exists |
 | Unexpected-error reporting | `onUnexpected` hook | `lib/api/report.ts` | Exists |
 | Payments and subscriptions | Not defined | Not built | Create with the first payment feature |
 | Email and notifications (including push) | Not defined | Not built | Create with the first message feature |
