@@ -75,4 +75,4 @@ Data flows `database row -> domain model -> transport contract -> UI model`. Map
 * **Serialization.** Contracts must be JSON-serializable: no `Date`, `bigint`, or class instances; use ISO strings for moments and document their meaning.
 * **Portability.** The two packages contain nothing application-specific, so they can be extracted into a boilerplate.
 
-Not yet defined: API route wiring, HTTP status mapping, and version routing. These belong to the API foundation (`/docs/api.md`, currently empty).
+API route wiring, HTTP status mapping and version routing are defined in `/docs/api.md`.

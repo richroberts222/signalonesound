@@ -123,6 +123,28 @@ describe("server-only modules", () => {
       .map(rel);
     expect(offenders).toEqual([]);
   });
+
+  it("dependencies flow apps -> validation -> shared, never the reverse", () => {
+    // docs/code-quality.md section 3 and docs/shared-code.md: packages never import app code,
+    // and shared never imports validation. Relative paths that leave a package would bypass
+    // the package manager's own check, so they are rejected here.
+    const importsOf = (f: string) => [...code(f).matchAll(/(?:from\s+|import\s*\(\s*|import\s+)["']([^"']+)["']/g)].map((m) => m[1]);
+    const problems = ["shared", "validation"].flatMap((pkg) =>
+      sources(join(repo, "packages", pkg, "src"))
+        .filter((f) => !isTest(f))
+        .flatMap((f) =>
+          importsOf(f)
+            .filter(
+              (spec) =>
+                /(^|\/)apps\//.test(spec) ||
+                (spec.startsWith(".") && !join(f, "..", spec).startsWith(join(repo, "packages", pkg))) ||
+                (pkg === "shared" && spec.startsWith("@signalone/validation")),
+            )
+            .map((spec) => `${rel(f)} imports ${spec}`),
+        ),
+    );
+    expect(problems).toEqual([]);
+  });
 });
 
 describe("committed files contain no real secrets", () => {

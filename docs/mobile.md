@@ -38,7 +38,7 @@ Note: `@signalone/shared` includes pure server/database env parsers. They are bu
 ## Backend boundary
 
 * Mobile talks to the Signal One HTTP API only. It never connects to Neon, never imports `drizzle-orm`, and never imports from `apps/web`.
-* The API must expose what mobile needs as documented contracts (`/docs/api.md` is still empty and must be defined before mobile features are built).
+* The API must expose what mobile needs as documented contracts (defined in `/docs/api.md`; the bearer-token path is accepted by the API but has not yet carried a real token from a mobile client).
 * API auth for mobile uses Clerk session tokens sent as bearer tokens and validated on the server (`/docs/auth.md` sections 2 and 5). Mobile does not implement its own identity or authorization; the web/backend auth foundation is not redesigned here.
 
 ## Configuration
@@ -83,7 +83,7 @@ Mobile calls the API through the same shared client as Web (`createApiClient` / 
 
 ## Remaining scaffolding work
 
-1. Add `@clerk/expo`, secure token storage, and an API client once `/docs/api.md` and the auth contract exist.
+1. Add `@clerk/expo`, secure token storage, and an API client (the API contract in `/docs/api.md` and the auth rules in `/docs/auth.md` now exist; this is the first step of the walking skeleton).
 2. Choose a navigation approach when the first feature screens are designed.
 3. Decide store identifiers and EAS project setup.
 4. Decide a component-test approach (for example `jest-expo`) when the first interactive component warrants it.
