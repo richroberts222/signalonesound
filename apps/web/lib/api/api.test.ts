@@ -91,6 +91,22 @@ describe("API adapter: request lifecycle", () => {
     expect(serviceCalls).toHaveBeenCalledTimes(1);
   });
 
+  it("counts the body cap in bytes, so multi-byte text cannot slip past it", async () => {
+    // Four-byte characters count as two in a string length but four on the wire. 30,000 of them is
+    // 60,000 by length (under the cap) and 120,000 bytes (over it). Unknown fields are stripped, so
+    // the body is otherwise schema-valid and only the cap can reject it.
+    const wide = String.fromCodePoint(0x1f600).repeat(30000);
+    const body = JSON.stringify({ id: "a", label: "b", pad: wide });
+    expect(body.length).toBeLessThan(MAX_BODY_BYTES);
+    expect(new TextEncoder().encode(body).length).toBeGreaterThan(MAX_BODY_BYTES);
+    serviceCalls.mockClear();
+    const res = await makeRoute("user_1")(post(body, true));
+    expect(res.status).toBe(400);
+    const json = (await res.json()) as Result<never>;
+    expect(json.ok === false && json.error.message).toMatch(/too large/i);
+    expect(serviceCalls).not.toHaveBeenCalled();
+  });
+
   it("does not echo submitted values in validation errors", async () => {
     const res = await makeRoute("user_1")(post({ id: "a", label: "SUBMITTED_SENTINEL".repeat(5) }));
     expect(await res.text()).not.toContain("SUBMITTED_SENTINEL");

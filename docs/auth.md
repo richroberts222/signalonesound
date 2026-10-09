@@ -335,6 +335,17 @@ If a significant authentication decision cannot be resolved from the existing do
 
 ---
 
+## 19. Account lifecycle
+
+Accounts end, change and are suspended outside the application (in Clerk), so the application learns about it through events and keeps its own data in step.
+
+* **Deletion.** When a user deletes their account (including the in-app deletion that the app stores require), every row they own is deleted or anonymized according to its declared deletion path in `/docs/data-inventory.md`. The same path serves a deletion request received any other way. Deleting a user in Clerk without removing the application's data is a defect.
+* **Events.** Clerk `user.deleted` and `user.updated` (and suspension) events arrive as webhooks, verified by signature, idempotent and safe to replay (`/docs/integrations.md`). The handler calls the same service as in-app deletion; it never deletes directly.
+* **Export.** A user can request a copy of their data, produced from the inventory (`/docs/risk-and-legal.md`).
+* **Declared at design time.** Every table with an owner column states its deletion behavior (the data inventory test enforces that it is declared). The webhook handler, deletion service and export are built with the first user-owned table; they are a launch gate (F-AUTH-003, F-DATA-009).
+
+Status: rule decided, enforcement of the declaration built, handler and service not built.
+
 ## Appendix: Web Clerk Implementation
 
 Implemented in `apps/web` with `@clerk/nextjs` v7 (Clerk Core 3), Next.js 16 App Router. Mobile authentication and database user storage are not yet implemented. The API adapter accepts a Clerk bearer token (`lib/api/route.ts`), but no mobile client has sent one yet. Clerk instance type per environment: development for local, Preview and Production today (no production Clerk instance exists yet).

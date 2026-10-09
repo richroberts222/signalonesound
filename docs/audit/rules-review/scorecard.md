@@ -28,7 +28,7 @@ Standards named in the ledgers come from established practice and are not re-fet
 | | Mobile sign-in with a Clerk bearer token | **Low** | The API accepts the token; no real token has ever been carried |
 | | Two-factor sign-in | **None** | Accepted risk (owner) |
 | **API** | Authenticate first, validate, one response envelope, safe errors, versioning | **High** | Authentication, caching header, internal-error text, size cap and off-by-one all broken and caught (api ledger) |
-| | Additive-only versioning, old mobile builds keep working | **Low** | Rule is sound; no contract-compatibility test yet |
+| | Additive-only versioning, old mobile builds keep working | **High** (generic contracts) | Snapshot compatibility test; four breaking changes caught and a compatible addition allowed; domain contracts are added with their features |
 | | Security headers (anti-framing, nosniff, referrer and permissions policy, HTTPS) | **High** | Four breaks caught; confirmed on a real running build (page and API route) |
 | | Full script policy (CSP script-src), rate limiting | **None** | Not in place (F-SEC-005, F-SEC-006) |
 | | Hostile API payloads (nesting bombs, prototype pollution, wrong types, injection-looking text) | **High** | New suite; two sabotages of the adapter caught |
@@ -43,6 +43,9 @@ Standards named in the ledgers come from established practice and are not re-fet
 | **Database** | Versioned migrations only; `drizzle-kit push` never exposed; unknown history flagged | **High** | W7 and W13 caught |
 | | Reset and seed: dev and qa only; never drop or alter migration history | **High** | Two real behavior breaks caught (W8b, W8c) |
 | | Transactions limit of the `neon-http` driver is documented | **Medium** | Recorded by a test; the rule documents agree |
+| | Destructive migrations need an explicit approval marker | **High** | Guard added; an unapproved DROP fails; the same statement with the marker passes |
+| | Every stored column is classified (tier, purpose, retention, deletion path); no restricted data; owner columns declare deletion | **High** | `data-inventory.md` tied to `schema.ts` by a test; five breaks caught |
+| | Request-size cap counts bytes | **High** | Four-byte-character body fails; reverting to character counting fails the test |
 | | Backups, restore drill, production migration procedure, role separation | **None** | Not done (F-DATA-001, -002, -005) |
 | | Neon branches exist as designed | **Low** | Only the default branch is confirmed |
 | **UI** | Every control from shadcn/ui; no raw colors | **Medium** | Two ratchet guards proven (downgraded after independent verification: the enforcement covers only part of the rule while exceptions remain); **17 raw controls and 8 raw colors remain by allowance** (issue 91) |
