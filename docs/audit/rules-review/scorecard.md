@@ -58,7 +58,7 @@ Standards named in the ledgers come from established practice and are not re-fet
 | | Integration and browser tests run in CI | **None** | Not in CI (F-TEST-002) |
 | | Documentation index complete and `CLAUDE.md` concise | **High** | Guard proven two ways (unlinked document fails; padding fails) |
 | | Documentation matches the code | **Low** | Every document reviewed once; about 25 stale statements fixed; no automatic drift check by decision |
-| | Dependency and tooling compatibility | **Low** | Rule written; majors skipped by Dependabot; peer and Expo checks run by hand, not in CI |
+| | Dependency and tooling compatibility | **Low** | Rule written; majors skipped by Dependabot; peer and Expo checks run weekly in `health.yml` but only report (nothing can fail a merge) |
 | **Template** | Identity rewrite, leak detection, copy only committed files, generated app passes its own checks | **High** | Several breaks caught; the full generated-app proof re-run found and fixed a real bug |
 | | The product features are removed from a generated app | **None** | Gap (independent audit B1) |
 | **Legal and risk** | Collection gate, age rule, terms and privacy, deletion and export | **None** | Decided (`risk-and-legal.md`); not built |
@@ -111,8 +111,19 @@ An independent reviewer with no prior knowledge challenged this scorecard by rea
 | Migrations (A11) | Checked journal to files only | Also fails on a SQL file the journal does not list | An unlisted SQL file fails. Residual: `pnpm exec drizzle-kit push` is still possible by hand; the rule is enforced for package scripts only |
 | UI (A13) | 17 raw controls remain, so enforcement is partial | Rating lowered to Medium (above) | n/a |
 | Docs index (A14) | A file name anywhere in the text counted as linked | A document counts only as a code span or a /docs path | An unlinked document fails; an automation guide dropped from the table fails |
-| Template (A16) | Generated-app proof is run by hand | Planned: add it to CI (next step) | Pending |
+| Template (A16) | Generated-app proof is run by hand | Built: the `Template proof` CI job runs it on every pull request (informational until green for a week); the weekly `health.yml` reports audit, peer and Expo checks with a summary on each run | Job passed on its first real runs |
 
-Fable's other gaps (its Task C) are now rows of their own and are tracked: monitoring and alerting, logging and personal data in logs, dependency licensing, data retention schedule, performance budgets, cross-site request forgery and cookie settings for server actions, backups prioritized above several High rows, and mobile-specific guards (secure token storage, deep links). See `/docs/future-readiness.md` and `/docs/lessons.md`.
+Fable's other gaps (its Task C) are tracked in `/docs/future-readiness.md` section 5 (with rows for headers and backups above): monitoring and alerting, logging and personal data in logs, dependency licensing, data retention schedule, performance budgets, cross-site request forgery and cookie settings for server actions, backups prioritized above several High rows, and mobile-specific guards (secure token storage, deep links). See `/docs/future-readiness.md` and `/docs/lessons.md`.
 
 Added after the owner's questions on cross-site scripting, framing, API payloads and known and unknown vulnerabilities: the rows for headers, lint rules and hostile payloads above, and `/docs/secure-coding.md`.
+
+## 5. Second independent pass (Fable, 2026-10-09): re-check of its own concerns
+
+Result: **82% confidence** that the rule set is solid enough to start the first real feature (up from 70%). Six of the nine guard fixes were judged satisfied; three were judged partly satisfied with small, bounded gaps; all three rating changes were fair.
+
+| Item | Fable's finding | Fix |
+| --- | --- | --- |
+| A8 every API route wrapped | The check was per file: one wrapped handler could hide another exported as a plain function | Per-handler check (each exported method must be built by `apiRoute`, directly or by a helper handed `apiRoute`), with a self-test of the scanner; Fable's exact case is now caught. The scanner's first version missed a second unwrapped handler and its own self-test caught that |
+| A14 docs index | Matched anywhere in `CLAUDE.md`; product and feature documents not checked | Only the section 3 table counts; `docs/product/` and `docs/features/` are checked. The stricter check found a genuine miss at once (`code-quality-audit.md` was only named in prose); added to the table |
+| A16 template proof and health | Stale wording; the weekly workflow could never show a result | Wording corrected above; each weekly run now writes a summary table |
+| Most important open item | Backups and a restore drill (F-DATA-002) | Runbook, targets, procedure and an empty drill log in `database.md` section 12.4. **Not proven until a drill is logged**; the plan limits and any spending are the owner's decisions |

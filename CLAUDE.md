@@ -40,7 +40,7 @@ Before generating or significantly modifying code, check the relevant documentat
 
 | Area | Documents |
 | --- | --- |
-| Architecture and code | `architecture-rules.md` (authority), `code-quality.md`, `services.md`, `shared-code.md`, `stack.md` |
+| Architecture and code | `architecture-rules.md` (authority), `code-quality.md`<!-- boilerplate:reference:start -->, `code-quality-audit.md`<!-- boilerplate:reference:end -->, `services.md`, `shared-code.md`, `stack.md` |
 | Web and mobile | `web.md`, `mobile.md`, `ui.md`, `routing.md`, `server-components.md` |
 | Data | `database.md`, `data-fetching.md`, `data-mutations.md` |
 | API and integrations | `api.md`, `integrations.md`, `payments.md` |

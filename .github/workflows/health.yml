@@ -32,14 +32,32 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Known vulnerabilities in runtime dependencies (high and above)
+        id: audit
         continue-on-error: true
         run: pnpm audit --prod --audit-level=high
 
       - name: Unmet peer dependencies
+        id: peers
         continue-on-error: true
         run: pnpm peers check
 
       - name: Expo SDK compatibility
+        id: expo
         continue-on-error: true
         working-directory: apps/mobile
         run: pnpm check:deps
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Weekly health"
+            echo ""
+            echo "| Check | Result |"
+            echo "| --- | --- |"
+            echo "| Known vulnerabilities (runtime, high and above) | ${{ steps.audit.outcome }} |"
+            echo "| Unmet peer dependencies | ${{ steps.peers.outcome }} |"
+            echo "| Expo SDK compatibility | ${{ steps.expo.outcome }} |"
+            echo ""
+            echo "A failure is a prompt to open an issue. Known and recorded exceptions are listed in docs/stack.md and docs/secure-coding.md."
+          } >> "$GITHUB_STEP_SUMMARY"
