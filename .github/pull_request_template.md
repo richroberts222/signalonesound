@@ -10,6 +10,7 @@ Closes #
 - [ ] Every numbered acceptance criterion is proven by a test (number in the title) or a manual step, or is listed as not automated with the reason
 - [ ] Every control in the feature is exercised by an action-and-effect test (or "no controls")
 - [ ] Every new test passed the breaker: the behavior was broken on purpose, the test failed, then it was restored. Result:
+- [ ] The tests for every criterion and control are in this pull request (automation ships with the feature); any manual-only item has a recorded reason
 - [ ] A bug fix adds a test that fails without the fix
 - [ ] No test, guard or validation was weakened, skipped or disabled to pass
 

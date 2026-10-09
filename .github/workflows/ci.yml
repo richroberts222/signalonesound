@@ -59,3 +59,24 @@ jobs:
 
       - name: Prove a generated application passes its own checks
         run: pnpm prove:init --full
+
+  fix-has-guard:
+    # A pull request that is a fix must add or change a test, or log a lesson (docs/lessons.md).
+    # Informational until it has been green for a week; then it can become a required check.
+    name: Fix has a guard
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Check that a fix carries a guard
+        env:
+          # Untrusted pull request text is passed through the environment, never interpolated into the script.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BRANCH: ${{ github.head_ref }}
+          BASE_REF: origin/${{ github.base_ref }}
+        run: node scripts/fix-has-guard.mjs

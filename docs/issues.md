@@ -97,7 +97,7 @@ Plan issue
 
 ## Every problem becomes a rule
 
-When a defect, mistake or near miss is found, the pull request that fixes it also closes the gap: add a guard (a test or check that fails; preferred, and proven by breaking the thing on purpose) or add the rule to the document that owns the topic. Record it in `/docs/lessons.md` with the root cause and what now prevents it. If the same cause appears twice, the first guard was too weak: widen it and mark the earlier lesson repeated. The pull request template asks whether the change revealed a gap.
+When a defect, mistake or near miss is found, the pull request that fixes it also closes the gap: add a guard (a test or check that fails; preferred, and proven by breaking the thing on purpose) or add the rule to the document that owns the topic. Record it in `/docs/lessons.md` with the root cause and what now prevents it. If the same cause appears twice, the first guard was too weak: widen it and mark the earlier lesson repeated. The pull request template asks whether the change revealed a gap. For fixes this is checked mechanically: the CI check `Fix has a guard` fails a fix that neither adds or changes a test nor logs a lesson (`/docs/lessons.md`).
 
 ## Bug reports, severity and blockers
 

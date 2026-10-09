@@ -38,6 +38,7 @@ A feature is **done** when its checklist is complete and nothing else. The check
 2. **Numbered acceptance criteria** (AC1, AC2, ...), each testable.
 3. **Controls inventory.** Every button, input, select, link and toggle, with its action and expected effect.
 4. **Proof for every item.** Each criterion and each control is ticked with the test (title carries the number) or the manual step that proves it. A criterion with no test is either automated or listed as not automated with the reason.
+4b. **Automation ships with the feature.** The tests for every criterion and every control are merged in the same pull request as the feature, not afterwards. "Manual only" is allowed for a criterion only with a recorded reason (for example a subjective visual check), and the human review steps are then written out. When the browser and integration job exists, it must be green for the feature's tests.
 5. **Every new test passed the breaker** (broken on purpose, failed, restored). The pull request reports the break and the result.
 6. **Layers.** The test plan (section 4) names the layers used and why.
 7. **Gates green.** `pnpm validate` and the pull request checks pass; the exact commands and results are reported.
@@ -75,6 +76,7 @@ A feature is **done** when its checklist is complete and nothing else. The check
 | `Integration and browser` | Migrate and reset the `qa` database, run the integration, API, acceptance and end-to-end tests; secrets in a protected GitHub Environment; skipped for Dependabot pull requests (they cannot read secrets); never any `prod` value | Planned (F-TEST-002); becomes a required check after a week green |
 | Accessibility scan | axe over the key pages | Planned |
 | Security scans | CodeQL (default setup), secret scanning, Dependabot alerts | Settings to enable (owner action) |
+| `Fix has a guard` | A pull request that is a fix must add or change a test, or log a lesson in `docs/lessons.md`; dependency-only fixes are exempt (`scripts/fix-has-guard.mjs`, self-tested by `pnpm test:scripts`); informational until green for a week | Built |
 | `Template proof` | Generates a new application from the template and runs its own install, lint, typecheck, tests, build and first migration (`pnpm prove:init --full`); informational until green for a week | Built |
 | Scheduled health (`health.yml`) | Weekly `pnpm audit`, `pnpm peers check` and `expo install --check`; reports, never blocks | Built |
 

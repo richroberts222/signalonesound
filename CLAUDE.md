@@ -8,7 +8,7 @@ Guidance for Claude Code in the Signal One repository. This file is the entry po
 
 1. **Documentation is the source of truth.** Read the relevant `/docs` file before significant work (§3). A missing or empty document means no rules yet, never invented rules. Undecided stays undecided; ask Rich (§17).
 2. **One platform, many clients.** The server is authoritative; clients never touch the database; replaceable boundaries get an interface (port); dependencies point inward (§4, §6, §7, `/docs/code-quality.md` §12).
-3. **Stay in scope, then stop.** Work to the issue's scope fence, numbered acceptance criteria and controls; when every item is proven, report "done, with proof" and stop. Recommend the next slice; never start it (`/docs/qa-strategy.md` §3).
+3. **Stay in scope, then stop.** Work to the issue's scope fence, numbered acceptance criteria and controls, with their automated tests in the same pull request; when every item is proven, report "done, with proof" and stop. Recommend the next slice; never start it (`/docs/qa-strategy.md` §3).
 4. **Tests must be meaningful.** Every new test must be shown failing when the behavior it protects is broken (`/docs/automation/test-value-review.md`). Never weaken, skip or disable a test, guard or validation to make a failure pass (§12).
 5. **Prove before claiming.** Run `pnpm validate`; commit, push and open a pull request only after it exits cleanly; report exact commands and results; never claim CI passed unless it ran.
 6. **Secure by default.** No secrets in committed files (§18); meet `/docs/secure-coding.md` (hostile input, data tiers: never store Social Security numbers, card numbers or medical records, no raw HTML).
@@ -17,7 +17,7 @@ Guidance for Claude Code in the Signal One repository. This file is the entry po
 9. **Database:** change schema only through the documented migration process; never touch `prod` (§13).
 10. **Legal gates:** no real user data is collected until the gates in `/docs/risk-and-legal.md` are met. That document is a checklist, not legal advice.
 11. **Workflow files, repository settings and security configuration** change only through a reviewed pull request or by the owner.
-12. **Every problem becomes a rule.** When a defect or mistake is found, add a guard (preferred) or a rule in the owning document in the same pull request, and log it in `/docs/lessons.md`. A repeat is a process failure: widen the guard.
+12. **Every problem becomes a rule.** When a defect or mistake is found, add a guard (preferred) or a rule in the owning document in the same pull request, and log it in `/docs/lessons.md`. A repeat is a process failure: widen the guard. A fix pull request must add or change a test, or log a lesson (CI enforces this).
 13. **Surface conflicts.** If instructions, documents and the repository disagree, say what was assumed, what exists and why it matters; stop and ask if the difference is material.
 
 ---
