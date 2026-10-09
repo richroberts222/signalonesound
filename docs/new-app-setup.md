@@ -36,7 +36,7 @@ All four pass with no environment variables and no accounts. The new application
 
 ## 4. Neon (`/docs/database.md`)
 
-1. Create a Neon project with one branch per environment: `dev`, `qa`, `stage`, `prod`. `prod` is created last and its credential never leaves the production host/Vercel Production scope.
+1. Create a Neon project with one branch per environment: `dev`, `qa`, `stage`, `prod`. `prod` is created last and its credential never leaves the production host/Vercel Production scope. Create the child branches from an empty baseline, not from a production branch that holds real data (`/docs/database.md` section 13).
 2. For each branch create a role that can reach only that branch's database; copy its connection string into the matching place in section 6.
 3. Set `DATABASE_ENV` to the environment the URL targets. `APP_ENV` is separate; it normally equals `DATABASE_ENV`, and a mismatch is refused.
 4. Lifecycle (all run from the repository root; `--env` must match `DATABASE_ENV`):

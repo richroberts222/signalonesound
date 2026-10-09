@@ -8,6 +8,13 @@ Suggested sections: feature name; product requirement/source (cite `/docs/produc
 
 Use the terms in `/docs/naming-conventions.md`. Mark unresolved items UNDECIDED.
 
+Every specification also states, so that the work has a clear stop line:
+
+* **Numbered acceptance criteria** (AC1, AC2, ...). Each is a testable statement, and each gets a test whose title carries its number (`/docs/automation/acceptance.md`).
+* **Controls inventory**: every button, input, select, link and toggle in the feature, each with the action it performs and the effect to check.
+* **Scope fence**: what is in and what is explicitly out. Work beyond the fence is a recommendation in the pull request, not part of the feature.
+* **Done checklist**: the acceptance criteria and controls ticked off with the test or manual step that proves each (`/docs/product-development.md` section 9). The feature is done when every item is ticked or listed as not automated with the reason; then work stops.
+
 ## Index
 
 No feature specifications exist yet.
