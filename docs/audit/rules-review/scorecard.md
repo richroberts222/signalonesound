@@ -35,13 +35,13 @@ Standards named in the ledgers come from established practice and are not re-fet
 | | Client code never imports server, database or tooling modules | **High** | W5, W6 caught |
 | | The database libraries only in the data layer; the Clerk SDK only in its adapter locations | **High** | Both guards added this review and proven |
 | | Dependencies flow apps, validation, shared; never the reverse; mobile imports no web or server code | **High** | Guard added and proven three ways; mobile imports of web code and the ORM caught; a server secret read in mobile caught (W12) |
-| | Ports at replaceable boundaries (Clean Architecture) | **Medium** | Three ports exist and two import guards enforce the adapters; the rest are created with their first feature |
+| | Ports at replaceable boundaries (Clean Architecture) | **Low** | Three ports exist and two import guards enforce the adapters; the rest are created with their first feature |
 | **Database** | Versioned migrations only; `drizzle-kit push` never exposed; unknown history flagged | **High** | W7 and W13 caught |
 | | Reset and seed: dev and qa only; never drop or alter migration history | **High** | Two real behavior breaks caught (W8b, W8c) |
 | | Transactions limit of the `neon-http` driver is documented | **Medium** | Recorded by a test; the rule documents agree |
 | | Backups, restore drill, production migration procedure, role separation | **None** | Not done (F-DATA-001, -002, -005) |
 | | Neon branches exist as designed | **Low** | Only the default branch is confirmed |
-| **UI** | Every control from shadcn/ui; no raw colors | **High** | Two ratchet guards proven; **17 raw controls and 8 raw colors remain by allowance** (issue 91) |
+| **UI** | Every control from shadcn/ui; no raw colors | **Medium** | Two ratchet guards proven (downgraded after independent verification: the enforcement covers only part of the rule while exceptions remain); **17 raw controls and 8 raw colors remain by allowance** (issue 91) |
 | | Accessibility (WCAG 2.2 AA) | **None** | Target stated; nothing enforced or measured (F-UX-002) |
 | **Git and delivery** | `main` protected: pull request, `Validate`, no force-push, no bypass | **Medium** | Read back from GitHub; cannot be broken safely |
 | | Merge only with the owner's explicit authorization | **Medium** | Rule in three documents; the permission prompt blocked an unclear authorization; not scripted |
@@ -53,8 +53,8 @@ Standards named in the ledgers come from established practice and are not re-fet
 | | Every new test must have a breaker | **Low** | Procedural until the pull request checklist exists |
 | | Integration and browser tests run in CI | **None** | Not in CI (F-TEST-002) |
 | | Documentation index complete and `CLAUDE.md` concise | **High** | Guard proven two ways (unlinked document fails; padding fails) |
-| | Documentation matches the code | **Medium** | Every document reviewed once; about 25 stale statements fixed; no automatic drift check by decision |
-| | Dependency and tooling compatibility | **Medium** | Rule written; majors skipped by Dependabot; peer and Expo checks run by hand, not in CI |
+| | Documentation matches the code | **Low** | Every document reviewed once; about 25 stale statements fixed; no automatic drift check by decision |
+| | Dependency and tooling compatibility | **Low** | Rule written; majors skipped by Dependabot; peer and Expo checks run by hand, not in CI |
 | **Template** | Identity rewrite, leak detection, copy only committed files, generated app passes its own checks | **High** | Several breaks caught; the full generated-app proof re-run found and fixed a real bug |
 | | The product features are removed from a generated app | **None** | Gap (independent audit B1) |
 | **Legal and risk** | Collection gate, age rule, terms and privacy, deletion and export | **None** | Decided (`risk-and-legal.md`); not built |
@@ -91,3 +91,22 @@ Earlier in the review (see the other ledgers): authentication and authorization 
 * **Where to trust the rules today:** secrets and environment safety, server-side authentication and the API, layer boundaries, database tooling, workflow security, the template mechanism.
 * **Where the rules are sound but unproven or unbuilt:** mobile, roles and permissions, payments and integrations, legal gates, release and rollback, accessibility, rate limits and headers, integration tests in CI.
 * **What would raise the next level of confidence:** the mobile walking skeleton, the CI integration job, the pull request checklist (the breaker and the definition of done), and the first feature built end to end under the definition of done.
+
+## 4. Independent verification (Fable, 2026-10-09) and what changed
+
+An independent reviewer with no prior knowledge challenged this scorecard by reading the guard tests and the code they protect (it could not run anything). Verdict: the rule set is solid enough to start the first real feature, confidence 70%. Of 16 "High" rows it agreed with 6 and rated 10 as really "Medium", because several scan-style guards were scoped narrower than the rules they claimed. Its three rating changes for the other rows (ports, documentation, dependency compatibility to Low) were fair and are accepted above. Each narrow guard it named was checked against the code (all were true) and widened, then proven again by breaking it.
+
+| Row (Fable's id) | Fable's finding | Fix | Proof |
+| --- | --- | --- | --- |
+| Secrets (A1) | Skipped test files and several file types; only five key shapes | Scans every text file type including SQL, scripts and tests (fixtures with obvious fake markers are accepted); adds AWS, Google, Slack, Neon and JWT shapes | A key-shaped value in a SQL file fails; a real-looking key in a test file fails; an obviously fake one still passes |
+| Test isolation (A5) | The list was checked against itself; mobile tests had no isolation | The expected list is written out in full; the mobile test configuration now uses the same setup | Removing a name fails |
+| Route protection (A7) | A second hand-kept list never compared with `proxy.ts` | New test reads the real matcher and requires it to equal the protected directories that exist | A directory marked protected in the test but not in `proxy.ts` fails |
+| API routes (A8) | Nothing forced a new API route to use `apiRoute` | New conformance test over every API route file (the 404 catch-all is the one documented exception) | A hand-written handler fails; an arrow function without the wrapper fails |
+| Services framework-free (A9) | Scanned only top-level files and single-line imports | Recursive, multi-line aware, with a self-test of the scan | A multi-line import of the framework fails; a Clerk import in a subfolder fails |
+| Clerk allow-list (A10) | Allowed the SDK in API routes | API routes removed from the allow-list | Clerk imported in an API route fails |
+| Migrations (A11) | Checked journal to files only | Also fails on a SQL file the journal does not list | An unlisted SQL file fails. Residual: `pnpm exec drizzle-kit push` is still possible by hand; the rule is enforced for package scripts only |
+| UI (A13) | 17 raw controls remain, so enforcement is partial | Rating lowered to Medium (above) | n/a |
+| Docs index (A14) | A file name anywhere in the text counted as linked | A document counts only as a code span or a /docs path | An unlinked document fails; an automation guide dropped from the table fails |
+| Template (A16) | Generated-app proof is run by hand | Planned: add it to CI (next step) | Pending |
+
+Fable's other gaps (its Task C) are now rows of their own and are tracked: monitoring and alerting, logging and personal data in logs, dependency licensing, data retention schedule, performance budgets, cross-site request forgery and cookie settings for server actions, backups prioritized above several High rows, and mobile-specific guards (secure token storage, deep links). See `/docs/future-readiness.md` and `/docs/lessons.md`.

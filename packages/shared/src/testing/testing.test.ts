@@ -8,6 +8,13 @@ describe("test setup isolation", () => {
     for (const name of ISOLATED_ENV_NAMES) expect(processEnv()[name]).toBeUndefined();
   });
 
+  it("isolates every variable that carries environment identity or a credential", () => {
+    // Written out in full on purpose: checking the list against itself would never notice a missing name.
+    expect([...ISOLATED_ENV_NAMES].sort()).toEqual(
+      ["APP_ENV", "CLERK_SECRET_KEY", "DATABASE_ENV", "DATABASE_URL", "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", "VERCEL_ENV"].sort(),
+    );
+  });
+
   it("clearIsolatedEnv removes only the isolated names", () => {
     const target: Record<string, string | undefined> = { DATABASE_URL: "x", APP_ENV: "prod", KEEP: "1" };
     clearIsolatedEnv(target);

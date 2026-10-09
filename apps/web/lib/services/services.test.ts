@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
@@ -176,20 +176,34 @@ describe("createAtomicRunner", () => {
 });
 
 describe("service layer boundaries (static)", () => {
-  const files = readdirSync(__dirname).filter((f) => f.endsWith(".ts") && !f.endsWith(".test.ts"));
+  // Every non-test file in the folder and its subfolders, so a service placed in a subfolder is covered.
+  const listFiles = (dir: string, prefix = ""): string[] =>
+    readdirSync(dir).flatMap((name) => {
+      const path = join(dir, name);
+      if (statSync(path).isDirectory()) return listFiles(path, `${prefix}${name}/`);
+      return name.endsWith(".ts") && !name.endsWith(".test.ts") ? [`${prefix}${name}`] : [];
+    });
+  const files = listFiles(__dirname);
   const source = (f: string) =>
     readFileSync(join(__dirname, f), "utf8")
       .replace(/\/\*[\s\S]*?\*\//g, "")
       .replace(/^\s*\/\/.*$/gm, "");
+  // Module specifiers of runtime imports and re-exports, including multi-line ones; type-only imports are fine.
+  const runtimeSpecifiers = (text: string) =>
+    [...text.replace(/(?:import|export)\s+type\b[\s\S]*?from\s*["'][^"']+["']/g, "").matchAll(/(?:\bfrom|\bimport)\s*\(?\s*["']([^"']+)["']/g)].map(
+      (m) => m[1],
+    );
 
   it("service code has no framework, Clerk, or database-client imports", () => {
-    const forbidden = /from\s+["'](react|react-native|expo|next|@clerk\/|server-only|drizzle-orm|@neondatabase\/|.*\/db\/(index|client)["'])/;
+    const forbidden = /^(react|react-native|expo|next|@clerk\/|server-only|drizzle-orm|@neondatabase\/)|\/db\/(index|client)$/;
     for (const f of files) {
-      for (const line of source(f).split("\n").filter((l) => /^\s*(import|export)\b.*from/.test(l) && !/^\s*import type\b/.test(l))) {
-        expect(line, f).not.toMatch(forbidden);
-      }
+      for (const spec of runtimeSpecifiers(source(f))) expect(spec, f).not.toMatch(forbidden);
     }
     expect(files).toContain("run.ts");
+  });
+
+  it("the import scan understands multi-line imports", () => {
+    expect(runtimeSpecifiers('import {\n  a,\n  b,\n} from "next/server";\nimport type { T } from "react";')).toEqual(["next/server"]);
   });
 
   it("service code does not use FormData, Request, or process.env", () => {

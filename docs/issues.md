@@ -95,6 +95,10 @@ Plan issue
 
 `.github/workflows/claude.yml` must keep: `fetch-depth: 0`; the tool allow-list (exact commands only: read-only `gh pr view|list|diff|checks`; `corepack enable`, `pnpm install --frozen-lockfile`, `pnpm lint|typecheck|test:run|test:boilerplate|build|validate`; and `git fetch|branch|log|show|diff|checkout|cherry-pick|add|commit|status|merge|merge-base`; no wildcard on `pnpm`, `npx`, `corepack` or `gh pr`; enforced by `apps/web/lib/security.test.ts`); no database credential in the job; every `uses:` pinned to a full commit hash; and the existing GitHub permissions. `git merge` and `git merge-base` are permitted only so Claude can merge `origin/main` into the canonical issue branch (local operation; publishing still goes through the no-flag push helper). Do not broaden to unrestricted `git`, and do not add `git push`, force-push, destructive reset, rebase, branch/tag deletion, or PR-merge (`gh pr merge`) permissions. Merging a PR into `main` remains human-only; `main` should also be protected on GitHub (see `/docs/security.md`). The Claude GitHub App cannot edit workflow files, so workflow changes are made by the human.
 
+## Every problem becomes a rule
+
+When a defect, mistake or near miss is found, the pull request that fixes it also closes the gap: add a guard (a test or check that fails; preferred, and proven by breaking the thing on purpose) or add the rule to the document that owns the topic. Record it in `/docs/lessons.md` with the root cause and what now prevents it. If the same cause appears twice, the first guard was too weak: widen it and mark the earlier lesson repeated. The pull request template asks whether the change revealed a gap.
+
 ## Bug reports, severity and blockers
 
 **Bug reports** use the "Bug report" issue form (`.github/ISSUE_TEMPLATE/bug_report.yml`): one bug per issue, exact steps, expected versus actual (citing the acceptance criterion or rule), severity, client and environment, evidence with nothing private, and the regression test. The fix starts with a test that fails without it, and the pull request shows it failing.

@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -51,6 +51,17 @@ describe("proxy.ts route protection", () => {
   it.each(["/", "/discover", "/discover/some-event", "/sign-in", "/sign-up"])("leaves %s public", async (path) => {
     await run(path);
     expect(protect).not.toHaveBeenCalled();
+  });
+
+  it("proxy.ts protects exactly the directories this test lists as protected", () => {
+    // The lists above are a second copy of the truth. This ties them to the real matcher, so a
+    // directory cannot be classified "protected" here while proxy.ts leaves it open.
+    const source = readFileSync(join(__dirname, "proxy.ts"), "utf8");
+    const matcher = /createRouteMatcher\(\[([^\]]*)\]\)/.exec(source)?.[1] ?? "";
+    const matched = [...matcher.matchAll(/"\/([a-z-]+)\(\.\*\)"/g)].map((m) => m[1]).sort();
+    const listed = PROTECTED.filter((name) => existsSync(join(__dirname, "app", name))).sort();
+    expect(matched.length).toBeGreaterThan(0);
+    expect(matched).toEqual(listed);
   });
 
   it("makes a protection decision for every top-level route in app/", () => {

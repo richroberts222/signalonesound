@@ -186,3 +186,13 @@ Rules for ports:
 * Each port has a fake for tests; the fake and the adapter pass the same acceptance suite.
 * A port is created when the first feature needs it, not earlier (section 2: no speculative layers).
 * Enforced today: `apps/web/lib/security.test.ts` fails if the Clerk SDK is imported outside its allowed locations, and if the database libraries are imported outside the data layer. Each new vendor adds its own allow-list entry in the same pull request.
+
+## 13. Text and tool hygiene
+
+Scripted edits, copy-paste from other tools and editing-tool escaping have damaged files in this project more than once (backslash-escaped Markdown, invisible control characters inside regular expressions, non-breaking spaces). They are invisible in review, so they are checked mechanically and handled with care.
+
+* After any scripted or tool-assisted edit, re-read the result. Write regular expressions and escape sequences in the editor or with a raw string; never rely on a shell or a scripting language to pass backslashes through unchanged.
+* Do not paste text from other tools into rule documents without reading it afterwards.
+* `apps/web/lib/text-hygiene.test.ts` fails on control characters, non-breaking, zero-width or mid-file byte-order-mark characters, and backslash-escaped Markdown or bold-wrapped headings. It is proven by probe files for each check.
+* Commit and push only after validation exits cleanly (`/CLAUDE.md` operating rule 5).
+* A new kind of invisible damage is added to that test in the same pull request that fixes it (`/docs/lessons.md`).

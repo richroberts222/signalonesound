@@ -22,6 +22,9 @@ Closes #
 - [ ] No secrets or credential-shaped values; no new dependency without a stated reason
 - [ ] Spending, vendor, policy or product decisions needed from the owner: none / listed below
 
+## Lesson
+- [ ] Did this reveal a gap? Guard or rule added (named below and logged in `docs/lessons.md`), or why not:
+
 ## Owner review steps (exact steps, expected result)
 
 

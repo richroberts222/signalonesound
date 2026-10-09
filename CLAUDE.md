@@ -17,7 +17,8 @@ Guidance for Claude Code in the Signal One repository. This file is the entry po
 9. **Database:** change schema only through the documented migration process; never touch `prod` (§13).
 10. **Legal gates:** no real user data is collected until the gates in `/docs/risk-and-legal.md` are met. That document is a checklist, not legal advice.
 11. **Workflow files, repository settings and security configuration** change only through a reviewed pull request or by the owner.
-12. **Surface conflicts.** If instructions, documents and the repository disagree, say what was assumed, what exists and why it matters; stop and ask if the difference is material.
+12. **Every problem becomes a rule.** When a defect or mistake is found, add a guard (preferred) or a rule in the owning document in the same pull request, and log it in `/docs/lessons.md`. A repeat is a process failure: widen the guard.
+13. **Surface conflicts.** If instructions, documents and the repository disagree, say what was assumed, what exists and why it matters; stop and ask if the difference is material.
 
 ---
 
@@ -44,10 +45,10 @@ Before generating or significantly modifying code, check the relevant documentat
 | Data | `database.md`, `data-fetching.md`, `data-mutations.md` |
 | API and integrations | `api.md`, `integrations.md`, `payments.md` |
 | Identity and security | `auth.md`, `permissions.md`, `security.md`, `environment.md` |
-| Quality | `testing.md`, `qa-strategy.md`, `automation/` (unit, integration, acceptance, e2e, playwright, coverage, reporting, test-value-review) |
+| Quality | `testing.md`, `qa-strategy.md`, `unit.md`, `integration.md`, `acceptance.md`, `e2e.md`, `playwright.md`, `coverage.md`, `reporting.md`, `test-value-review.md` (all in `automation/`) |
 | Delivery | `git-workflow.md`, `issues.md` (required for any issue or pull request), `deployment.md`, `release.md` |
 | Product | `product-development.md`, `naming-conventions.md`, `product/product-plan.md`, `product/roadmap.md`, `features/` |
-| Risk | `risk-and-legal.md` |
+| Risk, growth and learning | `risk-and-legal.md`, `future-readiness.md`, `lessons.md` |
 | Template | <!-- boilerplate:template:start -->`boilerplate.md`, <!-- boilerplate:template:end -->`new-app-setup.md`, `customization-map.md` |
 
 (All paths are under `/docs`.) A test fails if a document in `/docs` is not linked from this table.
