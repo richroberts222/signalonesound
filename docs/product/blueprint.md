@@ -79,6 +79,18 @@ Minimum startup scope (source: "Minimum Startup Features") comes first; "Later P
 
 **Held** means: not scheduled until the owner decides the undecided source item. User-generated content is held until the moderation and safety rules exist (`/docs/risk-and-legal.md`).
 
+**The twelve revival types (source list, searchable and taggable; an event may carry several):** Tent revivals, Church revivals, Baptisms, Worship nights, Prayer gatherings, Healing & Deliverance, Conferences, Youth events, Women's events, Men's events, Family events, Other.
+
+**Phase 1 revenue items from the source (none scheduled; all depend on the payments decisions and `/docs/payments.md`):** user memberships with features above free accounts (pricing UNDECIDED/VOTE); merchandise (T-shirts with "Revive U.S. again Lord, Psalm 85:6" on the back and the logo on the front pocket, hoodies, hats, coffee mugs and stickers with "Revive U.S." and/or the logo); donations. The source's focus for Phase 1 is adoption, not profit (estimated annual revenue $5,000 to $50,000). Selling physical goods or taking donations needs the payments and tax decisions first.
+
+**Community Optional features from the source, each Held (placement in Phase 1 or Phase 2, and paid or free, is UNDECIDED):**
+
+| Individual concepts | Overall mobilization concepts |
+| --- | --- |
+| 1 to 5 star reviews per event; testimonies per event (300 characters, with a negative-content filter); prayer requests (300 characters, with a filter); prayer responses (praying hands and/or a 300-word reply); revival photos (3 per user per event, unsafe-photo filter); short video reels (30 seconds, unsafe-video filter) | The "Fire-Map" (pin local needs; nearby believers are alerted); spontaneous prayer walks (GPS routes); evangelism teams (form or join "strike teams"); live-stream "Fire Gatherings"; the "Encounters" testimony feed (30 to 60 second videos; keeping them 30 days is UNDECIDED); instant action alerts (5 to 10 mile radius); a digital Gospel track tool (multiple languages); an individual impact journal dashboard; a local action marketplace (volunteer registry of vetted nonprofits) |
+
+All of these are user-generated content, location-based or both, so each needs the moderation, safety and data-tier work in `/docs/secure-coding.md` and `/docs/risk-and-legal.md` before it is scheduled.
+
 ## 5. Information architecture
 
 **Web sitemap (Phase 1)**
