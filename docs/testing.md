@@ -2,7 +2,7 @@
 
 ## Status
 
-Vitest is the unit-test runner for every workspace that has tests (`packages/shared`, `packages/validation`, `apps/web`). It satisfies current needs; no other test tooling has been added. Categories that cannot yet be exercised (database-backed, API, component/E2E, mobile) are documented below, not faked.
+Vitest is the unit-test runner for every workspace that has tests (`packages/shared`, `packages/validation`, `apps/web`). It satisfies current needs; no other test tooling has been added. Categories not yet covered (component tests in a DOM, mobile on a device) are documented below, not faked. Database-backed integration tests and Playwright E2E exist (Issue 49) but are opt-in and do not run in CI; see the section below.
 
 ## Philosophy and detailed rules
 
@@ -47,9 +47,9 @@ Report results in the pull request. If a check fails, say so; do not claim succe
 | Web static/boundary checks | `apps/web/lib/env/boundary.test.ts` | Implemented |
 | Web server-side unit tests (server modules, with fakes) | `apps/web/**/*.test.ts` | Runner ready (node environment); add with features |
 | Web component tests | `apps/web` | Not yet set up. Needs a DOM environment and Testing Library; add when the first interactive component warrants it (document the decision). |
-| API / Server Action tests | `apps/web` | Future (see API foundation). Cover unauthenticated, unauthorized, invalid-input, success. |
-| Database-backed integration | `apps/web` (or a db package) | Future (see below). |
-| End-to-end | TBD | Future; critical flows (sign-in, protected routes). Playwright is the preferred framework (`/docs/automation/playwright.md`); not yet installed. |
+| API / Server Action tests | `apps/web` | Implemented for the API adapter and routes (`apps/web/lib/api/*.test.ts`, `apps/web/app/api/**/route.test.ts`): unauthenticated, unauthorized, invalid-input, success. Server Actions: none yet. |
+| Database-backed integration | `apps/web` | Implemented (Issue 49), opt-in: runs only against a dev/qa database, not in CI (see below). |
+| End-to-end | `apps/web/e2e` | Implemented (Issue 49), opt-in; critical flows (sign-in, protected routes). Playwright is installed (`/docs/automation/playwright.md`); specs run only when their prerequisites (a dev database and a Clerk test instance) are configured, and not in CI (see below). |
 | Mobile config/boundary (pure TypeScript) | `apps/mobile/src/*.test.ts` | Implemented (Vitest) |
 | Mobile component/device | `apps/mobile` | Future (see below). |
 
