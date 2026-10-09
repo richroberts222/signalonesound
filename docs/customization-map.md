@@ -46,7 +46,7 @@ Nothing here is provisioned by the repository. Each is created by a person in th
 | Apple Developer / Google Play accounts | Organization or individual account decision | Outside the repo | Manual |
 | App URLs and origins | Production domain, Vercel preview pattern, localhost | Clerk dashboard (allowed origins/redirects); `EXPO_PUBLIC_API_BASE_URL` in `apps/mobile/.env.local` / EAS profile (`https` outside dev); Vercel domains | Manual, Env-specific, Public |
 | Local environment | Copy `apps/web/.env.example` and `apps/mobile/.env.example` to `.env.local` (gitignored) | Placeholders only in committed files | Manual, Secret |
-| GitHub Actions secrets | `CLAUDE_CODE_OAUTH_TOKEN` or API key for `claude.yml`; `NEON_DEV_DATABASE_URL` (dev only); a Clerk dev test user only if E2E is enabled in CI | Repository settings. `ci.yml` needs none. No production credential belongs in GitHub Actions. | Manual, Secret |
+| GitHub Actions secrets | `CLAUDE_CODE_OAUTH_TOKEN` or API key for `claude.yml`; a dev database secret only if a future CI job needs one; a Clerk dev test user only if E2E is enabled in CI | Repository settings. `ci.yml` needs none. No production credential belongs in GitHub Actions. | Manual, Secret |
 | Vercel environment variables | `APP_ENV`, `DATABASE_ENV`, `DATABASE_URL`, `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Vercel project settings, scoped per environment | Manual, Env-specific, Secret/Public as named |
 | Future EAS secrets | Only if a build step needs one; client apps get public values only | EAS dashboard/CLI | Manual |
 

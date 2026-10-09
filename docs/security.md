@@ -89,12 +89,12 @@ Only the server holds a connection string, one per environment, matching `DATABA
 * Least-privilege `permissions`; secrets scoped to the steps that need them; no production secrets in Actions.
 * No merge, force-push, destructive reset, or branch-delete tooling (checked by test for workflow files).
 * `main` is protected by the GitHub ruleset `Protect main` (active, no bypass actors): deletion and force-push are blocked, changes require a pull request (0 required approvals, since the sole owner cannot approve their own PR), and the `Validate` check from GitHub Actions must pass. "Require branches to be up to date" is off because open PRs are revalidated after each merge (`/docs/issues.md`). Changes to the ruleset are made by Rich in repository settings.
-* Workflow files are edited by humans only (the GitHub App cannot). Audit findings for `claude.yml`, recorded rather than changed:
-  * `DATABASE_URL` (dev Neon) is set at job level, so every step, including the agent (allow-list includes `pnpm *`/`npx *`), can read it. Recommended: scope it to steps that need it, or drop it if the agent needs no database access. Mitigated today by dev-only scope.
-  * `Bash(pnpm *)`/`Bash(npx *)` are broad (arbitrary scripts/packages); narrow if feasible.
-  * `id-token: write` is granted in both workflows; confirm it is required (the Claude action uses OIDC) or remove.
-  * `actions/checkout@v4` and `anthropics/claude-code-action@v1` use floating tags; pinning to commit SHAs is recommended.
-  * `claude-code-review.yml` correctly has read-only contents/PR/issue permissions.
+* Workflow files are changed only through a pull request that the owner reviews and merges (the GitHub App cannot edit them). The Claude workflow (`claude.yml`) is the only one with write permissions. Its state, enforced by `apps/web/lib/security.test.ts`:
+  * No database credential in the job.
+  * Exact command allow-list: no wildcard on `pnpm`, `npx`, `corepack` or `gh pr`, and no pull-request merge command.
+  * Every `uses:` in every workflow is pinned to a full commit hash with a version comment. Dependabot (`.github/dependabot.yml`) proposes updates weekly.
+  * `id-token: write` is kept: whether the action needs it with an OAuth token is untested (F-SEC-002 point 4); remove it only after a test run passes without it.
+  * The automated review workflow (`claude-code-review.yml`) was removed: it produced no visible output (F-DEVOS-001, Q-008).
 
 ### API and mobile expectations
 

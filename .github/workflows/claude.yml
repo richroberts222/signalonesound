@@ -19,10 +19,6 @@ jobs:
       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
 
-    env:
-      DATABASE_ENV: dev
-      DATABASE_URL: ${{ secrets.NEON_DEV_DATABASE_URL }}
-
     permissions:
       contents: write
       pull-requests: write
@@ -32,13 +28,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@2dca132ff0e0c4094ce6048b422c6915a071210b # v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
@@ -46,6 +42,6 @@ jobs:
           additional_permissions: |
             actions: read
 
-          # Allow project tooling plus Git commands needed
-          # to inspect branches and perform approved issue work.
-          claude_args: '--allowed-tools "Bash(gh pr *),Bash(pnpm *),Bash(npx *),Bash(corepack *),Bash(git fetch:*),Bash(git branch:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git checkout:*),Bash(git cherry-pick:*),Bash(git add:*),Bash(git commit:*),Bash(git status:*)"'
+          # Exact commands only: no wildcard on pnpm, npx, corepack or gh pr,
+          # and no PR-merge command. Merging into main is human-only.
+          claude_args: '--allowed-tools "Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(corepack enable),Bash(pnpm install --frozen-lockfile),Bash(pnpm lint),Bash(pnpm typecheck),Bash(pnpm test:run),Bash(pnpm test:boilerplate),Bash(pnpm build),Bash(pnpm validate),Bash(git fetch:*),Bash(git branch:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git checkout:*),Bash(git cherry-pick:*),Bash(git add:*),Bash(git commit:*),Bash(git status:*),Bash(git merge:*),Bash(git merge-base:*)"'

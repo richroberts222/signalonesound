@@ -70,7 +70,7 @@ Copy `apps/web/.env.example` to `apps/web/.env.local` (gitignored) and fill in d
 
 ## GitHub Actions
 
-`claude.yml` sets `DATABASE_ENV: dev` and `DATABASE_URL` from the secret `NEON_DEV_DATABASE_URL`. Only dev credentials belong in Actions secrets used by automation; no prod credentials. Workflow files were not modified by this foundation (the GitHub App cannot edit them). Future qa automation should use a separate `NEON_QA_DATABASE_URL` secret with `DATABASE_ENV: qa`.
+`claude.yml` carries no database variables (removed under Q-007; a test fails if one returns). Only dev credentials belong in Actions secrets used by automation; no prod credentials. The GitHub App cannot edit workflow files. Future qa automation should use a separate `NEON_QA_DATABASE_URL` secret with `DATABASE_ENV: qa`.
 
 ## Vercel
 
