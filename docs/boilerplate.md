@@ -62,7 +62,7 @@ git init -b main && git add -A && git commit -m "Initial boilerplate export"
 gh repo create <owner>/<neutral-repo-name> --private --source=. --push   # then mark it a template repository in GitHub settings
 ```
 
-Then verify there: `pnpm install`, `pnpm test:boilerplate`, `pnpm prove:init --full`. Related: `/docs/customization-map.md`, `/docs/stack.md`.
+The published template repository is currently kept public by the owner's decision (accepted risk: it holds no secrets or proprietary content); revisit before it carries anything proprietary. Then verify there: `pnpm install`, `pnpm test:boilerplate`, `pnpm prove:init --full`. Related: `/docs/customization-map.md`, `/docs/stack.md`.
 
 ## Classification
 
@@ -92,4 +92,4 @@ A new application starts with **no migrations and an empty schema**: the proof t
 
 ## Known gaps
 
-See the notes of the extraction PR (#51). Notably: no real Clerk-authenticated mobile call, no CI job for integration/E2E (needs secrets), Stage hosting undecided, production migration procedure not automated, and `docs/deployment.md` section 7 still describes the validation workflow as planned although `ci.yml` exists.
+Open gaps (recorded in the repository's audit, not in this template): no real Clerk-authenticated mobile call yet, no CI job for the integration and E2E tests (needs secrets), Stage hosting undecided, production migration procedure not automated, and a reference-app-only product feature set that the export does not yet strip. `ci.yml` exists and runs `pnpm validate`.

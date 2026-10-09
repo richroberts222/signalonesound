@@ -33,6 +33,6 @@ After the review, a second independent Fable pass (the owner has remaining credi
 | 9 | `security.md`, `environment.md` | Done (PR 144) |
 | 7c | New rule documents proposed by the owner: user permissions and roles, payments, third-party connectors; plus a risk-and-legal document | Queued |
 | 10 | `deployment.md`, `stack.md`, `issues.md`, `product-development.md` | Done (PR 147) |
-| 11 | `testing.md` and `docs/automation/*` | This pull request |
-| 12 | Template documents (`boilerplate.md`, `new-app-setup.md`, `customization-map.md`, `notes.md`, `features/README.md`) | Next |
+| 11 | `testing.md` and `docs/automation/*` | Done (PR 149) |
+| 12 | Template documents (`boilerplate.md`, `new-app-setup.md`, `customization-map.md`, `notes.md`, `features/README.md`) | This pull request |
 | 9 | Product requirements (`product-plan.md`, roadmap, features), after Q-005 | Queued |
