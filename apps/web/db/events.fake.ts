@@ -1,5 +1,7 @@
 import { DatabaseError } from "./errors";
-import { DEFAULT_DURATION_MS, type AuditEntry, type EventFull, type EventRow, type EventsRepo } from "./events";
+import { utcToLocalString } from "@signalone/shared";
+
+import { DEFAULT_DURATION_MS, type AuditEntry, type EventFull, type EventRow, type EventsRepo, type PublicRow } from "./events";
 
 // Test-only in-memory stand-in for the events repo. It mimics what the service relies on: a create is
 // all-or-nothing and a reused key creates nothing, an edit applies only if the version matches (and
@@ -7,7 +9,17 @@ import { DEFAULT_DURATION_MS, type AuditEntry, type EventFull, type EventRow, ty
 // time and id, and an audit entry written with each change. Never used in application code.
 export type FakeEventsRepo = EventsRepo & { audit: (AuditEntry & { at: Date })[]; all: () => EventFull[] };
 
-export function createFakeEventsRepo(now: () => Date = () => new Date()): FakeEventsRepo {
+export type OrgInfo = { name: string; status: string };
+const miles = (a: { lat: number; lng: number }, b: { lat: number; lng: number }): number => {
+  const rad = (d: number) => (d * Math.PI) / 180;
+  const c = Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.cos(rad(b.lng) - rad(a.lng)) + Math.sin(rad(a.lat)) * Math.sin(rad(b.lat));
+  return Math.round(3958.8 * Math.acos(Math.min(1, Math.max(-1, c))) * 100) / 100;
+};
+
+export function createFakeEventsRepo(
+  now: () => Date = () => new Date(),
+  orgInfo: (orgId: string) => OrgInfo | undefined = () => ({ name: "Sample Fellowship", status: "approved" }),
+): FakeEventsRepo {
   const events = new Map<string, EventFull>();
   const keys: { userId: string; key: string; eventId: string; createdAt: Date }[] = [];
   const audit: (AuditEntry & { at: Date })[] = [];
@@ -124,6 +136,47 @@ export function createFakeEventsRepo(now: () => Date = () => new Date()): FakeEv
       }
       audit.push({ ...input.audit, at: now() });
       return true;
+    },
+
+    async searchPublic(p) {
+      const rows: PublicRow[] = [];
+      for (const e of events.values()) {
+        const org = orgInfo(e.orgId);
+        if (!org || org.status !== "approved") continue;
+        if (!["published", "cancelled"].includes(e.status) || e.moderationState !== "published" || e.startsAt < p.now) continue;
+        let distance: number | null = null;
+        if (p.position) {
+          if (e.lat === null || e.lng === null) continue;
+          distance = miles(p.position, { lat: e.lat, lng: e.lng });
+          if (p.radius !== null && distance > p.radius) continue;
+        }
+        const day = utcToLocalString(e.startsAt, e.timeZone).slice(0, 10);
+        if (p.from && day < p.from) continue;
+        if (p.to && day > p.to) continue;
+        if (p.types.length > 0 && !e.revivalTypes.some((t) => p.types.includes(t))) continue;
+        if (p.organizationId && e.orgId !== p.organizationId) continue;
+        rows.push({ ...copy(e), orgName: org.name, distance });
+      }
+      rows.sort((a, b) => (a.distance ?? 0) - (b.distance ?? 0) || byStart(a, b));
+      const after = p.cursor
+        ? rows.filter((r) => {
+            const c = p.cursor!;
+            if (p.position) {
+              const d = r.distance ?? 0;
+              const cd = c.distance ?? 0;
+              return d > cd || (d === cd && (r.startsAt > c.startsAt || (r.startsAt.getTime() === c.startsAt.getTime() && r.id > c.id)));
+            }
+            return r.startsAt > c.startsAt || (r.startsAt.getTime() === c.startsAt.getTime() && r.id > c.id);
+          })
+        : rows;
+      return after.slice(0, p.limit + 1);
+    },
+
+    async getPublic(id) {
+      const e = events.get(id);
+      const org = e ? orgInfo(e.orgId) : undefined;
+      if (!e || !org || org.status !== "approved" || !["published", "cancelled"].includes(e.status) || e.moderationState !== "published") return null;
+      return { ...copy(e), orgName: org.name, distance: null };
     },
 
     async setStatus(input) {

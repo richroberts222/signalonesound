@@ -8,7 +8,10 @@ import { getServerEnv } from "./env/server";
 import { createProofItemRepo } from "../db/proof-items";
 import { clerkIdentityAdmin } from "./auth/clerk-identity-admin";
 import { getDb } from "../db";
+import { createDiscoverService, type DiscoverService } from "./services/discover";
 import { createEventsService, type EventsService } from "./services/events";
+import { searchPlaces } from "./places/gazetteer";
+import { gazetteerGeocoder } from "./places/geocoder";
 import { createMemberService, type MemberService } from "./services/member";
 import { createOrganizationsService, type OrganizationsService } from "./services/organizations";
 import { createProofItemService, type ProofItemService } from "./services/proof-items";
@@ -47,5 +50,19 @@ export function getEventsService(): EventsService {
     isManager: (orgId, userId) => organizationsRepo.isApprovedManager(orgId, userId),
     admins: createAdminDirectory(getServerEnv().adminUserIds),
     requireAccepted: (userId) => getMemberService().requireAccepted(userId),
+    geocoder: gazetteerGeocoder,
+  }));
+}
+
+let discover: DiscoverService | undefined;
+
+export function getDiscoverService(): DiscoverService {
+  // The database is opened only when a search or an event is actually read: finding a place uses
+  // data shipped with the app and must work without it.
+  let eventsRepo: ReturnType<typeof createEventsRepo> | undefined;
+  const repo = () => (eventsRepo ??= createEventsRepo(getDb()));
+  return (discover ??= createDiscoverService({
+    repo: { searchPublic: (query) => repo().searchPublic(query), getPublic: (id) => repo().getPublic(id) },
+    places: searchPlaces,
   }));
 }
