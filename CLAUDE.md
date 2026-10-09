@@ -46,7 +46,7 @@ Before generating or significantly modifying code, check the relevant documentat
 | API and integrations | `api.md`, `integrations.md`, `payments.md` |
 | Identity and security | `auth.md`, `permissions.md`, `security.md`, `secure-coding.md`, `environment.md` |
 | Quality | `testing.md`, `qa-strategy.md`, `unit.md`, `integration.md`, `acceptance.md`, `e2e.md`, `playwright.md`, `coverage.md`, `reporting.md`, `test-value-review.md` (all in `automation/`) |
-| Delivery | `git-workflow.md`, `issues.md` (required for any issue or pull request), `deployment.md`, `release.md` |
+| Delivery | `git-workflow.md`, `issues.md` (required for any issue or pull request), `deployment.md`, `release.md`<!-- boilerplate:reference:start -->, `how-to.md` (the steps only the owner can do)<!-- boilerplate:reference:end --> |
 | Product | `product-development.md`, `naming-conventions.md`, `product/product-plan.md`, `product/blueprint.md`, `product/roadmap.md`, `features/` |
 | Risk, growth and learning | `risk-and-legal.md`, `future-readiness.md`, `lessons.md` |
 | Template | <!-- boilerplate:template:start -->`boilerplate.md`, <!-- boilerplate:template:end -->`new-app-setup.md`, `customization-map.md` |
