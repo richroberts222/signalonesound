@@ -2,12 +2,16 @@ import { useSignIn } from "@clerk/expo";
 import { useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 
+import { nextSignInStep } from "./sign-in-step";
+
 // Email and password sign-in through Clerk. Clerk decides whether the credentials are right; this
 // screen only collects them and shows a generic message on failure (never what was typed).
 export function SignInScreen() {
   const { signIn, fetchStatus } = useSignIn();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
+  const [askingForCode, setAskingForCode] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const pending = fetchStatus === "fetching";
 
@@ -20,14 +24,69 @@ export function SignInScreen() {
         setError("Those details did not work. Please try again.");
         return;
       }
-      if (signIn.status === "complete") {
+      const next = nextSignInStep(signIn.status);
+      if (next === "finish") {
         await signIn.finalize();
+      } else if (next === "email-code") {
+        // A new device: Clerk emails a code to the address that is signing in.
+        const { error: sendFailure } = await signIn.mfa.sendEmailCode();
+        if (sendFailure) {
+          setError("We could not send the code. Please try again.");
+          return;
+        }
+        setAskingForCode(true);
       } else {
         setError("Sign-in needs another step that this app does not support yet.");
       }
     } catch {
       setError("Those details did not work. Please try again.");
     }
+  }
+
+  async function onVerify() {
+    if (pending) return;
+    setError(null);
+    try {
+      const { error: failure } = await signIn.mfa.verifyEmailCode({ code: code.trim() });
+      if (failure) {
+        setError("That code did not work. Check it and try again.");
+        return;
+      }
+      if (nextSignInStep(signIn.status) === "finish") {
+        await signIn.finalize();
+      } else {
+        setError("Sign-in needs another step that this app does not support yet.");
+      }
+    } catch {
+      setError("That code did not work. Check it and try again.");
+    }
+  }
+
+  if (askingForCode) {
+    return (
+      <View style={styles.container} testID="signin-code-form">
+        <Text accessibilityRole="header" style={styles.title}>
+          Check your email
+        </Text>
+        <Text>We sent a code to the email you are signing in with. Enter it below.</Text>
+        <TextInput
+          accessibilityLabel="Code from your email"
+          style={styles.input}
+          value={code}
+          onChangeText={setCode}
+          keyboardType="number-pad"
+          autoComplete="one-time-code"
+          textContentType="oneTimeCode"
+          testID="signin-code-input"
+        />
+        <Button title={pending ? "Checking..." : "Verify"} onPress={onVerify} disabled={pending || code.trim() === ""} testID="signin-code-submit" />
+        {error && (
+          <Text accessibilityRole="alert" style={styles.error} testID="signin-error">
+            {error}
+          </Text>
+        )}
+      </View>
+    );
   }
 
   return (
