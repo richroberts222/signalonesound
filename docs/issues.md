@@ -95,6 +95,23 @@ Plan issue
 
 `.github/workflows/claude.yml` must keep: `fetch-depth: 0`; the tool allow-list (exact commands only: read-only `gh pr view|list|diff|checks`; `corepack enable`, `pnpm install --frozen-lockfile`, `pnpm lint|typecheck|test:run|test:boilerplate|build|validate`; and `git fetch|branch|log|show|diff|checkout|cherry-pick|add|commit|status|merge|merge-base`; no wildcard on `pnpm`, `npx`, `corepack` or `gh pr`; enforced by `apps/web/lib/security.test.ts`); no database credential in the job; every `uses:` pinned to a full commit hash; and the existing GitHub permissions. `git merge` and `git merge-base` are permitted only so Claude can merge `origin/main` into the canonical issue branch (local operation; publishing still goes through the no-flag push helper). Do not broaden to unrestricted `git`, and do not add `git push`, force-push, destructive reset, rebase, branch/tag deletion, or PR-merge (`gh pr merge`) permissions. Merging a PR into `main` remains human-only; `main` should also be protected on GitHub (see `/docs/security.md`). The Claude GitHub App cannot edit workflow files, so workflow changes are made by the human.
 
+## Bug reports, severity and blockers
+
+**Bug reports** use the "Bug report" issue form (`.github/ISSUE_TEMPLATE/bug_report.yml`): one bug per issue, exact steps, expected versus actual (citing the acceptance criterion or rule), severity, client and environment, evidence with nothing private, and the regression test. The fix starts with a test that fails without it, and the pull request shows it failing.
+
+**Bug severity** (set by the reporter; the owner decides if it is disputed):
+
+| Level | Meaning | Handling |
+| --- | --- | --- |
+| S1 Critical | Security exposure, data loss or corruption, or the platform is unusable | Stop other work; fix first |
+| S2 High | A core feature is broken and there is no workaround | Next in line |
+| S3 Medium | A feature is impaired but a workaround exists | Scheduled with normal work |
+| S4 Low | Cosmetic or minor | Batched |
+
+**Blockers.** When work cannot continue without a decision, access or action from someone else, stop that work. Open or update an issue with the "Blocker" form (label `blocked`): the blocked issue or pull request, exactly what is needed, from whom, what was already checked, and what can proceed meanwhile. State a recommendation when it is a decision. Do not work around the block, and do not repeat a failed operation (see "Fail fast"). Remove the label when it is resolved.
+
+**Tracker.** GitHub Issues and the pull request template are the tracker. Jira is not adopted. Revisit it when more than a few people contribute, when non-technical stakeholders need roadmaps or sprint boards, or when a partner requires it; GitHub Projects is the free alternative for a board. The issue forms and labels are written so they can move to another tracker.
+
 ## Recording non-discoverable information
 
 Do not duplicate what GitHub already shows (issue/PR numbers, branch, commits, changed files, diff, CI results, review threads). Claude records only information that cannot reasonably be discovered from GitHub artifacts:

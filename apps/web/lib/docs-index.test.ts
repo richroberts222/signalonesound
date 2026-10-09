@@ -29,3 +29,21 @@ describe("CLAUDE.md entry point", () => {
     expect(missing, "add these documents to the table in CLAUDE.md section 3").toEqual([]);
   });
 });
+
+describe("GitHub templates carry the process rules", () => {
+  const gh = join(repo, ".github");
+  const read = (f: string) => readFileSync(join(gh, f), "utf8");
+
+  it("the pull request template carries the definition of done and the breaker", () => {
+    const text = read("pull_request_template.md").toLowerCase();
+    for (const phrase of ["scope fence", "acceptance criterion", "breaker", "pnpm validate"]) {
+      expect(text, `pull_request_template.md must mention "${phrase}"`).toContain(phrase);
+    }
+  });
+
+  it("the issue forms for bugs, blockers and features exist", () => {
+    for (const f of ["bug_report.yml", "blocker.yml", "feature_request.yml"]) {
+      expect(existsSync(join(gh, "ISSUE_TEMPLATE", f)), `${f} is missing`).toBe(true);
+    }
+  });
+});

@@ -1,0 +1,42 @@
+name: Blocker
+description: Work cannot continue without a decision, access or action from someone else
+title: "blocked: "
+labels: ["blocked"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Write this when you are stuck on something only another person can resolve. Stop the work, do not work around the block. Never paste secrets or real user data.
+  - type: input
+    id: work
+    attributes:
+      label: The issue or pull request that is blocked (number)
+    validations:
+      required: true
+  - type: textarea
+    id: need
+    attributes:
+      label: What is needed, exactly
+      description: One decision, one access grant or one action. Say what you recommend if it is a decision.
+    validations:
+      required: true
+  - type: dropdown
+    id: from
+    attributes:
+      label: Needed from
+      options:
+        - Owner (Rich)
+        - Business partner
+        - A vendor or console (GitHub, Vercel, Clerk, Neon, Expo, app stores)
+        - Another open pull request
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: tried
+    attributes:
+      label: What was already tried or checked
+  - type: textarea
+    id: impact
+    attributes:
+      label: What waits on this, and what can proceed meanwhile
