@@ -16,7 +16,7 @@ Claude MUST NOT:
 
 * Commit directly to `main`
 * Push directly to `main`
-* Merge Pull Requests into `main`
+* Merge Pull Requests into `main` without the human developer's explicit authorization (see the paragraph below)
 * Approve its own Pull Requests
 * Bypass required GitHub checks or branch protections
 * Modify branch protection settings to bypass this workflow
@@ -37,13 +37,7 @@ Branch names should clearly identify the work being performed.
 
 When work originates from a GitHub Issue, prefer a branch name that references the Issue when practical.
 
-For example:
-
-```text
-claude/issue-12-add-revival-search
-```
-
-or another clear project-appropriate naming convention.
+The convention in use is `<type>/issue-<number>-<short-slug>`, where `<type>` is one of `feat`, `fix`, `docs`, `ci`, `chore`, `tooling` or `audit` (for example `docs/issue-104-accepted-decisions`). Branches created automatically by the GitHub Action use `claude/issue-<number>-<timestamp>`. The convention is not enforced by tooling.
 
 Do not create unnecessary branches.
 
@@ -114,6 +108,8 @@ Commit messages should be:
 * Specific
 * Based on the actual changes
 
+The convention in use is `<type>: <subject> (#<issue>)`, with the same `<type>` words as branch names (for example `ci: narrow Claude workflow, pin actions, add Dependabot, pin Node (#106)`). The convention is not enforced by tooling.
+
 Do not create meaningless messages such as:
 
 ```text
@@ -152,7 +148,7 @@ If the branch is significantly behind or conflicts are likely, Claude should upd
 
 Claude may resolve merge conflicts on its own development branch when the correct resolution is clear.
 
-To incorporate `main`, Claude runs `git fetch origin main` and `git merge origin/main` on the canonical PR branch (never rebase, never force-push), then pushes with the push helper. Procedure and constraints: `/docs/issues.md`.
+To incorporate `main`, Claude runs `git fetch origin main` and `git merge origin/main` on the canonical PR branch (never rebase, never force-push), then pushes the branch (in the GitHub Action, with the push helper that accepts only the current run's branch with no flags; locally, with a plain `git push` of the current branch, never forced). Procedure and constraints: `/docs/issues.md`.
 
 Claude MUST NOT resolve conflicts by silently discarding existing work.
 
@@ -233,7 +229,7 @@ Human reviews Vercel Preview
       ↓
 Human decides whether to merge
       ↓
-Human merges Pull Request
+Human merges Pull Request (or authorizes Claude to, see section 1)
 ```
 
 Claude may continue working on the Pull Request if the human requests changes or if review feedback is provided. Further `@claude` implementation requests should be made from the PR, not the original issue.
@@ -385,13 +381,13 @@ If GitHub automatically associates the Pull Request with the Issue, allow the no
 
 # 20. Merge Authority
 
-Claude has **no merge authority**.
+Claude has **no merge authority of its own**. It may merge only when the human developer has explicitly authorized that merge, as defined in section 1 (a named pull request, or a stated class such as "all pull requests that have passed", with every check still required).
 
 This rule is explicit even if GitHub or Claude Code technically provides a mechanism capable of merging Pull Requests.
 
-Claude must stop after preparing the Pull Request for human review.
+Without that authorization, Claude must stop after preparing the Pull Request for human review.
 
-Only the human developer decides:
+The human developer decides:
 
 * Whether the Pull Request is acceptable
 * Whether it should be merged
@@ -402,7 +398,7 @@ Only the human developer decides:
 
 # 21. `/commit` Command
 
-The `/commit` command should follow these rules.
+If a `/commit` command is available in the Claude Code environment, it should follow these rules. (No such command is defined in this repository.)
 
 It should:
 
@@ -436,7 +432,7 @@ The final state should have:
 
 The Git tag `signal-one-foundation-v1` marks the known-good Signal One foundation immediately before product/domain feature development.
 
-* `signal-one-foundation-v1` is the **immutable** Foundation V1 baseline.
+* `signal-one-foundation-v1` is the **immutable** Foundation V1 baseline. (Not yet enforced by a GitHub tag rule; protection is an owner action.)
 * Do not move, recreate, overwrite, force-update, or delete this tag.
 * The tag is a permanent historical restore/reference point.
 * `main` remains the current approved application state.
@@ -453,7 +449,7 @@ Git should make the development process **safer and easier to understand**, not 
 
 The preferred workflow is:
 
-> **Issue → Branch → Develop → Validate → Commit → Push → Pull Request → Human Review → Human Merge**
+> **Issue → Branch → Develop → Validate → Commit → Push → Pull Request → Human Review → Human Merge (or a merge the human has explicitly authorized)**
 
 Claude is responsible for maintaining the branch and preparing the Pull Request.
 
