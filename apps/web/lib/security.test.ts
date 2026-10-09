@@ -93,6 +93,18 @@ describe("server-only modules", () => {
     expect(offenders).toEqual([]);
   });
 
+  it("the Clerk SDK is imported only in its adapter locations", () => {
+    // docs/code-quality.md section 12: vendors stay behind ports. Services, the API adapter,
+    // the data layer and ordinary components must stay agnostic of the identity vendor.
+    const allowed = [/^proxy\.ts$/, /^lib\/auth\//, /^lib\/clerk-appearance\.ts$/, /^components\/shell\//, /^app\//, /^e2e\//];
+    const offenders = sources(web)
+      .filter((f) => !isTest(f))
+      .map((f) => relTo(web, f))
+      .filter((f) => !allowed.some((re) => re.test(f)))
+      .filter((f) => /from\s+["']@clerk\//.test(read(join(web, f))));
+    expect(offenders).toEqual([]);
+  });
+
   it("'use client' files never import server-only, db, or tooling modules", () => {
     const forbidden = /from\s+["'](?:server-only|@\/db(?:\/[^"']*)?|@\/lib\/env\/server|\.{1,2}\/[^"']*(?:\/db|lib\/env\/server|db\/env)[^"']*|drizzle-orm[^"']*|@neondatabase[^"']*|@clerk\/nextjs\/server)["']|import\s+["']server-only["']/;
     const offenders = sources(web)

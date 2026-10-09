@@ -149,3 +149,40 @@ UI reuse, design tokens, brand assets, variants, and overrides are owned by `/do
 * Prefer the simplest implementation that satisfies the requirement within the architecture (`CLAUDE.md` section 14).
 * These principles guide review and design; they do not replace judgment. When two principles conflict (for example DRY vs. avoiding premature abstraction), choose the option with the lower long-term maintenance cost and say why in the PR.
 * Existing code that departs from these principles is reported, not silently rewritten.<!-- boilerplate:reference:start --> See `/docs/code-quality-audit.md` for the current baseline.<!-- boilerplate:reference:end -->
+
+## 12. Clean Architecture alignment (owner decision, 2026-10-09)
+
+The owner chose Robert C. Martin's approach. This project follows **Clean Code** (intention-revealing names, focused functions, no dead code, comments that explain why, the Boy Scout rule in section 9), the **SOLID** principles, and **Clean Architecture** (the dependency rule, use cases independent of frameworks, ports and adapters). Sections 1 to 11 already express these; this section names the standard and fixes the one decision those sections left open: where interfaces are required.
+
+| Principle | How it is applied here |
+| --- | --- |
+| Single responsibility | Cohesive modules and focused functions (section 4). Martin favors very small functions; this project splits by responsibility and sets no numeric limit |
+| Open/closed | Extend through composition, variants and new adapters, not by editing stable code (section 1) |
+| Liskov substitution | The real and the fake repository are interchangeable: one acceptance suite runs against both |
+| Interface segregation | Small contracts (`Actor`, `Rule`, a service's own repository type), not wide shared ones |
+| Dependency inversion | The service layer depends on ports it defines; adapters implement them; the composition root (`lib/composition.ts`) wires them (section 2) |
+| Dependency rule | Source dependencies point inward: UI, then API adapter, then services, then ports; infrastructure plugs in from outside (section 3) |
+
+### Where an interface (port) is required
+
+An interface is required wherever the platform meets something external or replaceable, so the rest of the code stays agnostic of the vendor. It is **not** required for ordinary internal functions (section 2 still forbids interfaces for their own sake).
+
+| Boundary | Port | Adapter (the only importer of the vendor SDK) | Status |
+| --- | --- | --- | --- |
+| Identity and sign-in | `getUserId` supplied to `createApiRoute`; `Actor` | `lib/auth` (Clerk) | Exists |
+| Data access | A repository type per service, with a fake | `db/*` (Drizzle on Neon) | Exists |
+| Unexpected-error reporting | `onUnexpected` hook | `lib/api/report.ts` | Exists |
+| Payments and subscriptions | Not defined | Not built | Create with the first payment feature |
+| Email and notifications (including push) | Not defined | Not built | Create with the first message feature |
+| File and image storage | Not defined | Not built | Create with the first upload feature |
+| Maps and geocoding | Not defined | Not built | Create with the first location feature |
+| Analytics and error tracking | Not defined (reporting hook covers errors) | Not built | Create when adopted |
+| Time and randomness | Not defined | Not built | Inject a clock where time affects behavior |
+
+Rules for ports:
+
+* A port is written in terms of what the application needs, never in the vendor's vocabulary or types. Vendor types do not cross it.
+* Each port has an adapter in one place, and that place is the only code that imports the vendor SDK.
+* Each port has a fake for tests; the fake and the adapter pass the same acceptance suite.
+* A port is created when the first feature needs it, not earlier (section 2: no speculative layers).
+* Enforced today: `apps/web/lib/security.test.ts` fails if the Clerk SDK is imported outside its allowed locations, and if the database libraries are imported outside the data layer. Each new vendor adds its own allow-list entry in the same pull request.
