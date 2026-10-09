@@ -94,7 +94,7 @@ feature branch -> PR
 ## 7. CI/CD relationship
 
 * **Automated now:** Vercel builds a Preview for each PR and a production deployment for `main`; `.github/workflows/claude.yml` runs Claude when `@claude` is mentioned (not a general CI pipeline); `ci.yml` runs `pnpm validate`.
-* **Manual now:** running `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` and reporting results in the PR (`/docs/testing.md`); Stage and Production database migrations; setting Vercel variables.
+* **Manual now:** reporting validation results in the PR (the same checks run automatically in CI); Stage and Production database migrations; setting Vercel variables.
 * **Built:** `.github/workflows/ci.yml` runs `pnpm validate` on pull requests and pushes to `main`, and the `Validate` check is required by the `Protect main` repository ruleset (`/docs/security.md`). It uses no production secrets. Workflow files are edited by a human (the Claude GitHub App cannot edit them).
 * **Planned, not built:** automated Stage promotion, post-deploy smoke checks, preview-environment configuration checks.
 

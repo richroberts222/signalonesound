@@ -31,7 +31,7 @@ Requirements
 -> Manual Exploratory Testing
 -> Final Regression/Validation
 -> PR Review
--> Merge (human only)
+-> Merge (the human's decision; may be an explicitly authorized merge)
 ```
 
 **ONE CANONICAL BRANCH + ONE PR PER ISSUE** (`/docs/issues.md`). Independent issues may proceed in parallel when their scopes/files do not create unsafe overlap or dependency conflicts; dependent or conflicting work stays sequential. Claude never starts the next slice automatically; it may recommend one in the issue/PR conversation.
