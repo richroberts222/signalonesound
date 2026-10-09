@@ -35,6 +35,7 @@ function Root() {
     return (
       <View style={styles.container}>
         <ActivityIndicator accessibilityLabel="Loading" />
+        <Text style={styles.status}>Connecting to sign-in...</Text>
       </View>
     );
   }
@@ -54,6 +55,6 @@ function Message({ text }: { text: string }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
+  container: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24, gap: 12 },
   status: { textAlign: "center" },
 });
