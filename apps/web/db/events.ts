@@ -323,6 +323,23 @@ export function createEventsRepo(db: Database) {
         return rows.map((r, i) => ({ ...full[i], orgName: r.orgName, distance: r.distance ?? null }));
       }),
 
+    /**
+     * Events by id together with their organization's name and standing, whatever their state, for a
+     * member's own saved list. The caller decides what may be shown (a held or deleted event is shown
+     * only as removed).
+     */
+    getManyWithOrg: (ids: string[]): Promise<(PublicRow & { orgStatus: string })[]> =>
+      withDbErrors("event.getManyWithOrg", async () => {
+        if (ids.length === 0) return [];
+        const rows = await db
+          .select({ row: event, orgName: organization.name, orgStatus: organization.status })
+          .from(event)
+          .leftJoin(organization, eq(organization.id, event.orgId))
+          .where(inArray(event.id, ids));
+        const full = await attach(rows.map((r) => r.row));
+        return rows.map((r, i) => ({ ...full[i], orgName: r.orgName ?? "", orgStatus: r.orgStatus ?? "", distance: null }));
+      }),
+
     /** One event for the public: published or cancelled, organization approved, not held by an admin. */
     getPublic: (id: string): Promise<PublicRow | null> =>
       withDbErrors("event.getPublic", async () => {

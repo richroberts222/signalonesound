@@ -236,3 +236,22 @@ describe("parseAdminUserIds", () => {
     }
   });
 });
+
+describe("parseServerEnv CRON_SECRET", () => {
+  const base = {
+    DATABASE_ENV: "dev",
+    DATABASE_URL: ["postgres", "://placeholder-user:placeholder-pass@placeholder.example/db"].join(""),
+    CLERK_SECRET_KEY: "sk_test_REPLACE_ME",
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_REPLACE_ME",
+  };
+
+  it("is null when unset (jobs refuse every call)", () => {
+    expect(parseServerEnv(base).cronSecret).toBeNull();
+    expect(parseServerEnv({ ...base, CRON_SECRET: "  " }).cronSecret).toBeNull();
+  });
+
+  it("is read when long enough and refused when too short", () => {
+    expect(parseServerEnv({ ...base, CRON_SECRET: "a-long-enough-secret-value" }).cronSecret).toBe("a-long-enough-secret-value");
+    expect(() => parseServerEnv({ ...base, CRON_SECRET: "short" })).toThrow(/CRON_SECRET/);
+  });
+});

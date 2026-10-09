@@ -1,0 +1,3 @@
+{
+  "crons": [{ "path": "/api/v1/internal/jobs/retention", "schedule": "17 3 * * *" }]
+}

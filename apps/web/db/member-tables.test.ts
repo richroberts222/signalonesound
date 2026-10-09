@@ -9,7 +9,7 @@ import { MEMBER_TABLES } from "./member";
 // account deletion are built from MEMBER_TABLES. If the schema gains a table that holds a member's
 // data and it is not listed there, export and deletion would silently miss it: this fails instead.
 const schemaPath = path.join(__dirname, "schema.ts");
-const OWNER_COLUMN = /"(user_id|owner_id|clerk_user_id|actor_id)"/;
+const OWNER_COLUMN = /"(user_id|owner_id|clerk_user_id|actor_id|created_by)"/;
 
 /** Tables in the schema text that have a column naming a member as owner. */
 export function memberOwnedTables(source: string): string[] {

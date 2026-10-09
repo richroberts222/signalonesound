@@ -2,6 +2,7 @@ import "server-only";
 
 import { createEventsRepo } from "../db/events";
 import { createMemberRepo } from "../db/member";
+import { createSavedRepo } from "../db/saved";
 import { createOrganizationsRepo } from "../db/organizations";
 import { createAdminDirectory } from "./auth/admin";
 import { getServerEnv } from "./env/server";
@@ -14,6 +15,7 @@ import { searchPlaces } from "./places/gazetteer";
 import { gazetteerGeocoder } from "./places/geocoder";
 import { createMemberService, type MemberService } from "./services/member";
 import { createOrganizationsService, type OrganizationsService } from "./services/organizations";
+import { createSavedService, type SavedService } from "./services/saved";
 import { createProofItemService, type ProofItemService } from "./services/proof-items";
 
 // Composition root (/docs/services.md): the only place that wires `getDb()` to
@@ -65,4 +67,19 @@ export function getDiscoverService(): DiscoverService {
     repo: { searchPublic: (query) => repo().searchPublic(query), getPublic: (id) => repo().getPublic(id) },
     places: searchPlaces,
   }));
+}
+
+let saved: SavedService | undefined;
+
+export function getSavedService(): SavedService {
+  return (saved ??= createSavedService({
+    repo: createSavedRepo(getDb()),
+    events: createEventsRepo(getDb()),
+    requireAccepted: (userId) => getMemberService().requireAccepted(userId),
+  }));
+}
+
+/** The scheduler's secret from the server configuration, or null when none is set. */
+export function getCronSecret(): string | null {
+  return getServerEnv().cronSecret;
 }

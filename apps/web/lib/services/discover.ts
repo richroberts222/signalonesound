@@ -41,7 +41,7 @@ function decodeCursor(value: string): SearchCursor {
   }
 }
 
-function toPublic(row: PublicRow): PublicEvent {
+export function toPublicEvent(row: PublicRow): PublicEvent {
   return {
     id: row.id,
     organization: { id: row.orgId, name: row.orgName },
@@ -88,7 +88,7 @@ export function createDiscoverService({ repo, places, analytics = noopAnalytics,
       const page = rows.slice(0, query.limit);
       const last = page[page.length - 1];
       return {
-        items: page.map(toPublic),
+        items: page.map(toPublicEvent),
         nextCursor: rows.length > query.limit && last ? encodeCursor({ distance: last.distance, startsAt: last.startsAt, id: last.id }) : null,
       };
     },
@@ -98,7 +98,7 @@ export function createDiscoverService({ repo, places, analytics = noopAnalytics,
       const row = await repo.getPublic(id);
       if (!row) throw notFound();
       analytics.count("event_view");
-      return toPublic(row);
+      return toPublicEvent(row);
     },
 
     /** Turns "Nashville, TN" or a ZIP code into positions, from data shipped with the app. */

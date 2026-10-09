@@ -2,7 +2,7 @@ import { asc, eq, sql } from "drizzle-orm";
 
 import type { Database } from "./client";
 import { withDbErrors } from "./errors";
-import { auditLog, idempotencyRecord, organizationMember, policyAcceptance, proofItem, userProfile } from "./schema";
+import { auditLog, idempotencyRecord, inviteToken, organizationMember, policyAcceptance, proofItem, savedEvent, userProfile } from "./schema";
 
 // Data access for the member's own data (S1, docs/features/s1-identity-and-policy.md). Server-only
 // by convention (like all of db/). It owns the Drizzle queries and DatabaseError wrapping and
@@ -15,7 +15,7 @@ export type AcceptanceRow = typeof policyAcceptance.$inferSelect;
  * deletion are built from this one list; a guard test fails if the schema gains a member-owned
  * table that is not listed here (docs/data-inventory.md, "Deletion path").
  */
-export const MEMBER_TABLES = ["user_profile", "policy_acceptance", "proof_item", "organization_member", "audit_log", "idempotency_record"] as const;
+export const MEMBER_TABLES = ["user_profile", "policy_acceptance", "proof_item", "organization_member", "audit_log", "idempotency_record", "saved_event", "invite_token"] as const;
 
 export type ProfilePatch = { displayName?: string; emailPref?: boolean; timeZone?: string };
 
@@ -62,13 +62,15 @@ export function createMemberRepo(db: Database) {
     /** Every row held about the member, keyed by table name (see MEMBER_TABLES). */
     exportAll: (userId: string): Promise<Record<string, Record<string, unknown>[]>> =>
       withDbErrors("member.exportAll", async () => {
-        const [profiles, acceptances, items, memberships, audit, keys] = await Promise.all([
+        const [profiles, acceptances, items, memberships, audit, keys, saves, invites] = await Promise.all([
           db.select().from(userProfile).where(eq(userProfile.clerkUserId, userId)),
           db.select().from(policyAcceptance).where(eq(policyAcceptance.userId, userId)),
           db.select().from(proofItem).where(eq(proofItem.ownerId, userId)),
           db.select().from(organizationMember).where(eq(organizationMember.userId, userId)),
           db.select().from(auditLog).where(eq(auditLog.actorId, userId)),
           db.select().from(idempotencyRecord).where(eq(idempotencyRecord.userId, userId)),
+          db.select().from(savedEvent).where(eq(savedEvent.userId, userId)),
+          db.select().from(inviteToken).where(eq(inviteToken.createdBy, userId)),
         ]);
         return {
           user_profile: profiles,
@@ -77,6 +79,8 @@ export function createMemberRepo(db: Database) {
           organization_member: memberships,
           audit_log: audit,
           idempotency_record: keys,
+          saved_event: saves,
+          invite_token: invites,
         };
       }),
 
@@ -98,6 +102,8 @@ export function createMemberRepo(db: Database) {
           db.execute(sql`update audit_log set actor_id = 'deleted:' || gen_random_uuid()::text,
             subject = replace(subject, ${userId}, 'deleted') where actor_id = ${userId} or subject like ${"%" + userId + "%"}`),
           db.delete(idempotencyRecord).where(eq(idempotencyRecord.userId, userId)),
+          db.delete(savedEvent).where(eq(savedEvent.userId, userId)),
+          db.delete(inviteToken).where(eq(inviteToken.createdBy, userId)),
           db.delete(proofItem).where(eq(proofItem.ownerId, userId)),
           db
             .update(policyAcceptance)
