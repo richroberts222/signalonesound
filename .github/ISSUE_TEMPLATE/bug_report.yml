@@ -1,0 +1,82 @@
+name: Bug report
+description: Something behaves differently from what the requirements, tests or rules say
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        One bug per report. Use plain words. Never paste secrets, tokens, database URLs or real user data (use placeholders).
+  - type: textarea
+    id: summary
+    attributes:
+      label: What is wrong, in one or two sentences
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered, exact. Include the route or screen and any test account type (never credentials).
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: Cite the acceptance criterion, requirement or rule if there is one (for example AC3, or a document section).
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity (see "Bug severity" in docs/issues.md)
+      options:
+        - S1 Critical - security, data loss or the platform is unusable
+        - S2 High - a core feature is broken, no workaround
+        - S3 Medium - a feature is impaired, a workaround exists
+        - S4 Low - cosmetic or minor
+    validations:
+      required: true
+  - type: checkboxes
+    id: clients
+    attributes:
+      label: Where it happens
+      options:
+        - label: Web
+        - label: iPhone
+        - label: Android
+        - label: API
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options:
+        - dev
+        - qa (Vercel Preview)
+        - stage
+        - prod
+        - not sure
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Error text, a screenshot, the failing test name, a log line. Redact anything private.
+  - type: textarea
+    id: suspected
+    attributes:
+      label: Suspected cause or related rule (optional)
+      description: A document section or finding id if you know it. Do not guess in this field.
+  - type: textarea
+    id: test
+    attributes:
+      label: Regression test
+      description: The test that fails without the fix (every bug fix adds one; write its name here when known).

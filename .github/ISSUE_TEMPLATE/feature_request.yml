@@ -1,0 +1,64 @@
+name: Feature request
+description: A change to build, with a clear stop line
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The feature is done when every item below is proven, and then work stops. See docs/features/README.md and docs/qa-strategy.md section 3. Never paste secrets or real user data.
+  - type: textarea
+    id: need
+    attributes:
+      label: The user or business need
+      description: Cite the product plan section if one applies.
+    validations:
+      required: true
+  - type: textarea
+    id: in_scope
+    attributes:
+      label: Scope fence, IN
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Scope fence, OUT (explicitly not part of this issue)
+    validations:
+      required: true
+  - type: textarea
+    id: criteria
+    attributes:
+      label: Numbered acceptance criteria
+      description: AC1, AC2, ... each testable, including failure and denial cases.
+    validations:
+      required: true
+  - type: textarea
+    id: controls
+    attributes:
+      label: Controls inventory
+      description: Every button, input, select, link and toggle, with its action and the effect to check.
+  - type: textarea
+    id: permissions
+    attributes:
+      label: Who may do what
+      description: Member, Church/Ministry manager, platform admin (docs/permissions.md).
+  - type: textarea
+    id: data
+    attributes:
+      label: Data and schema implications
+      description: New tables or fields, migrations, seeds (docs/product-development.md section 5). Write "none" if none.
+  - type: checkboxes
+    id: clients
+    attributes:
+      label: Clients affected
+      options:
+        - label: Web
+        - label: iPhone
+        - label: Android
+        - label: API
+  - type: textarea
+    id: review
+    attributes:
+      label: Owner review needed
+      description: Exact steps for the human reviewer, and whether a decision (policy, product, spending) is required.
