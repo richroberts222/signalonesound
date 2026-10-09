@@ -66,7 +66,7 @@ How changes reach users on the web, iPhone and Android, and what is automated. E
 | EAS Build workflow | Manual dispatch or a version tag; uses an Expo access token held as a GitHub secret; builds the profile for the chosen environment | Planned for stage 2 |
 | EAS Submit workflow | Manual dispatch after a tested build, with the owner's approval | Planned for stage 3 |
 | EAS Update | Manual or on tag, for JavaScript-only fixes, with the same checks | Planned after stage 3 |
-| Weekly dependency compatibility check (`pnpm peers check`, `expo install --check`) | Schedule | Planned |
+| Weekly health check (`pnpm audit`, `pnpm peers check`, `expo install --check`), non-blocking | Schedule (`health.yml`) | Built |
 
 Workflow files are changed only through a reviewed pull request (`/docs/security.md`), and each new workflow gets the same least-privilege and pinned-action checks as the existing ones (enforced by `security.test.ts`).
 

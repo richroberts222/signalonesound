@@ -75,7 +75,8 @@ A feature is **done** when its checklist is complete and nothing else. The check
 | `Integration and browser` | Migrate and reset the `qa` database, run the integration, API, acceptance and end-to-end tests; secrets in a protected GitHub Environment; skipped for Dependabot pull requests (they cannot read secrets); never any `prod` value | Planned (F-TEST-002); becomes a required check after a week green |
 | Accessibility scan | axe over the key pages | Planned |
 | Security scans | CodeQL (default setup), secret scanning, Dependabot alerts | Settings to enable (owner action) |
-| Scheduled compatibility check | `pnpm peers check` and `expo install --check`, weekly | Planned |
+| `Template proof` | Generates a new application from the template and runs its own install, lint, typecheck, tests, build and first migration (`pnpm prove:init --full`); informational until green for a week | Built |
+| Scheduled health (`health.yml`) | Weekly `pnpm audit`, `pnpm peers check` and `expo install --check`; reports, never blocks | Built |
 
 ## 7. Security testing layers
 

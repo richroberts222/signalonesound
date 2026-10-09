@@ -113,9 +113,9 @@ Versions of the framework, the tools and the runtime must work together. Rules:
 3. **Unmet peer dependencies are defects.** `pnpm peers check` should be clean. The one documented exception today: the web app runs React 19.2.8 while Expo pins 19.2.3, which leaves one unmet React peer. Resolving it (one shared React version) is a recorded decision, not an accident.
 4. **Major upgrades are deliberate issues.** Dependabot does not open automatic major-version pull requests for npm (`.github/dependabot.yml`). Before a major upgrade of a core tool (Next.js, Expo, Clerk, Drizzle and the Neon driver, Playwright, TypeScript, ESLint, Vitest), read its release notes and open issues for breaking changes and known problems, and record the result in the issue.
 5. **Minor and patch updates are grouped and must pass `Validate`;** a failing update is held, not forced.
-6. **Check regularly.** A weekly job running `pnpm peers check` and `expo install --check` is planned (`/docs/release.md`); until it exists, run both before every release and every upgrade.
+6. **Check regularly.** A weekly workflow (`.github/workflows/health.yml`) runs `pnpm audit`, `pnpm peers check` and `expo install --check` and reports without blocking; also run them before every release and every upgrade.
 
-Enforced today: Dependabot ignores npm majors, `Validate` runs on every update, the lockfile is frozen in CI. Not yet enforced: the peer and Expo checks are not in CI. Proof: the compatibility problems found in the audit (React Native 0.87 proposed against Expo 57, an outdated Node type package, an Expo patch behind) were found by these two commands and fixed.
+Enforced today: Dependabot ignores npm majors, `Validate` runs on every update, the lockfile is frozen in CI. The peer and Expo checks run weekly in `health.yml` (reporting only); they are not a merge gate. Proof: the compatibility problems found in the audit (React Native 0.87 proposed against Expo 57, an outdated Node type package, an Expo patch behind) were found by these two commands and fixed.
 
 ## Development workflow
 
