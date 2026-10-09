@@ -57,6 +57,13 @@
       "when": 1791550880650,
       "tag": "0007_event_edit_token",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791554247026,
+      "tag": "0008_saved_events_and_invites",
+      "breakpoints": true
     }
   ]
 }

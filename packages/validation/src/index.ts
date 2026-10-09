@@ -13,6 +13,9 @@ export * from "./event-client";
 // S4 discover (docs/features/s4-discover-web.md)
 export * from "./discover";
 export * from "./discover-client";
+// S6 saved events and invites (docs/features/s6-saved-events-and-invites.md)
+export * from "./saved";
+export * from "./saved-client";
 // proof-only (removed by the boilerplate init; see /docs/boilerplate.md)
 export * from "./proof-item";
 export * from "./proof-item-client";

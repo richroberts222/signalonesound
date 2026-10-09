@@ -63,3 +63,11 @@ Include the fire reaction in Phase 1? The 30-day retention and the minimum of 5 
 ## Done checklist
 
 AC1 to AC10 (AC9 if confirmed) and controls ticked [Fable]; `pnpm validate` clean; CI green; docs updated.
+
+## Build notes (decisions made while building)
+
+* **Web first.** The save toggle, the Saved list (`/saved`), the invite page (`/account/invite`) and the page a friend lands on (`/invite/<token>`) are built. The mobile controls arrive with the mobile screens (S5), against the same API and shared client.
+* **The fire reaction (AC9) is not built.** The spec includes it only if the owner confirms; it is an owner decision.
+* **Retention** is the daily job `GET /api/v1/internal/jobs/retention`, scheduled in `apps/web/vercel.json` and protected by `CRON_SECRET`. The owner must set `CRON_SECRET` in Vercel (see `/docs/how-to.md`); without it the job refuses every call and nothing is removed.
+* **Invites:** the friend's arrival is counted from the browser, so link-preview robots are not counted; invite pages ask search engines not to index them.
+* **A saved event that is later cancelled stays listed, marked cancelled; one that is deleted or held is shown only as "no longer available"** with no title, place or time.

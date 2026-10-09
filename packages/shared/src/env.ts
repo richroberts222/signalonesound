@@ -98,6 +98,8 @@ export type ServerEnv = {
   clerkPublishableKey: string;
   /** Clerk user ids of the platform admins (ADMIN_USER_IDS, comma separated). Empty means nobody. */
   adminUserIds: string[];
+  /** Secret the platform scheduler sends to the job endpoints (CRON_SECRET). Null means jobs refuse every call. */
+  cronSecret: string | null;
 };
 
 /** Reads ADMIN_USER_IDS: a comma-separated list of Clerk user ids. A malformed entry is reported. */
@@ -126,6 +128,8 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
   const clerkSecretKey = readRequired(source, "CLERK_SECRET_KEY", issues);
   const clerkPublishableKey = readRequired(source, "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", issues);
   const adminUserIds = parseAdminUserIds(source, issues);
+  const cronSecret = source.CRON_SECRET && source.CRON_SECRET.trim() !== "" ? source.CRON_SECRET : null;
+  if (cronSecret !== null && cronSecret.length < 16) issues.push("CRON_SECRET must be at least 16 characters.");
 
   if (appEnv && databaseEnv) {
     // A prod app must use the prod database and nothing else may touch it.
@@ -151,7 +155,7 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
   }
 
   if (issues.length > 0 || !appEnv || !databaseEnv) throw new EnvValidationError(issues);
-  return { appEnv, databaseEnv, databaseUrl, clerkSecretKey, clerkPublishableKey, adminUserIds };
+  return { appEnv, databaseEnv, databaseUrl, clerkSecretKey, clerkPublishableKey, adminUserIds, cronSecret };
 }
 
 export type ClientEnv = {

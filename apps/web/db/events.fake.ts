@@ -172,6 +172,14 @@ export function createFakeEventsRepo(
       return after.slice(0, p.limit + 1);
     },
 
+    async getManyWithOrg(ids) {
+      return ids.flatMap((id) => {
+        const e = events.get(id);
+        const org = e ? orgInfo(e.orgId) : undefined;
+        return e ? [{ ...copy(e), orgName: org?.name ?? "", orgStatus: org?.status ?? "", distance: null }] : [];
+      });
+    },
+
     async getPublic(id) {
       const e = events.get(id);
       const org = e ? orgInfo(e.orgId) : undefined;

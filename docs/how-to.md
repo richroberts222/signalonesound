@@ -127,6 +127,16 @@ Then sign in, claim a church at `/claim-church`, and approve the request at `/ad
 
 ---
 
+## 6c. Set the secret for scheduled jobs (needed for the daily clean-up)
+
+The daily clean-up (saved events 30 days after an event, expired invite links) is called by Vercel with a secret. Without it the clean-up refuses to run (the safe default).
+
+1. Make up a long random secret (at least 16 characters; a password manager can generate one). Do not paste it anywhere but the two places below.
+2. In the Vercel project settings, **Environment Variables**, add `CRON_SECRET` with that value (Preview and Production). Vercel then sends it automatically to the scheduled calls.
+3. Optional, to run a job on your own PC: add `CRON_SECRET=<the value>` to `apps\web\.env.local`.
+
+---
+
 ## 7. Database restore drill (about 20 minutes, in the Neon console)
 
 This proves the database can be restored, which is a launch requirement. The steps and the log to fill in are in `/docs/database.md` section 12.4. Ask Claude to walk you through it when you are at the PC; it needs your Neon login.

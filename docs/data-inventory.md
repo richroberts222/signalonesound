@@ -96,4 +96,12 @@ New tables are added to the schema and to this table in the same pull request.
 | idempotency_record.key | T1 | The random key the client sent with a create (not a secret) | 24 hours | Deleted after 24 hours or with the account |
 | idempotency_record.event_id | T0 | The event that request produced | 24 hours | Deleted after 24 hours or with the account |
 | idempotency_record.created_at | T1 | When the key was first used | 24 hours | Deleted after 24 hours or with the account |
+| saved_event.user_id | T3 | Whose saved list this is (a person-to-church link: sensitive, never shown to anyone else) | Until the account is deleted | Deleted on account deletion (S1 path) |
+| saved_event.event_id | T3 | Which event the person saved | Until the person removes it, or 30 days after the event ended | Deleted on account deletion; removed by the daily retention job 30 days after the event ended |
+| saved_event.saved_at | T3 | When it was saved (used for nothing but ordering ties) | Same as the row | Deleted with the row |
+| invite_token.token_hash | T1 | Hash of a random invite link (the link itself is never stored) | 30 days | Removed when it expires (daily job) or with the account |
+| invite_token.created_by | T2 | Who made the link, so invites can be limited and removed with the account | 30 days | Deleted on account deletion; removed when the link expires |
+| invite_token.created_at | T1 | When the link was made (for the daily limit) | 30 days | Removed with the row |
+| invite_token.expires_at | T1 | When the link stops working | 30 days | Removed with the row |
+| invite_token.arrivals | T1 | How many people opened the link (a total; nothing about them is kept) | 30 days | Removed with the row |
 <!-- boilerplate:proof:end -->

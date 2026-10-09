@@ -28,6 +28,12 @@ export default async function AccountPage() {
   return (
     <>
       <h1 className="font-heading text-3xl font-extrabold tracking-tight">My account</h1>
+      <Link href="/saved" data-testid="account-saved-link" className={buttonVariants({ variant: "outline", className: "w-fit" })}>
+        Saved events
+      </Link>
+      <Link href="/account/invite" data-testid="account-invite-link" className={buttonVariants({ variant: "outline", className: "w-fit" })}>
+        Invite a friend
+      </Link>
       <Link href="/account/settings" data-testid="account-settings-link" className={buttonVariants({ variant: "outline", className: "w-fit" })}>
         Account settings, export and delete
       </Link>

@@ -166,6 +166,20 @@ All public: no sign-in, no identity read, and nothing recorded about who searche
 
 The radius "X" in the source plan is undecided: it is the single setting `RADIUS_X_MILES` (placeholder 100) in `packages/validation/src/discover.ts`.
 
+## Saved events, invites and scheduled jobs (S6, reference application)
+
+| Endpoint | Auth | Purpose |
+| --- | --- | --- |
+| `GET /api/v1/me/saved-events?cursor=&limit=` | member | The caller's saved events, upcoming first then past, keyset-paged. A deleted or held event is returned only as `removed`, with no detail |
+| `GET /api/v1/me/saved-events/:eventId` | member | Whether the caller saved this event |
+| `PUT /api/v1/me/saved-events/:eventId` | member, policy accepted | Save a **public** event (drafts, deleted and unknown ids are `404`); saving twice is once; at most 500 |
+| `DELETE /api/v1/me/saved-events/:eventId` | member | Remove it; removing one that is not saved succeeds |
+| `POST /api/v1/me/invites` | member, policy accepted | A random invite token (192 bits, shown once; only its hash is kept), valid 30 days; at most 10 a day |
+| `POST /api/v1/invites/:token/arrival` | public | Count one arrival from an invite link. Records nothing about the visitor |
+| `GET /api/v1/internal/jobs/retention` | scheduler secret | Daily: removes saved events 30 days after the event ended and expired invite links. Needs `Authorization: Bearer <CRON_SECRET>`; refused when no secret is configured |
+
+Nothing returns who saved an event, and no count of saves is exposed. The schedule is in `apps/web/vercel.json`; a test fails if a scheduled path does not exist or a job route is not scheduled.
+
 ## Unexpected-error reporting
 
 `apiRoute` passes `reportUnexpectedError` (`lib/api/report.ts`) as the adapter's `onUnexpected` hook. It writes one structured stderr line with the error class and, for `DatabaseError`, the operation and kind only (never message, cause, stack, request data, or identity). This is a stopgap sink, not a logging system; replace the sink when one is chosen. The adapter also reports failures that escape the normal path (for example response serialization).

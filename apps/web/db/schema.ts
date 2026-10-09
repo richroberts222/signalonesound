@@ -193,3 +193,31 @@ export const idempotencyRecord = pgTable(
   },
   (t) => [unique("idempotency_record_user_key_unique").on(t.userId, t.key)],
 );
+
+// S6 saved events and invites (docs/features/s6-saved-events-and-invites.md). A saved event is a
+// person-to-church link and is therefore sensitive (T3): it is never shown to anyone but its owner,
+// no endpoint reveals who saved an event, and it is removed 30 days after the event is over.
+export const savedEvent = pgTable(
+  "saved_event",
+  {
+    userId: text("user_id").notNull(),
+    eventId: uuid("event_id").notNull(),
+    savedAt: timestamp("saved_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.eventId] }), index("saved_event_event_idx").on(t.eventId)],
+);
+
+// An invite link. Only the hash of the random token is kept, with who made it (so they can be limited
+// and so deleting their account removes it) and how many people arrived. Who was invited, and who
+// arrived, is never recorded.
+export const inviteToken = pgTable(
+  "invite_token",
+  {
+    tokenHash: text("token_hash").primaryKey(),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    arrivals: integer("arrivals").notNull().default(0),
+  },
+  (t) => [index("invite_token_creator_idx").on(t.createdBy)],
+);
