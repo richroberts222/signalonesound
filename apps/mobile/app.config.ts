@@ -10,7 +10,10 @@ const config: ExpoConfig = {
   slug: "signalone",
   scheme: "signalone",
   version: "0.0.0",
+  owner: "team-jesus",
   platforms: ["ios", "android"],
+  // Links this app to its Expo (EAS) project. An identifier, not a secret.
+  extra: { eas: { projectId: "95bb0df7-18b3-4ba9-96fa-a4ac4d1ad3df" } },
   orientation: "portrait",
   userInterfaceStyle: "automatic",
   ios: {
