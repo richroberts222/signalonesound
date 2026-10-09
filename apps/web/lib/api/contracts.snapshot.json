@@ -43,6 +43,7 @@
             "not_found",
             "conflict",
             "rate_limited",
+            "policy_reacceptance_required",
             "internal"
           ]
         },
@@ -115,6 +116,7 @@
                     "not_found",
                     "conflict",
                     "rate_limited",
+                    "policy_reacceptance_required",
                     "internal"
                   ]
                 },
@@ -178,30 +180,117 @@
       ],
       "additionalProperties": false
     },
-    "helloRequest": {
+    "patchProfileRequest": {
       "type": "object",
       "properties": {
-        "note": {
+        "displayName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "emailPref": {
+          "type": "boolean"
+        },
+        "timeZone": {
           "type": "string"
         }
       },
+      "additionalProperties": false
+    },
+    "acceptPolicyRequest": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "ageAttested": {
+          "type": "boolean",
+          "const": true
+        }
+      },
       "required": [
-        "note"
+        "version",
+        "ageAttested"
       ],
       "additionalProperties": false
     },
-    "helloResponse": {
+    "profileResponse": {
       "type": "object",
       "properties": {
-        "note": {
+        "displayName": {
           "type": [
             "string",
             "null"
           ]
+        },
+        "emailPref": {
+          "type": "boolean"
+        },
+        "timeZone": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "policy": {
+          "type": "object",
+          "properties": {
+            "currentVersion": {
+              "type": "string"
+            },
+            "acceptedVersion": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "accepted": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "currentVersion",
+            "acceptedVersion",
+            "accepted"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
-        "note"
+        "displayName",
+        "emailPref",
+        "timeZone",
+        "policy"
+      ],
+      "additionalProperties": false
+    },
+    "dataExportResponse": {
+      "type": "object",
+      "properties": {
+        "exportedAt": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          }
+        }
+      },
+      "required": [
+        "exportedAt",
+        "data"
       ],
       "additionalProperties": false
     }

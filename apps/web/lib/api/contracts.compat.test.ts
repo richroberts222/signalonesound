@@ -87,11 +87,13 @@ const CONTRACTS: Record<string, { direction: Direction; schema: z.ZodType }> = {
   paginatedEnvelope: { direction: "output", schema: paginatedSchema(idSchema) },
 };
 
-// Contracts of the throwaway demo slices exist only in the reference application: a generated
-// application removes them, so they are registered only when present and ignored when absent.
+// Contracts of the reference application's own product features. A generated application removes
+// them, so they are registered only when present and ignored when absent.
 const OPTIONAL_CONTRACTS: Record<string, { exportName: string; direction: Direction }> = {
-  helloRequest: { exportName: "putHelloSchema", direction: "input" },
-  helloResponse: { exportName: "helloSchema", direction: "output" },
+  patchProfileRequest: { exportName: "patchProfileSchema", direction: "input" },
+  acceptPolicyRequest: { exportName: "acceptPolicySchema", direction: "input" },
+  profileResponse: { exportName: "profileSchema", direction: "output" },
+  dataExportResponse: { exportName: "dataExportSchema", direction: "output" },
 };
 for (const [name, { exportName, direction }] of Object.entries(OPTIONAL_CONTRACTS)) {
   const schema = (validation as Record<string, unknown>)[exportName] as z.ZodType | undefined;

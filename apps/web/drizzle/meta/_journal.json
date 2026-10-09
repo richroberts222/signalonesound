@@ -22,6 +22,20 @@
       "when": 1791543809573,
       "tag": "0002_hello_note",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791545810873,
+      "tag": "0003_drop_hello_note",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791545843859,
+      "tag": "0004_user_profile_and_policy",
+      "breakpoints": true
     }
   ]
 }

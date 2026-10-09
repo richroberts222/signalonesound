@@ -20,6 +20,7 @@ export const STATUS_BY_CODE: Record<ErrorCode, number> = {
   not_found: 404,
   conflict: 409,
   rate_limited: 429,
+  policy_reacceptance_required: 403,
   internal: 500,
 };
 
@@ -53,6 +54,8 @@ export type ApiRouteOptions<A extends Auth, S extends z.ZodType, T> = {
   handle: (
     ctx: A extends "required" ? ServiceContext : ServiceContext | null,
     input: z.output<S>,
+    /** The raw request, for the rare handler that must verify the exact bytes (a signed webhook). */
+    request: Request,
   ) => Promise<T>;
 };
 
@@ -97,7 +100,7 @@ export function createApiRoute(deps: ApiDeps) {
             }
             input = parsed.data;
           }
-          return options.handle(ctx as Parameters<typeof options.handle>[0], input);
+          return options.handle(ctx as Parameters<typeof options.handle>[0], input, request);
         }, deps.onUnexpected);
         return toResponse(result);
       } catch (error) {

@@ -1,17 +1,15 @@
 import { useAuth } from "@clerk/expo";
 import { StatusBar } from "expo-status-bar";
-import { useMemo } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { createApiClient, createHelloClient } from "@signalone/validation";
 
 import { AppAuthProvider } from "./auth/AppAuthProvider";
 import { SignInScreen } from "./auth/SignInScreen";
+import { SignedInScreen } from "./auth/SignedInScreen";
 import { getMobileEnv } from "./config/env";
-import { HelloScreen } from "./hello/HelloScreen";
 
-// S0 walking skeleton (docs/features/s0-walking-skeleton.md): sign in with Clerk, then call the same
-// shared API as the web through the shared client with the session token as a bearer token. No
-// navigation library yet: the tab navigation arrives with the first real screens (S5).
+// Sign in with Clerk (docs/mobile.md). Calls to the shared API use the session token as a bearer
+// token through the shared client in @signalone/validation. No navigation library yet: the tabs
+// arrive with the first real screens (S5).
 export default function App() {
   let env: ReturnType<typeof getMobileEnv>;
   try {
@@ -25,21 +23,14 @@ export default function App() {
   }
   return (
     <AppAuthProvider publishableKey={env.clerkPublishableKey}>
-      <Root baseUrl={env.apiBaseUrl} />
+      <Root />
       <StatusBar style="auto" />
     </AppAuthProvider>
   );
 }
 
-function Root({ baseUrl }: { baseUrl: string }) {
-  const { isLoaded, isSignedIn, getToken, signOut } = useAuth();
-  const client = useMemo(
-    () => createHelloClient(createApiClient({ baseUrl, getToken: () => getToken() })),
-    // getToken keeps a stable identity for a signed-in session; recreate only when the user changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [baseUrl, isSignedIn],
-  );
-
+function Root() {
+  const { isLoaded, isSignedIn, signOut } = useAuth();
   if (!isLoaded) {
     return (
       <View style={styles.container}>
@@ -49,7 +40,7 @@ function Root({ baseUrl }: { baseUrl: string }) {
   }
   return (
     <View style={styles.container}>
-      {isSignedIn ? <HelloScreen client={client} onSignOut={() => void signOut()} /> : <SignInScreen />}
+      {isSignedIn ? <SignedInScreen onSignOut={() => void signOut()} /> : <SignInScreen />}
     </View>
   );
 }
