@@ -50,7 +50,7 @@ Decided by the owner and not to be re-raised unless the trigger occurs.
 
 | Risk | Decision | Revisit when |
 | --- | --- | --- |
-| No two-factor sign-in for the owner's accounts | Accepted | The first real user's data, the first payment, or a third person joins |
+| No two-factor sign-in for the owner's accounts | Accepted. **Check first:** GitHub has required two-factor for people who push code since 2023, so the GitHub account may already have it (Settings, Password and authentication); the accepted-risk row then covers only Clerk, Vercel, Neon and any other account | The first real user's data, the first payment, or a third person joins |
 | The template repository (`fullstack-boilerplate`) is public | Accepted; it holds no secrets or proprietary content | It carries anything proprietary, or at the first real user's data |
 | The owner and the business partner share one login | Accepted by choice | A third person joins, or the first real user's data |
 | Public sign-up is open on the live Production site (development Clerk instance) | Accepted for now; nobody knows the address | The launch gate, or if the address is shared |

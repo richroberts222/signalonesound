@@ -4,14 +4,14 @@ Every suggestion the owner made during the rules review, with where it landed. T
 
 | # | Suggestion | Status | Where it landed |
 | --- | --- | --- | --- |
-| 1 | Run an independent audit with another model (Fable), then a cheap verification pass, then a narrow re-check of its concerns | Done (two passes); re-check pending | `fable-analysis` results on their branches; `scorecard.md` section 4 |
+| 1 | Run an independent audit with another model (Fable), then a cheap verification pass, then a narrow re-check of its concerns | Done (four passes: audit, verify, re-check, gaps; plus an ideas review) | `fable-analysis` results on their branches; `scorecard.md` section 4 |
 | 2 | Rules must make sense, match a named industry standard, be enforced, and the enforcement proven by breaking it | Done | `rules-review/README.md`; every ledger; the scorecard |
 | 3 | The owner decides policy and product choices; Claude decides technical ones | Done | `rules-review/README.md` |
 | 4 | A definition of done so the AI knows when to stop | Done | `qa-strategy.md` section 3; `features/README.md`; PR template; `CLAUDE.md` operating rule 3 |
 | 5 | A full QA set: unit, integration, acceptance, Playwright end-to-end, an API suite that works with Playwright, regression, CI, test plans | Done | `qa-strategy.md` |
 | 6 | Docker, only if development grows | Deferred | `qa-strategy.md` section 8 (triggers: third developer, flaky CI) |
 | 7 | Tests must be meaningful, not random; acceptance tests cover all controls | Done | `automation/test-value-review.md` step 8 (the breaker); `automation/acceptance.md` |
-| 8 | Automation-friendly unique ids in the code | Done (rule); guard planned | `automation/acceptance.md`, `ui.md` section 9b; a guard comes with the first feature |
+| 8 | Automation-friendly unique ids in the code | Done (rule and guard) | `automation/acceptance.md`, `ui.md` section 9b; `components/ui/test-ids.test.ts` (new files must comply; 32 existing files are a shrinking baseline) |
 | 9 | Robert C. Martin style; interfaces where things should stay agnostic | Done | `code-quality.md` section 12; the Clerk and database import guards |
 | 10 | Legal and risk standards the way most companies protect themselves | Done (checklist); owner actions open | `risk-and-legal.md` |
 | 11 | Government, military and health standards (508, HIPAA and others) | Done | `risk-and-legal.md` section 2 |
@@ -19,7 +19,7 @@ Every suggestion the owner made during the rules review, with where it landed. T
 | 13 | Secure coding to a very high standard, as if holding Social Security numbers, card numbers or medical records | Done | `secure-coding.md` (data tiers; never store restricted data) |
 | 14 | Protection against cross-site scripting and cross-frame (clickjacking) attacks | Done | Lint rules; security headers; tests and a real-build check |
 | 15 | Known CVEs and zero-days; the database | Done (policy) | `secure-coding.md` section 4 (patch targets, blast-radius controls, vendor-managed database) |
-| 16 | A consumer-reports style source for known problems | Done | `secure-coding.md` section 4a; monthly tool risk review in `stack.md` |
+| 16 | A consumer-reports style source for known problems | Done | `secure-coding.md` section 4a; a scheduled monthly review issue (`monthly-review.yml`, described in `stack.md`) |
 | 17 | Rules for user permissions, payment tiers and gateways, and third-party connectors | Done (rules); nothing built | `permissions.md`, `payments.md`, `integrations.md` |
 | 18 | Mobile rollout processes, tools and automation | Done (plan); nothing built | `release.md` |
 | 19 | Dependency and tooling compatibility; known issues in tools | Done | `stack.md` compatibility rules; weekly `health.yml`; Dependabot skips major upgrades |

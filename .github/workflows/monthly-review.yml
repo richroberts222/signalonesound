@@ -1,0 +1,41 @@
+name: Monthly tool risk review
+
+# Opens one issue a month with the tool risk review checklist (docs/secure-coding.md section 4a).
+# The only permission beyond reading is creating that issue; it runs no repository code and uses no
+# third-party actions.
+on:
+  schedule:
+    - cron: "23 7 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  open-review-issue:
+    name: Open the monthly review issue
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create the issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          month="$(date -u +%Y-%m)"
+          gh issue create --title "Monthly tool risk review ${month}" --body "$(cat <<'BODY'
+          Monthly tool risk review (docs/secure-coding.md section 4a, docs/stack.md).
+
+          For the core tools (Next.js, Expo and React Native, Clerk, Drizzle and the Neon driver, Playwright) check and record:
+
+          - [ ] New security advisories (GitHub Advisory Database, OSV, vendor notices)
+          - [ ] Anything on the CISA Known Exploited Vulnerabilities list that touches software we use (fix first)
+          - [ ] Unresolved regressions or breaking changes in the versions we run or plan to run
+          - [ ] Vendor incidents since last month (Vercel, Neon, Clerk, GitHub status pages)
+          - [ ] The latest Health workflow run (Actions, Health): audit, peers, Expo compatibility
+          - [ ] Dependabot and code-scanning alerts, if enabled
+
+          Record findings in a comment, open follow-up issues for anything that needs action, and bring any cost to the owner before spending.
+          BODY
+          )"

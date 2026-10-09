@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -209,11 +209,23 @@ describe("workflow safety", () => {
     expect(offenders.map(rel)).toEqual([]);
   });
 
-  it("only the Claude workflow holds write permissions", () => {
+  it("only the Claude workflow holds write permissions, plus the one-permission monthly review issue", () => {
+    const writes = (f: string) => [...read(f).matchAll(/(contents|pull-requests|issues|actions|id-token):\s*write/g)].map((m) => m[1]);
     const offenders = workflows
       .filter((f) => !f.endsWith("claude.yml"))
-      .filter((f) => /(contents|pull-requests|issues|actions|id-token):\s*write/.test(read(f)));
+      .filter((f) => (f.endsWith("monthly-review.yml") ? writes(f).some((w) => w !== "issues") : writes(f).length > 0));
     expect(offenders.map(rel)).toEqual([]);
+  });
+
+  it("the monthly review workflow, where present, can only create an issue: no checkout, no third-party actions", () => {
+    // An application made from the template may remove this workflow; the permission test above
+    // still covers any file that exists, so only a present file is checked here.
+    const file = join(repo, ".github/workflows/monthly-review.yml");
+    if (!existsSync(file)) return;
+    const text = read(file);
+    expect(text).not.toMatch(/^\s*-?\s*uses:/m);
+    expect(text).toMatch(/issues:\s*write/);
+    expect(text).toMatch(/gh issue create/);
   });
 
   it("every action is pinned to a full commit hash", () => {

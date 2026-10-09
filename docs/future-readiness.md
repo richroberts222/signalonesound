@@ -67,7 +67,26 @@ None is required today. Each has a trigger.
 | Backups and a restore drill | Ranked above several High-rated rules in priority (F-DATA-002) |
 | Mobile token storage and deep-link validation | Part of the walking skeleton's design review |
 
-## 6. How this document is used
+## 6. Product and operations ideas (independent review, 2026-10-09)
+
+Ideas an independent reviewer added that are not engineering tasks. Each is a recommendation for the owner and the product plan, ranked; none is built and none authorizes work. "Policy" items cost almost nothing to decide now and are expensive to retrofit.
+
+| Rank | Idea | Why it matters | Size | When |
+| --- | --- | --- | --- | --- |
+| 1 | **Organizer verification and impersonation policy:** how a church is claimed (domain email, phone, manual approval), what happens when two people claim one church, and a report-and-takedown path | The product is "trust this listing"; one fake church or misused name is the failure people talk about; it also sets the moderation load | Policy small, build medium | Policy before the first organizer feature spec |
+| 2 | **Attendee privacy posture:** browsing is anonymous, saving stores the minimum, location is coarse by default, plus a one-paragraph privacy promise | A person-to-church link is T3 data; deciding before the first "save" feature is cheap, after it is a migration and a disclosure | Small | Before the first feature spec; ties to the data inventory and retention schedule |
+| 3 | **Event data quality:** one record per church and venue, recurring events as a series, duplicate check, expiry of past events, time zones and daylight saving handled once on the server | Church calendars repeat weekly and change late; duplicates and stale listings lose users; the data model is the costliest thing to fix later | Medium | In the first feature spec |
+| 4 | **Notification policy:** digest by default, quiet hours, a cap per organizer per week, one-tap unsubscribe per church, organizer rate limits | Notification fatigue is the top reason people delete community apps | Policy small, build medium | Policy now (`integrations.md`); build with notifications |
+| 5 | **Organizer onboarding and the empty-state problem:** a ten-minute onboarding, import from an existing calendar, a plan to seed the first fifty churches | Two-sided platform: no events means no members and no members means no organizers | Medium | Before launch planning |
+| 6 | **Accessibility for older users:** large-text and high-contrast defaults, plain-language copy, a print-friendly and text-message-shareable event page, no gesture-only mobile actions, enforced with axe in the browser tests | Church audiences skew older; a target on paper is not a usable product | Small | Rules now; guard with the first UI feature |
+| 7 | **Offline and poor-signal use in venues:** event details cached on the phone, readable pages without script errors, no action lost when signal drops | Basements, rural parishes and crowds have bad signal exactly when the app is needed | Medium | Rule in `mobile.md`; proof with the mobile walking skeleton |
+| 8 | **Moderation load and the two-person limit:** estimate the queue, define what is held automatically (links, images, a new organizer's first post), set review times | The owner and one partner cannot review everything; sets the legal posture | Small | Before user-generated content beyond event listings |
+| 9 | **Support and incident runbook:** a support address, response targets, account recovery (especially with a shared admin login), message templates, a simple status page | The first real user writes within a day; improvising during an incident is costly | Small | Before the launch gate |
+| 10 | **Cost ceiling and kill switch:** a monthly ceiling, usage alerts on each vendor's free-tier limits, an order of what to turn off first | "Ask before spending" does not watch existing spending; a viral weekend or a bot can exhaust free tiers overnight | Small | Before launch |
+
+Also noted: seasonal load (Christmas and Easter peaks) belongs in the performance budgets; letting a church export its own data belongs with onboarding; family or household accounts are a product-plan question.
+
+## 7. How this document is used
 
 * Before designing a feature, check section 3: does the feature touch a decision that must be made now?
 * When a partner or customer asks for something in section 2, treat it as a trigger: open an issue, estimate, and bring any spending to the owner.
