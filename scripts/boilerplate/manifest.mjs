@@ -1,7 +1,8 @@
 // Shared inventory for the boilerplate tooling (see /docs/boilerplate.md).
 // Plain Node, no dependencies. Both init-app.mjs and check-boilerplate.mjs read
 // this file so the two can never disagree about what is proof-only.
-import { readdirSync, statSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 
 /** PROOF-ONLY: generic vertical-slice artifacts (Issue 49) and the proof migrations (Issues 43, 49). */
@@ -61,4 +62,15 @@ export function walk(root, dir = root) {
     const full = path.join(dir, name);
     return statSync(full).isDirectory() ? walk(root, full) : [posix(path.relative(root, full))];
   });
+}
+
+/**
+ * Files to copy when building a template or a test copy: only what git tracks, so
+ * untracked scratch files and local settings can never travel. Falls back to a
+ * folder walk when `root` is not a git checkout (for example an exported template).
+ */
+export function listSourceFiles(root) {
+  const result = spawnSync("git", ["ls-files", "-z"], { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  if (result.error || result.status !== 0) return walk(root);
+  return result.stdout.split("\0").filter((f) => f && existsSync(path.join(root, f)));
 }

@@ -13,7 +13,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { applyIdentity, parseArgs, stripMarkedRegions, stripProofSlice } from "./init-app.mjs";
-import { EXPORT_EXCLUDED_PATHS, PROOF_PATHS, isLocalEnvFile, walk } from "./manifest.mjs";
+import { EXPORT_EXCLUDED_PATHS, PROOF_PATHS, isLocalEnvFile, listSourceFiles, walk } from "./manifest.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -31,7 +31,7 @@ const README_BLOCK = `<!-- boilerplate:template:start -->
 export function exportTemplate({ source, out, log = console.log }) {
   if (existsSync(out) && readdirSync(out).length > 0) throw new Error(`--out must be empty or absent: ${out}`);
   const excluded = (f) => EXPORT_EXCLUDED_PATHS.some((p) => f === p || f.startsWith(`${p}/`));
-  const copy = walk(source).filter((f) => !excluded(f) && !isLocalEnvFile(path.posix.basename(f)));
+  const copy = listSourceFiles(source).filter((f) => !excluded(f) && !isLocalEnvFile(path.posix.basename(f)));
   for (const file of copy) {
     mkdirSync(path.dirname(path.join(out, file)), { recursive: true });
     cpSync(path.join(source, file), path.join(out, file));
