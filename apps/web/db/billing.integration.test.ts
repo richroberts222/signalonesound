@@ -5,7 +5,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import { createBillingRepo } from "./billing";
 import { createDb } from "./client";
 import { createMemberRepo } from "./member";
-import { auditLog, billingCoupon, billingCouponUse, billingPlan, billingPrice, billingRule, billingSubscription } from "./schema";
+import { auditLog, billingCoupon, billingCouponUse, billingPlan, billingPrice, billingRule, billingSubscription, paymentEvent } from "./schema";
 
 // Database-backed integration tests for billing (S10, /docs/automation/integration.md). They run ONLY via
 // `pnpm --filter web test:integration`, never in `pnpm test`, and are fail-closed: DATABASE_ENV must be
@@ -39,6 +39,7 @@ afterAll(async () => {
     await db.delete(billingCouponUse).where(inArray(billingCouponUse.couponId, coupons.map((c) => c.id)));
     await db.delete(billingCoupon).where(inArray(billingCoupon.id, coupons.map((c) => c.id)));
   }
+  await db.delete(paymentEvent).where(like(paymentEvent.eventId, `${PREFIX}%`));
   await db.delete(auditLog).where(like(auditLog.actorId, `%${PREFIX}%`));
   await db.delete(auditLog).where(like(auditLog.subject, `%${PREFIX}%`));
 });
@@ -131,3 +132,46 @@ describe("billing repo (real database)", () => {
     expect((await repo.listAudit(200)).some((e) => e.actorId === leaver)).toBe(false); // the audit entry stays, without the person
   });
 });
+
+describe("payment notifications (real database, S11)", () => {
+  const holder = `user_${PREFIX}payer`;
+  const at = (minutes: number) => new Date(Date.UTC(2026, 9, 10, 12, minutes, 0));
+  const ref = `${PREFIX}sub-${crypto.randomUUID()}`;
+  const checkout = (minutes: number, over: Partial<{ subscriptionRef: string; customerRef: string | null }> = {}) => ({ accountType: "member", accountId: holder, planId: crypto.randomUUID(), priceId: crypto.randomUUID(), subscriptionRef: ref, customerRef: `${PREFIX}cus`, at: at(minutes), ...over });
+
+  it("S11 AC6 an event id is recorded once, and a known one is found", async () => {
+    const id = `${PREFIX}evt-${crypto.randomUUID()}`;
+    expect(await repo.hasPaymentEvent(id)).toBe(false);
+    await repo.recordPaymentEvent(id, "checkout_completed");
+    await repo.recordPaymentEvent(id, "payment_failed"); // the same id again is one entry
+    expect(await repo.hasPaymentEvent(id)).toBe(true);
+    expect((await db.select().from(paymentEvent).where(like(paymentEvent.eventId, id))).length).toBe(1);
+  });
+
+  it("S11 AC7 checkout completed makes the subscription active with the provider's references", async () => {
+    await repo.applyCheckoutCompleted(checkout(1));
+    expect(await repo.getSubscription("member", holder)).toMatchObject({ status: "active", providerRef: ref, providerCustomerRef: `${PREFIX}cus`, trialEndsAt: null });
+  });
+
+  it("S11 AC6 an older notification never overwrites a newer state, and a newer one applies", async () => {
+    expect(await repo.setStatusByProviderRef(ref, "cancelled", at(5))).toBe(true);
+    expect((await repo.getSubscription("member", holder))?.status).toBe("cancelled");
+    expect(await repo.setStatusByProviderRef(ref, "active", at(3))).toBe(true); // known, but older: changes nothing
+    expect((await repo.getSubscription("member", holder))?.status).toBe("cancelled");
+    await repo.applyCheckoutCompleted(checkout(2, { subscriptionRef: `${ref}-old`, customerRef: "cus_old" })); // an old checkout must not overwrite
+    expect((await repo.getSubscription("member", holder))?.providerRef).toBe(ref);
+    expect(await repo.setStatusByProviderRef(ref, "past_due", at(9))).toBe(true);
+    expect((await repo.getSubscription("member", holder))?.status).toBe("past_due");
+  });
+
+  it("S11 AC7 an unknown subscription reference is reported as unknown and changes nothing", async () => {
+    expect(await repo.setStatusByProviderRef(`${PREFIX}nobody-${crypto.randomUUID()}`, "cancelled", at(20))).toBe(false);
+  });
+
+  it("S11 AC11 deleting the member removes their subscription and customer reference", async () => {
+    expect(await repo.getSubscription("member", holder)).not.toBeNull();
+    await createMemberRepo(db).eraseAll(holder);
+    expect(await repo.getSubscription("member", holder)).toBeNull();
+  });
+});
+

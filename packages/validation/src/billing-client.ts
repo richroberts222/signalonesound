@@ -3,6 +3,7 @@ import {
   billingAuditListSchema,
   billingRuleSchema,
   billingRulesSchema,
+  checkoutResultSchema,
   couponListSchema,
   couponQuoteSchema,
   couponSchema,
@@ -22,6 +23,8 @@ import {
 export function createBillingClient(api: ApiClient) {
   return {
     getEntitlements: () => api.request({ method: "GET", path: "/api/v1/me/entitlements", schema: entitlementsSchema }),
+    startCheckout: (planId: string) => api.request({ method: "POST", path: "/api/v1/me/checkout", body: { planId }, schema: checkoutResultSchema }),
+    openBillingPortal: () => api.request({ method: "POST", path: "/api/v1/me/billing-portal", schema: checkoutResultSchema }),
     quoteCoupon: (code: string, planId: string) => api.request({ method: "POST", path: "/api/v1/me/coupons/quote", body: { code, planId }, schema: couponQuoteSchema }),
     admin: {
       listRules: () => api.request({ method: "GET", path: "/api/v1/admin/billing/rules", schema: billingRulesSchema }),

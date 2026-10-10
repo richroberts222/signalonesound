@@ -1,6 +1,6 @@
 # Payments and Subscriptions
 
-Rules for taking money. **Provider chosen: Stripe, in test mode only (owner decision 2026-10-10). Nothing is built yet.** The owner expects members to pay (tentative; pricing and tiers are undecided, `/docs/product/product-plan.md`). Every vendor choice here is UNDECIDED and needs the owner's approval before any spending.
+Rules for taking money. **Provider chosen: Stripe, in test mode only (owner decision 2026-10-10). Built so far: plans, switches and entitlement (S10), and hosted checkout, the customer page and verified webhooks (S11), all in test mode.** The owner expects members to pay (tentative; pricing and tiers are undecided, `/docs/product/product-plan.md`). Every vendor choice here is UNDECIDED and needs the owner's approval before any spending.
 
 **Standards followed** (established practice; confirm before citing externally): PCI DSS (scope minimization through hosted checkout), OWASP ASVS V13 and API security for webhooks, idempotent processing, and the Apple and Google in-app purchase policies (verify the current text at design time).
 

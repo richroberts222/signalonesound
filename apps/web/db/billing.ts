@@ -1,8 +1,8 @@
-import { and, asc, count, desc, eq, like, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNull, like, lte, or, sql } from "drizzle-orm";
 
 import type { Database } from "./client";
 import { withDbErrors } from "./errors";
-import { auditLog, billingCoupon, billingCouponUse, billingPlan, billingPrice, billingRule, billingSubscription } from "./schema";
+import { auditLog, billingCoupon, billingCouponUse, billingPlan, billingPrice, billingRule, billingSubscription, paymentEvent } from "./schema";
 
 // Data access for billing (S10, docs/features/s10-payments-plans-and-switches.md). Server-only by
 // convention (like all of db/). Every admin change is written together with its audit entry in ONE
@@ -176,6 +176,44 @@ export function createBillingRepo(db: Database) {
           .onConflictDoUpdate({ target: [billingSubscription.accountType, billingSubscription.accountId], set: { planId: input.planId, priceId: input.priceId, status: input.status, providerRef: input.providerRef, trialEndsAt: null } })
           .returning();
         return row;
+      }),
+
+    // ---- Payment notifications (S11) ---------------------------------------------------------------
+    hasPaymentEvent: (eventId: string): Promise<boolean> =>
+      withDbErrors("billing.hasPaymentEvent", async () => {
+        const [row] = await db.select({ id: paymentEvent.eventId }).from(paymentEvent).where(eq(paymentEvent.eventId, eventId)).limit(1);
+        return row !== undefined;
+      }),
+
+    recordPaymentEvent: (eventId: string, type: string): Promise<void> =>
+      withDbErrors("billing.recordPaymentEvent", async () => {
+        await db.insert(paymentEvent).values({ eventId, type }).onConflictDoNothing();
+      }),
+
+    /** Makes the account's subscription active with the provider's references, unless a newer notification already set it. */
+    applyCheckoutCompleted: (input: { accountType: string; accountId: string; planId: string; priceId: string; subscriptionRef: string; customerRef: string | null; at: Date }): Promise<void> =>
+      withDbErrors("billing.applyCheckoutCompleted", async () => {
+        const values = { accountType: input.accountType, accountId: input.accountId, planId: input.planId, priceId: input.priceId, status: "active", trialEndsAt: null, providerRef: input.subscriptionRef, providerCustomerRef: input.customerRef, providerEventAt: input.at };
+        await db
+          .insert(billingSubscription)
+          .values(values)
+          .onConflictDoUpdate({
+            target: [billingSubscription.accountType, billingSubscription.accountId],
+            set: { planId: input.planId, priceId: input.priceId, status: "active", trialEndsAt: null, providerRef: input.subscriptionRef, providerCustomerRef: input.customerRef, providerEventAt: input.at },
+            setWhere: or(isNull(billingSubscription.providerEventAt), lte(billingSubscription.providerEventAt, input.at)),
+          });
+      }),
+
+    /** Changes the status of the subscription the provider names, unless a newer notification already did. True when that subscription is known. */
+    setStatusByProviderRef: (subscriptionRef: string, status: string, at: Date): Promise<boolean> =>
+      withDbErrors("billing.setStatusByProviderRef", async () => {
+        const [known] = await db.select({ id: billingSubscription.id }).from(billingSubscription).where(eq(billingSubscription.providerRef, subscriptionRef)).limit(1);
+        if (!known) return false;
+        await db
+          .update(billingSubscription)
+          .set({ status, providerEventAt: at })
+          .where(and(eq(billingSubscription.providerRef, subscriptionRef), or(isNull(billingSubscription.providerEventAt), lte(billingSubscription.providerEventAt, at))));
+        return true;
       }),
 
     listAudit: (limit: number): Promise<BillingAuditRow[]> =>

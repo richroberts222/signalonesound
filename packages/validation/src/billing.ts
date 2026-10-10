@@ -124,3 +124,11 @@ export const billingAuditEntrySchema = z.object({ id: z.uuid(), actorId: z.strin
 export type BillingAuditEntry = z.infer<typeof billingAuditEntrySchema>;
 export const billingAuditListSchema = z.object({ items: z.array(billingAuditEntrySchema) });
 export const billingAuditQuerySchema = z.object({ limit: z.coerce.number().int().min(1).max(BILLING_AUDIT_LIMIT_MAX).default(50) });
+
+// ---- Checkout (S11) ----------------------------------------------------------------------------------
+/** Which plan to buy. Nothing else is accepted: the amount, currency and interval come from OUR plan, never the client. */
+export const checkoutRequestSchema = z.object({ planId: z.uuid() }).strict();
+export type CheckoutRequest = z.infer<typeof checkoutRequestSchema>;
+/** Only the address of the provider's hosted page; no card data ever passes through us. */
+export const checkoutResultSchema = z.object({ url: z.url() });
+

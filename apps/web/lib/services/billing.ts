@@ -14,7 +14,7 @@ import type {
 } from "@signalone/validation";
 
 import type { BillingAuditRow, BillingRepo, CouponRow, PlanRow, RuleRow } from "../../db/billing";
-import type { PaymentProvider } from "../payments/port";
+import { WebhookSignatureError, type PaymentProvider, type ProviderEvent } from "../payments/port";
 import type { ServiceContext } from "./context";
 import { conflict, notFound, validationFailed } from "./errors";
 import type { AdminDirectory } from "./organizations";
@@ -31,7 +31,16 @@ import type { AdminDirectory } from "./organizations";
 //     final amount never goes below zero.
 // Framework-free; the repo, the payment provider and the clock are injected.
 
-export type BillingServiceDeps = { repo: BillingRepo; admins: AdminDirectory; provider: PaymentProvider; now?: () => Date };
+export type BillingServiceDeps = {
+  repo: BillingRepo;
+  admins: AdminDirectory;
+  provider: PaymentProvider;
+  now?: () => Date;
+  /** Whether checkout is open (PAYMENTS_PROVIDER is on). Closed by default: every payment route answers "not found". */
+  paymentsEnabled?: () => boolean;
+  /** Throws unless the member has accepted the current terms (S1). */
+  requireAccepted?: (userId: string) => Promise<void>;
+};
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const iso = (d: Date | null): string | null => (d ? d.toISOString() : null);
@@ -65,7 +74,7 @@ export function discountMinor(amountMinor: number, coupon: { percentOff: number 
   return Math.min(Math.max(raw, 0), amountMinor);
 }
 
-export function createBillingService({ repo, admins, provider, now = () => new Date() }: BillingServiceDeps) {
+export function createBillingService({ repo, admins, provider, now = () => new Date(), paymentsEnabled = () => false, requireAccepted = async () => undefined }: BillingServiceDeps) {
   const requireAdmin = (ctx: ServiceContext): void => {
     if (!admins.isAdmin(ctx.actor.userId)) throw notFound(); // admin tools do not reveal themselves
   };
@@ -212,6 +221,76 @@ export function createBillingService({ repo, admins, provider, now = () => new D
       const result = await provider.startSubscription({ accountType: "member", accountId, priceId: plan.price.id, amountMinor: amount, currency: plan.price.currency, interval: plan.price.interval });
       await repo.saveSubscription({ accountType: "member", accountId, planId: plan.id, priceId: plan.price.id, status: result.status, providerRef: result.providerRef });
       return entitlementFor("member", accountId);
+    },
+
+    // ---- Checkout and the provider's notifications (S11) ---------------------------------------------
+    /**
+     * Opens the provider's hosted checkout for an ACTIVE member plan and returns only its address. The price comes
+     * from our plan, never from the client. Closed (not found) unless payments are switched on. `origin` is where the
+     * person is returned afterwards (our own site).
+     */
+    async createCheckout(ctx: ServiceContext, input: { planId: string; origin: string }): Promise<{ url: string }> {
+      if (!paymentsEnabled()) throw notFound();
+      await requireAccepted(ctx.actor.userId);
+      const plan = await repo.getPlan(input.planId);
+      if (!plan || !plan.active || plan.accountType !== "member" || !plan.price) throw notFound("That plan is not available");
+      const existing = await repo.getSubscription("member", ctx.actor.userId);
+      if (existing?.status === "active") throw conflict("You already have an active plan. Manage it from your account.");
+      const origin = new URL(input.origin).origin;
+      return provider.createCheckout({
+        accountType: "member",
+        accountId: ctx.actor.userId,
+        planId: plan.id,
+        priceId: plan.price.id,
+        planName: plan.name,
+        amountMinor: plan.price.amountMinor,
+        currency: plan.price.currency,
+        interval: plan.price.interval as "month" | "year",
+        successUrl: `${origin}/services?checkout=success`,
+        cancelUrl: `${origin}/services?checkout=cancelled`,
+      });
+    },
+
+    /** Opens the provider's customer page (change card, cancel) for someone who has a subscription; anyone else is "not found". */
+    async createPortal(ctx: ServiceContext, input: { origin: string }): Promise<{ url: string }> {
+      if (!paymentsEnabled()) throw notFound();
+      const sub = await repo.getSubscription("member", ctx.actor.userId);
+      if (!sub?.providerCustomerRef) throw notFound();
+      return provider.createPortal({ customerRef: sub.providerCustomerRef, returnUrl: `${new URL(input.origin).origin}/services` });
+    },
+
+    /**
+     * Applies a payment notification. The signature is verified on the RAW body first; a replay of an event already
+     * applied changes nothing; an event older than what is stored never overwrites it; an unknown event type is
+     * acknowledged and ignored. The state is changed by the provider's own reference, never by anything a browser sent.
+     */
+    async handleWebhook(rawBody: string, signature: string | null): Promise<{ received: true }> {
+      let event: ProviderEvent;
+      try {
+        event = provider.readWebhook(rawBody, signature);
+      } catch (error) {
+        if (error instanceof WebhookSignatureError) throw validationFailed("The notification could not be verified");
+        throw error;
+      }
+      if (await repo.hasPaymentEvent(event.eventId)) return { received: true };
+      switch (event.kind) {
+        case "checkout_completed":
+          await repo.applyCheckoutCompleted({ accountType: event.accountType, accountId: event.accountId, planId: event.planId, priceId: event.priceId, subscriptionRef: event.subscriptionRef, customerRef: event.customerRef, at: event.at });
+          break;
+        case "subscription_active":
+          await repo.setStatusByProviderRef(event.subscriptionRef, "active", event.at);
+          break;
+        case "payment_failed":
+          await repo.setStatusByProviderRef(event.subscriptionRef, "past_due", event.at);
+          break;
+        case "subscription_cancelled":
+          await repo.setStatusByProviderRef(event.subscriptionRef, "cancelled", event.at);
+          break;
+        case "ignored":
+          break;
+      }
+      await repo.recordPaymentEvent(event.eventId, event.kind === "ignored" ? event.type : event.kind); // after applying, so a crash in between is retried, never lost
+      return { received: true };
     },
 
     /** Used by tests and by organization checks (S13); exposed so other services ask one place. */

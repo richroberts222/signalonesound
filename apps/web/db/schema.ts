@@ -421,10 +421,22 @@ export const billingSubscription = pgTable(
     status: text("status").notNull(),
     trialEndsAt: timestamp("trial_ends_at", { withTimezone: true }),
     providerRef: text("provider_ref"),
+    // The provider's customer reference (for its customer page) and when the provider says the last change
+    // happened, so an old notification never overwrites a newer state (S11).
+    providerCustomerRef: text("provider_customer_ref"),
+    providerEventAt: timestamp("provider_event_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [unique("billing_subscription_account_unique").on(t.accountType, t.accountId)],
+  (t) => [unique("billing_subscription_account_unique").on(t.accountType, t.accountId), index("billing_subscription_ref_idx").on(t.providerRef)],
 );
+
+// S11: the ids of payment notifications already applied, so a replay is ignored (docs/payments.md rule 4). Only
+// the provider's own event id and type are kept: no payload, no person.
+export const paymentEvent = pgTable("payment_event", {
+  eventId: text("event_id").primaryKey(),
+  type: text("type").notNull(),
+  receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 // S14 email sending (docs/features/s14-email-sending.md). Addresses that bounced or complained, so they are
 // never emailed again. Only a keyed hash of the address is stored, never the address itself, so the table

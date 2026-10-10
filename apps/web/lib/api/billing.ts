@@ -1,6 +1,7 @@
 import {
   type AccountType,
   billingAuditQuerySchema,
+  checkoutRequestSchema,
   billingRuleParamsSchema,
   couponParamsSchema,
   couponQuoteRequestSchema,
@@ -57,6 +58,21 @@ export function billingRoutes(route: ReturnType<typeof createApiRoute>, getServi
     audit: { GET: route({ auth: "required", input: { schema: billingAuditQuerySchema, source: "query" }, handle: (ctx, input) => getService().listAudit(ctx, input.limit) }) },
     publicPlans: { GET: route({ auth: "public", handle: () => getService().listPublicPlans() }) },
     entitlements: { GET: route({ auth: "required", handle: (ctx) => getService().myEntitlements(ctx) }) },
+    checkout: {
+      POST: route({
+        auth: "required",
+        input: { schema: checkoutRequestSchema },
+        handle: (ctx, input, request) => getService().createCheckout(ctx, { planId: input.planId, origin: new URL(request.url).origin }),
+      }),
+    },
+    portal: { POST: route({ auth: "required", handle: (ctx, _input, request) => getService().createPortal(ctx, { origin: new URL(request.url).origin }) }) },
+    // The provider notification: public (it carries no sign-in) but only accepted with a valid signature on the RAW body.
+    webhook: {
+      POST: route({
+        auth: "public",
+        handle: async (_ctx, _input, request) => getService().handleWebhook(await request.text(), request.headers.get("stripe-signature")),
+      }),
+    },
     quote: { POST: route({ auth: "required", input: { schema: couponQuoteRequestSchema }, handle: (ctx, input) => getService().quoteCoupon(ctx, input) }) },
   };
 }

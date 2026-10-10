@@ -48,3 +48,29 @@ test.describe("Billing: signed in as a normal member", () => {
     await expect(page.getByTestId("billing-error")).toContainText("only for platform admins");
   });
 });
+
+// S11 (docs/features/s11-stripe-checkout-and-webhooks.md): the payment routes are closed in this environment
+// (PAYMENTS_PROVIDER is not set), and the webhook refuses anything that is not correctly signed.
+test.describe("Payments (S11): closed and safe by default", () => {
+  test.skip(!ready, SKIP_REASON);
+
+  test("AC1 the payment provider's webhook refuses an unsigned or wrongly signed request", async ({ request }) => {
+    const unsigned: Record<string, string>[] = [{}, { "stripe-signature": "t=1,v1=bad" }];
+    for (const headers of unsigned) {
+      const res = await request.post("/api/v1/webhooks/stripe", { headers, data: { id: "evt_x", type: "checkout.session.completed" } });
+      expect(res.status()).toBe(400);
+    }
+  });
+
+  test("AC2 checkout and the customer page refuse a signed-out caller with 401", async ({ request }) => {
+    for (const path of ["/api/v1/me/checkout", "/api/v1/me/billing-portal"]) expect((await request.post(path)).status(), path).toBe(401);
+  });
+
+  test("AC1 AC2 a signed-in member finds checkout and the customer page closed when payments are off", async ({ page }) => {
+    await signIn(page);
+    const checkout = await page.request.post("/api/v1/me/checkout", { data: { planId: "11111111-1111-4111-8111-111111111111" } });
+    expect(checkout.status()).toBe(404);
+    expect((await page.request.post("/api/v1/me/billing-portal")).status()).toBe(404);
+  });
+});
+

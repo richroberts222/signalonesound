@@ -18,7 +18,7 @@ One set of rules for every external service the platform calls or is called by: 
 | Maps and geocoding | Event map and distance search | UNDECIDED; not built |
 | Analytics | Product usage | UNDECIDED; not built |
 | Error tracking and uptime | Production visibility | UNDECIDED; not built (F-OPS-001) |
-| Payments | See `/docs/payments.md` | Stripe chosen (test mode only); plans, switches and entitlement built with a fake provider (S10); checkout not built |
+| Payments | See `/docs/payments.md` | Stripe chosen (test mode only). Built: plans, switches and entitlement (S10); hosted checkout, the customer page and verified, repeat-safe webhooks behind a swappable port (S11). **Not connected**: needs a Stripe webhook endpoint registered and the test keys in the environment; no live keys until the legal gates are met |
 
 Choosing a vendor, and any spending, needs the owner's approval first. Compare cost, free-tier limits, data location, commercial-use terms and exit options, and record the choice here.
 
