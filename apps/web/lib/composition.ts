@@ -19,6 +19,8 @@ import { gazetteerGeocoder } from "./places/geocoder";
 import { createMemberService, type MemberService } from "./services/member";
 import { createAlertsService, type AlertsService } from "./services/alerts";
 import { createBillingService, type BillingService } from "./services/billing";
+import { createContactService, type ContactService } from "./services/contact";
+import { createContactRepo } from "../db/contact";
 import { unconfiguredPaymentProvider } from "./payments/unconfigured";
 import { createModerationService, type ModerationService } from "./services/moderation";
 import { createNotifier, type Notifier } from "./services/notifier";
@@ -185,5 +187,17 @@ export function getEmailPort(): EmailPort {
   let port: EmailPort = createSesEmail({ region: env.sesRegion, from: env.emailFrom });
   if (env.appEnv !== "prod") port = createAllowlistedEmail(port, env.emailAllowlist);
   return (emailPort = createSuppressingEmail(port, getEmailSuppressionRepo(), getEmailSuppressionSalt()));
+}
+
+let contact: ContactService | undefined;
+
+// The contact form and the admin Messages inbox (S15). The form is closed unless CONTACT_FORM_ENABLED is on.
+export function getContactService(): ContactService {
+  return (contact ??= createContactService({
+    repo: createContactRepo(getDb()),
+    admins: createAdminDirectory(getServerEnv().adminUserIds),
+    isOpen: () => getServerEnv().contactFormEnabled,
+    addressSalt: getServerEnv().rateLimitSalt ?? processSalt,
+  }));
 }
 

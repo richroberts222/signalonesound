@@ -1,11 +1,13 @@
 import Link from "next/link";
 
-// Links to the public pages every visitor must be able to reach (S1 AC10): the policies they accept,
-// who we are, and how to reach us.
+// Links to the public pages every visitor must be able to reach (S1 AC10, S15 AC10): the policies they
+// accept, who we are, what we offer, the common questions, and how to reach us.
 const LINKS = [
   { href: "/terms", label: "Terms", testId: "footer-terms" },
   { href: "/privacy", label: "Privacy", testId: "footer-privacy" },
   { href: "/about", label: "About", testId: "footer-about" },
+  { href: "/services", label: "Services", testId: "footer-services" },
+  { href: "/faq", label: "FAQ", testId: "footer-faq" },
   { href: "/contact", label: "Contact", testId: "footer-contact" },
 ] as const;
 

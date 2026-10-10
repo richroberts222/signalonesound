@@ -99,6 +99,14 @@ New tables are added to the schema and to this table in the same pull request.
 | email_suppression.address_key | T2 | A keyed hash of an email address that bounced or complained, so it is never emailed again (never the address itself) | Kept (it must outlive account deletion, or the app could mail a dead or hostile address again) | Not personal on its own: a keyed hash; kept after account deletion |
 | email_suppression.reason | T1 | Whether it was a bounce or a complaint | Kept | Not personal |
 | email_suppression.created_at | T1 | When it was recorded | Kept | Not personal |
+| contact_message.id | T1 | Row identity | Kept until an admin deletes the message | Deleted by an admin from the Messages inbox |
+| contact_message.topic | T1 | What the message is about (question, report a listing, privacy request, other) | Kept until an admin deletes the message | Deleted by an admin |
+| contact_message.name | T3 | The name the person typed, so we know who we are answering | Kept until an admin deletes the message | Deleted by an admin; a privacy request to delete is answered by deleting the message |
+| contact_message.reply_email | T3 | The email address the person typed, if they want a reply (optional) | Kept until an admin deletes the message | Deleted by an admin |
+| contact_message.message | T3 | What the person wrote (plain text; may contain anything they choose to type) | Kept until an admin deletes the message | Deleted by an admin |
+| contact_message.status | T1 | New or done, for the admin's inbox | Kept until an admin deletes the message | Deleted by an admin |
+| contact_message.address_key | T2 | A keyed hash of the sender's network address, used only to limit messages per person per day (never the address) | Kept until an admin deletes the message | Deleted by an admin |
+| contact_message.created_at | T1 | When the message was sent | Kept until an admin deletes the message | Deleted by an admin |
 | event_series.id | T0 | Row identity of a recurring series | Until removed by an admin or the organization | Removed with the organization's events |
 | event_series.org_id | T0 | Which organization the series belongs to | Until removed by an admin or the organization | Removed with the organization's events |
 | event_series.rule | T0 | How the series repeats (weekly, monthly by weekday, or a date list) | Until removed by an admin or the organization | Removed with the organization's events |

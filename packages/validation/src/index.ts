@@ -25,6 +25,9 @@ export * from "./alerts-client";
 // S10 payments: plans, switches and entitlement (docs/features/s10-payments-plans-and-switches.md)
 export * from "./billing";
 export * from "./billing-client";
+// S15 public pages: the contact form and the admin Messages inbox (docs/features/s15-public-pages.md)
+export * from "./contact";
+export * from "./contact-client";
 // proof-only (removed by the boilerplate init; see /docs/boilerplate.md)
 export * from "./proof-item";
 export * from "./proof-item-client";

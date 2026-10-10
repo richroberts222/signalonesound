@@ -1,12 +1,25 @@
 import type { Metadata } from "next";
 
 import { LegalPage } from "@/components/legal/legal-page";
+import { ContactForm } from "@/components/marketing/contact-form";
+import { getContactService } from "@/lib/composition";
 
 export const metadata: Metadata = { title: "Contact | Signal One Sound" };
 
-// The contact address is an owner decision (docs/features/s1-identity-and-policy.md). It forwards to the
-// owner's inbox through the domain's email forwarding.
+// Read on every request: the form appears only when CONTACT_FORM_ENABLED is on (it collects personal
+// information, so production keeps it off until the legal gates are met). The address always shows.
+export const dynamic = "force-dynamic";
+
+function formIsOpen(): boolean {
+  try {
+    return getContactService().isOpen();
+  } catch {
+    return false;
+  }
+}
+
 export default function ContactPage() {
+  const open = formIsOpen();
   return (
     <LegalPage title="Contact">
       <p>For questions, to report a listing, or to make a privacy request (download or delete your information), write to us.</p>
@@ -15,6 +28,12 @@ export default function ContactPage() {
           contact@signalonesound.com
         </a>
       </p>
+      {open && (
+        <>
+          <h2>Or send a message</h2>
+          <ContactForm />
+        </>
+      )}
     </LegalPage>
   );
 }

@@ -175,6 +175,12 @@ export function createBillingService({ repo, admins, provider, now = () => new D
       return { items: (await repo.listAudit(limit)).map(toAudit) };
     },
 
+    // ---- Public ------------------------------------------------------------------------------------
+    /** The plans anyone may see on the Services page: active plans that have a price. Inactive plans never appear. */
+    async listPublicPlans(): Promise<{ items: Plan[] }> {
+      return { items: (await repo.listPlans()).filter((p) => p.active && p.price !== null).map(toPlan) };
+    },
+
     // ---- The signed-in person ----------------------------------------------------------------------
     /** The derived answer for the signed-in member. Organization answers use the same rule per organization (S13). */
     async myEntitlements(ctx: ServiceContext): Promise<{ items: Entitlement[] }> {

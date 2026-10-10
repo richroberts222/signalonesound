@@ -1,23 +1,29 @@
 import type { Metadata } from "next";
 
 import { LegalPage } from "@/components/legal/legal-page";
+import { ABOUT_PARAGRAPHS, MISSION, SCRIPTURE, VISION } from "@/lib/marketing/content";
 
 export const metadata: Metadata = { title: "About | Signal One Sound" };
 
+// Drawn from the product plan (docs/product/product-plan.md): the mission, the vision, the scripture and the
+// problem the product solves.
 export default function AboutPage() {
   return (
     <LegalPage title="About Signal One Sound">
-      <p>
-        Signal One Sound connects believers with churches, ministries and revival gatherings, and strengthens local
-        churches by making their events easy to find.
-      </p>
-      <p>
-        Search by place, distance, date and kind of gathering, save the events that matter to you, and be told when one
-        is coming near you. Churches and ministries can list their events for free.
-      </p>
-      <p>
-        &ldquo;A voice of one who cries: Prepare in the wilderness the way of the Lord.&rdquo; Isaiah 40:3
-      </p>
+      {ABOUT_PARAGRAPHS.map((paragraph) => (
+        <p key={paragraph}>{paragraph}</p>
+      ))}
+
+      <h2>Our mission</h2>
+      <p data-testid="about-mission">{MISSION}</p>
+
+      <h2>Our vision</h2>
+      <p data-testid="about-vision">{VISION}</p>
+
+      <blockquote className="border-l-2 border-primary pl-4 italic">
+        &ldquo;{SCRIPTURE.text}&rdquo;
+        <footer className="mt-1 text-sm not-italic text-muted-foreground">{SCRIPTURE.reference}</footer>
+      </blockquote>
     </LegalPage>
   );
 }

@@ -35,7 +35,8 @@ if (e2eReady) {
   env.E2E_READY = "1";
 }
 
-const PORT = 3100;
+// E2E_PORT lets a local run reuse a dev server that is already running (Next allows only one per folder).
+const PORT = Number(env.E2E_PORT ?? 3100);
 
 export default defineConfig({
   testDir: "./e2e",

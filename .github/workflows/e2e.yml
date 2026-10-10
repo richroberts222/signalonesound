@@ -49,7 +49,17 @@ jobs:
           CLERK_SECRET_KEY: ${{ secrets.E2E_CLERK_SECRET_KEY }}
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.E2E_CLERK_PUBLISHABLE_KEY }}
           E2E_CLERK_USER_EMAIL: tester+clerk_test@example.com
+          CONTACT_FORM_ENABLED: "on"
         run: pnpm --filter web exec playwright test
+
+      - name: Remove the test messages
+        if: always()
+        # Only the tests' own messages (see apps/web/db/tooling/e2e-cleanup.ts); dev database only.
+        env:
+          DATABASE_ENV: dev
+          APP_ENV: dev
+          DATABASE_URL: ${{ secrets.NEON_DEV_DATABASE_URL }}
+        run: pnpm --filter web db:cleanup:e2e --env=dev
 
       - name: Summarize the results
         if: always()

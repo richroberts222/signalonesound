@@ -1,3 +1,6 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
+
 import type { NextConfig } from "next";
 
 // Baseline response headers (docs/secure-coding.md). Anti-framing blocks clickjacking (cross-frame
@@ -20,6 +23,12 @@ const nextConfig: NextConfig = {
   transpilePackages: ["@signalone/shared", "@signalone/validation"],
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
+  },
+  // The real search lives at /events (S4). The older mock Discover page stays only in the template, so in
+  // the reference application visitors who open /discover are sent to the real search (S15 AC10). The
+  // redirect exists only when the real search does, so a generated app never gets a broken one.
+  async redirects() {
+    return existsSync(path.join(process.cwd(), "app", "events")) ? [{ source: "/discover", destination: "/events", permanent: false }] : [];
   },
 };
 
