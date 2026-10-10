@@ -24,7 +24,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: "Discover", href: "/discover" },
   { label: "Dashboard", href: "/dashboard", signedInOnly: true },
   { label: "Account", href: "/account", signedInOnly: true },
-  { label: "Admin (mock)", href: "/admin", signedInOnly: true },
+  { label: "Admin", href: "/admin", signedInOnly: true },
 ];
 
 export function isNavItemActive(item: NavItem, pathname: string): boolean {

@@ -22,8 +22,8 @@ describe("isNavItemActive", () => {
   });
 
   it("lists the exploratory Admin mock for signed-in users, active on nested routes", () => {
-    expect(item("Admin (mock)").signedInOnly).toBe(true);
-    expect(isNavItemActive(item("Admin (mock)"), "/admin/events/evt-fall-harvest")).toBe(true);
-    expect(isNavItemActive(item("Admin (mock)"), "/administration")).toBe(false);
+    expect(item("Admin").signedInOnly).toBe(true);
+    expect(isNavItemActive(item("Admin"), "/admin/events/evt-fall-harvest")).toBe(true);
+    expect(isNavItemActive(item("Admin"), "/administration")).toBe(false);
   });
 });

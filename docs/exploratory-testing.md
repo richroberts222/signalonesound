@@ -126,7 +126,7 @@ You are an admin on the live site. On the dev server, ask Claude to add you.
 ## 4. Known gaps (no need to report these again)
 
 - **Phone:** the error message appears at the bottom, not near the search box; tapped buttons give no feedback; the colors differ from the web; add-to-calendar, the offline notice, account export and delete, and the Saved and Alerts screens are not finished.
-- **Web:** the header shows "Admin (mock)" to every signed-in member.
+- **Web:** the "Admin" link in the header shows to every signed-in member, even though only platform admins can use the pages behind it (members are told it is for admins only).
 - **Not built yet:** real payments (Stripe checkout), email sending (emails go to a log), a map, church screens for choosing a plan, iPhone app, store releases.
 - **Live site:** no sample events by design; real data waits for the legal checklist.
 
