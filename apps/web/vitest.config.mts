@@ -7,5 +7,8 @@ export default defineConfig({
     exclude: ["node_modules/**", ".next/**", "**/*.integration.test.ts", "e2e/**"],
     setupFiles: ["../../packages/shared/src/testing/setup.ts"],
     unstubEnvs: true,
+    // Guards that scan the whole repository (secrets, text hygiene, dependency checks) take longer as the
+    // repository grows and on a busy machine; the 5 second default made them fail with no code change.
+    testTimeout: 30_000,
   },
 });
