@@ -4,16 +4,17 @@ import { LegalPage } from "@/components/legal/legal-page";
 
 export const metadata: Metadata = { title: "Contact | Signal One Sound" };
 
-// The contact address is an owner decision (docs/features/s1-identity-and-policy.md) and must be
-// set before real users arrive. Until then this page says so plainly instead of inventing one.
+// The contact address is an owner decision (docs/features/s1-identity-and-policy.md). It forwards to the
+// owner's inbox through the domain's email forwarding.
 export default function ContactPage() {
   return (
     <LegalPage title="Contact">
+      <p>For questions, to report a listing, or to make a privacy request (download or delete your information), write to us.</p>
       <p>
-        For questions, to report a listing, or to make a privacy request (download or delete your information), use the
-        contact details published here.
+        <a href="mailto:contact@signalonesound.com" data-testid="contact-email" className="font-medium underline underline-offset-4">
+          contact@signalonesound.com
+        </a>
       </p>
-      <p data-testid="contact-pending">Contact details will be published here before the service opens to the public.</p>
     </LegalPage>
   );
 }

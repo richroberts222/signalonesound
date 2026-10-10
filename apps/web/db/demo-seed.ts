@@ -30,6 +30,9 @@ export const DEMO_ORGS: readonly Org[] = [
   { name: "Bluegrass Prayer House (Sample)", about: "Weekly prayer gatherings and a monthly night of worship.", venue: "Bluegrass Prayer House", street: "55 Sample Street", city: "Louisville", state: "KY", zip: "40202", lat: 38.25, lng: -85.76, zone: "America/New_York", site: "https://example.org/bluegrass-prayer" },
   { name: "Prairie Fire Ministries (Sample)", about: "Outdoor revival meetings and youth camps on the plains.", venue: "Prairie Fire Pavilion", street: "12 Sample Prairie Road", city: "Oklahoma City", state: "OK", zip: "73102", lat: 35.47, lng: -97.52, zone: "America/Chicago", site: "https://example.org/prairie-fire" },
   { name: "Desert Spring Church (Sample)", about: "A growing church hosting worship nights and community baptisms.", venue: "Desert Spring Sanctuary", street: "88 Sample Palm Drive", city: "Phoenix", state: "AZ", zip: "85004", lat: 33.45, lng: -112.07, zone: "America/Phoenix", site: "https://example.org/desert-spring" },
+  { name: "Treasure Valley Fellowship (Sample)", about: "A growing church in the Boise area hosting worship nights, youth events and baptisms.", venue: "Treasure Valley Sanctuary", street: "500 Sample Capitol Boulevard", city: "Boise", state: "ID", zip: "83702", lat: 43.62, lng: -116.2, zone: "America/Boise", site: "https://example.org/treasure-valley" },
+  { name: "Canyon County Gathering (Sample)", about: "Prayer gatherings, tent revival weeks and family nights across the valley.", venue: "Canyon County Fairground Pavilion", street: "22 Sample Fairview Road", city: "Nampa", state: "ID", zip: "83651", lat: 43.54, lng: -116.56, zone: "America/Boise", site: "https://example.org/canyon-county" },
+  { name: "Meridian Hope Chapel (Sample)", about: "Men's and women's events, healing services and weekly prayer.", venue: "Hope Chapel Hall", street: "8 Sample Locust Grove Lane", city: "Meridian", state: "ID", zip: "83642", lat: 43.61, lng: -116.39, zone: "America/Boise", site: "https://example.org/meridian-hope" },
 ];
 
 type Ev = {
@@ -74,6 +77,15 @@ export const DEMO_EVENTS: readonly Ev[] = [
   { org: 8, title: "Student Summer Camp Reunion", about: "A reunion night for last summer's campers and their friends.", types: ["youth-events"], inDays: 30, start: "18:00", hours: 3 },
   { org: 9, title: "Desert Spring Worship Night", about: "An evening of worship in the sanctuary, open to all.", types: ["worship-nights"], inDays: 7, start: "19:00", hours: 2 },
   { org: 9, title: "Community Baptisms at the Park", about: "Baptisms at the park pool, followed by a picnic.", types: ["baptisms", "family-events"], inDays: 35, start: "09:00", hours: 4 },
+  { org: 10, title: "Valley Worship Night", about: "An evening of worship and prayer, open to everyone in the valley.", types: ["worship-nights"], inDays: 5, start: "19:00", hours: 2 },
+  { org: 10, title: "Youth Night: Boise Rally", about: "Games, music and a short message for teens and students.", types: ["youth-events"], inDays: 11, start: "18:30", hours: 3 },
+  { org: 10, title: "Baptism Sunday at the River Park", about: "Baptisms at the river park, with a potluck afterward.", types: ["baptisms", "family-events"], inDays: 24, start: "13:00", hours: 3 },
+  { org: 11, title: "Canyon County Tent Revival: Night One", about: "Preaching, worship and prayer under the tent, nightly for a week.", types: ["tent-revivals"], inDays: 14, start: "19:00", hours: 2, speakers: "Visiting evangelist (sample)" },
+  { org: 11, title: "Canyon County Tent Revival: Night Two", about: "The second night of the tent revival, with testimonies.", types: ["tent-revivals"], inDays: 15, start: "19:00", hours: 2, speakers: "Visiting evangelist (sample)" },
+  { org: 11, title: "Neighborhood Prayer Walk", about: "A short walk and prayer around the neighborhood. Dress for the weather.", types: ["prayer-gatherings"], inDays: 4, start: "09:00", hours: 1 },
+  { org: 12, title: "Healing and Worship Evening", about: "A calm evening of worship and prayer for healing.", types: ["healing-deliverance", "worship-nights"], inDays: 9, start: "18:30", hours: 2 },
+  { org: 12, title: "Men's Breakfast and Message", about: "Breakfast, a short message and prayer for the week.", types: ["mens-events"], inDays: 7, start: "07:30", hours: 2 },
+  { org: 12, title: "Women's Evening of Worship", about: "An evening of worship and encouragement, with refreshments.", types: ["womens-events"], inDays: 19, start: "18:30", hours: 2 },
 ];
 
 const q = (value: string) => `'${value.replace(/'/g, "''")}'`;
@@ -119,8 +131,8 @@ export function demoStatements(): string[] {
 
 export const DEMO_SEEDS: readonly Seed[] = [
   {
-    id: "demo-churches-and-events-v2",
-    description: "Ten sample churches and about thirty upcoming sample events, for demonstrations.",
+    id: "demo-churches-and-events-v3",
+    description: "Thirteen sample churches (including three in the Boise area) and about forty upcoming sample events, for demonstrations.",
     statements: demoStatements(),
   },
 ];
