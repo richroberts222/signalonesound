@@ -1,6 +1,7 @@
 import type { PublicEvent } from "@signalone/validation";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { feedbackOpacity } from "../feedback";
 import { useTheme } from "../theme";
 import { formatDistance, formatWhen } from "./format";
 
@@ -18,7 +19,7 @@ export function EventCard({ event, onPress, testID }: { event: PublicEvent; onPr
       accessibilityRole="button"
       accessibilityLabel={`${cancelled ? "Cancelled. " : ""}${event.title}, ${event.organization.name}, ${when}, ${place}${distance ? `, ${distance}` : ""}`}
       testID={testID}
-      style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}
+      style={({ pressed }) => [styles.card, { backgroundColor: theme.card, borderColor: theme.border, opacity: feedbackOpacity({ pressed }) }]}
     >
       {cancelled && <Text style={{ color: theme.destructive, fontWeight: "700" }}>Cancelled</Text>}
       <Text style={[styles.title, { color: theme.foreground }]}>{event.title}</Text>

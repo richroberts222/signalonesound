@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
 
+import { feedbackOpacity } from "./feedback";
 import { useTheme } from "./theme";
 
 // Small shared controls. Every control is at least 44 points tall (the touch-target size), has a role
@@ -14,7 +15,7 @@ export function Chip({ label, selected, onPress, testID }: { label: string; sele
       accessibilityLabel={label}
       accessibilityState={{ selected }}
       testID={testID}
-      style={[styles.chip, { borderColor: theme.border, backgroundColor: selected ? theme.primary : theme.background }]}
+      style={({ pressed }) => [styles.chip, { borderColor: theme.border, backgroundColor: selected ? theme.primary : theme.background, opacity: feedbackOpacity({ pressed }) }]}
     >
       <Text style={{ color: selected ? theme.primaryForeground : theme.foreground, fontWeight: selected ? "700" : "400" }}>
         {selected ? `${label} (selected)` : label}
@@ -46,7 +47,7 @@ export function ActionButton({
       accessibilityLabel={label}
       accessibilityState={{ disabled: !!disabled }}
       testID={testID}
-      style={[styles.button, { borderColor: theme.border, backgroundColor: primary ? theme.primary : theme.background, opacity: disabled ? 0.5 : 1 }]}
+      style={({ pressed }) => [styles.button, { borderColor: theme.border, backgroundColor: primary ? theme.primary : theme.background, opacity: feedbackOpacity({ pressed, disabled }) }]}
     >
       <Text style={{ color: primary ? theme.primaryForeground : theme.foreground, fontWeight: "600" }}>{label}</Text>
     </Pressable>

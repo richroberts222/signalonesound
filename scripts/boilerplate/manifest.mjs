@@ -247,6 +247,17 @@ export function walk(root, dir = root) {
  * untracked scratch files and local settings can never travel. Falls back to a
  * folder walk when `root` is not a git checkout (for example an exported template).
  */
+/**
+ * New files that git does not track yet (and does not ignore), other than the owner's local `.claude/` folder.
+ * The proof copies only tracked files, so an unstaged new file would silently be missing from the generated app
+ * and fail it in a confusing way; the proof refuses to run until they are staged. Empty outside a git checkout.
+ */
+export function untrackedSourceFiles(root) {
+  const result = spawnSync("git", ["ls-files", "--others", "--exclude-standard", "-z"], { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  if (result.error || result.status !== 0) return [];
+  return result.stdout.split("\0").filter((f) => f && !f.startsWith(".claude/"));
+}
+
 export function listSourceFiles(root) {
   const result = spawnSync("git", ["ls-files", "-z"], { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
   if (result.error || result.status !== 0) return walk(root);

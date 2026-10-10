@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 
 import { checkBoilerplate } from "./check-boilerplate.mjs";
 import { applyIdentity, initApp, stripMarkedRegions, validateIdentity } from "./init-app.mjs";
-import { listSourceFiles, walk } from "./manifest.mjs";
+import { listSourceFiles, untrackedSourceFiles, walk } from "./manifest.mjs";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const identity = { name: "Harbor Notes", slug: "harbor-notes", scope: "harbor", bundleId: "com.harbornotes.app" };
@@ -30,6 +30,35 @@ function copyTemplate() {
 const read = (dir, file) => readFileSync(path.join(dir, file), "utf8");
 
 after(() => temps.forEach((d) => rmSync(d, { recursive: true, force: true })));
+
+// The proof copies only the files git tracks. A new file that was never staged would be missing from the generated
+// app and fail it in a confusing way (it happened twice), so the proof refuses to run until such files are staged.
+describe("untracked source files", () => {
+  const git = (cwd, ...args) => spawnSync("git", args, { cwd, encoding: "utf8" });
+
+  it("lists new files that are neither tracked nor ignored, and ignores the owner's .claude folder", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "untracked-"));
+    after(() => rmSync(dir, { recursive: true, force: true }));
+    git(dir, "init", "-q");
+    writeFileSync(path.join(dir, ".gitignore"), "ignored.txt\n");
+    writeFileSync(path.join(dir, "tracked.txt"), "a");
+    git(dir, "add", ".gitignore", "tracked.txt");
+    writeFileSync(path.join(dir, "new-file.ts"), "b");
+    writeFileSync(path.join(dir, "ignored.txt"), "c");
+    mkdirSync(path.join(dir, ".claude"));
+    writeFileSync(path.join(dir, ".claude", "settings.local.json"), "{}");
+    assert.deepEqual(untrackedSourceFiles(dir), ["new-file.ts"]);
+    git(dir, "add", "new-file.ts");
+    assert.deepEqual(untrackedSourceFiles(dir), []); // staging it clears the problem
+  });
+
+  it("returns nothing outside a git checkout instead of failing", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "no-git-"));
+    after(() => rmSync(dir, { recursive: true, force: true }));
+    writeFileSync(path.join(dir, "file.txt"), "x");
+    assert.deepEqual(untrackedSourceFiles(dir), []);
+  });
+});
 
 describe("boilerplate tooling", () => {
   it("detector flags the unmodified template (negative control)", () => {

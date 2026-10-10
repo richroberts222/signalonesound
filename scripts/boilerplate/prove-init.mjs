@@ -16,12 +16,18 @@ import { fileURLToPath } from "node:url";
 
 import { checkBoilerplate } from "./check-boilerplate.mjs";
 import { initApp } from "./init-app.mjs";
-import { isLocalEnvFile, listSourceFiles } from "./manifest.mjs";
+import { isLocalEnvFile, listSourceFiles, untrackedSourceFiles } from "./manifest.mjs";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const identity = { name: "Harbor Notes", slug: "harbor-notes", scope: "harbor", bundleId: "com.harbornotes.app" };
 const full = process.argv.includes("--full");
 const keep = process.argv.includes("--keep");
+
+const untracked = untrackedSourceFiles(repo);
+if (untracked.length > 0) {
+  console.error(`prove:init copies the files git tracks, so these new files would be missing from the proof. Stage them first (git add):\n  ${untracked.join("\n  ")}`);
+  process.exit(1);
+}
 
 const root = mkdtempSync(path.join(tmpdir(), "harbor-notes-"));
 for (const file of listSourceFiles(repo)) {
