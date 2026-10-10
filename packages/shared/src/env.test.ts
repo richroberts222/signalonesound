@@ -292,3 +292,46 @@ describe("parseServerEnv UNSUBSCRIBE_SECRET and PUSH_PROVIDER", () => {
     expect(() => parseServerEnv({ ...base, PUSH_PROVIDER: "onesignal" })).toThrow(/PUSH_PROVIDER/);
   });
 });
+
+describe("parseServerEnv email settings (S14)", () => {
+  const base = {
+    DATABASE_ENV: "dev",
+    DATABASE_URL: ["postgres", "://placeholder-user:placeholder-pass@placeholder.example/db"].join(""),
+    CLERK_SECRET_KEY: "sk_test_REPLACE_ME",
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_REPLACE_ME",
+  };
+
+  it("S14 AC1 defaults to no provider and an empty allowlist", () => {
+    expect(parseServerEnv(base)).toMatchObject({ emailProvider: "none", emailFrom: null, sesRegion: null, emailAllowlist: [] });
+  });
+
+  it("S14 AC2 SES needs a sender and a region, and says which one is missing", () => {
+    expect(() => parseServerEnv({ ...base, EMAIL_PROVIDER: "ses" })).toThrow(/EMAIL_FROM is required[\s\S]*SES_REGION is required/);
+    expect(() => parseServerEnv({ ...base, EMAIL_PROVIDER: "ses", EMAIL_FROM: "Signal One Sound <no-reply@signalonesound.com>" })).toThrow(/SES_REGION is required/);
+    const salted = { ...base, RATE_LIMIT_SALT: "a-stable-salt-of-enough-length" };
+    const ok = parseServerEnv({ ...salted, EMAIL_PROVIDER: "ses", EMAIL_FROM: "Signal One Sound <no-reply@signalonesound.com>", SES_REGION: "us-east-1" });
+    expect(ok).toMatchObject({ emailProvider: "ses", emailFrom: "Signal One Sound <no-reply@signalonesound.com>", sesRegion: "us-east-1" });
+    expect(parseServerEnv({ ...salted, EMAIL_PROVIDER: "ses", EMAIL_FROM: "no-reply@signalonesound.com", SES_REGION: "eu-west-2" }).emailFrom).toBe("no-reply@signalonesound.com");
+    // the list of addresses that bounced is keyed with RATE_LIMIT_SALT, so SES refuses to start without a stable one
+    expect(() => parseServerEnv({ ...base, EMAIL_PROVIDER: "ses", EMAIL_FROM: "no-reply@signalonesound.com", SES_REGION: "eu-west-2" })).toThrow(/RATE_LIMIT_SALT is required/);
+  });
+
+  it("S14 AC2 an unknown provider, a malformed sender, region or allowlist is refused without echoing the value", () => {
+    const bad = "oops-not-allowed-value";
+    expect(() => parseServerEnv({ ...base, EMAIL_PROVIDER: "sendgrid" })).toThrow(/EMAIL_PROVIDER/);
+    for (const from of ["not an address", "a@b", "Name <a@b.c>\r\nBcc: x@y.z", `${bad}@`]) {
+      expect(() => parseServerEnv({ ...base, EMAIL_FROM: from }), from).toThrow(/EMAIL_FROM must be/);
+    }
+    expect(() => parseServerEnv({ ...base, SES_REGION: "Mars" })).toThrow(/SES_REGION must be/);
+    expect(() => parseServerEnv({ ...base, EMAIL_ALLOWLIST: "ok@example.com, not valid" })).toThrow(/EMAIL_ALLOWLIST/);
+    try {
+      parseServerEnv({ ...base, EMAIL_ALLOWLIST: bad });
+    } catch (error) {
+      expect(String(error)).not.toContain(bad);
+    }
+  });
+
+  it("S14 AC5 reads the allowlist: addresses and domains, trimmed and lower-cased", () => {
+    expect(parseServerEnv({ ...base, EMAIL_ALLOWLIST: " Tester@Example.com , simulator.amazonses.com ,, " }).emailAllowlist).toEqual(["tester@example.com", "simulator.amazonses.com"]);
+  });
+});

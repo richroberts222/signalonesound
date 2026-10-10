@@ -158,6 +158,12 @@ export const PROOF_PATHS = [
   "apps/web/lib/services/billing.ts",
   "packages/validation/src/billing.ts",
   "packages/validation/src/billing-client.ts",
+  // S14 email sending (docs/features/s14-email-sending.md): product code of the reference app.
+  "apps/web/db/email-suppression.ts",
+  "apps/web/db/email-suppression.fake.ts",
+  "apps/web/db/email-suppression.integration.test.ts",
+  "apps/web/lib/api/email.ts",
+  "apps/web/lib/api/email.acceptance.test.ts",
   // S5 mobile discover (docs/features/s5-discover-mobile.md): the reference app's screens. A generated app keeps app/_layout.tsx and
   // app/index.tsx, which are overwritten from scripts/boilerplate/templates.
   "apps/mobile/app/(tabs)",

@@ -96,6 +96,9 @@ New tables are added to the schema and to this table in the same pull request.
 | billing_subscription.trial_ends_at | T1 | When the free trial ends | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
 | billing_subscription.provider_ref | T2 | The payment provider's own reference (never card data) | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
 | billing_subscription.created_at | T1 | When the trial or purchase started | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| email_suppression.address_key | T2 | A keyed hash of an email address that bounced or complained, so it is never emailed again (never the address itself) | Kept (it must outlive account deletion, or the app could mail a dead or hostile address again) | Not personal on its own: a keyed hash; kept after account deletion |
+| email_suppression.reason | T1 | Whether it was a bounce or a complaint | Kept | Not personal |
+| email_suppression.created_at | T1 | When it was recorded | Kept | Not personal |
 | event_series.id | T0 | Row identity of a recurring series | Until removed by an admin or the organization | Removed with the organization's events |
 | event_series.org_id | T0 | Which organization the series belongs to | Until removed by an admin or the organization | Removed with the organization's events |
 | event_series.rule | T0 | How the series repeats (weekly, monthly by weekday, or a date list) | Until removed by an admin or the organization | Removed with the organization's events |
