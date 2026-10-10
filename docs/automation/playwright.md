@@ -34,3 +34,15 @@ Playwright is capable of testing almost anything; that is not a reason to. Apply
 * Authentication state files and traces may contain tokens; never commit them. Keep them gitignored.
 * Do not intercept or modify traffic in a way that bypasses the security guards under test.
 * Target only non-production environments.
+
+## Browser tests in CI
+
+The workflow `.github/workflows/e2e.yml` ("E2E") runs the Playwright specs on every pull request from this repository and by hand (Actions, E2E, Run workflow). Pull requests from forks get no secrets, so the job skips there.
+
+* **What it uses:** the DEVELOPMENT database (`NEON_DEV_DATABASE_URL`) with the demo data, and the Clerk DEVELOPMENT instance (`E2E_CLERK_SECRET_KEY`, `E2E_CLERK_PUBLISHABLE_KEY`) with the test user `tester+clerk_test@example.com`. The config refuses anything that is not a dev or qa database and Clerk test keys. Secrets are given only to the step that runs the tests.
+* **Signing in:** `e2e/sign-in.ts` uses Clerk's testing helper with the test user's email and the dev secret key, so no password exists anywhere. It also accepts the terms the first time, and checks with the server that they are saved.
+* **Reading the result:** open the run on GitHub. The summary at the top lists every test with PASS, FAIL or SKIP. The artifact `playwright-report` (kept 14 days) holds the HTML report, a screenshot and a video of each failure.
+* **No traces in CI.** A trace can contain a session token, and artifacts of this public repository are readable by others, so traces are off in CI and only on locally (and ignored by git).
+* **Locally:** `E2E_CLERK_USER_EMAIL=<test user email> pnpm --filter web exec playwright test` with the dev values in `apps/web/.env.local`.
+* **Adding a journey:** follow the Test Value Review above, use test ids (`data-testid`), and prove the new test by breaking the behavior it protects.
+

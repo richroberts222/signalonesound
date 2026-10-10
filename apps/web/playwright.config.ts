@@ -8,7 +8,8 @@ import { config } from "dotenv";
 //
 //   Required: DATABASE_ENV=dev|qa, DATABASE_URL, CLERK_SECRET_KEY (sk_test_...),
 //             NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY (pk_test_...),
-//             E2E_CLERK_USER_USERNAME, E2E_CLERK_USER_PASSWORD (a Clerk dev test user)
+//             E2E_CLERK_USER_EMAIL (a Clerk dev test user, for example name+clerk_test@example.com; it signs in
+//             through Clerk's testing helper with the secret key, so no password is stored anywhere)
 config({ path: ".env.local", quiet: true });
 
 const env = process.env;
@@ -18,8 +19,7 @@ const e2eReady = Boolean(
     env.DATABASE_URL &&
     env.CLERK_SECRET_KEY &&
     env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
-    env.E2E_CLERK_USER_USERNAME &&
-    env.E2E_CLERK_USER_PASSWORD,
+    env.E2E_CLERK_USER_EMAIL,
 );
 
 // Fail closed: refuse anything that is not clearly a dev/qa setup.
@@ -44,12 +44,18 @@ export default defineConfig({
   workers: 1,
   forbidOnly: Boolean(env.CI),
   retries: 0,
-  reporter: [["list"], ["html", { open: "never" }]],
+  // A dev server compiles each page the first time it is opened, so allow for that.
+  timeout: 60_000,
+  expect: { timeout: 15_000 },
+  // CI also writes a JSON report that scripts/e2e-summary.mjs turns into the run's summary table.
+  reporter: env.CI ? [["list"], ["html", { open: "never" }], ["json", { outputFile: "playwright-report/results.json" }]] : [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: `http://localhost:${PORT}`,
-    // Diagnostics only on failure; traces can contain tokens, so artifacts are gitignored.
-    trace: "retain-on-failure",
+    // Diagnostics only on failure. Traces can contain session tokens and CI artifacts of this public
+    // repository are readable by others, so traces are off in CI; screenshots and videos show only the page.
+    trace: env.CI ? "off" : "retain-on-failure",
     screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: e2eReady

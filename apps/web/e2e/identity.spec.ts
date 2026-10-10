@@ -25,6 +25,11 @@ test.describe("S1 public pages", () => {
     });
   }
 
+  test("the contact page shows the published contact address as a mail link", async ({ page }) => {
+    await page.goto("/contact");
+    await expect(page.getByTestId("contact-email")).toHaveAttribute("href", "mailto:contact@signalonesound.com");
+  });
+
   test("AC3 the member API refuses a signed-out visitor", async ({ request }) => {
     for (const path of ["/api/v1/me", "/api/v1/me/export"]) {
       expect((await request.get(path)).status()).toBe(401);

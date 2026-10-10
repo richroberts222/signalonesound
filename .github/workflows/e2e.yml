@@ -1,0 +1,67 @@
+name: E2E
+
+# Browser tests (Playwright) for the web app, against the DEVELOPMENT database and the Clerk DEVELOPMENT
+# instance only (docs/automation/playwright.md). Never production: the keys come from the E2E_* and dev
+# secrets, and playwright.config.ts refuses anything but dev/qa databases and Clerk test keys. The report,
+# screenshots and videos of any failure are kept as a run artifact. Traces are OFF in CI because a trace can
+# contain a session token and this repository is public.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: Browser tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    # Pull requests from forks get no secrets, so the tests cannot run there; skip instead of failing.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install the browser
+        run: pnpm --filter web exec playwright install --with-deps chromium
+
+      - name: Run the browser tests
+        # The secrets are given to this one step only, not to installs or third-party actions.
+        env:
+          CI: "true"
+          DATABASE_ENV: dev
+          APP_ENV: dev
+          DATABASE_URL: ${{ secrets.NEON_DEV_DATABASE_URL }}
+          CLERK_SECRET_KEY: ${{ secrets.E2E_CLERK_SECRET_KEY }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.E2E_CLERK_PUBLISHABLE_KEY }}
+          E2E_CLERK_USER_EMAIL: tester+clerk_test@example.com
+        run: pnpm --filter web exec playwright test
+
+      - name: Summarize the results
+        if: always()
+        run: node scripts/e2e-summary.mjs apps/web/playwright-report/results.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the report, screenshots and videos
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: playwright-report
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results
+          retention-days: 14
+          if-no-files-found: ignore

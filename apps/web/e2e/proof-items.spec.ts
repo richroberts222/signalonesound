@@ -1,5 +1,6 @@
-import { clerk, setupClerkTestingToken } from "@clerk/testing/playwright";
 import { expect, test, type Page } from "@playwright/test";
+
+import { signIn } from "./sign-in";
 
 // First real browser journey through the vertical slice (Issue 49):
 // browser -> Next.js -> Clerk session -> /api/v1/proof-items -> validation ->
@@ -10,25 +11,12 @@ import { expect, test, type Page } from "@playwright/test";
 // its fail-closed dev/qa checks.
 const ready = process.env.E2E_READY === "1";
 const SKIP_REASON =
-  "E2E environment not configured (DATABASE_*, Clerk dev keys, E2E_CLERK_USER_*); see playwright.config.ts";
+  "E2E environment not configured (DATABASE_*, Clerk dev keys, E2E_CLERK_USER_EMAIL); see playwright.config.ts";
 
 const PREFIX = "e2e-proof-";
 const API = "/api/v1/proof-items";
 
 type Listed = { ok: true; data: { items: { id: string; label: string }[] } };
-
-async function signIn(page: Page) {
-  await setupClerkTestingToken({ page });
-  await page.goto("/");
-  await clerk.signIn({
-    page,
-    signInParams: {
-      strategy: "password",
-      identifier: process.env.E2E_CLERK_USER_USERNAME!,
-      password: process.env.E2E_CLERK_USER_PASSWORD!,
-    },
-  });
-}
 
 // Removes this suite's leftovers through the API as the signed-in test user.
 async function cleanup(page: Page) {
@@ -102,7 +90,7 @@ test.describe("proof items: signed-in journey", () => {
     const dup = page.waitForResponse((r) => r.url().includes(API) && r.request().method() === "POST");
     await page.getByRole("button", { name: "Add item" }).click();
     expect((await dup).status()).toBe(409);
-    await expect(page.getByRole("alert")).toHaveText("Conflict");
+    await expect(page.getByRole("alert").filter({ hasText: "Conflict" })).toHaveText("Conflict");
     await expect(page.getByRole("list", { name: "Proof items" }).getByText(label)).toHaveCount(1);
 
     // Delete: request, UI state, and database state.
