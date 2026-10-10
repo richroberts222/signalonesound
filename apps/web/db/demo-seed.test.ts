@@ -1,4 +1,7 @@
+import { createHash } from "node:crypto";
+
 import { describe, expect, it } from "vitest";
+import { z } from "zod";
 
 import { REVIVAL_TYPE_SLUGS } from "@signalone/validation";
 
@@ -34,6 +37,11 @@ describe("demo seed data", () => {
 
   it("builds statements that cannot create duplicates or break out of their quotes", () => {
     for (const s of demoStatements()) {
+      // Inserts never overwrite; the only deletes allowed are of the first version's own plain-hash ids.
+      if (s.startsWith("DELETE FROM ")) {
+        expect(s).toMatch(/ = md5\('demo-(org|event)-\d+'\)::uuid$/);
+        continue;
+      }
       expect(s).toMatch(/^INSERT INTO /);
       expect(s).toMatch(/ON CONFLICT DO NOTHING$/);
       // Text inside quotes may hold any character; outside the quotes there must be no second statement.
@@ -48,8 +56,25 @@ describe("demo seed data", () => {
     expect(text).not.toMatch(/@|\bhttps?:\/\/(?!example\.org)|password|secret|token|\d{3}[-. ]\d{3}[-. ]\d{4}/i);
   });
 
+  // The app's contracts require strict UUIDs. A plain md5 hash is not one (its version and variant digits are
+  // arbitrary), which made every client reject the whole reply: the phone showed "could not load events".
+  it("builds ids that pass the app's strict UUID check (a plain hash does not)", () => {
+    const strict = z.uuid();
+    const hex = (kind: string, n: number) => createHash("md5").update(`demo-${kind}-${n}`).digest("hex");
+    const asUuid = (h: string) => `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+    const fixed = (h: string) => asUuid(`${h.slice(0, 12)}4${h.slice(13, 16)}8${h.slice(17)}`);
+    const all = [...DEMO_ORGS.map((_, i) => hex("org", i)), ...DEMO_EVENTS.map((_, n) => hex("event", n))];
+    expect(all.some((h) => !strict.safeParse(asUuid(h)).success)).toBe(true); // the old way really was invalid
+    for (const h of all) expect(strict.safeParse(fixed(h)).success).toBe(true);
+    // And the SQL really applies those two digit fixes to every inserted id.
+    for (const s of demoStatements().filter((x) => x.startsWith("INSERT INTO organization (") || x.startsWith("INSERT INTO event ("))) {
+      expect(s).toContain("placing '4' from 13 for 1");
+      expect(s).toContain("placing '8' from 17 for 1");
+    }
+  });
+
   it("is one seed with a stable id, so the ledger runs it once", () => {
     expect(DEMO_SEEDS).toHaveLength(1);
-    expect(DEMO_SEEDS[0].id).toBe("demo-churches-and-events");
+    expect(DEMO_SEEDS[0].id).toBe("demo-churches-and-events-v2");
   });
 });
