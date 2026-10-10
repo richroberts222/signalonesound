@@ -75,6 +75,6 @@ describe("demo seed data", () => {
 
   it("is one seed with a stable id, so the ledger runs it once", () => {
     expect(DEMO_SEEDS).toHaveLength(1);
-    expect(DEMO_SEEDS[0].id).toBe("demo-churches-and-events-v2");
+    expect(DEMO_SEEDS[0].id).toBe("demo-churches-and-events-v3");
   });
 });

@@ -11,21 +11,39 @@ This file holds only the actions still waiting on you. Claude removes an item as
 
 ---
 
+## NOW
+
+### Task 1: Update the live database (about 2 minutes)
+
+The new payments tables only exist in the development database. Until you run this, deleting an account on the live site would fail. Nobody is using the site yet, so nothing is broken today. Claude cannot approve the run, because you are the required reviewer.
+
+1. Open GitHub.
+    - Go to `github.com/richroberts222/signalonesound`.
+    - Look at the row of tabs under the repository name. Click **Actions**.
+2. Pick the workflow.
+    - Look at the list on the left side of the page.
+    - Click **Migrate production**.
+3. Start it.
+    - Look on the right side, above the list of runs. Click the **Run workflow** button.
+    - A small box opens. Leave **Branch: main** as it is.
+    - Click in the text box and type exactly: `migrate-production`
+    - Click the green **Run workflow** button in the box.
+4. Approve it.
+    - Refresh the page and click the new run at the top. It says **Waiting for review**.
+    - Click **Review deployments**, tick the box next to **production**, then click **Approve and deploy**.
+5. Tell Claude it is approved. Claude checks the result and removes this task.
+
+**Claude can do this, say yes:** start the run for you (steps 1 to 3). You still do step 4.
+
+---
+
 ## BEFORE REAL USERS ARRIVE (no cost)
 
 None of these is needed for the partner demo, and none of them spends money.
 
-### Task 1: Review the legal checklist when Claude has drafted it (later)
+### Task 2: Review the legal checklist when Claude has drafted it (later)
 
 You asked Claude to work through the gates in `docs/risk-and-legal.md`, so nothing is needed from you now. Claude drafts what can be drafted and marks each gate with its real status. No real user's data may be collected until a qualified person (a lawyer, for the policy wording) has reviewed it; Claude cannot certify a gate as met. When the drafts are ready, Claude will add the review steps here.
-
-### Task 2: Small changes Claude can make for you
-
-Each of these needs only your yes. **Claude can do this, say yes.**
-
-1. Add `contact@signalonesound.com` to the Contact page.
-2. Replace the old "exploratory mock" banner on the real admin pages. Tell Claude the wording you prefer first (question Q-005).
-3. Add a few sample churches near Nampa and Boise for demos.
 
 ### Task 3: Practice restoring the database and review GitHub security settings
 
@@ -41,18 +59,7 @@ Claude never spends money or opens a paid account. Each task here is your decisi
 ==================================================
 ==================================================
 
-### Task 4: Upgrade the website host (Vercel Pro, about $20 per month)
-
-The free plan is for non-commercial use only, so this is needed before launch. This costs money, so it is your decision.
-
-1. Open Vercel.
-    - Go to `vercel.com` and open your team (**TeamJesus**).
-2. Find billing.
-    - Click **Settings**, then **Billing**.
-3. Upgrade.
-    - Click **Upgrade** next to the Pro plan and complete the form.
-
-### Task 5: Choose the Apple Developer account (about $99 per year)
+### Task 4: Choose the Apple Developer account (about $99 per year)
 
 Needed for the iPhone app. Costs money, so it is your decision (question Q-011).
 
@@ -60,13 +67,13 @@ Needed for the iPhone app. Costs money, so it is your decision (question Q-011).
     - Organization needs a D-U-N-S number, which is free but takes time to obtain.
 2. Tell Claude your choice. Claude then gives the sign-up steps.
 
-### Task 6: Decide about the Google Play Store (about $25 once)
+### Task 5: Decide about the Google Play Store (about $25 once)
 
 Optional. A direct download link works for demos without it.
 
 1. Decide whether you want the app in the Play Store.
 2. Tell Claude your choice.
 
-### Task 7: Choose vendors
+### Task 6: Choose vendors
 
 1. Choose a map provider and an email provider. Claude can lay out the options and prices for you to compare. Nothing is bought without your yes.
