@@ -39,6 +39,9 @@ Application code asks these helpers for the environment instead of comparing raw
 | `SES_REGION` | server | The AWS region of the SES account, for example `us-east-1`. Required with `EMAIL_PROVIDER=ses` |
 | `EMAIL_ALLOWLIST` | server | Optional, non-production only: comma-separated addresses or domains that may be emailed besides Amazon's mailbox-simulator addresses. Outside production nobody else can be emailed. Production ignores it |
 | `CONTACT_FORM_ENABLED` | server | Optional. `on` shows the contact form and accepts messages (S15); `off` or unset (the default) closes it, and the Contact page shows only the address. The form collects personal information, so production stays `off` until the legal gates in `/docs/risk-and-legal.md` are met. Dev and the browser tests set `on` |
+| `PAYMENTS_PROVIDER` | server | Optional. `stripe` opens checkout and accepts Stripe's notifications (S11); `none` (the default) closes them, so development never takes a payment. With `stripe`, `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are required |
+| `STRIPE_SECRET_KEY` | server (secret) | Stripe's secret key. **Test keys** (`sk_test_...`) anywhere; a live key is refused outside production. Never commit or paste it |
+| `STRIPE_WEBHOOK_SECRET` | server (secret) | The signing secret (`whsec_...`) of the Stripe webhook endpoint, used to verify every notification. Never commit or paste it |
 | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | server (secret) | Read by the AWS SDK, never by our code. Use a credential whose only permission is sending email (SES), set only in the environment that sends. Never commit or paste them |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | client-safe | |
 | `NEXT_PUBLIC_APP_ENV` | client-safe | Optional display hint; not authoritative |

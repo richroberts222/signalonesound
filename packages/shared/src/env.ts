@@ -116,7 +116,34 @@ export type ServerEnv = {
   emailAllowlist: string[];
   /** Whether the public contact form accepts messages (CONTACT_FORM_ENABLED: "on" or "off"). Off by default: the form collects personal information, so production turns it on only after the legal gates are met. */
   contactFormEnabled: boolean;
+  /** Which service takes payments (PAYMENTS_PROVIDER): "stripe" or "none" (checkout is closed). */
+  paymentsProvider: "stripe" | "none";
+  /** SERVER ONLY. Stripe's secret key (STRIPE_SECRET_KEY); a live key is refused outside production. Required with "stripe". */
+  stripeSecretKey: string | null;
+  /** SERVER ONLY. Verifies Stripe's webhook signatures (STRIPE_WEBHOOK_SECRET). Required with "stripe". */
+  stripeWebhookSecret: string | null;
 };
+
+const STRIPE_SECRET_PATTERN = /^(?:sk|rk)_(?:test|live)_[A-Za-z0-9]{16,}$/;
+const STRIPE_WEBHOOK_PATTERN = /^whsec_[A-Za-z0-9+/=_-]{16,}$/;
+
+/** Reads the payment settings. Only the setting names are reported on a problem, never a value. */
+export function parsePaymentSettings(source: EnvSource, issues: string[], appEnv: string | undefined): Pick<ServerEnv, "paymentsProvider" | "stripeSecretKey" | "stripeWebhookSecret"> {
+  const raw = source.PAYMENTS_PROVIDER?.trim() ?? "";
+  if (raw !== "" && raw !== "stripe" && raw !== "none") issues.push('PAYMENTS_PROVIDER must be "stripe" or "none".');
+  const paymentsProvider: "stripe" | "none" = raw === "stripe" ? "stripe" : "none";
+  const key = source.STRIPE_SECRET_KEY?.trim() ?? "";
+  const hook = source.STRIPE_WEBHOOK_SECRET?.trim() ?? "";
+  if (key !== "" && !STRIPE_SECRET_PATTERN.test(key)) issues.push("STRIPE_SECRET_KEY is not a Stripe secret key.");
+  if (hook !== "" && !STRIPE_WEBHOOK_PATTERN.test(hook)) issues.push("STRIPE_WEBHOOK_SECRET is not a Stripe webhook signing secret.");
+  if (paymentsProvider === "stripe") {
+    if (key === "") issues.push('STRIPE_SECRET_KEY is required when PAYMENTS_PROVIDER is "stripe".');
+    if (hook === "") issues.push('STRIPE_WEBHOOK_SECRET is required when PAYMENTS_PROVIDER is "stripe".');
+  }
+  // Test mode and live mode are separate per environment (docs/payments.md rule 6): a live key belongs to prod only.
+  if (key !== "" && /^(?:sk|rk)_live_/.test(key) && appEnv && appEnv !== "prod") issues.push("A live Stripe key is not allowed outside the prod environment.");
+  return { paymentsProvider, stripeSecretKey: key === "" ? null : key, stripeWebhookSecret: hook === "" ? null : hook };
+}
 
 const EMAIL_FROM_PATTERN = /^(?:[^<>@\r\n"]+<)?[^\s<>@,;"]+@[^\s<>@,;"]+\.[^\s<>@,;"]+>?$/;
 const SES_REGION_PATTERN = /^[a-z]{2}(?:-[a-z]+)+-\d$/;
@@ -182,6 +209,7 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
   const rawContact = source.CONTACT_FORM_ENABLED?.trim().toLowerCase() ?? "";
   if (rawContact !== "" && rawContact !== "on" && rawContact !== "off") issues.push('CONTACT_FORM_ENABLED must be "on" or "off".');
   const contactFormEnabled = rawContact === "on";
+  const payments = parsePaymentSettings(source, issues, appEnv);
   if (email.emailProvider === "ses" && rateLimitSalt === null) issues.push('RATE_LIMIT_SALT is required when EMAIL_PROVIDER is "ses" (it keys the list of addresses that bounced).');
 
   if (appEnv && databaseEnv) {
@@ -208,7 +236,7 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
   }
 
   if (issues.length > 0 || !appEnv || !databaseEnv) throw new EnvValidationError(issues);
-  return { appEnv, databaseEnv, databaseUrl, clerkSecretKey, clerkPublishableKey, adminUserIds, cronSecret, rateLimitSalt, unsubscribeSecret, pushProvider, ...email, contactFormEnabled };
+  return { appEnv, databaseEnv, databaseUrl, clerkSecretKey, clerkPublishableKey, adminUserIds, cronSecret, rateLimitSalt, unsubscribeSecret, pushProvider, ...email, contactFormEnabled, ...payments };
 }
 
 export type ClientEnv = {

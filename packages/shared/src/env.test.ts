@@ -351,3 +351,51 @@ describe("parseServerEnv CONTACT_FORM_ENABLED (S15)", () => {
     expect(() => parseServerEnv({ ...base, CONTACT_FORM_ENABLED: "yes" })).toThrow(/CONTACT_FORM_ENABLED/);
   });
 });
+
+describe("parseServerEnv payment settings (S11)", () => {
+  const base = {
+    DATABASE_ENV: "dev",
+    DATABASE_URL: ["postgres", "://placeholder-user:placeholder-pass@placeholder.example/db"].join(""),
+    CLERK_SECRET_KEY: "sk_test_REPLACE_ME",
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_REPLACE_ME",
+  };
+  // Fake values built at runtime so no key-shaped text sits in the repository.
+  const testKey = ["sk", "test", "A".repeat(24)].join("_");
+  const liveKey = ["sk", "live", "B".repeat(24)].join("_");
+  const hook = ["whsec", "C".repeat(24)].join("_");
+
+  it("S11 AC1 defaults to no provider and no keys", () => {
+    expect(parseServerEnv(base)).toMatchObject({ paymentsProvider: "none", stripeSecretKey: null, stripeWebhookSecret: null });
+  });
+
+  it("S11 AC9 Stripe needs both values, and says which one is missing", () => {
+    expect(() => parseServerEnv({ ...base, PAYMENTS_PROVIDER: "stripe" })).toThrow(/STRIPE_SECRET_KEY is required[\s\S]*STRIPE_WEBHOOK_SECRET is required/);
+    expect(() => parseServerEnv({ ...base, PAYMENTS_PROVIDER: "stripe", STRIPE_SECRET_KEY: testKey })).toThrow(/STRIPE_WEBHOOK_SECRET is required/);
+    expect(parseServerEnv({ ...base, PAYMENTS_PROVIDER: "stripe", STRIPE_SECRET_KEY: testKey, STRIPE_WEBHOOK_SECRET: hook })).toMatchObject({ paymentsProvider: "stripe", stripeSecretKey: testKey, stripeWebhookSecret: hook });
+  });
+
+  it("S11 AC9 refuses an unknown provider and malformed keys without echoing them", () => {
+    expect(() => parseServerEnv({ ...base, PAYMENTS_PROVIDER: "paypal" })).toThrow(/PAYMENTS_PROVIDER/);
+    for (const bad of ["not-a-key", "sk_test_short", "pk_test_AAAAAAAAAAAAAAAAAAAAAAAA"]) {
+      try {
+        parseServerEnv({ ...base, STRIPE_SECRET_KEY: bad });
+        throw new Error("expected a refusal");
+      } catch (error) {
+        expect(String(error)).toMatch(/STRIPE_SECRET_KEY is not a Stripe secret key/);
+        expect(String(error)).not.toContain(bad);
+      }
+    }
+    expect(() => parseServerEnv({ ...base, STRIPE_WEBHOOK_SECRET: "nope" })).toThrow(/STRIPE_WEBHOOK_SECRET is not/);
+  });
+
+  it("S11 AC9 a live key is refused outside production and never echoed", () => {
+    try {
+      parseServerEnv({ ...base, STRIPE_SECRET_KEY: liveKey });
+      throw new Error("expected a refusal");
+    } catch (error) {
+      expect(String(error)).toMatch(/live Stripe key is not allowed outside the prod environment/);
+      expect(String(error)).not.toContain(liveKey);
+    }
+    expect(() => parseServerEnv({ ...base, STRIPE_SECRET_KEY: testKey })).not.toThrow(); // a test key is fine anywhere
+  });
+});

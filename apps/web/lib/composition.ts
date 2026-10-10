@@ -21,6 +21,7 @@ import { createAlertsService, type AlertsService } from "./services/alerts";
 import { createBillingService, type BillingService } from "./services/billing";
 import { createContactService, type ContactService } from "./services/contact";
 import { createContactRepo } from "../db/contact";
+import { createStripePayments } from "./payments/stripe";
 import { unconfiguredPaymentProvider } from "./payments/unconfigured";
 import { createModerationService, type ModerationService } from "./services/moderation";
 import { createNotifier, type Notifier } from "./services/notifier";
@@ -150,6 +151,13 @@ export async function notifyEvent(kind: "published" | "changed", eventId: string
   }
 }
 
+function stripeProvider() {
+  const env = getServerEnv();
+  return env.paymentsProvider === "stripe" && env.stripeSecretKey && env.stripeWebhookSecret
+    ? createStripePayments({ secretKey: env.stripeSecretKey, webhookSecret: env.stripeWebhookSecret })
+    : unconfiguredPaymentProvider;
+}
+
 let billing: BillingService | undefined;
 
 // Plans, payment switches and entitlement (S10). No payment provider is configured yet (S11 adds Stripe), so
@@ -158,7 +166,11 @@ export function getBillingService(): BillingService {
   return (billing ??= createBillingService({
     repo: createBillingRepo(getDb()),
     admins: createAdminDirectory(getServerEnv().adminUserIds),
-    provider: unconfiguredPaymentProvider,
+    // Stripe only when PAYMENTS_PROVIDER=stripe (test keys; a live key is refused outside production); otherwise the
+    // provider refuses to take a payment and every payment route answers "not found".
+    provider: stripeProvider(),
+    paymentsEnabled: () => getServerEnv().paymentsProvider === "stripe",
+    requireAccepted: (userId) => getMemberService().requireAccepted(userId),
   }));
 }
 

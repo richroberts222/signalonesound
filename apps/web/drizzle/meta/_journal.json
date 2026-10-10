@@ -99,6 +99,13 @@
       "when": 1791664767542,
       "tag": "0013_contact_message",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1791669529910,
+      "tag": "0014_stripe_checkout",
+      "breakpoints": true
     }
   ]
 }

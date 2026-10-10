@@ -96,6 +96,11 @@ New tables are added to the schema and to this table in the same pull request.
 | billing_subscription.trial_ends_at | T1 | When the free trial ends | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
 | billing_subscription.provider_ref | T2 | The payment provider's own reference (never card data) | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
 | billing_subscription.created_at | T1 | When the trial or purchase started | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| billing_subscription.provider_customer_ref | T2 | The payment provider's own customer reference, so the person can open the provider's customer page (never card data) | Kept while the account exists | Deleted with the account (member deletion removes the member's row) |
+| billing_subscription.provider_event_at | T1 | When the provider says the last change happened, so an old notification never overwrites a newer state | Kept while the account exists | Deleted with the account |
+| payment_event.event_id | T1 | The provider's id of a notification already applied, so a replay is ignored (no payload, no person) | Kept | Not personal |
+| payment_event.type | T1 | What kind of notification it was | Kept | Not personal |
+| payment_event.received_at | T1 | When it was applied | Kept | Not personal |
 | email_suppression.address_key | T2 | A keyed hash of an email address that bounced or complained, so it is never emailed again (never the address itself) | Kept (it must outlive account deletion, or the app could mail a dead or hostile address again) | Not personal on its own: a keyed hash; kept after account deletion |
 | email_suppression.reason | T1 | Whether it was a bounce or a complaint | Kept | Not personal |
 | email_suppression.created_at | T1 | When it was recorded | Kept | Not personal |

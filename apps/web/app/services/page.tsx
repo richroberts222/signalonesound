@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { LegalPage } from "@/components/legal/legal-page";
+import { PlanChooseButton } from "@/components/marketing/plan-choose-button";
+import { getServerEnv } from "@/lib/env/server";
 import { getBillingService } from "@/lib/composition";
 import { formatMinor } from "@/lib/billing/money";
 import { SERVICES } from "@/lib/marketing/content";
@@ -32,8 +34,18 @@ function List({ items, testId }: { items: readonly string[]; testId: string }) {
   );
 }
 
+/** Checkout buttons show only when payments are switched on (PAYMENTS_PROVIDER=stripe). */
+function checkoutOpen(): boolean {
+  try {
+    return getServerEnv().paymentsProvider === "stripe";
+  } catch {
+    return false;
+  }
+}
+
 export default async function ServicesPage() {
   const plans = await activePlans();
+  const canBuy = checkoutOpen();
   return (
     <LegalPage title="Services">
       <p>Signal One Sound helps people find revival gatherings and helps churches and ministries be found. Here is what is included, and what is coming.</p>
@@ -55,10 +67,11 @@ export default async function ServicesPage() {
         <p data-testid="services-pricing-free">Free during early access. If we add paid options, we will show the prices here and tell you before anything is charged.</p>
       ) : (
         <ul className="flex flex-col gap-2" data-testid="services-pricing-list">
-          {plans.map((plan) => (
+          {plans.map((plan, i) => (
             <li key={plan.id} className="rounded-lg border p-3">
               <p className="font-medium">{plan.name}</p>
               <p className="text-sm text-muted-foreground">{plan.price ? `${formatMinor(plan.price.amountMinor, plan.price.currency)} per ${plan.price.interval}` : ""}</p>
+              {canBuy && plan.accountType === "member" && <PlanChooseButton planId={plan.id} index={i} />}
             </li>
           ))}
         </ul>

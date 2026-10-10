@@ -32,6 +32,7 @@ The specifications below are the Phase 1 slices in `/docs/product/blueprint.md`.
 | S8 | `s8-admin-and-moderation.md` |
 | S9 | `s9-launch-gate.md` |
 | S10 | `s10-payments-plans-and-switches.md` |
+| S11 | `s11-stripe-checkout-and-webhooks.md` |
 | S14 | `s14-email-sending.md` |
 | S15 | `s15-public-pages.md` |
 

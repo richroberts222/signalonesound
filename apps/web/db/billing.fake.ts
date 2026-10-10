@@ -15,9 +15,10 @@ export type BillingWorld = {
   uses: { couponId: string; accountType: string; accountId: string }[];
   subscriptions: Map<string, SubscriptionRow>;
   audit: BillingAuditRow[];
+  paymentEvents: Set<string>;
 };
 
-export const emptyBillingWorld = (): BillingWorld => ({ rules: new Map(), plans: new Map(), prices: [], coupons: new Map(), uses: [], subscriptions: new Map(), audit: [] });
+export const emptyBillingWorld = (): BillingWorld => ({ rules: new Map(), plans: new Map(), prices: [], coupons: new Map(), uses: [], subscriptions: new Map(), audit: [], paymentEvents: new Set() });
 
 export function createFakeBillingRepo(world: BillingWorld, now: () => Date = () => new Date()): BillingRepo {
   const noRule = (accountType: string): RuleRow => ({ accountType, paymentRequired: false, trialDays: 0, defaultPlanId: null });
@@ -95,15 +96,31 @@ export function createFakeBillingRepo(world: BillingWorld, now: () => Date = () 
     startTrial: async ({ accountType, accountId, trialEndsAt }) => {
       const existing = world.subscriptions.get(key(accountType, accountId));
       if (existing) return existing;
-      const row: SubscriptionRow = { id: randomUUID(), accountType, accountId, planId: null, priceId: null, status: "trialing", trialEndsAt, providerRef: null, createdAt: now() };
+      const row: SubscriptionRow = { id: randomUUID(), accountType, accountId, planId: null, priceId: null, status: "trialing", trialEndsAt, providerRef: null, providerCustomerRef: null, providerEventAt: null, createdAt: now() };
       world.subscriptions.set(key(accountType, accountId), row);
       return row;
     },
     saveSubscription: async (input) => {
       const k = key(input.accountType, input.accountId);
-      const row: SubscriptionRow = { id: world.subscriptions.get(k)?.id ?? randomUUID(), ...input, trialEndsAt: null, createdAt: world.subscriptions.get(k)?.createdAt ?? now() };
+      const row: SubscriptionRow = { id: world.subscriptions.get(k)?.id ?? randomUUID(), ...input, trialEndsAt: null, providerCustomerRef: null, providerEventAt: null, createdAt: world.subscriptions.get(k)?.createdAt ?? now() };
       world.subscriptions.set(k, row);
       return row;
+    },
+    hasPaymentEvent: async (id) => world.paymentEvents.has(id),
+    recordPaymentEvent: async (id) => void world.paymentEvents.add(id),
+    applyCheckoutCompleted: async ({ accountType, accountId, planId, priceId, subscriptionRef, customerRef, at }) => {
+      const k = key(accountType, accountId);
+      const existing = world.subscriptions.get(k);
+      if (existing?.providerEventAt && existing.providerEventAt.getTime() > at.getTime()) return; // a newer notification already set it
+      world.subscriptions.set(k, { id: existing?.id ?? randomUUID(), accountType, accountId, planId, priceId, status: "active", trialEndsAt: null, providerRef: subscriptionRef, providerCustomerRef: customerRef, providerEventAt: at, createdAt: existing?.createdAt ?? now() });
+    },
+    setStatusByProviderRef: async (ref, status, at) => {
+      const row = [...world.subscriptions.values()].find((r) => r.providerRef === ref);
+      if (!row) return false;
+      if (row.providerEventAt && row.providerEventAt.getTime() > at.getTime()) return true; // known, but an older notification changes nothing
+      row.status = status;
+      row.providerEventAt = at;
+      return true;
     },
     listAudit: async (limit) => [...world.audit].reverse().slice(0, limit),
   };
