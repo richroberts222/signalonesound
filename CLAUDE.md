@@ -48,7 +48,7 @@ Before generating or significantly modifying code, check the relevant documentat
 | Quality | `testing.md`, `qa-strategy.md`, `unit.md`, `integration.md`, `acceptance.md`, `e2e.md`, `playwright.md`, `coverage.md`, `reporting.md`, `test-value-review.md` (all in `automation/`) |
 | Delivery | `git-workflow.md`, `issues.md` (required for any issue or pull request), `deployment.md`, `release.md`<!-- boilerplate:reference:start -->, `how-to.md` (the steps only the owner can do), `to-do.md` (the owner's current open actions; Claude removes items when done), `exploratory-testing.md` (the owner's guide for exploratory testing and how to report findings), `pricing.md` (what every service costs, today and planned)<!-- boilerplate:reference:end --> |
 | Product | `product-development.md`, `naming-conventions.md`, `product/product-plan.md`, `product/blueprint.md`, `product/roadmap.md`, `features/` |
-| Risk, growth and learning | `risk-and-legal.md`, `future-readiness.md`, `lessons.md` |
+| Risk, growth and learning | `risk-and-legal.md`, `incident-response.md`, `future-readiness.md`, `lessons.md` |
 | Template | <!-- boilerplate:template:start -->`boilerplate.md`, <!-- boilerplate:template:end -->`new-app-setup.md`, `customization-map.md` |
 
 (All paths are under `/docs`.) A test fails if a document in `/docs` is not linked from this table.
