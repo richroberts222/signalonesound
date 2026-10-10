@@ -11,6 +11,27 @@ This file holds only the actions still waiting on you. Claude removes an item as
 
 ---
 
+## NOW
+
+### Task 1: Read the public pages and tell Claude what to change (about 15 minutes, no rush)
+
+Claude wrote the words on the public pages from the product plan. You and Amy should read them before launch: they are what a stranger sees first. Nothing is broken if you wait.
+
+1. Open each page on the live site and read it.
+    - `www.signalonesound.com` (the landing page)
+    - `www.signalonesound.com/services`
+    - `www.signalonesound.com/about`
+    - `www.signalonesound.com/faq` (click each question to open its answer)
+    - `www.signalonesound.com/contact`
+2. Note anything that sounds wrong, is untrue, or is missing.
+    - Does it sound like Signal One Sound?
+    - Is every promise true today? (Claude kept them cautious: "free during early access", "coming", "being switched on".)
+3. Send your notes to Claude in the chat, in any form (a list is fine). Claude changes the wording and removes this task.
+
+**Optional:** on the dev site (`http://192.168.50.165:3000`, Claude starts it on request) the contact form is on. Send yourself a message, then read it under **Admin**, then **Messages**.
+
+---
+
 ==================================================
 ==================================================
 
@@ -21,7 +42,7 @@ Claude never spends money or opens a paid account. Each task here is your decisi
 ==================================================
 ==================================================
 
-### Task 1: Choose the Apple Developer account (about $99 per year)
+### Task 2: Choose the Apple Developer account (about $99 per year)
 
 Needed for the iPhone app. Costs money, so it is your decision (question Q-011).
 
@@ -29,7 +50,7 @@ Needed for the iPhone app. Costs money, so it is your decision (question Q-011).
     - Organization needs a D-U-N-S number, which is free but takes time to obtain.
 2. Tell Claude your choice. Claude then gives the sign-up steps.
 
-### Task 2: Decide about the Google Play Store (about $25 once)
+### Task 3: Decide about the Google Play Store (about $25 once)
 
 Optional. A direct download link works for demos without it.
 
