@@ -7,6 +7,8 @@ import {
   ORG_NAME_MAX,
   createApiClient,
   createOrganizationClient,
+  firstFieldError,
+  normalizeLink,
 } from "@signalone/validation";
 
 import { Button } from "@/components/ui/button";
@@ -37,7 +39,7 @@ export function ClaimChurchForm() {
     const result = await client.claim({
       name,
       description,
-      links: links.map((l) => l.trim()).filter((l) => l !== ""),
+      links: links.map(normalizeLink).filter((l) => l !== ""),
       contactEmail: email,
     });
     if (result.ok) setDone(true);
@@ -61,7 +63,7 @@ export function ClaimChurchForm() {
     );
   }
 
-  const firstError = (field: string) => fieldErrors[field]?.[0];
+  const firstError = (field: string) => firstFieldError(fieldErrors, field);
 
   return (
     <Card className="w-full max-w-lg">
@@ -114,7 +116,7 @@ export function ClaimChurchForm() {
           <Button type="submit" disabled={pending} data-testid="claim-submit">
             {pending ? "Sending..." : "Send request"}
           </Button>
-          {error && (
+          {error && Object.keys(fieldErrors).length === 0 && (
             <p role="alert" data-testid="claim-error" className="text-sm text-destructive">
               {error}
             </p>

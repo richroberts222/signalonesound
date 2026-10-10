@@ -47,6 +47,15 @@ const descriptionSchema = z
  * details, no spaces, no other schemes. A pattern is used because this package has no URL type.
  */
 const LINK_PATTERN = /^https?:\/\/(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?::\d{1,5})?(?:[/?#][^\s\u0000-\u001f\u007f]*)?$/i;
+/**
+ * What a person types is usually "example.org". When there is no scheme at all, https:// is added so the
+ * address is accepted; anything that already has a scheme (ftp:, javascript:, http:) is left exactly as
+ * typed, so the checks below still decide, and an unsafe scheme is never "repaired" into a safe one.
+ */
+export function normalizeLink(value: string): string {
+  const trimmed = value.trim();
+  return trimmed === "" || /^[a-z][a-z0-9+.-]*:/i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
 export function isSafeLink(value: string): boolean {
   return value.length <= 300 && LINK_PATTERN.test(value);
 }

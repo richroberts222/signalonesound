@@ -19,6 +19,19 @@ export const paginationSchema = z.object({
 });
 export type Pagination = z.infer<typeof paginationSchema>;
 
+/**
+ * The first message for a field, including errors reported on its parts: for "links" this also finds
+ * "links.0", "links.1" (the key is the path to the item that failed). Forms use this so a real message is
+ * shown under the field and not only a generic "Invalid input".
+ */
+export function firstFieldError(fieldErrors: Record<string, string[]> | undefined, field: string): string | undefined {
+  if (!fieldErrors) return undefined;
+  for (const [key, messages] of Object.entries(fieldErrors)) {
+    if (key === field || key.startsWith(`${field}.`)) return messages[0];
+  }
+  return undefined;
+}
+
 /** Flattens a ZodError into a path-keyed map for `AppError.fieldErrors`. */
 export function toFieldErrors(error: z.ZodError): Record<string, string[]> {
   const out: Record<string, string[]> = {};

@@ -2,7 +2,7 @@ import { MAX_PAGE_SIZE } from "@signalone/shared";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
-import { emailSchema, paginationSchema, toFieldErrors, uuidSchema } from "./common";
+import { emailSchema, firstFieldError, paginationSchema, toFieldErrors, uuidSchema } from "./common";
 
 describe("emailSchema", () => {
   it("trims and lowercases valid addresses", () => {
@@ -51,5 +51,18 @@ describe("toFieldErrors", () => {
     const result = z.string().safeParse(1);
     if (result.success) throw new Error("expected failure");
     expect(Object.keys(toFieldErrors(result.error))).toEqual(["_"]);
+  });
+});
+
+describe("firstFieldError", () => {
+  it("finds a message reported on the field itself or on one of its parts (links.0)", () => {
+    expect(firstFieldError({ name: ["Too short"] }, "name")).toBe("Too short");
+    expect(firstFieldError({ "links.1": ["Enter a web address"] }, "links")).toBe("Enter a web address");
+  });
+
+  it("does not match a different field that merely starts with the same letters", () => {
+    expect(firstFieldError({ linksExtra: ["x"], name2: ["y"] }, "links")).toBeUndefined();
+    expect(firstFieldError({ name2: ["y"] }, "name")).toBeUndefined();
+    expect(firstFieldError(undefined, "name")).toBeUndefined();
   });
 });
