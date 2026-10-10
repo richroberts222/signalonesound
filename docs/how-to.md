@@ -170,6 +170,28 @@ Run it again whenever new database changes have been merged and tested; it only 
 
 ---
 
+## 6g. Show the product to someone (the demo)
+
+Production starts empty on purpose, so the demo uses your **dev** setup, filled with sample churches and events (all marked "(Sample)", all fictional).
+
+1. Fill the dev database (safe to repeat; it only adds the samples once):
+   ```
+   cd E:\dev\signalOneSound
+   pnpm --filter web db:seed:demo --env=dev
+   ```
+2. Start the web app: `pnpm --filter web dev`, and open `http://localhost:3000`. For the phone, start `npx expo start --dev-client` in `apps\mobile` (the phone must be on the same Wi-Fi).
+3. A good order for a ten-minute demo:
+   * **Discover** (`/discover` on the web, the Discover tab on the phone): type `Nashville, TN`, pick a distance, tap a kind of gathering, open an event. Show a cancelled event (the third night of the tent revival in Memphis).
+   * **Save an event** and **Share** it (sign in first).
+   * **Claim a church** at `/claim-church`, then approve it at `/admin/manager-requests` (you are an admin), then create and publish an event at `/manage`.
+   * **Alerts** (`/alerts`): create one for your city. Nothing is sent unless push is switched on (section 6e).
+   * **Admin** (`/admin/moderation`): show how a report is handled.
+4. To wipe the dev data and start over: `pnpm --filter web db:refresh --env=dev` (dev only; it can never touch production).
+
+What is **not** in the prototype yet: a map, email, the store versions of the apps, and real push messages (each needs a decision or a paid service; see `/docs/release.md` section 9).
+
+---
+
 ## 7. Database restore drill (about 20 minutes, in the Neon console)
 
 This proves the database can be restored, which is a launch requirement. The steps and the log to fill in are in `/docs/database.md` section 12.4. Ask Claude to walk you through it when you are at the PC; it needs your Neon login.

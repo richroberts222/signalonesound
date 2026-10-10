@@ -86,6 +86,9 @@ export const PROOF_PATHS = [
   "apps/web/lib/places",
   "apps/web/lib/services/discover.ts",
   "apps/web/scripts/build-gazetteer.ts",
+  "apps/web/db/demo-seed.ts",
+  "apps/web/db/demo-seed.test.ts",
+  "apps/web/scripts/db-seed-demo.ts",
   "packages/validation/src/discover.ts",
   "packages/validation/src/discover-client.ts",
   // S6 saved events and invites (docs/features/s6-saved-events-and-invites.md): product code of the reference app.
