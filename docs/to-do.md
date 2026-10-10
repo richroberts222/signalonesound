@@ -51,13 +51,33 @@ Needed when the browser-test slice starts. Everything here uses your **developme
 
 If a screen does not match these words, take a screenshot and send it to Claude.
 
+### Task 2: Create a Stripe account in test mode (free)
+
+Needed for payments slice S11, not before. Test mode moves no real money and needs no bank account. You make the account and the keys yourself; Claude never sees them.
+
+1. Create the account.
+    - Go to `stripe.com` and click **Sign in**, then **Create account** (or **Start now**).
+    - Enter your email and a password, then confirm the email Stripe sends.
+2. Stay in test mode.
+    - Look at the Stripe dashboard header. It should say **Test mode** (or **Sandbox**). Do not click anything that says "Activate your account" or asks for bank details yet.
+3. Copy the test keys.
+    - Look at the left menu or the search box at the top. Open **Developers**, then **API keys**.
+    - You will see a **Publishable key** (`pk_test_...`) and a **Secret key** (`sk_test_...`). Click **Reveal** next to the secret key.
+4. Save them in GitHub.
+    - Go to `github.com/richroberts222/signalonesound`, click **Settings**, then **Secrets and variables**, then **Actions**.
+    - Click **New repository secret**. Name: `STRIPE_TEST_SECRET_KEY`. Paste the `sk_test_` key and click **Add secret**.
+    - Click **New repository secret** again. Name: `STRIPE_TEST_PUBLISHABLE_KEY`. Paste the `pk_test_` key and click **Add secret**.
+5. Tell Claude it is done. Claude checks that both names exist (never the values) and removes this task.
+
+If a screen does not match these words, take a screenshot and send it to Claude.
+
 ---
 
 ## BEFORE REAL USERS ARRIVE (no cost)
 
 None of these is needed for the partner demo, and none of them spends money.
 
-### Task 2: Replace the Clerk webhook signing secret
+### Task 3: Replace the Clerk webhook signing secret
 
 It was shown in the chat once, so it should be replaced. You chose to wait on this.
 
@@ -75,14 +95,14 @@ It was shown in the chat once, so it should be replaced. You chose to wait on th
     - Click **Deployments**, open the latest one, and choose **Redeploy** (the new value only applies after a redeploy).
 5. Tell Claude. Claude sends a test event and removes this task.
 
-### Task 3: Work through the legal checklist
+### Task 4: Work through the legal checklist
 
 No real user data may be collected until every gate in `docs/risk-and-legal.md` is met.
 
 1. Open `docs/risk-and-legal.md` in the repository.
 2. Tell Claude when you want to start. **Claude can do this, say yes:** prepare drafts of the policies and a gate-by-gate list for review.
 
-### Task 4: Small changes Claude can make for you
+### Task 5: Small changes Claude can make for you
 
 Each of these needs only your yes. **Claude can do this, say yes.**
 
@@ -90,7 +110,7 @@ Each of these needs only your yes. **Claude can do this, say yes.**
 2. Replace the old "exploratory mock" banner on the real admin pages. Tell Claude the wording you prefer first (question Q-005).
 3. Add a few sample churches near Nampa and Boise for demos.
 
-### Task 5: Practice restoring the database and review GitHub security settings
+### Task 6: Practice restoring the database and review GitHub security settings
 
 1. Tell Claude when you are ready. **Claude can do this, say yes:** prepare the exact steps from `docs/release.md` for each, one at a time.
 
@@ -104,7 +124,7 @@ Claude never spends money or opens a paid account. Each task here is your decisi
 ==================================================
 ==================================================
 
-### Task 6: Pay for longer database history (Neon)
+### Task 7: Pay for longer database history (Neon)
 
 The free plan keeps only 6 hours of history, so a mistake could not be undone for long. This costs money, so it is your decision.
 
@@ -115,7 +135,7 @@ The free plan keeps only 6 hours of history, so a mistake could not be undone fo
 3. Choose a paid plan.
     - Compare the plans on the page and pick one. Tell Claude which, so the documents are updated.
 
-### Task 7: Upgrade the website host (Vercel Pro, about $20 per month)
+### Task 8: Upgrade the website host (Vercel Pro, about $20 per month)
 
 The free plan is for non-commercial use only, so this is needed before launch. This costs money, so it is your decision.
 
@@ -126,7 +146,7 @@ The free plan is for non-commercial use only, so this is needed before launch. T
 3. Upgrade.
     - Click **Upgrade** next to the Pro plan and complete the form.
 
-### Task 8: Choose the Apple Developer account (about $99 per year)
+### Task 9: Choose the Apple Developer account (about $99 per year)
 
 Needed for the iPhone app. Costs money, so it is your decision (question Q-011).
 
@@ -134,13 +154,13 @@ Needed for the iPhone app. Costs money, so it is your decision (question Q-011).
     - Organization needs a D-U-N-S number, which is free but takes time to obtain.
 2. Tell Claude your choice. Claude then gives the sign-up steps.
 
-### Task 9: Decide about the Google Play Store (about $25 once)
+### Task 10: Decide about the Google Play Store (about $25 once)
 
 Optional. A direct download link works for demos without it.
 
 1. Decide whether you want the app in the Play Store.
 2. Tell Claude your choice.
 
-### Task 10: Choose vendors
+### Task 11: Choose vendors
 
 1. Choose a map provider and an email provider. Claude can lay out the options and prices for you to compare. Nothing is bought without your yes.

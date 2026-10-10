@@ -1,6 +1,6 @@
 # Payments and Subscriptions
 
-Rules for taking money. **Nothing is built and no provider is chosen.** The owner expects members to pay (tentative; pricing and tiers are undecided, `/docs/product/product-plan.md`). Every vendor choice here is UNDECIDED and needs the owner's approval before any spending.
+Rules for taking money. **Provider chosen: Stripe, in test mode only (owner decision 2026-10-10). Nothing is built yet.** The owner expects members to pay (tentative; pricing and tiers are undecided, `/docs/product/product-plan.md`). Every vendor choice here is UNDECIDED and needs the owner's approval before any spending.
 
 **Standards followed** (established practice; confirm before citing externally): PCI DSS (scope minimization through hosted checkout), OWASP ASVS V13 and API security for webhooks, idempotent processing, and the Apple and Google in-app purchase policies (verify the current text at design time).
 
@@ -8,7 +8,7 @@ Rules for taking money. **Nothing is built and no provider is chosen.** The owne
 
 | Decision | Options | Notes |
 | --- | --- | --- |
-| Payment provider | A hosted-checkout provider (Stripe is the common choice); others exist | UNDECIDED. Compare fees, tax handling, subscription features and payout countries |
+| Payment provider | A hosted-checkout provider (Stripe is the common choice); others exist | **DECIDED 2026-10-10: Stripe**, test mode only until the legal gates in `/docs/risk-and-legal.md` are met. No real money or real customer data before then |
 | Tiers and pricing | The plan's pricing items are marked UNDECIDED/VOTE (K section); the owner leans toward paid members | UNDECIDED |
 | Who pays, and where | Members pay for access; Church/Ministry accounts pricing separate | UNDECIDED |
 | Selling inside the apps | Apple and Google require their own in-app purchase system for digital subscriptions sold inside the iPhone and Android apps and take a share. Rules for linking out to web payment vary by region and change; **verify before designing** | A pricing and product-shape decision, not only a technical one |
