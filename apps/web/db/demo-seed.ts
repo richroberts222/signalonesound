@@ -77,7 +77,12 @@ export const DEMO_EVENTS: readonly Ev[] = [
 ];
 
 const q = (value: string) => `'${value.replace(/'/g, "''")}'`;
-const id = (kind: string, n: number) => `md5('demo-${kind}-${n}')::uuid`;
+// A stable, valid version-4-shaped UUID: the app's contracts validate ids strictly, and a plain md5 hash is
+// not one (its version and variant digits are arbitrary), which made every client reject the reply.
+const id = (kind: string, n: number) => `overlay(overlay(md5('demo-${kind}-${n}') placing '4' from 13 for 1) placing '8' from 17 for 1)::uuid`;
+// The first version of this seed used the plain hash. Databases that already hold those rows keep them
+// (the seed never overwrites), so they are removed here before the valid ones are inserted.
+const legacyId = (kind: string, n: number) => `md5('demo-${kind}-${n}')::uuid`;
 const nameKey = (name: string) => name.trim().replace(/\s+/g, " ").toLowerCase();
 /** A local wall-clock time `inDays` from today in the event's own time zone, as an exact moment. */
 const when = (inDays: number, time: string, zone: string, plusHours = 0) =>
@@ -85,6 +90,16 @@ const when = (inDays: number, time: string, zone: string, plusHours = 0) =>
 
 export function demoStatements(): string[] {
   const out: string[] = [];
+  DEMO_EVENTS.forEach((_, n) => {
+    out.push(
+      `DELETE FROM event_revival_type WHERE event_id = ${legacyId("event", n)}`,
+      `DELETE FROM event_link WHERE event_id = ${legacyId("event", n)}`,
+      `DELETE FROM event WHERE id = ${legacyId("event", n)}`,
+    );
+  });
+  DEMO_ORGS.forEach((_, i) => {
+    out.push(`DELETE FROM organization_link WHERE org_id = ${legacyId("org", i)}`, `DELETE FROM organization WHERE id = ${legacyId("org", i)}`);
+  });
   DEMO_ORGS.forEach((o, i) => {
     out.push(
       `INSERT INTO organization (id, name, name_key, description, status) VALUES (${id("org", i)}, ${q(o.name)}, ${q(nameKey(o.name))}, ${q(`${o.about} Sample listing for demonstration only; not a real church.`)}, 'approved') ON CONFLICT DO NOTHING`,
@@ -104,7 +119,7 @@ export function demoStatements(): string[] {
 
 export const DEMO_SEEDS: readonly Seed[] = [
   {
-    id: "demo-churches-and-events",
+    id: "demo-churches-and-events-v2",
     description: "Ten sample churches and about thirty upcoming sample events, for demonstrations.",
     statements: demoStatements(),
   },
