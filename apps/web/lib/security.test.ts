@@ -196,11 +196,48 @@ describe("committed files contain no real secrets", () => {
 describe("workflow safety", () => {
   const workflows = walk(join(repo, ".github/workflows")).filter((f) => /\.ya?ml$/.test(f));
 
-  it("workflows never use production credentials or a prod environment", () => {
-    const offenders = workflows.filter((f) =>
-      /(DATABASE_ENV|APP_ENV):\s*["']?prod|NEON_PROD|PROD_DATABASE|sk_live_/i.test(read(f)),
-    );
+  // The one place production is touched on purpose: the manual migration workflow, checked more strictly below.
+  const productionMigration = join(repo, ".github/workflows/migrate-production.yml");
+
+  it("workflows never use production credentials or a prod environment, except the one manual migration workflow", () => {
+    const offenders = workflows
+      .filter((f) => !f.endsWith("migrate-production.yml"))
+      .filter((f) => /(DATABASE_ENV|APP_ENV):\s*["']?prod|NEON_PROD|PROD_DATABASE|sk_live_/i.test(read(f)));
     expect(offenders.map(rel)).toEqual([]);
+  });
+
+  describe("the production migration workflow, where present", () => {
+    // An application made from the template may not have it; any file that exists is held to all of these.
+    const present = existsSync(productionMigration);
+    const text = present ? read(productionMigration) : "";
+    const lines = text.split(/\r?\n/);
+
+    it.skipIf(!present)("starts only by hand, from main, and runs in the reviewed production environment", () => {
+      const triggers = /^on:\r?\n([\s\S]*?)^permissions:/m.exec(text)?.[1] ?? "";
+      expect(triggers).toMatch(/^\s{2}workflow_dispatch:/m);
+      expect(triggers).not.toMatch(/\b(push|pull_request|pull_request_target|schedule|workflow_run|workflow_call|release|issue_comment):/);
+      expect(text).toMatch(/if:\s*github\.ref == 'refs\/heads\/main'/);
+      expect(text).toMatch(/^\s{4}environment:\s*production\s*$/m);
+    });
+
+    it.skipIf(!present)("has read-only repository access and no write permission", () => {
+      expect(text).toMatch(/^permissions:\r?\n\s{2}contents:\s*read\s*$/m);
+      expect(text).not.toMatch(/:\s*write\b/);
+    });
+
+    it.skipIf(!present)("takes the typed confirmation only through an environment variable, never inside a shell command", () => {
+      const uses = lines.filter((l) => /\$\{\{\s*(inputs|github\.event\.inputs)\b/.test(l));
+      expect(uses.length).toBeGreaterThan(0);
+      for (const l of uses) expect(l).toMatch(/^\s+PROD_MIGRATION_CONFIRM:\s*\$\{\{/);
+    });
+
+    it.skipIf(!present)("reads only the database address secret, and only runs the production migration command", () => {
+      const secrets = [...text.matchAll(/\$\{\{\s*secrets\.([A-Z0-9_]+)\s*\}\}/g)].map((m) => m[1]);
+      expect(secrets).toEqual(["DATABASE_URL"]);
+      const commands = lines.filter((l) => /pnpm --filter/.test(l)).map((l) => l.trim());
+      expect(commands).toEqual(["run: pnpm --filter web db:migrate:prod -- --env=prod"]);
+      expect(text).not.toMatch(/db:(reset|seed|refresh|generate)|drizzle-kit|DROP |TRUNCATE/i);
+    });
   });
 
   it("workflows grant no merge, force-push, reset, or branch-delete tooling", () => {

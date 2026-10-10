@@ -156,6 +156,20 @@ Alerts are built, but nothing is actually sent until you switch it on, so develo
 
 ---
 
+## 6f. Create the tables in the production database (one-time setup, then one button)
+
+Production starts empty. Our rules forbid doing this from your PC, so it is done by a GitHub workflow that only you can approve. Do the steps in order.
+
+1. **Create the approval gate (GitHub).** Open the repository on github.com, then **Settings**, **Environments**, **New environment**, name it exactly `production`, and click **Configure environment**.
+2. Tick **Required reviewers** and add **yourself**. Under **Deployment branches and tags**, choose **Selected branches and tags**, and add `main`. Save the protection rules.
+3. **Add the database address as an environment secret.** In that same `production` environment, under **Environment secrets**, click **Add secret**: name `DATABASE_URL`, value the **production branch** connection string from Neon (Connect, Branch: production). It is the same value you put in Vercel. Never paste it into chat.
+4. **Run it.** Open the repository's **Actions** tab, choose **Migrate production** on the left, click **Run workflow**, pick branch `main`, type `migrate-production` in the box, and run. It will wait for your approval: open the run and click **Review deployments**, tick `production`, and **Approve and deploy**.
+5. The log should end with `done; applied=<n> pending=0.` Then the live site's data pages start to work.
+
+Run it again whenever new database changes have been merged and tested; it only applies what is pending. A Neon restore point should exist first (see section 7).
+
+---
+
 ## 7. Database restore drill (about 20 minutes, in the Neon console)
 
 This proves the database can be restored, which is a launch requirement. The steps and the log to fill in are in `/docs/database.md` section 12.4. Ask Claude to walk you through it when you are at the PC; it needs your Neon login.
