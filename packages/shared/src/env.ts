@@ -114,6 +114,8 @@ export type ServerEnv = {
   sesRegion: string | null;
   /** Extra recipients allowed outside production (EMAIL_ALLOWLIST, comma separated addresses or domains). */
   emailAllowlist: string[];
+  /** Whether the public contact form accepts messages (CONTACT_FORM_ENABLED: "on" or "off"). Off by default: the form collects personal information, so production turns it on only after the legal gates are met. */
+  contactFormEnabled: boolean;
 };
 
 const EMAIL_FROM_PATTERN = /^(?:[^<>@\r\n"]+<)?[^\s<>@,;"]+@[^\s<>@,;"]+\.[^\s<>@,;"]+>?$/;
@@ -177,6 +179,9 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
   if (rawPush !== "" && rawPush !== "expo" && rawPush !== "none") issues.push('PUSH_PROVIDER must be "expo" or "none".');
   const pushProvider: "expo" | "none" = rawPush === "expo" ? "expo" : "none";
   const email = parseEmailSettings(source, issues);
+  const rawContact = source.CONTACT_FORM_ENABLED?.trim().toLowerCase() ?? "";
+  if (rawContact !== "" && rawContact !== "on" && rawContact !== "off") issues.push('CONTACT_FORM_ENABLED must be "on" or "off".');
+  const contactFormEnabled = rawContact === "on";
   if (email.emailProvider === "ses" && rateLimitSalt === null) issues.push('RATE_LIMIT_SALT is required when EMAIL_PROVIDER is "ses" (it keys the list of addresses that bounced).');
 
   if (appEnv && databaseEnv) {
@@ -203,7 +208,7 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
   }
 
   if (issues.length > 0 || !appEnv || !databaseEnv) throw new EnvValidationError(issues);
-  return { appEnv, databaseEnv, databaseUrl, clerkSecretKey, clerkPublishableKey, adminUserIds, cronSecret, rateLimitSalt, unsubscribeSecret, pushProvider, ...email };
+  return { appEnv, databaseEnv, databaseUrl, clerkSecretKey, clerkPublishableKey, adminUserIds, cronSecret, rateLimitSalt, unsubscribeSecret, pushProvider, ...email, contactFormEnabled };
 }
 
 export type ClientEnv = {

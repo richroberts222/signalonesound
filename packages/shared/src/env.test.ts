@@ -335,3 +335,19 @@ describe("parseServerEnv email settings (S14)", () => {
     expect(parseServerEnv({ ...base, EMAIL_ALLOWLIST: " Tester@Example.com , simulator.amazonses.com ,, " }).emailAllowlist).toEqual(["tester@example.com", "simulator.amazonses.com"]);
   });
 });
+
+describe("parseServerEnv CONTACT_FORM_ENABLED (S15)", () => {
+  const base = {
+    DATABASE_ENV: "dev",
+    DATABASE_URL: ["postgres", "://placeholder-user:placeholder-pass@placeholder.example/db"].join(""),
+    CLERK_SECRET_KEY: "sk_test_REPLACE_ME",
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_REPLACE_ME",
+  };
+
+  it("S15 AC7 is off by default and only an explicit on opens the form", () => {
+    expect(parseServerEnv(base).contactFormEnabled).toBe(false);
+    expect(parseServerEnv({ ...base, CONTACT_FORM_ENABLED: "off" }).contactFormEnabled).toBe(false);
+    expect(parseServerEnv({ ...base, CONTACT_FORM_ENABLED: " ON " }).contactFormEnabled).toBe(true);
+    expect(() => parseServerEnv({ ...base, CONTACT_FORM_ENABLED: "yes" })).toThrow(/CONTACT_FORM_ENABLED/);
+  });
+});

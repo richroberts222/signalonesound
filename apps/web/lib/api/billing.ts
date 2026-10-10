@@ -55,6 +55,7 @@ export function billingRoutes(route: ReturnType<typeof createApiRoute>, getServi
       }),
     },
     audit: { GET: route({ auth: "required", input: { schema: billingAuditQuerySchema, source: "query" }, handle: (ctx, input) => getService().listAudit(ctx, input.limit) }) },
+    publicPlans: { GET: route({ auth: "public", handle: () => getService().listPublicPlans() }) },
     entitlements: { GET: route({ auth: "required", handle: (ctx) => getService().myEntitlements(ctx) }) },
     quote: { POST: route({ auth: "required", input: { schema: couponQuoteRequestSchema }, handle: (ctx, input) => getService().quoteCoupon(ctx, input) }) },
   };

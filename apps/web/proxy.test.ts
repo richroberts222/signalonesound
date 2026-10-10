@@ -26,7 +26,7 @@ vi.mock("@clerk/nextjs/server", () => ({
 // Every top-level entry in app/ must be listed here. Adding a route directory fails
 // this test until its protection is decided and recorded.
 const PROTECTED = ["accept-terms", "account", "admin", "alerts", "claim-church", "dashboard", "manage", "proof", "saved"];
-const PUBLIC = ["about", "api", "churches", "contact", "discover", "events", "invite", "privacy", "sign-in", "sign-up", "terms", "unsubscribe"]; // api routes authenticate themselves (docs/auth.md)
+const PUBLIC = ["about", "api", "churches", "contact", "discover", "events", "faq", "invite", "privacy", "services", "sign-in", "sign-up", "terms", "unsubscribe"]; // api routes authenticate themselves (docs/auth.md)
 
 async function run(pathname: string) {
   const mod = (await import("./proxy")) as unknown as {

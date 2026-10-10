@@ -49,6 +49,7 @@ describe("S10 payments: plans, switches and entitlement acceptance criteria (API
         updateCoupon: (id: string, body: unknown) => call(routes.coupon.PATCH(send("PATCH", `${base}/x`, body), ctx({ id }))),
         audit: (query = "") => call(routes.audit.GET(send("GET", `${base}/admin/billing/audit${query}`))),
         entitlements: () => call(routes.entitlements.GET(send("GET", `${base}/me/entitlements`))),
+        publicPlans: () => call(routes.publicPlans.GET(send("GET", `${base}/plans`))),
         quote: (body: unknown) => call(routes.quote.POST(send("POST", `${base}/me/coupons/quote`, body))),
       };
     };
@@ -201,6 +202,23 @@ describe("S10 payments: plans, switches and entitlement acceptance criteria (API
     const orgPlan = (await s.as(admin).createPlan(newPlan({ accountType: "organization", name: "Church plan" }))).json.data;
     await s.as(admin).updatePlan(orgPlan.id, { active: true });
     await expect(s.service.subscribe(s.ctxOf(`user_${"C".repeat(10)}`), { planId: orgPlan.id })).rejects.toMatchObject({ code: "not_found" });
+  });
+
+  it("S15 AC4 anyone, signed in or not, sees only the active plans that have a price; an inactive plan never appears", async () => {
+    const s = setup();
+    const a = s.as(admin);
+    const shown = (await a.createPlan(newPlan({ name: "Shown plan" }))).json.data;
+    const hidden = (await a.createPlan(newPlan({ name: "Hidden plan" }))).json.data;
+    expect((await s.as(null).publicPlans()).json.data.items).toEqual([]); // nothing is active yet
+    await a.updatePlan(shown.id, { active: true });
+    const anonymous = await s.as(null).publicPlans();
+    expect(anonymous.status).toBe(200);
+    expect(anonymous.json.data.items.map((p: { name: string }) => p.name)).toEqual(["Shown plan"]);
+    expect(anonymous.json.data.items[0]).toMatchObject({ active: true, price: { amountMinor: 300, currency: "usd" } });
+    expect((await s.as(member).publicPlans()).json.data.items).toHaveLength(1);
+    await a.updatePlan(shown.id, { active: false });
+    await a.updatePlan(hidden.id, { active: true });
+    expect((await s.as(null).publicPlans()).json.data.items.map((p: { name: string }) => p.name)).toEqual(["Hidden plan"]); // turning a plan off removes it at once
   });
 
   it("AC7 the seeded proposals are in the migration, inactive (member $3 per month and $30 per year)", async () => {

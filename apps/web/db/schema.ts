@@ -436,3 +436,22 @@ export const emailSuppression = pgTable("email_suppression", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// S15 public pages (docs/features/s15-public-pages.md). A message sent through the contact form. It holds
+// what the person typed (personal information, T3) and a keyed hash of their network address, used only to
+// limit how many messages one person can send in a day. It is read in the admin Messages inbox and deleted
+// there by an admin. The form is off in production until the legal gates are met.
+export const contactMessage = pgTable(
+  "contact_message",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    topic: text("topic").notNull(),
+    name: text("name").notNull(),
+    replyEmail: text("reply_email"),
+    message: text("message").notNull(),
+    status: text("status").notNull().default("new"),
+    addressKey: text("address_key").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("contact_message_created_idx").on(t.createdAt), index("contact_message_address_idx").on(t.addressKey, t.createdAt)],
+);
+

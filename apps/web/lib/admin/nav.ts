@@ -9,4 +9,5 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
   { label: "Submissions", href: "/admin/submissions" },
   { label: "Import", href: "/admin/import" },
   { label: "Billing", href: "/admin/billing" },
+  { label: "Messages", href: "/admin/messages" },
 ];

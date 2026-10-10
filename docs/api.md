@@ -231,6 +231,17 @@ Every admin route answers `404` to anyone who is not an admin, checked on each c
 | --- | --- | --- |
 | `POST /api/v1/internal/email/suppress` | job secret (`Authorization: Bearer <CRON_SECRET>`) | Records an address that bounced or complained (`address`, `reason` of `bounce` or `complaint`) so it is never emailed again. Only a keyed hash is stored; the reply never echoes the address; the same address twice is one entry. The email provider's bounce notifications are forwarded here when the provider account is connected |
 
+## Public pages: contact form, Messages inbox and public plans (S15, reference application)
+
+| Endpoint | Auth | Purpose |
+| --- | --- | --- |
+| `POST /api/v1/contact` | public | Send a message through the contact form: `topic` (`question`, `report_listing`, `privacy_request`, `other`), `name` (1 to 80), optional `replyEmail`, `message` (10 to 2000, plain text), and a hidden `website` field that must stay empty. Closed (`404`) unless `CONTACT_FORM_ENABLED` is `on`. A filled `website` is dropped quietly with the same reply. One address (kept only as a keyed hash) may send 3 a day (`429`). The reply is `{ received: true }` and never echoes the message |
+| `GET /api/v1/admin/contact-messages?status=new\|done\|all` | admin | The Messages inbox, newest first |
+| `PATCH /api/v1/admin/contact-messages/:id`, `DELETE /api/v1/admin/contact-messages/:id` | admin | Mark a message `new` or `done`; delete it (this is how its personal information is removed) |
+| `GET /api/v1/plans` | public | The plans an admin has switched on and priced; an inactive plan never appears. The Services page shows the same list |
+
+Every admin route answers `404` to anyone who is not an admin (`401` signed out), checked on each call.
+
 ## Unexpected-error reporting
 
 `apiRoute` passes `reportUnexpectedError` (`lib/api/report.ts`) as the adapter's `onUnexpected` hook. It writes one structured stderr line with the error class and, for `DatabaseError`, the operation and kind only (never message, cause, stack, request data, or identity). This is a stopgap sink, not a logging system; replace the sink when one is chosen. The adapter also reports failures that escape the normal path (for example response serialization).

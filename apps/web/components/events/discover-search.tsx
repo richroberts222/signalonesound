@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   RADIUS_CHOICES,
   REVIVAL_TYPES,
@@ -23,9 +23,10 @@ type Place = { label: string; lat: number; lng: number };
 // Find events (S4). Anyone can use it, signed in or not. A place is typed (a ZIP code or City, ST) or
 // found from the device, and only after the person taps the button. The position is rounded to about
 // one kilometre before it is sent, and the server keeps no record of the search.
-export function DiscoverSearch() {
+/** `initialPlace` (from the address, for example `/events?place=Boise`) is typed in and searched at once. */
+export function DiscoverSearch({ initialPlace = "" }: { initialPlace?: string } = {}) {
   const client = useMemo(() => createDiscoverClient(createApiClient({ baseUrl: "" })), []);
-  const [placeText, setPlaceText] = useState("");
+  const [placeText, setPlaceText] = useState(initialPlace);
   const [place, setPlace] = useState<Place | null>(null);
   const [choices, setChoices] = useState<Place[]>([]);
   const [radius, setRadius] = useState("25");
@@ -63,6 +64,10 @@ export function DiscoverSearch() {
 
   async function onSearch(event: React.FormEvent) {
     event.preventDefault();
+    await search();
+  }
+
+  async function search() {
     setMessage(null);
     setChoices([]);
     let chosen = place;
@@ -80,6 +85,12 @@ export function DiscoverSearch() {
     }
     await run(chosen);
   }
+
+  useEffect(() => {
+    // runs the first search once, for a place given in the address
+    if (initialPlace.trim() !== "") void search();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function useMyLocation() {
     setMessage(null);
