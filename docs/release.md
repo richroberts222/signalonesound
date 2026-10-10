@@ -102,3 +102,23 @@ Web promotion or mobile build; tick each item and report the proof in the pull r
 | Mobile builds contain no server secrets | `apps/mobile/src/boundary.test.ts` and `security.test.ts` | Proven (boundary breaks fail tests) |
 | Workflows are least-privilege and pinned | `security.test.ts` workflow tests | Proven (six breaks in the Wave 1 work) |
 | Builds, store submission, over-the-air updates, minimum app version, rollback, smoke check | Not built | Not proven; tracked above |
+
+## 9. Production go-live requirements (none of these are met yet)
+
+These are things that cannot be done, or must not be done, until the project goes public. They are collected here so none is lost; each is owned by the document named in the last column, and nothing in this section is a decision that has been made. The owner decides every item marked "owner".
+
+| Requirement | Why it waits | Owner of the detail |
+| --- | --- | --- |
+| A real domain name and a public production deployment | Vercel preview and deployment addresses change with every build and sit behind Vercel's deployment protection, which refuses programs (webhooks, scheduled jobs from outside, link checkers). Buying a domain costs money (owner). | `/docs/deployment.md`, `/docs/how-to.md` section 10 |
+| A Clerk production instance | The current Clerk keys are development keys with strict usage limits and are not for production. Creating the production instance and its keys is a separate step from the development instance. | `/docs/auth.md`, `/docs/environment.md` |
+| The Clerk webhook (`user.deleted`, `user.updated`) | Needs the stable public address above. Until then a deletion made in the Clerk dashboard does not reach the application database (deletion from the account page still works). Steps in `/docs/how-to.md` section 5. | `/docs/how-to.md` section 5 |
+| Production environment values set in Vercel (by name) | `CLERK_WEBHOOK_SIGNING_SECRET`, `CRON_SECRET`, `UNSUBSCRIBE_SECRET`, `ADMIN_USER_IDS`, optionally `RATE_LIMIT_SALT` and `PUSH_PROVIDER`; checked by name against the environment document. | `/docs/environment.md` |
+| Scheduled jobs that suit production | The free Vercel plan runs scheduled jobs once a day, so alerts arrive in one daily batch. More frequent jobs need a paid plan (owner, cost). | `/docs/features/s7-alerts-and-push.md` |
+| Email sending (if wanted) | The email digest and appeal emails need an email provider and a real contact address (owner, cost). Until then email is a logging stub. | `/docs/features/s7-alerts-and-push.md`, `/docs/features/s8-admin-and-moderation.md` |
+| A map provider (if wanted) | The discover map needs a vendor choice (owner, cost). | `/docs/features/s4-discover-web.md` |
+| Sitemap, universal links and app links | Need the production domain and the association files on it. | `/docs/features/s4-discover-web.md`, `/docs/features/s5-discover-mobile.md` |
+| Store accounts and app identity | Apple Developer Program and Google Play developer account (owner, cost); app name and store identity (Q-011). | Section 7 above |
+| The legal and privacy gates | No real user data is collected until the gates in `/docs/risk-and-legal.md` are met, including the contact address, the takedown procedure and the policy review. | `/docs/risk-and-legal.md` |
+| The security gates | GitHub security settings (Dependabot, secret scanning, code scanning, read-only workflow token), the two-factor risk accepted for now revisited at the first real user or payment, and the repository stays public by decision until then. | `/docs/security.md`, `/docs/how-to.md` section 8 |
+| A tested database restore | The restore drill is a launch requirement. | `/docs/database.md` section 12.4 |
+| Resolve the recorded dependency differences | `@types/node` and `typescript` differ between the phone app and the web app (`KNOWN_DIFFERENCES` in `scripts/dependency-match.mjs`); decide each before release. | `/docs/stack.md` rule 7 |

@@ -98,6 +98,8 @@ This needs a public web address, so do it after the web app is deployed (a Verce
 5. In the Vercel project settings, **Environment Variables**, add `CLERK_WEBHOOK_SIGNING_SECRET` with that value, for the Preview environment (and Production when it exists). Do not paste it anywhere else.
 6. Redeploy so the new variable is picked up.
 
+**Not possible yet:** the web app has no stable public address (Vercel preview and deployment addresses change with every build and are behind Vercel's login protection, which also refuses Clerk), so leave this until the production go-live; it is listed in `/docs/release.md` section 9.
+
 Until this is done the webhook refuses every request (this is the safe default). Account deletion from the account page still works without it; the webhook only handles a deletion that happens in the Clerk dashboard.
 
 ---
