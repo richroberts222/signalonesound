@@ -1,0 +1,53 @@
+name: Migrate production
+
+# Applies the committed, reviewed database migrations to PRODUCTION. Manual only (docs/database.md 12.3 step 6).
+# Safeguards, each also checked by a test:
+#   * started by hand, from main, with the confirmation word typed in;
+#   * the "production" environment requires its named reviewer to approve every run, and holds the database
+#     address as a secret that no other workflow can read;
+#   * the migration command re-checks all of this itself and refuses anywhere else (db/tooling/migrate-prod.ts);
+#   * read-only repository access, no write permissions, and no data is copied, reset or seeded.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type migrate-production to confirm you mean to change the production database"
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: migrate-production
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    name: Migrate production
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Apply the pending migrations to production
+        env:
+          DATABASE_ENV: prod
+          APP_ENV: prod
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PROD_MIGRATION_CONFIRM: ${{ inputs.confirm }}
+        run: pnpm --filter web db:migrate:prod -- --env=prod
