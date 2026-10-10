@@ -1,16 +1,15 @@
-import { useAuth } from "@clerk/expo";
 import { StatusBar } from "expo-status-bar";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import type { ReactNode } from "react";
+import { StyleSheet, Text, View } from "react-native";
 
 import { AppAuthProvider } from "./auth/AppAuthProvider";
-import { SignInScreen } from "./auth/SignInScreen";
-import { SignedInScreen } from "./auth/SignedInScreen";
 import { getMobileEnv } from "./config/env";
 
-// Sign in with Clerk (docs/mobile.md). Calls to the shared API use the session token as a bearer
-// token through the shared client in @signalone/validation. No navigation library yet: the tabs
-// arrive with the first real screens (S5).
-export default function App() {
+// The app's providers (docs/mobile.md): it checks the configuration and starts Clerk, then shows the
+// screens inside it. It does not put sign-in in front of the app: browsing needs no account (S5 AC2), and
+// sign-in lives on the Account tab. Calls to the shared API use the session token as a bearer token
+// through the shared client in @signalone/validation.
+export default function App({ children }: { children: ReactNode }) {
   let env: ReturnType<typeof getMobileEnv>;
   try {
     env = getMobileEnv();
@@ -23,26 +22,9 @@ export default function App() {
   }
   return (
     <AppAuthProvider publishableKey={env.clerkPublishableKey}>
-      <Root />
+      {children}
       <StatusBar style="auto" />
     </AppAuthProvider>
-  );
-}
-
-function Root() {
-  const { isLoaded, isSignedIn, signOut } = useAuth();
-  if (!isLoaded) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator accessibilityLabel="Loading" />
-        <Text style={styles.status}>Connecting to sign-in...</Text>
-      </View>
-    );
-  }
-  return (
-    <View style={styles.container}>
-      {isSignedIn ? <SignedInScreen onSignOut={() => void signOut()} /> : <SignInScreen />}
-    </View>
   );
 }
 
@@ -55,6 +37,6 @@ function Message({ text }: { text: string }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24, gap: 12 },
+  container: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
   status: { textAlign: "center" },
 });
