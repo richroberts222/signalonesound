@@ -1,19 +1,23 @@
+import Image from "next/image";
+
 import { cn } from "@/lib/utils";
 
 /**
- * Temporary text wordmark for Signal One Sound (no approved logo yet).
- * The one place the product name is styled; a future logo/brand mark replaces
- * this implementation (docs/ui.md section 25), not the screens that use it.
+ * Brand mark for Signal One Sound: the small SOS gradient icon beside the text name.
+ * The one place the product name is styled; the logo assets live in public/brand (docs/ui.md section 25).
  */
 export function BrandWordmark({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        "font-heading text-base font-bold tracking-tight whitespace-nowrap",
+        "font-heading inline-flex items-center gap-2 text-base font-bold tracking-tight whitespace-nowrap",
         className,
       )}
     >
-      Signal One <span className="text-gradient-gold">Sound</span>
+      <Image src="/brand/sos-icon.svg" alt="" width={34} height={12} unoptimized className="h-auto w-9" />
+      <span>
+        Signal One <span className="text-gradient-gold">Sound</span>
+      </span>
     </span>
   );
 }
