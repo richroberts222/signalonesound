@@ -20,6 +20,7 @@
     "db:check": "tsx scripts/db-check.ts",
     "db:reset": "tsx scripts/db-reset.ts",
     "db:seed": "tsx scripts/db-seed.ts",
+    "db:seed:demo": "tsx scripts/db-seed-demo.ts",
     "db:refresh": "tsx scripts/db-refresh.ts"
   },
   "dependencies": {
