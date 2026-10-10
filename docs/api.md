@@ -225,6 +225,12 @@ Every admin write needs a non-empty reason and is written to the audit log in th
 
 Every admin route answers `404` to anyone who is not an admin, checked on each call, and every admin change is written to the audit log together with the change. While payment is not required for an account type, everyone of that type is entitled and the payment provider is never asked. There is no route that takes a payment or subscribes anyone in S10 (the real checkout is S11), and no payment provider SDK is imported outside `lib/payments` (`lib/payments/boundary.test.ts`).
 
+## Email suppression (S14, reference application)
+
+| Endpoint | Auth | Purpose |
+| --- | --- | --- |
+| `POST /api/v1/internal/email/suppress` | job secret (`Authorization: Bearer <CRON_SECRET>`) | Records an address that bounced or complained (`address`, `reason` of `bounce` or `complaint`) so it is never emailed again. Only a keyed hash is stored; the reply never echoes the address; the same address twice is one entry. The email provider's bounce notifications are forwarded here when the provider account is connected |
+
 ## Unexpected-error reporting
 
 `apiRoute` passes `reportUnexpectedError` (`lib/api/report.ts`) as the adapter's `onUnexpected` hook. It writes one structured stderr line with the error class and, for `DatabaseError`, the operation and kind only (never message, cause, stack, request data, or identity). This is a stopgap sink, not a logging system; replace the sink when one is chosen. The adapter also reports failures that escape the normal path (for example response serialization).

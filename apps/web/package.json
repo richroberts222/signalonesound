@@ -24,6 +24,7 @@
     "db:refresh": "tsx scripts/db-refresh.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.1148.0",
     "@base-ui/react": "^1.8.0",
     "@clerk/nextjs": "^7.9.7",
     "@neondatabase/serverless": "^1.1.0",

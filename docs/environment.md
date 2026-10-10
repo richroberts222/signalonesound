@@ -34,6 +34,11 @@ Application code asks these helpers for the environment instead of comparing raw
 | `RATE_LIMIT_SALT` | server only | Optional. At least 16 characters. The key used to hash the network address on the public report form (the address is kept only as a keyed hash for 24 hours). If unset, a random key is made each time the server starts, so the limit still works but resets on a restart |
 | `UNSUBSCRIBE_SECRET` | server only | Optional. At least 32 characters. Signs the one-tap unsubscribe links in notifications. Keep it the same over time (changing it invalidates links already sent). Without it unsubscribe links are not available |
 | `PUSH_PROVIDER` | server | Optional. `expo` sends push messages through Expo's free push service; `none` (the default) sends nothing, so development never messages anyone |
+| `EMAIL_PROVIDER` | server | Optional. `ses` sends email through Amazon SES; `none` (the default) sends nothing, so development never emails anyone. With `ses`, `EMAIL_FROM`, `SES_REGION` and `RATE_LIMIT_SALT` are required (S14) |
+| `EMAIL_FROM` | server | The sender shown on messages, for example `Signal One Sound <no-reply@signalonesound.com>`. Required with `EMAIL_PROVIDER=ses`; a line break is refused |
+| `SES_REGION` | server | The AWS region of the SES account, for example `us-east-1`. Required with `EMAIL_PROVIDER=ses` |
+| `EMAIL_ALLOWLIST` | server | Optional, non-production only: comma-separated addresses or domains that may be emailed besides Amazon's mailbox-simulator addresses. Outside production nobody else can be emailed. Production ignores it |
+| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | server (secret) | Read by the AWS SDK, never by our code. Use a credential whose only permission is sending email (SES), set only in the environment that sends. Never commit or paste them |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | client-safe | |
 | `NEXT_PUBLIC_APP_ENV` | client-safe | Optional display hint; not authoritative |
 | `VERCEL_ENV` | platform | Read for the Preview guard |

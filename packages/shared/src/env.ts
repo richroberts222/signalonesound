@@ -106,7 +106,40 @@ export type ServerEnv = {
   unsubscribeSecret: string | null;
   /** Which push service sends messages (PUSH_PROVIDER): "expo" or "none" (nothing is sent). */
   pushProvider: "expo" | "none";
+  /** Which service sends email (EMAIL_PROVIDER): "ses" (Amazon SES) or "none" (nothing is sent). */
+  emailProvider: "ses" | "none";
+  /** The sender shown on messages (EMAIL_FROM), for example `Signal One Sound <no-reply@signalonesound.com>`. Required with "ses". */
+  emailFrom: string | null;
+  /** The AWS region of the SES account (SES_REGION), for example `us-east-1`. Required with "ses". */
+  sesRegion: string | null;
+  /** Extra recipients allowed outside production (EMAIL_ALLOWLIST, comma separated addresses or domains). */
+  emailAllowlist: string[];
 };
+
+const EMAIL_FROM_PATTERN = /^(?:[^<>@\r\n"]+<)?[^\s<>@,;"]+@[^\s<>@,;"]+\.[^\s<>@,;"]+>?$/;
+const SES_REGION_PATTERN = /^[a-z]{2}(?:-[a-z]+)+-\d$/;
+const ALLOWLIST_ENTRY_PATTERN = /^(?:[^\s@,;<>"]+@)?[^\s@,;<>"]+\.[^\s@,;<>"]+$/;
+
+/** Reads the email settings. Only the setting names are reported on a problem, never a value. */
+export function parseEmailSettings(source: EnvSource, issues: string[]): Pick<ServerEnv, "emailProvider" | "emailFrom" | "sesRegion" | "emailAllowlist"> {
+  const raw = source.EMAIL_PROVIDER?.trim() ?? "";
+  if (raw !== "" && raw !== "ses" && raw !== "none") issues.push('EMAIL_PROVIDER must be "ses" or "none".');
+  const emailProvider: "ses" | "none" = raw === "ses" ? "ses" : "none";
+  const from = source.EMAIL_FROM?.trim() ?? "";
+  const region = source.SES_REGION?.trim() ?? "";
+  if (from !== "" && (from.length > 254 || !EMAIL_FROM_PATTERN.test(from))) issues.push("EMAIL_FROM must be an address or `Name <address>`.");
+  if (region !== "" && !SES_REGION_PATTERN.test(region)) issues.push("SES_REGION must be an AWS region such as us-east-1.");
+  if (emailProvider === "ses") {
+    if (from === "") issues.push('EMAIL_FROM is required when EMAIL_PROVIDER is "ses".');
+    if (region === "") issues.push('SES_REGION is required when EMAIL_PROVIDER is "ses".');
+  }
+  const emailAllowlist = (source.EMAIL_ALLOWLIST ?? "")
+    .split(",")
+    .map((entry) => entry.trim().toLowerCase())
+    .filter((entry) => entry !== "");
+  if (emailAllowlist.some((entry) => !ALLOWLIST_ENTRY_PATTERN.test(entry))) issues.push("EMAIL_ALLOWLIST must be comma-separated email addresses or domains.");
+  return { emailProvider, emailFrom: from === "" ? null : from, sesRegion: region === "" ? null : region, emailAllowlist };
+}
 
 /** Reads ADMIN_USER_IDS: a comma-separated list of Clerk user ids. A malformed entry is reported. */
 export function parseAdminUserIds(source: EnvSource, issues: string[]): string[] {
@@ -143,6 +176,8 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
   const rawPush = source.PUSH_PROVIDER?.trim() ?? "";
   if (rawPush !== "" && rawPush !== "expo" && rawPush !== "none") issues.push('PUSH_PROVIDER must be "expo" or "none".');
   const pushProvider: "expo" | "none" = rawPush === "expo" ? "expo" : "none";
+  const email = parseEmailSettings(source, issues);
+  if (email.emailProvider === "ses" && rateLimitSalt === null) issues.push('RATE_LIMIT_SALT is required when EMAIL_PROVIDER is "ses" (it keys the list of addresses that bounced).');
 
   if (appEnv && databaseEnv) {
     // A prod app must use the prod database and nothing else may touch it.
@@ -168,7 +203,7 @@ export function parseServerEnv(source: EnvSource): ServerEnv {
   }
 
   if (issues.length > 0 || !appEnv || !databaseEnv) throw new EnvValidationError(issues);
-  return { appEnv, databaseEnv, databaseUrl, clerkSecretKey, clerkPublishableKey, adminUserIds, cronSecret, rateLimitSalt, unsubscribeSecret, pushProvider };
+  return { appEnv, databaseEnv, databaseUrl, clerkSecretKey, clerkPublishableKey, adminUserIds, cronSecret, rateLimitSalt, unsubscribeSecret, pushProvider, ...email };
 }
 
 export type ClientEnv = {

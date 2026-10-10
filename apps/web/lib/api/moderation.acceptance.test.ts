@@ -5,7 +5,7 @@ import { CURRENT_POLICY_VERSION, MAX_REPORTS_PER_ADDRESS_PER_DAY } from "@signal
 import { createFakeMemberRepo } from "../../db/member.fake";
 import { createFakeModerationRepo, emptyWorld } from "../../db/moderation.fake";
 import { createAdminDirectory } from "../auth/admin";
-import type { EmailMessage } from "../messaging/email";
+import { EmailSendError, type EmailMessage } from "../messaging/email";
 import { createMemberService } from "../services/member";
 import { createModerationService } from "../services/moderation";
 import { createApiRoute } from "./handler";
@@ -276,6 +276,16 @@ describe("S8 admin and moderation acceptance criteria (API boundary)", () => {
     s.email.send.mockRejectedValueOnce(new Error("provider down"));
     expect((await s.as(admin).hide(id2, { reason: "x" })).status).toBe(200);
     expect(s.world.events.get(id2)?.moderationState).toBe("hidden");
+  });
+
+  it("S14 AC9 every typed email failure (rejected, not allowed, account, throttled, unavailable) leaves the action done", async () => {
+    for (const kind of ["rejected", "not_allowed", "account", "throttled", "unavailable"] as const) {
+      const s = setup();
+      const id = s.addEvent();
+      s.email.send.mockRejectedValueOnce(new EmailSendError(kind, "provider problem"));
+      expect((await s.as(admin).hide(id, { reason: "x" })).status, kind).toBe(200);
+      expect(s.world.events.get(id)?.moderationState, kind).toBe("hidden");
+    }
   });
 
   it("AC8 the audit log is filtered by actor, subject and date; the export is limited to admins and is itself audited", async () => {

@@ -425,3 +425,14 @@ export const billingSubscription = pgTable(
   },
   (t) => [unique("billing_subscription_account_unique").on(t.accountType, t.accountId)],
 );
+
+// S14 email sending (docs/features/s14-email-sending.md). Addresses that bounced or complained, so they are
+// never emailed again. Only a keyed hash of the address is stored, never the address itself, so the table
+// holds nothing that identifies a person on its own. It outlives account deletion on purpose: forgetting a
+// bounce would let the app keep mailing a dead or hostile address, which risks the sending account.
+export const emailSuppression = pgTable("email_suppression", {
+  addressKey: text("address_key").primaryKey(),
+  reason: text("reason").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+

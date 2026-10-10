@@ -25,7 +25,10 @@ import { createNotifier, type Notifier } from "./services/notifier";
 import { createExpoPush, createLoggingPush } from "./notifications/push";
 import { createOrganizationsService, type OrganizationsService } from "./services/organizations";
 import { clerkEmailLookup } from "./auth/clerk-email-lookup";
-import { createLoggingEmail } from "./messaging/email";
+import { createLoggingEmail, type EmailPort } from "./messaging/email";
+import { createAllowlistedEmail, createSuppressingEmail } from "./messaging/guards";
+import { createSesEmail } from "./messaging/ses";
+import { createEmailSuppressionRepo, type EmailSuppressionRepo } from "../db/email-suppression";
 import { createSavedService, type SavedService } from "./services/saved";
 import { createProofItemService, type ProofItemService } from "./services/proof-items";
 
@@ -103,7 +106,7 @@ export function getModerationService(): ModerationService {
   return (moderation ??= createModerationService({
     repo: createModerationRepo(getDb()),
     admins: createAdminDirectory(getServerEnv().adminUserIds),
-    email: createLoggingEmail(),
+    email: getEmailPort(),
     emails: clerkEmailLookup,
     addressSalt: getServerEnv().rateLimitSalt ?? processSalt,
     onEventHidden: (eventId) => notifyEvent("changed", eventId),
@@ -156,3 +159,31 @@ export function getBillingService(): BillingService {
     provider: unconfiguredPaymentProvider,
   }));
 }
+
+let emailSuppression: EmailSuppressionRepo | undefined;
+
+export function getEmailSuppressionRepo(): EmailSuppressionRepo {
+  return (emailSuppression ??= createEmailSuppressionRepo(getDb()));
+}
+
+/** Keys the list of addresses that bounced. It must be stable across restarts, which is why SES requires RATE_LIMIT_SALT. */
+export function getEmailSuppressionSalt(): string {
+  return getServerEnv().rateLimitSalt ?? processSalt;
+}
+
+let emailPort: EmailPort | undefined;
+
+/**
+ * The email sender (S14). By default nothing is sent. With EMAIL_PROVIDER=ses, messages go through Amazon SES,
+ * wrapped so that outside production only allowlisted recipients can be emailed, and an address that bounced
+ * or complained is never emailed again. Another provider replaces `createSesEmail` here and nowhere else.
+ */
+export function getEmailPort(): EmailPort {
+  if (emailPort) return emailPort;
+  const env = getServerEnv();
+  if (env.emailProvider !== "ses" || !env.sesRegion || !env.emailFrom) return (emailPort = createLoggingEmail());
+  let port: EmailPort = createSesEmail({ region: env.sesRegion, from: env.emailFrom });
+  if (env.appEnv !== "prod") port = createAllowlistedEmail(port, env.emailAllowlist);
+  return (emailPort = createSuppressingEmail(port, getEmailSuppressionRepo(), getEmailSuppressionSalt()));
+}
+

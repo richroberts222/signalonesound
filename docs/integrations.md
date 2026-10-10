@@ -12,13 +12,13 @@ One set of rules for every external service the platform calls or is called by: 
 | Neon | PostgreSQL hosting | In use |
 | Vercel | Web and API hosting | In use |
 | GitHub | Source control, CI | In use |
-| Email delivery | Account and notification email | UNDECIDED; not built |
+| Email delivery | Account and notification email | Code built and tested (S14, `/docs/features/s14-email-sending.md`): a swappable `EmailPort` with an Amazon SES adapter (about $0.10 per 1,000 emails), a non-production recipient allowlist and a bounce suppression list. **No provider account is connected**; choosing and connecting one is a go-live requirement (`/docs/release.md` section 9). Another provider plugs in by replacing the one adapter file |
 | Push notifications | Mobile notifications (Expo push or the platform services) | UNDECIDED; not built |
 | File and image storage | Uploads such as flyers | UNDECIDED; not built |
 | Maps and geocoding | Event map and distance search | UNDECIDED; not built |
 | Analytics | Product usage | UNDECIDED; not built |
 | Error tracking and uptime | Production visibility | UNDECIDED; not built (F-OPS-001) |
-| Payments | See `/docs/payments.md` | UNDECIDED; not built |
+| Payments | See `/docs/payments.md` | Stripe chosen (test mode only); plans, switches and entitlement built with a fake provider (S10); checkout not built |
 
 Choosing a vendor, and any spending, needs the owner's approval first. Compare cost, free-tier limits, data location, commercial-use terms and exit options, and record the choice here.
 
