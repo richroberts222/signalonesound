@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Signal One Sound">
+  <defs>
+    <linearGradient id="g" gradientUnits="userSpaceOnUse" x1="30" y1="116" x2="98" y2="12">
+      <stop offset="0" stop-color="#ff3b1d"/>
+      <stop offset="0.3" stop-color="#ff6d1f"/>
+      <stop offset="0.55" stop-color="#ffb02e"/>
+      <stop offset="0.78" stop-color="#ffe29a"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+  </defs>
+  <path fill="none" stroke="url(#g)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"
+    d="M 96 38 C 92 24 78 18 64 18 C 46 18 34 27 34 40 C 34 53 46 58 66 64 C 86 70 96 76 96 90 C 96 103 84 112 64 112 C 48 112 36 105 32 92"/>
+</svg>

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Show, SignInButton, SignUpButton } from "@clerk/nextjs";
 import { ArrowRight, Bell, Bookmark, Flame, Search } from "lucide-react";
@@ -18,6 +19,14 @@ export default function Home() {
     <main className="flex flex-1 flex-col">
       <section className="bg-hero-glow border-b">
         <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-6 px-4 pt-16 pb-20 sm:px-6 sm:pt-24 sm:pb-28">
+          <Image
+            src="/brand/signal-one-sound-logo.png"
+            alt="Signal One Sound: Holy, United, Awakened"
+            width={1004}
+            height={586}
+            priority
+            className="h-auto w-64 sm:w-80"
+          />
           <p className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
             <Flame aria-hidden className="size-4" /> Revival discovery
           </p>

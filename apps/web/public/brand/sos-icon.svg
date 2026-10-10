@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 0 408 140" width="408" height="140" role="img" aria-label="SOS">
+  <defs>
+    <!-- One gradient across all three letters: fiery red on the first S, fire to gold across the O, gold to white across the last S -->
+    <linearGradient id="sos" gradientUnits="userSpaceOnUse" x1="8" y1="0" x2="384" y2="0">
+      <stop offset="0" stop-color="#ff3b1d"/>
+      <stop offset="0.22" stop-color="#ff4f1f"/>
+      <stop offset="0.34" stop-color="#ff6d1f"/>
+      <stop offset="0.5" stop-color="#ffa828"/>
+      <stop offset="0.62" stop-color="#f5c04a"/>
+      <stop offset="0.74" stop-color="#f7cf6c"/>
+      <stop offset="0.88" stop-color="#fff0c4"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke="url(#sos)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+    <!-- S -->
+    <path d="M 86 40 C 78 24 62 18 48 18 C 28 18 14 30 14 44 C 14 58 26 64 50 70 C 74 76 88 82 88 98 C 88 112 74 124 50 124 C 32 124 18 116 12 100"/>
+    <!-- O -->
+    <circle cx="196" cy="70" r="50"/>
+    <!-- S -->
+    <path d="M 380 40 C 372 24 356 18 342 18 C 322 18 308 30 308 44 C 308 58 320 64 344 70 C 368 76 382 82 382 98 C 382 112 368 124 344 124 C 326 124 312 116 306 100"/>
+  </g>
+</svg>
