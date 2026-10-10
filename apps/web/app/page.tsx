@@ -48,7 +48,7 @@ export default function Home() {
               </SignUpButton>
             </Show>
             <Show when="signed-in">
-              <Button variant="outline" size="lg" className="h-11 px-5 text-base" render={<Link href="/dashboard" />}>
+              <Button variant="outline" size="lg" className="h-11 px-5 text-base" nativeButton={false} render={<Link href="/dashboard" />}>
                 Go to dashboard
               </Button>
             </Show>
