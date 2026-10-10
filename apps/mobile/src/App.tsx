@@ -23,7 +23,7 @@ export default function App({ children }: { children: ReactNode }) {
   return (
     <AppAuthProvider publishableKey={env.clerkPublishableKey}>
       {children}
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
     </AppAuthProvider>
   );
 }

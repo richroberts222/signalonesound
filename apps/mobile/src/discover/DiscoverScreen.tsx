@@ -9,6 +9,7 @@ import { useTheme } from "../theme";
 import { ActionButton, Chip } from "../ui";
 import { EventCard } from "./EventCard";
 import { buildSearchRequest, type DateRange, type Origin } from "./query";
+import { statusFor } from "./status";
 
 const RANGES: { value: DateRange; label: string }[] = [
   { value: "any", label: "Any time" },
@@ -91,6 +92,7 @@ export function DiscoverScreen() {
     }
   }
 
+  const status = statusFor(state, items.length);
   const header = (
     <View style={styles.header}>
       <Text accessibilityRole="header" style={[styles.heading, { color: theme.foreground }]}>
@@ -114,6 +116,30 @@ export function DiscoverScreen() {
         <ActionButton label="Use my location" tone="plain" onPress={() => void locateMe()} testID="discover-locate-button" />
       </View>
       {originLabel && <Text style={{ color: theme.muted }}>Searching near: {originLabel}</Text>}
+      {status.kind === "loading" && (
+        <View style={styles.statusRow} testID="discover-status-loading">
+          <ActivityIndicator accessibilityLabel="Loading events" />
+          <Text style={{ color: theme.muted }}>{status.text}</Text>
+        </View>
+      )}
+      {status.kind === "error" && (
+        <View style={[styles.errorBox, { borderColor: theme.destructive }]} testID="discover-status-error">
+          <Text accessibilityRole="alert" accessibilityLiveRegion="assertive" style={{ color: theme.destructive }}>
+            {status.text}
+          </Text>
+          <ActionButton label={status.retryLabel} onPress={() => void search()} testID="discover-retry" />
+        </View>
+      )}
+      {status.kind === "empty" && (
+        <Text accessibilityLiveRegion="polite" style={{ color: theme.foreground }} testID="discover-status-empty">
+          {status.text}
+        </Text>
+      )}
+      {status.kind === "count" && (
+        <Text accessibilityLiveRegion="polite" style={{ color: theme.muted }} testID="discover-status-count">
+          {status.text}
+        </Text>
+      )}
       {notice && (
         <Text accessibilityRole="alert" style={{ color: theme.destructive }}>
           {notice}
@@ -143,16 +169,6 @@ export function DiscoverScreen() {
           />
         ))}
       </View>
-      {state === "loading" && <ActivityIndicator accessibilityLabel="Loading events" />}
-      {state === "error" && (
-        <View style={{ gap: 8 }}>
-          <Text accessibilityRole="alert" style={{ color: theme.destructive }}>
-            We could not load events. Check your connection and try again.
-          </Text>
-          <ActionButton label="Try again" onPress={() => void search()} testID="discover-retry" />
-        </View>
-      )}
-      {state === "ready" && items.length === 0 && <Text style={{ color: theme.foreground }}>No events match yet. Try a wider distance or another date range.</Text>}
     </View>
   );
 
@@ -183,4 +199,6 @@ const styles = StyleSheet.create({
   input: { minHeight: 44, borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, fontSize: 16 },
   row: { flexDirection: "row", gap: 10, flexWrap: "wrap" },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  statusRow: { flexDirection: "row", alignItems: "center", gap: 10 },
+  errorBox: { gap: 8, borderWidth: 1, borderRadius: 10, padding: 12 },
 });
