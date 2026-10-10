@@ -57,6 +57,45 @@ New tables are added to the schema and to this table in the same pull request.
 | audit_log.subject | T3 | What it was done to (organization and member ids, a person-to-church link) | Kept (append-only) | Anonymized on account deletion: the person's id in the subject is replaced |
 | audit_log.detail | T1 | The stated reason or the fields changed (plain text) | Kept (append-only) | Kept |
 | audit_log.at | T1 | When it happened | Kept (append-only) | Kept |
+| billing_rule.account_type | T1 | Which kind of account the rule is for (member or organization) | Kept | Not personal |
+| billing_rule.payment_required | T1 | Whether this kind of account must pay (admin setting, off by default) | Kept | Not personal |
+| billing_rule.trial_days | T1 | Length of the free trial | Kept | Not personal |
+| billing_rule.default_plan_id | T1 | The plan offered by default | Kept | Not personal |
+| billing_rule.updated_at | T1 | When an admin last changed the rule | Kept | Not personal |
+| billing_plan.id | T1 | Row identity | Kept | Not personal |
+| billing_plan.account_type | T1 | Who the plan is for | Kept | Not personal |
+| billing_plan.name | T1 | Plan name shown to admins and, later, buyers | Kept | Not personal |
+| billing_plan.active | T1 | Whether the plan can be bought (off until an admin turns it on) | Kept | Not personal |
+| billing_plan.created_at | T1 | When the plan was made | Kept | Not personal |
+| billing_price.id | T1 | Row identity (a price version) | Kept (subscribers reference the version they bought) | Not personal |
+| billing_price.plan_id | T1 | The plan the price belongs to | Kept (subscribers reference the version they bought) | Not personal |
+| billing_price.interval | T1 | Billing period (month or year) | Kept (subscribers reference the version they bought) | Not personal |
+| billing_price.amount_minor | T1 | Price in whole cents | Kept (subscribers reference the version they bought) | Not personal |
+| billing_price.currency | T1 | Currency of the price | Kept (subscribers reference the version they bought) | Not personal |
+| billing_price.created_at | T1 | When this price version took effect | Kept (subscribers reference the version they bought) | Not personal |
+| billing_coupon.id | T1 | Row identity | Kept | Not personal |
+| billing_coupon.code | T1 | The promotional code typed at checkout | Kept | Not personal |
+| billing_coupon.percent_off | T1 | Percentage discount (or empty) | Kept | Not personal |
+| billing_coupon.amount_off_minor | T1 | Fixed discount in whole cents (or empty) | Kept | Not personal |
+| billing_coupon.currency | T1 | Currency of a fixed discount | Kept | Not personal |
+| billing_coupon.expires_at | T1 | When the coupon stops working | Kept | Not personal |
+| billing_coupon.max_redemptions | T1 | How many accounts may use it | Kept | Not personal |
+| billing_coupon.active | T1 | Whether the coupon works | Kept | Not personal |
+| billing_coupon.created_at | T1 | When it was made | Kept | Not personal |
+| billing_coupon_use.id | T1 | Row identity | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| billing_coupon_use.coupon_id | T1 | Which coupon was used | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| billing_coupon_use.account_type | T1 | Kind of account that used it | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| billing_coupon_use.account_id | T2 | Which account used the coupon (a member's user id or an organization id) | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| billing_coupon_use.created_at | T1 | When it was used | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| billing_subscription.id | T1 | Row identity | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| billing_subscription.account_type | T1 | Kind of account | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| billing_subscription.account_id | T2 | Which account holds the subscription (a member's user id or an organization id) | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| billing_subscription.plan_id | T1 | The plan bought | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| billing_subscription.price_id | T1 | The price version bought | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| billing_subscription.status | T1 | Trialing, active, past due or cancelled | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| billing_subscription.trial_ends_at | T1 | When the free trial ends | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| billing_subscription.provider_ref | T2 | The payment provider's own reference (never card data) | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| billing_subscription.created_at | T1 | When the trial or purchase started | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
 | event_series.id | T0 | Row identity of a recurring series | Until removed by an admin or the organization | Removed with the organization's events |
 | event_series.org_id | T0 | Which organization the series belongs to | Until removed by an admin or the organization | Removed with the organization's events |
 | event_series.rule | T0 | How the series repeats (weekly, monthly by weekday, or a date list) | Until removed by an admin or the organization | Removed with the organization's events |

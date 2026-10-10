@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createBillingRepo } from "../db/billing";
 import { createEventsRepo } from "../db/events";
 import { createMemberRepo } from "../db/member";
 import { createModerationRepo } from "../db/moderation";
@@ -17,6 +18,8 @@ import { searchPlaces } from "./places/gazetteer";
 import { gazetteerGeocoder } from "./places/geocoder";
 import { createMemberService, type MemberService } from "./services/member";
 import { createAlertsService, type AlertsService } from "./services/alerts";
+import { createBillingService, type BillingService } from "./services/billing";
+import { unconfiguredPaymentProvider } from "./payments/unconfigured";
 import { createModerationService, type ModerationService } from "./services/moderation";
 import { createNotifier, type Notifier } from "./services/notifier";
 import { createExpoPush, createLoggingPush } from "./notifications/push";
@@ -140,4 +143,16 @@ export async function notifyEvent(kind: "published" | "changed", eventId: string
   } catch (error) {
     console.error(JSON.stringify({ event: "notifier.enqueue_failed", kind, errorName: error instanceof Error ? error.name : typeof error }));
   }
+}
+
+let billing: BillingService | undefined;
+
+// Plans, payment switches and entitlement (S10). No payment provider is configured yet (S11 adds Stripe), so
+// the provider refuses to take a payment; admins are decided from the same ADMIN_USER_IDS list as elsewhere.
+export function getBillingService(): BillingService {
+  return (billing ??= createBillingService({
+    repo: createBillingRepo(getDb()),
+    admins: createAdminDirectory(getServerEnv().adminUserIds),
+    provider: unconfiguredPaymentProvider,
+  }));
 }

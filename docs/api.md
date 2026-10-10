@@ -210,6 +210,21 @@ Every admin write needs a non-empty reason and is written to the audit log in th
 
 **Policy** (`apps/web/lib/notifications/policy.ts`, proven by time-travel tests): nothing is sent between 9 pm and 8 am on the member's clock; a new-event alert goes in one daily digest at 9 am unless the member chose immediate alerts, and then only one immediate alert is sent a day; at most 3 new-event alerts per church per member per week; reminders and changes to a saved event are not capped but wait out quiet hours; changes to an event are coalesced to one message an hour. A message holds only a title and a place. Queuing is idempotent; a provider failure retries with backoff (2, 4, 8, 16 minutes) and then drops with a note; a push address the service rejects is deleted; a monthly ceiling (9,000) stops sending and raises a problem before the free tier is exceeded.
 
+## Billing: plans, payment switches and entitlement (S10, reference application)
+
+| Endpoint | Auth | Purpose |
+| --- | --- | --- |
+| `GET /api/v1/admin/billing/rules`, `PUT /api/v1/admin/billing/rules/:accountType` | admin | Who pays, per account type (`member`, `organization`): `paymentRequired` (off by default), `trialDays` (0 to 365) and `defaultPlanId` |
+| `GET /api/v1/admin/billing/plans`, `POST /api/v1/admin/billing/plans` | admin | List plans; create one (starts inactive). A price is `amountMinor` (whole cents, at most 1,000,000) plus `currency` (`usd`), never a decimal |
+| `PATCH /api/v1/admin/billing/plans/:id` | admin | Rename, turn on or off, or change the price; a price change adds a new price version and subscribers keep the one they bought |
+| `GET /api/v1/admin/billing/coupons`, `POST /api/v1/admin/billing/coupons` | admin | List coupons; create one (`percentOff` or `amountOffMinor` with `currency`, optional `expiresAt` and `maxRedemptions`; one use per account; a duplicate code is `409`) |
+| `PATCH /api/v1/admin/billing/coupons/:id` | admin | Turn on or off, change the expiry or the limit |
+| `GET /api/v1/admin/billing/audit?limit=` | admin | Every billing change, newest first (who, when, from and to). Entries are append-only; the application offers no edit or delete |
+| `GET /api/v1/me/entitlements` | member | The server's derived answer for the caller: `entitled`, `reason`, `status`, `trialEndsAt`. It takes no input, so a client cannot claim entitlement |
+| `POST /api/v1/me/coupons/quote` | member | The price a coupon gives for an active member plan, in whole cents (rounded half up, never below zero). Read-only: records nothing. Refusals have distinct messages (inactive, expired, already used, limit reached) |
+
+Every admin route answers `404` to anyone who is not an admin, checked on each call, and every admin change is written to the audit log together with the change. While payment is not required for an account type, everyone of that type is entitled and the payment provider is never asked. There is no route that takes a payment or subscribes anyone in S10 (the real checkout is S11), and no payment provider SDK is imported outside `lib/payments` (`lib/payments/boundary.test.ts`).
+
 ## Unexpected-error reporting
 
 `apiRoute` passes `reportUnexpectedError` (`lib/api/report.ts`) as the adapter's `onUnexpected` hook. It writes one structured stderr line with the error class and, for `DatabaseError`, the operation and kind only (never message, cause, stack, request data, or identity). This is a stopgap sink, not a logging system; replace the sink when one is chosen. The adapter also reports failures that escape the normal path (for example response serialization).

@@ -19,6 +19,7 @@ export function AdminSubnav() {
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
+                data-testid={`admin-${item.label.toLowerCase()}-link`}
                 className={cn(
                   "block rounded-lg border px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors",
                   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",

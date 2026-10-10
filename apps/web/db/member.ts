@@ -1,8 +1,8 @@
-import { asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 
 import type { Database } from "./client";
 import { withDbErrors } from "./errors";
-import { alertRule, auditLog, idempotencyRecord, inviteToken, notificationQueue, orgMute, organizationMember, policyAcceptance, proofItem, pushToken, savedEvent, userProfile } from "./schema";
+import { alertRule, auditLog, billingCouponUse, billingSubscription, idempotencyRecord, inviteToken, notificationQueue, organizationMember, orgMute, policyAcceptance, proofItem, pushToken, savedEvent, userProfile } from "./schema";
 
 // Data access for the member's own data (S1, docs/features/s1-identity-and-policy.md). Server-only
 // by convention (like all of db/). It owns the Drizzle queries and DatabaseError wrapping and
@@ -118,6 +118,10 @@ export function createMemberRepo(db: Database) {
           db.delete(notificationQueue).where(eq(notificationQueue.userId, userId)),
           db.delete(orgMute).where(eq(orgMute.userId, userId)),
           db.delete(proofItem).where(eq(proofItem.ownerId, userId)),
+          // S10 AC13: the person's subscription and coupon uses go with the account. Admin changes in
+          // the audit log stay, with the admin unlinked by the audit statement above.
+          db.delete(billingSubscription).where(and(eq(billingSubscription.accountType, "member"), eq(billingSubscription.accountId, userId))),
+          db.delete(billingCouponUse).where(and(eq(billingCouponUse.accountType, "member"), eq(billingCouponUse.accountId, userId))),
           db
             .update(policyAcceptance)
             .set({ userId: sql`'deleted:' || gen_random_uuid()::text` })
