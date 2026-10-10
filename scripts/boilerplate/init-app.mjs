@@ -8,7 +8,7 @@
 //        --bundle-id=com.harbornotes.app [--scope=harbor-notes] [--dir=<path>] [--dry-run]
 //
 // Run it once, in a fresh clone/copy. It refuses to run twice. See /docs/boilerplate.md.
-import { existsSync, readFileSync, rmSync, writeFileSync, copyFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync, writeFileSync, copyFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -107,9 +107,14 @@ export function stripProofSlice({ root, step }) {
     ["composition.ts", "apps/web/lib/composition.ts"],
     ["schema.ts", "apps/web/db/schema.ts"],
     ["App.tsx", "apps/mobile/src/App.tsx"],
+    ["mobile-layout.tsx", "apps/mobile/app/_layout.tsx"],
+    ["mobile-index.tsx", "apps/mobile/app/index.tsx"],
     ["app-shell.tsx", "apps/web/components/shell/app-shell.tsx"],
   ]) {
-    step(`reset ${dest} to the domain-free starting point`, () => copyFileSync(path.join(templates, tpl), abs(dest)));
+    step(`reset ${dest} to the domain-free starting point`, () => {
+      mkdirSync(path.dirname(abs(dest)), { recursive: true });
+      copyFileSync(path.join(templates, tpl), abs(dest));
+    });
   }
 
   const edit = (file, fn) => step(`edit ${file}`, () => writeFileSync(abs(file), fn(readFileSync(abs(file), "utf8"))));

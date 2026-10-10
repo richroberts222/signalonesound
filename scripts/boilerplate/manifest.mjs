@@ -139,6 +139,13 @@ export const PROOF_PATHS = [
   "apps/web/lib/services/notifier.test.ts",
   "packages/validation/src/alerts.ts",
   "packages/validation/src/alerts-client.ts",
+  // S5 mobile discover (docs/features/s5-discover-mobile.md): the reference app's screens. A generated app keeps app/_layout.tsx and
+  // app/index.tsx, which are overwritten from scripts/boilerplate/templates.
+  "apps/mobile/app/(tabs)",
+  "apps/mobile/app/event",
+  "apps/mobile/src/account",
+  "apps/mobile/src/api.ts",
+  "apps/mobile/src/discover",
   "apps/web/lib/brand-name.test.ts",
   "apps/web/app/accept-terms",
   "apps/web/app/account/settings",

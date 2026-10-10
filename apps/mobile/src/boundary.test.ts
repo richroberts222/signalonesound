@@ -14,7 +14,8 @@ function sourceFiles(dir: string): string[] {
   });
 }
 
-const files = [...sourceFiles(join(root, "src")), join(root, "index.ts"), join(root, "app.config.ts")];
+// The screens in app/ (expo-router) are scanned as well as src/: they are the code most likely to import something forbidden.
+const files = [...sourceFiles(join(root, "src")), ...sourceFiles(join(root, "app")), join(root, "app.config.ts")];
 
 // Packages and paths that must never be imported by the mobile bundle.
 const FORBIDDEN = [
