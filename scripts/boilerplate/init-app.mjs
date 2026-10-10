@@ -122,7 +122,7 @@ export function stripProofSlice({ root, step }) {
   // The demo-data command belongs to the reference app (its sample churches and events); drop its script line.
   edit("apps/web/package.json", (t) => t.split("\n").filter((l) => !l.includes('"db:seed:demo"')).join("\n"));
   edit("packages/validation/src/index.ts", (t) =>
-    t.split("\n").filter((l) => !/proof-item|proof-only|\.\/profile|\.\/organization|\.\/event|\.\/discover|\.\/saved|\.\/moderation|\.\/alerts/.test(l)).join("\n"));
+    t.split("\n").filter((l) => !/proof-item|proof-only|\.\/profile|\.\/organization|\.\/event|\.\/discover|\.\/saved|\.\/moderation|\.\/alerts|\.\/billing/.test(l)).join("\n"));
 }
 
 export function initApp({ root, name, slug, scope = slug, bundleId, dryRun = false, log = console.log }) {

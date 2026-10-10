@@ -41,15 +41,19 @@ The real Stripe adapter, checkout pages, webhooks (S11); Stripe-side coupons and
 
 | Control | Test id | Action | Effect |
 | --- | --- | --- | --- |
-| Billing tab in the admin console | `admin-billing-link` | Open | Billing page shown to admins only |
-| Payment required checkbox (member, organization) | `billing-required-member`, `billing-required-organization` | Toggle | Rule saved; audit entry |
-| Trial days input | `billing-trial-days-member`, `billing-trial-days-organization` | Enter | Validated 0 to 365; saved |
-| Default plan select | `billing-default-plan-member`, `billing-default-plan-organization` | Choose | Saved |
-| New plan, edit plan, activate or deactivate plan | `plan-new`, `plan-edit-N`, `plan-active-N` | Act | List updates; new price version on a price change |
-| Plan name, interval, amount, currency fields | `plan-name`, `plan-interval`, `plan-amount`, `plan-currency` | Enter | Validation |
-| New coupon, edit coupon, activate or deactivate coupon | `coupon-new`, `coupon-edit-N`, `coupon-active-N` | Act | List updates |
-| Coupon fields (code, percent or amount, expiry, limit) | `coupon-code`, `coupon-percent`, `coupon-amount`, `coupon-expires`, `coupon-limit` | Enter | Validation |
-| Audit log list | `billing-audit-list` | View | Newest first |
+| Billing tab in the admin sections | `admin-billing-link` | Open | Billing page; its API answers "not found" to non-admins |
+| Payment required checkbox | `billing-required-member`, `billing-required-organization` | Toggle | Draft changes; saved with the save button; audit entry |
+| Trial days input | `billing-trial-days-member`, `billing-trial-days-organization` | Enter | Validated 0 to 365 |
+| Default plan select | `billing-default-plan-member`, `billing-default-plan-organization` | Choose | Draft changes |
+| Save settings | `billing-save-member`, `billing-save-organization` | Act | Rule saved; list refreshes |
+| Plan active checkbox | `plan-active-N` | Toggle | Plan turned on or off at once |
+| New price input and Change price | `plan-price-N`, `plan-edit-N` | Enter, act | A new price version; subscribers keep theirs |
+| New plan fields (name, who it is for, billed, price, currency) | `plan-name`, `plan-account-type`, `plan-interval`, `plan-amount`, `plan-currency` | Enter | Validation; price typed in dollars, sent as whole cents |
+| Create plan | `plan-new` | Act | Plan created inactive |
+| Coupon active checkbox | `coupon-active-N` | Toggle | Coupon turned on or off at once |
+| New coupon fields (code, type, value, expiry, limit) | `coupon-code`, `coupon-kind`, `coupon-percent` or `coupon-amount`, `coupon-expires`, `coupon-limit` | Enter | Validation |
+| Create coupon | `coupon-new` | Act | Coupon created |
+| Change history list | `billing-audit-list` | View | Newest first |
 
 ## Owner decisions still open
 

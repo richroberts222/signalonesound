@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, doublePrecision, index, integer, pgTable, primaryKey, text, timestamp, unique, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { boolean, check, doublePrecision, index, integer, pgTable, primaryKey, text, timestamp, unique, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 // Domain-free. Signal One schema design has not been established yet.
 // `migration_proof` exists only to prove the migration workflow (Issue 43); it
@@ -328,4 +328,100 @@ export const orgMute = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.orgId] })],
+);
+
+// S10 payments: plans, switches and entitlement (docs/features/s10-payments-plans-and-switches.md).
+// Money is whole minor units (cents) plus a currency, never a decimal. No card data is ever stored here
+// (docs/payments.md): the payment provider holds it, and this schema keeps only references and the
+// derived state. Settings are changed only by admins and every change is written to `audit_log`.
+
+// Who pays: one row per account type (member, organization). Payment is off by default.
+export const billingRule = pgTable(
+  "billing_rule",
+  {
+    accountType: text("account_type").primaryKey(),
+    paymentRequired: boolean("payment_required").notNull().default(false),
+    trialDays: integer("trial_days").notNull().default(0),
+    defaultPlanId: uuid("default_plan_id"),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [check("billing_rule_trial_days_range", sql`${t.trialDays} between 0 and 365`)],
+);
+
+// A plan an account can buy. Inactive until an admin activates it. The price lives in `billing_price`
+// so a price change adds a new version and existing subscribers keep theirs.
+export const billingPlan = pgTable(
+  "billing_plan",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    accountType: text("account_type").notNull(),
+    name: text("name").notNull(),
+    active: boolean("active").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("billing_plan_type_idx").on(t.accountType)],
+);
+
+export const billingPrice = pgTable(
+  "billing_price",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    planId: uuid("plan_id").notNull(),
+    interval: text("interval").notNull(),
+    amountMinor: integer("amount_minor").notNull(),
+    currency: text("currency").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("billing_price_plan_idx").on(t.planId, t.createdAt), check("billing_price_amount_range", sql`${t.amountMinor} between 0 and 1000000`)],
+);
+
+// A promotional code: either a percentage or a fixed amount off, never both.
+export const billingCoupon = pgTable(
+  "billing_coupon",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    code: text("code").notNull().unique(),
+    percentOff: integer("percent_off"),
+    amountOffMinor: integer("amount_off_minor"),
+    currency: text("currency"),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    maxRedemptions: integer("max_redemptions"),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    check("billing_coupon_one_kind", sql`(${t.percentOff} is null) <> (${t.amountOffMinor} is null)`),
+    check("billing_coupon_percent_range", sql`${t.percentOff} is null or ${t.percentOff} between 1 and 100`),
+  ],
+);
+
+// One use of a coupon by one account. The unique key stops the same account using a coupon twice.
+export const billingCouponUse = pgTable(
+  "billing_coupon_use",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    couponId: uuid("coupon_id").notNull(),
+    accountType: text("account_type").notNull(),
+    accountId: text("account_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique("billing_coupon_use_unique").on(t.couponId, t.accountType, t.accountId)],
+);
+
+// An account's subscription state (a trial or a purchase). One row per account and type, so a trial
+// can start at most once. `provider_ref` is the payment provider's own id, never card data.
+export const billingSubscription = pgTable(
+  "billing_subscription",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    accountType: text("account_type").notNull(),
+    accountId: text("account_id").notNull(),
+    planId: uuid("plan_id"),
+    priceId: uuid("price_id"),
+    status: text("status").notNull(),
+    trialEndsAt: timestamp("trial_ends_at", { withTimezone: true }),
+    providerRef: text("provider_ref"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique("billing_subscription_account_unique").on(t.accountType, t.accountId)],
 );

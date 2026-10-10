@@ -142,6 +142,22 @@ export const PROOF_PATHS = [
   "apps/web/lib/services/notifier.test.ts",
   "packages/validation/src/alerts.ts",
   "packages/validation/src/alerts-client.ts",
+  // S10 payments: plans, switches and entitlement (docs/features/s10-payments-plans-and-switches.md): product code of the reference app.
+  "apps/web/app/admin/billing",
+  "apps/web/app/api/v1/admin/billing",
+  "apps/web/app/api/v1/me/coupons",
+  "apps/web/app/api/v1/me/entitlements",
+  "apps/web/components/admin/billing-console.tsx",
+  "apps/web/db/billing.ts",
+  "apps/web/db/billing.fake.ts",
+  "apps/web/db/billing.integration.test.ts",
+  "apps/web/lib/api/billing.ts",
+  "apps/web/lib/api/billing.acceptance.test.ts",
+  "apps/web/lib/billing",
+  "apps/web/lib/payments",
+  "apps/web/lib/services/billing.ts",
+  "packages/validation/src/billing.ts",
+  "packages/validation/src/billing-client.ts",
   // S5 mobile discover (docs/features/s5-discover-mobile.md): the reference app's screens. A generated app keeps app/_layout.tsx and
   // app/index.tsx, which are overwritten from scripts/boilerplate/templates.
   "apps/mobile/app/(tabs)",

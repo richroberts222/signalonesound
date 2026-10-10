@@ -22,6 +22,9 @@ export * from "./moderation-client";
 // S7 alerts and push (docs/features/s7-alerts-and-push.md)
 export * from "./alerts";
 export * from "./alerts-client";
+// S10 payments: plans, switches and entitlement (docs/features/s10-payments-plans-and-switches.md)
+export * from "./billing";
+export * from "./billing-client";
 // proof-only (removed by the boilerplate init; see /docs/boilerplate.md)
 export * from "./proof-item";
 export * from "./proof-item-client";

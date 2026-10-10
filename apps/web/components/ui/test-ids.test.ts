@@ -22,7 +22,6 @@ const BASELINE: string[] = [
   "app/dashboard/page.tsx",
   "app/discover/[eventId]/page.tsx",
   "app/page.tsx",
-  "components/admin/admin-subnav.tsx",
   "components/admin/confirm-mock-action.tsx",
   "components/admin/event-browser.tsx",
   "components/admin/import-wizard.tsx",
