@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { AppAuthProvider } from "./auth/AppAuthProvider";
+import { TokenBridge } from "./auth/TokenBridge";
 import { getMobileEnv } from "./config/env";
 
 // The app's providers (docs/mobile.md): it checks the configuration and starts Clerk, then shows the
@@ -22,6 +23,7 @@ export default function App({ children }: { children: ReactNode }) {
   }
   return (
     <AppAuthProvider publishableKey={env.clerkPublishableKey}>
+      <TokenBridge />
       {children}
       <StatusBar style="light" />
     </AppAuthProvider>

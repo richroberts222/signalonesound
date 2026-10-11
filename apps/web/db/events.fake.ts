@@ -210,6 +210,25 @@ export function createFakeEventsRepo(
       audit.push({ ...input.audit, at: now() });
       return row.version;
     },
+
+    // The same rules as the real query. The fake only knows churches that have an event, which is all a test needs.
+    async listSitemap(at, limit) {
+      const live = [...events.values()].filter((e) => {
+        const org = orgInfo(e.orgId);
+        if (!org || org.status !== "approved") return false;
+        if (e.status !== "published" || e.moderationState !== "published") return false;
+        return (e.endsAt ?? new Date(e.startsAt.getTime() + DEFAULT_DURATION_MS)) >= at;
+      });
+      const churches = new Map<string, Date>();
+      for (const e of events.values()) {
+        const org = orgInfo(e.orgId);
+        if (org?.status === "approved" && !churches.has(e.orgId)) churches.set(e.orgId, e.createdAt);
+      }
+      return {
+        events: live.sort(byStart).slice(0, limit).map((e) => ({ id: e.id, updatedAt: e.updatedAt })),
+        churches: [...churches.entries()].slice(0, limit).map(([id, updatedAt]) => ({ id, updatedAt })),
+      };
+    },
   };
 }
 
