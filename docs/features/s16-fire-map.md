@@ -57,7 +57,7 @@ Importing events or locations from other organizations (Healing Rooms, houses of
 
 **In scope.**
 
-* Zoom and pan on both maps: pinch and two-finger drag on a phone, scroll wheel (or trackpad pinch) and drag on a computer, and **Zoom in**, **Zoom out** and **Reset** buttons for people who cannot pinch or drag. The keyboard can use the buttons and the arrow keys when the map has focus.
+* Zoom and pan on both maps: pinch and two-finger drag on a phone, Ctrl or Command with the scroll wheel (or a trackpad pinch) and drag on a computer (the plain scroll wheel keeps scrolling the page), and **Zoom in**, **Zoom out** and **Reset** buttons for people who cannot pinch or drag. The keyboard can use the buttons and the arrow keys when the map has focus.
 * As the map zooms in, each fire's glow shrinks toward its true 10 mile size (it is never smaller than the true size); the thin true ring and the flame icon stay a readable size. At the most zoomed-out view nothing changes from today.
 * Zoom is limited to a sensible range (about 1 times to 12 times) and the map cannot be dragged off the page.
 * Flames stay links to their events while zoomed. City names on the United States map show more of the cities with fires as there is room.
@@ -78,9 +78,9 @@ Importing events or locations from other organizations (Healing Rooms, houses of
 
 | Control | Test id | Action | Effect |
 | --- | --- | --- | --- |
-| Zoom in | `fire-map-zoom-in` | Click | Zooms in one step |
-| Zoom out | `fire-map-zoom-out` | Click | Zooms out one step |
-| Reset | `fire-map-zoom-reset` | Click | Returns to the whole map |
+| Zoom in | `fire-map-zoom-in-world`, `fire-map-zoom-in-us` | Click | Zooms in one step |
+| Zoom out | `fire-map-zoom-out-world`, `fire-map-zoom-out-us` | Click | Zooms out one step |
+| Reset | `fire-map-zoom-reset-world`, `fire-map-zoom-reset-us` | Click | Returns to the whole map |
 | The map | `fire-map-world`, `fire-map-us` | Pinch, scroll, drag, arrow keys | Zooms and pans |
 
 ## Sample fires
