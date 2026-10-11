@@ -63,17 +63,18 @@ test.describe("Fire Map", () => {
     await page.getByTestId("fire-map-zoom-in-world").click();
     await page.getByTestId("fire-map-zoom-in-world").click();
     const before = await map.getAttribute("viewBox");
+    await map.scrollIntoViewIfNeeded();
     const box = await map.boundingBox();
     if (!box) throw new Error("map has no size");
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    // Drag right across most of the map, inside the browser window: the map moves left and stops at its edge.
+    const y = Math.min(box.y + box.height / 2, 600);
+    await page.mouse.move(box.x + 60, y);
     await page.mouse.down();
-    await page.mouse.move(box.x + box.width / 2 + 5000, box.y + box.height / 2 + 5000, { steps: 8 });
+    await page.mouse.move(box.x + box.width - 60, y, { steps: 10 });
     await page.mouse.up();
     const after = (await map.getAttribute("viewBox")) ?? "";
     expect(after).not.toBe(before);
-    const [x, y] = after.split(" ").map(Number);
-    expect(x).toBeGreaterThanOrEqual(0);
-    expect(y).toBeGreaterThanOrEqual(0);
+    expect(Number(after.split(" ")[0])).toBe(0);
   });
 
   test("AC17 a fire is still a link after zooming, and zooming does not change the numbers", async ({ page }) => {
