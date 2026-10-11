@@ -41,6 +41,49 @@ test.describe("Fire Map", () => {
     await expect(page.getByTestId("fire-map-list")).toBeVisible();
   });
 
+  test("AC14 AC16 the zoom buttons zoom in and out, stop at the limits, and Reset returns to the whole map", async ({ page }) => {
+    await page.goto("/fire-map?sample=1");
+    const map = page.getByTestId("fire-map-world");
+    const whole = await map.getAttribute("viewBox");
+    await expect(page.getByTestId("fire-map-zoom-out")).toBeDisabled();
+    await expect(page.getByTestId("fire-map-zoom-reset")).toBeDisabled();
+    await page.getByTestId("fire-map-zoom-in").click();
+    await expect(map).not.toHaveAttribute("viewBox", whole ?? "");
+    await page.getByTestId("fire-map-zoom-out").click();
+    await expect(map).toHaveAttribute("viewBox", whole ?? "");
+    for (let i = 0; i < 12; i++) if (await page.getByTestId("fire-map-zoom-in").isEnabled()) await page.getByTestId("fire-map-zoom-in").click();
+    await expect(page.getByTestId("fire-map-zoom-in")).toBeDisabled();
+    await page.getByTestId("fire-map-zoom-reset").click();
+    await expect(map).toHaveAttribute("viewBox", whole ?? "");
+  });
+
+  test("AC16 dragging a zoomed map moves it and cannot move it off the map", async ({ page }) => {
+    await page.goto("/fire-map?sample=1");
+    const map = page.getByTestId("fire-map-world");
+    await page.getByTestId("fire-map-zoom-in").click();
+    await page.getByTestId("fire-map-zoom-in").click();
+    const before = await map.getAttribute("viewBox");
+    const box = await map.boundingBox();
+    if (!box) throw new Error("map has no size");
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 + 5000, box.y + box.height / 2 + 5000, { steps: 8 });
+    await page.mouse.up();
+    const after = (await map.getAttribute("viewBox")) ?? "";
+    expect(after).not.toBe(before);
+    const [x, y] = after.split(" ").map(Number);
+    expect(x).toBeGreaterThanOrEqual(0);
+    expect(y).toBeGreaterThanOrEqual(0);
+  });
+
+  test("AC17 a fire is still a link after zooming, and zooming does not change the numbers", async ({ page }) => {
+    await page.goto("/fire-map?sample=1");
+    const count = await page.getByTestId("fire-map-count-world").innerText();
+    await page.getByTestId("fire-map-zoom-in").click();
+    await expect(page.getByTestId("fire-map-count-world")).toHaveText(count);
+    await expect(page.getByTestId("fire-0").first()).toHaveAttribute("href", /^\/events\/sample-1$/);
+  });
+
   test("AC12 the Fire Map link is in the footer and opens the page", async ({ page }) => {
     await page.goto("/about");
     await page.getByTestId("footer-fire-map").click();
