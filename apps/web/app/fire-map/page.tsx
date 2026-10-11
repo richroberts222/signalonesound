@@ -70,7 +70,7 @@ function RegionList({ title, view }: { title: string; view: FireView }) {
               <ul className="ml-4 list-disc text-sm text-muted-foreground">
                 {r.events.map((e) => (
                   <li key={e.id}>
-                    <Link href={`/events/${e.id}`} data-testid="fire-map-region-link" className="underline underline-offset-2 hover:text-foreground">
+                    <Link href={`/events/${e.id}`} data-testid="fire-map-region-link" className="inline-block py-1 underline underline-offset-2 hover:text-foreground">
                       {e.title}
                     </Link>
                   </li>

@@ -5,6 +5,7 @@ import { ActivityIndicator, Linking, ScrollView, Share, StyleSheet, Text, View }
 
 import { getDiscoverClient } from "../api";
 import { getMobileEnv } from "../config/env";
+import { SaveToggle } from "../saved/SaveToggle";
 import { useTheme } from "../theme";
 import { ActionButton } from "../ui";
 import { isEventId } from "./deep-link";
@@ -89,6 +90,7 @@ function EventDetails({ event }: { event: PublicEvent }) {
       {event.description !== "" && <Text style={{ color: theme.foreground }}>{event.description}</Text>}
       {event.directions && <Text style={{ color: theme.muted }}>Directions: {event.directions}</Text>}
       <View style={styles.actions}>
+        <SaveToggle eventId={event.id} />
         <ActionButton label="Share" onPress={share} testID="event-share" />
         <ActionButton
           label="Directions"

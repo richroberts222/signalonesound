@@ -91,7 +91,7 @@ Claude has a pull request ready that adds a country to events (the first half of
 
 ### Waiting, no action yet: the next Android build
 
-Do not build yet. The free Expo plan allows 15 builds a month, so the next build waits for a big batch of phone changes (owner, 2026-10-11). It will carry: the new app icon (your phone still shows the green Android robot until then) and the Signal One Sound name styling. Tell Claude when you want it; Claude will not start a build on its own.
+Do not build yet. The free Expo plan allows 15 builds a month, so the next build waits for a big batch of phone changes (owner, 2026-10-11). It will carry: the new app icon (your phone still shows the green Android robot until then), the Saved tab and the Save button on events (both already work through the dev server without a build), and anything else we add for the phone before then. Tell Claude when you want it; Claude will not start a build on its own.
 
 ---
 
@@ -112,6 +112,10 @@ Needed for the iPhone app. Costs money, so it is your decision (question Q-011).
 1. Decide between **Individual** and **Organization**.
     - Organization needs a D-U-N-S number, which is free but takes time to obtain.
 2. Tell Claude your choice. Claude then gives the sign-up steps.
+
+### Task 7c: Decide how to rate limit the public site before launch (about 10 minutes, not needed for the demo)
+
+A rate limit stops one visitor from hammering the site. Nothing limits the public pages today. The recommended way is Vercel's built-in Firewall (you set it in the Vercel dashboard, no code, and we never store visitors' addresses). Read the short brief in `docs/features/s9-launch-gate.md` ("Rate limits on public endpoints"), check that your Pro plan includes rate limit rules and what they cost, and tell Claude A (Vercel Firewall) or B (our own, in the database). If you choose A, Claude gives you the exact rules to enter and checks them afterwards.
 
 ### Task 7b: Choose a dependable map service before launch (about $25 per month)
 
