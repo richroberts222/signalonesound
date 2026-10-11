@@ -105,6 +105,10 @@ Needed for the iPhone app. Costs money, so it is your decision (question Q-011).
     - Organization needs a D-U-N-S number, which is free but takes time to obtain.
 2. Tell Claude your choice. Claude then gives the sign-up steps.
 
+### Task 7b: Choose a dependable map service before launch (about $25 per month)
+
+The event location picker (spec: `docs/features/s17-event-location.md`) starts on MapTiler's free plan, which is for personal and non-commercial use. Before real users arrive, decide on a paid plan (MapTiler's commercial plan was $25 a month when checked on 2026-10-11) or another service. Not needed for the partner demo. Tell Claude your choice; nothing is bought until you say yes.
+
 ### Task 6: Decide about the Google Play Store (about $25 once)
 
 Optional. A direct download link works for demos without it.
