@@ -11,7 +11,8 @@ import { createAdminDirectory } from "./auth/admin";
 import { getServerEnv } from "./env/server";
 import { createProofItemRepo } from "../db/proof-items";
 import { clerkIdentityAdmin } from "./auth/clerk-identity-admin";
-import { getDb } from "../db";
+import { checkDatabaseConnection, getDb } from "../db";
+import { createReadyService, type ReadyService } from "./services/ready";
 import { createDiscoverService, type DiscoverService } from "./services/discover";
 import { createFireMapService, type FireMapService } from "./services/fire-map";
 import { createEventsService, type EventsService } from "./services/events";
@@ -86,6 +87,12 @@ export function getDiscoverService(): DiscoverService {
     repo: { searchPublic: (query) => repo().searchPublic(query), getPublic: (id) => repo().getPublic(id) },
     places: searchPlaces,
   }));
+}
+
+let ready: ReadyService | undefined;
+
+export function getReadyService(): ReadyService {
+  return (ready ??= createReadyService({ ping: () => checkDatabaseConnection(getDb()) }));
 }
 
 let fireMap: FireMapService | undefined;

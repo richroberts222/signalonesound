@@ -84,6 +84,8 @@ Add a unit/integration test through `createApiRoute` with a fake `getUserId` and
 
 `GET /api/v1/status` is a generic public endpoint (`{ status, version }`). `lib/api/api.test.ts` drives requests through the adapter with a generic test-only service (success, invalid/malformed/oversized input, 401, 403, 404, 409, unexpected 500, error serialization); `app/api/routes.test.ts` covers the real wiring and routing convention.
 
+`GET /api/v1/ready` is the readiness check for uptime monitoring (S9 AC6): public, never cached, `200` with `{ status: "ready" }` when the database answers a trivial query, and `503` with code `unavailable` and the fixed message "The service is not ready" when it fails or takes longer than 3 seconds. The cause is never returned (the endpoint is public); `/api/v1/status` only says the code is running. Point the external uptime monitor at `/api/v1/ready`. `lib/api/ready.acceptance.test.ts` covers it.
+
 <!-- boilerplate:proof:start -->
 ## Vertical-slice proof: generic "proof item" (Issue 49)
 
