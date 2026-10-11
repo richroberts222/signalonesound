@@ -45,6 +45,7 @@ Application code asks these helpers for the environment instead of comparing raw
 | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | server (secret) | Read by the AWS SDK, never by our code. Use a credential whose only permission is sending email (SES), set only in the environment that sends. Never commit or paste them |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | client-safe | |
 | `NEXT_PUBLIC_APP_ENV` | client-safe | Optional display hint; not authoritative |
+| `NEXT_PUBLIC_SITE_URL` | client-safe | Optional (reference app). The site's public address, used in `sitemap.xml` and `robots.txt` (`apps/web/lib/site.ts`). Defaults to `https://www.signalonesound.com`; a template app sets its own. Not a secret. `robots.txt` asks crawlers to stay away unless `VERCEL_ENV` is `production`, so test and Preview copies are never listed |
 | `VERCEL_ENV` | platform | Read for the Preview guard |
 
 Rules: server-only values are never prefixed `NEXT_PUBLIC_`/`EXPO_PUBLIC_`; database credentials never reach browser or mobile code.
