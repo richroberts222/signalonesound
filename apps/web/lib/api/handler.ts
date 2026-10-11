@@ -20,6 +20,7 @@ export const STATUS_BY_CODE: Record<ErrorCode, number> = {
   not_found: 404,
   conflict: 409,
   rate_limited: 429,
+  unavailable: 503,
   policy_reacceptance_required: 403,
   internal: 500,
 };

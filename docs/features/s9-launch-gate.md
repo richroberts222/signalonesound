@@ -29,7 +29,7 @@ New features, marketing campaigns, paid plans for users.
 * **AC3** `pnpm audit` shows no high or critical issue without a dated, owner-signed exception.
 * **AC4** Restore drill: a Neon branch restored to a point in time, verified by row counts, logged with date and duration in `/docs/database.md`.
 * **AC5** A forced failure (broken deployment) is rolled back in under 5 minutes by following the runbook, timed and logged.
-* **AC6** An uptime alert fires to the owner's phone within 5 minutes of `/ready` failing (tested by forcing it).
+* **AC6** An uptime alert fires to the owner's phone within 5 minutes of `/ready` failing (tested by forcing it). *The endpoint is built: `GET /api/v1/ready` (200 when the database answers, 503 when not or slower than 3 seconds; `docs/api.md`). Still to do, with the owner: choose the external uptime monitor (a vendor account, so the owner's decision), point it at that address, and force a failure to prove the alert.*
 * **AC7** An injected error appears in error tracking with personal data redacted.
 * **AC8** Every vendor has a ceiling or alert; the cost estimate is written and the owner has approved it.
 * **AC9** Production configuration uses no development keys, verified by a check that fails on a development key pattern.
