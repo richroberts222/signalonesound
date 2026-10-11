@@ -414,6 +414,21 @@ describe("S3 events acceptance criteria (API boundary)", () => {
     });
   });
 
+  it("S17 the US ZIP lookup is used for United States addresses only: an event elsewhere is never placed by it", async () => {
+    const geocode = vi.fn(async () => ({ lat: 38.9, lng: -77.0 })); // a US place
+    const s = setup({ geocode });
+    const us = await made(s);
+    expect(us.event.hasLocation).toBe(true); // a US address is still located from its ZIP area
+    expect(geocode).toHaveBeenCalledTimes(1);
+    const abroad = await made(s, { country: "DE", state: "", zip: "12345", region: "Berlin", city: "Berlin" }); // 12345 is also a US ZIP code
+    expect(abroad.event.hasLocation).toBe(false);
+    expect(geocode).toHaveBeenCalledTimes(1); // not asked again
+    const moved = await abroad.api.patch(abroad.event.id, { version: 1, city: "Hamburg", zip: "54321" });
+    expect(moved.status).toBe(200);
+    expect(moved.json.data.hasLocation).toBe(false);
+    expect(geocode).toHaveBeenCalledTimes(1);
+  });
+
   it("S17 an event with no country given is a United States event", async () => {
     const s = setup();
     const { event } = await made(s);

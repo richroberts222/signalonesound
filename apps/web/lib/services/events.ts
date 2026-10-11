@@ -190,7 +190,9 @@ export function createEventsService({ repo, isManager, admins, requireAccepted, 
       const where =
         input.location !== undefined
           ? input.location
-          : await geocoder.geocode({ street: input.street, city: input.city, state: input.state, zip: input.zip, country: input.country });
+          : input.country === "US"
+            ? await geocoder.geocode({ street: input.street, city: input.city, state: input.state, zip: input.zip, country: input.country })
+            : null; // the address lookup knows only US ZIP codes and cities: elsewhere it could place an event in the wrong country
       const seriesId = dates.length > 1 ? randomUUID() : null;
       const events: NewEvent[] = dates.map((date) => {
         const startParts = parseLocalDateTime(`${date}T${start.time}`)!;
@@ -293,7 +295,7 @@ export function createEventsService({ repo, isManager, admins, requireAccepted, 
       }
       // A pin from the picker wins (null removes it). Otherwise a changed address is looked up again, but a failed
       // lookup never removes a pin the organizer already placed.
-      const found = addressChanged && patch.location === undefined
+      const found = addressChanged && patch.location === undefined && country === "US"
         ? await geocoder.geocode({
             street: patch.street ?? current.street,
             city: patch.city ?? current.city,

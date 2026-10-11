@@ -61,6 +61,9 @@ export const DEFAULT_DURATION_MS = 3 * 60 * 60 * 1000;
 /** A fire on the Fire Map as stored: the place in parts, so the service can name it for the country (S17). */
 export type MapEventRow = { id: string; title: string; city: string; state: string; country: string; lat: number; lng: number };
 
+/** The pages the sitemap lists, with when each last changed (S9). */
+export type SitemapRows = { events: { id: string; updatedAt: Date }[]; churches: { id: string; updatedAt: Date }[] };
+
 /** One public search result: the event, its organization's name and the distance when a position was given. */
 export type PublicRow = EventFull & { orgName: string; distance: number | null };
 export type SearchCursor = { distance: number | null; startsAt: Date; id: string };
@@ -398,6 +401,36 @@ export function createEventsRepo(db: Database) {
         ] as unknown as Batch);
         const updated = results[0] as { version: number }[];
         return updated.length > 0 ? updated[0].version : null;
+      }),
+
+    /**
+     * What the sitemap lists (S9): the public event pages (published, not held, of an approved organization, and not over:
+     * the end, or the start plus the default duration) and the approved churches' pages, each with when it last changed.
+     * At most `limit` of each, soonest event first. A hidden, draft, cancelled-and-hidden or past event is never listed.
+     */
+    listSitemap: (now: Date, limit: number): Promise<SitemapRows> =>
+      withDbErrors("event.listSitemap", async () => {
+        const events = await db
+          .select({ id: event.id, updatedAt: event.updatedAt })
+          .from(event)
+          .innerJoin(organization, eq(organization.id, event.orgId))
+          .where(
+            and(
+              eq(event.status, "published"),
+              eq(event.moderationState, "published"),
+              eq(organization.status, "approved"),
+              sql`coalesce(${event.endsAt}, ${event.startsAt} + (${DEFAULT_DURATION_MS / 1000} * interval '1 second')) >= ${now.toISOString()}::timestamptz`,
+            ),
+          )
+          .orderBy(asc(event.startsAt), asc(event.id))
+          .limit(limit);
+        const churches = await db
+          .select({ id: organization.id, updatedAt: organization.createdAt })
+          .from(organization)
+          .where(eq(organization.status, "approved"))
+          .orderBy(asc(organization.createdAt), asc(organization.id))
+          .limit(limit);
+        return { events, churches };
       }),
   };
 }

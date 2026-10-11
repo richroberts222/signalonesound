@@ -48,6 +48,7 @@
     "zod": "^4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@clerk/testing": "^2.2.40",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
