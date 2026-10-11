@@ -24,7 +24,7 @@ New features, marketing campaigns, paid plans for users.
 
 ## Acceptance criteria
 
-* **AC1** Axe reports zero serious or critical violations on every page and state; the manual keyboard and screen-reader passes are logged.
+* **AC1** Axe reports zero serious or critical violations on every page and state; the manual keyboard and screen-reader passes are logged. *Automated part built (`e2e/accessibility.spec.ts`): every public page on a desktop and a phone screen, plus the signed-in pages; it found and fixed the Fire Map link size. Pages that need a church to manage (the manage pages and the event form with its map picker) are scanned once the browser tests have an organizer account. The keyboard-only and screen-reader passes remain manual, with the owner.*
 * **AC2** The hostile-payload suite and security header tests pass against the staging deployment.
 * **AC3** `pnpm audit` shows no high or critical issue without a dated, owner-signed exception.
 * **AC4** Restore drill: a Neon branch restored to a point in time, verified by row counts, logged with date and duration in `/docs/database.md`.
@@ -56,6 +56,13 @@ Accessibility suite in CI; staged security run; production configuration check; 
 ## Owner decisions and approvals
 
 Domain purchase; Clerk production instance; Apple and Google accounts; any paid plan (Neon, Vercel, map, email, error tracking, uptime); attorney review budget; the go or no-go decision itself.
+
+**Rate limits on public endpoints (decision brief, 2026-10-11).** Today no public endpoint is rate limited (`docs/api.md`, the reserved `rate_limited` code); per-member limits exist where a feature needs them (saved events, alerts, invites, reports). Two ways to limit the public ones:
+
+* **A. Vercel Firewall rate-limit rules (recommended).** Set by the owner in the Vercel dashboard for the Pro account, in front of the app: no code, and we never store a visitor's address (an IP address counts as personal data, which this approach avoids). Suggested starting rules: about 120 requests a minute per address for the whole site, and about 20 a minute for `/api/v1/contact`, `/api/v1/places/search`, `/api/v1/events` and `/api/v1/fire-map` taken together, with a short block when exceeded. Whether Pro includes enough rate-limit rules, and any extra cost, must be checked in the dashboard before enabling; the owner decides (rule 8).
+* **B. Our own limiter in the database.** Counts per hashed address in Neon with a purge job. More code and more personal data to protect (the hash is still tied to a visitor), and every public request pays a database round trip.
+
+Either way the proof for AC "rate limits on every public endpoint" is a test that hammers an endpoint past the limit and sees `429` (A is proved on the staging deployment, B in code).
 
 ## Done checklist
 

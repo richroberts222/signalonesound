@@ -15,6 +15,8 @@ import { checkDatabaseConnection, getDb } from "../db";
 import { createReadyService, type ReadyService } from "./services/ready";
 import { createDiscoverService, type DiscoverService } from "./services/discover";
 import { createFireMapService, type FireMapService } from "./services/fire-map";
+import { siteUrl } from "./site";
+import { createSitemapService, type SitemapService } from "./services/sitemap";
 import { createEventsService, type EventsService } from "./services/events";
 import { searchPlaces } from "./places/gazetteer";
 import { gazetteerGeocoder } from "./places/geocoder";
@@ -227,3 +229,9 @@ export function getContactService(): ContactService {
   }));
 }
 
+
+let sitemap: SitemapService | undefined;
+
+export function getSitemapService(): SitemapService {
+  return (sitemap ??= createSitemapService({ repo: createEventsRepo(getDb()), siteUrl }));
+}
