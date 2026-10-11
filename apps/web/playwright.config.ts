@@ -61,7 +61,10 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: e2eReady
     ? {
-        command: `next dev --port ${PORT}`,
+        // CI serves the production build (the workflow builds it first): a dev server compiles every page the first
+        // time it is opened, which used up the runner's memory and got the whole job killed partway (docs/lessons.md).
+        // A local run uses the dev server, so a change shows without a rebuild.
+        command: env.CI ? `next start --port ${PORT}` : `next dev --port ${PORT}`,
         url: `http://localhost:${PORT}/api/v1/status`,
         reuseExistingServer: !env.CI,
         timeout: 120_000,

@@ -146,10 +146,10 @@ All require an approved manager of the event's organization (or an admin); anyon
 
 | Endpoint | Purpose |
 | --- | --- |
-| `POST /api/v1/organizations/:id/events` | Create an event or a recurring series. Needs an `Idempotency-Key` header (8 to 128 letters, digits, `-`, `_`); a repeat within 24 hours returns the first result. Times are local wall-clock (`startLocal`, `endLocal`) plus `timeZone`; the response also has the exact moment (`startsAt`, UTC). `publish: false` saves a draft. An overlapping event at the same venue needs `duplicateOverrideReason` (`409` without it) |
+| `POST /api/v1/organizations/:id/events` | Create an event or a recurring series. Needs an `Idempotency-Key` header (8 to 128 letters, digits, `-`, `_`); a repeat within 24 hours returns the first result. Times are local wall-clock (`startLocal`, `endLocal`) plus `timeZone`; the response also has the exact moment (`startsAt`, UTC). `publish: false` saves a draft. An overlapping event at the same venue needs `duplicateOverrideReason` (`409` without it). **Location (S17):** `country` is a two-letter code from the shared list (default `US`); in the United States `state` (a US state) and `zip` are required as before, elsewhere they may be empty and `region` carries the state or province as free text. `location` is the pin, `{ "lat": -90..90, "lng": -180..180 }`; the server checks it (`400` for anything else) and an event without one saves and is flagged (`hasLocation: false`) |
 | `GET /api/v1/organizations/:id/events?filter=upcoming\|past\|drafts&cursor=&limit=` | The organization's events, keyset-paged (default 20, maximum 50). Deleted events are never listed |
 | `GET /api/v1/events/:id` | One event in any state, including deleted |
-| `PATCH /api/v1/events/:id` | Edit. `version` is required (`409` if stale); `scope` is `this` (the occurrence becomes an exception) or `series` (the later occurrences that follow the series). Past events cannot be edited |
+| `PATCH /api/v1/events/:id` | Edit. `version` is required (`409` if stale); `scope` is `this` (the occurrence becomes an exception) or `series` (the later occurrences that follow the series). Past events cannot be edited. A field the edit leaves out is left alone. `location` sets or moves the pin and `null` removes it; changing the address never removes a pin; changing `country` re-checks the state and ZIP |
 | `POST /api/v1/events/:id/publish` | Draft to published (not for a past event) |
 | `POST /api/v1/events/:id/cancel` | Published to cancelled (stays visible as cancelled until its date passes) |
 | `DELETE /api/v1/events/:id` | Soft delete; allowed for past events |
@@ -254,6 +254,17 @@ Every admin route answers `404` to anyone who is not an admin (`401` signed out)
 ## Not decided yet
 
 Mobile token verification has not been exercised end to end (no Clerk-authenticated live call in CI); rate limiting; CORS; request IDs and a real logging system; idempotency keys; pagination conventions beyond `Paginated<T>`; OpenAPI generation; path parameters in the adapter (the proof uses a query-string `id`).
+
+## Find a Church (S18, reference application)
+
+`docs/features/s18-find-a-church.md`. A church's public profile (address, pin, time zone) and its regular weekly services. All church text is public (tier T0) and plain. Contracts in `packages/validation/src/church.ts`; routes in `lib/api/churches.ts`; every one answers with the standard envelope.
+
+| Endpoint | Auth | Purpose |
+| --- | --- | --- |
+| `GET /api/v1/churches?q=&lat=&lng=&radius=&cursor=&limit=` | public | Search approved churches that have a profile. By `q` (words matched against the church name or city; a typed `%` or `_` is matched as itself), or by `lat` and `lng` (both or neither) within `radius` miles (1 to 500, default 25), nearest first with `distanceMiles`; churches without a pin appear only in a text search. Keyset-paged (`limit` 1 to 50, default 20, `nextCursor`). Each result has `nextServices` (up to 3, from now, in the church's own time zone) and `serviceCount` |
+| `GET /api/v1/churches/:id` | public | One approved church with its `profile` (street, city, state or region, zip, country, timeZone, pin; null until added) and its `services` (Sunday first, then by time). Anything not approved is `404` |
+| `PUT /api/v1/organizations/:id/profile` | approved manager or admin | Save the address, pin and time zone with the same address rules as an event (`country` default `US`; US needs `state` and `zip`; elsewhere `region` is free text). `street` may be blank (a house church). A `location` left out keeps the pin if the address is unchanged, otherwise a United States address is placed by its ZIP area; `null` removes it. Anyone else gets `404` |
+| `PUT /api/v1/organizations/:id/services` | approved manager or admin | Replace the whole list of weekly services in one atomic step (at most 20; each has `weekday` 0 to 6, `startTime` `HH:MM`, `label` 1 to 60 and an optional `note` up to 200; the same service twice is refused). Audited. Anyone else gets `404` |
 
 ## Fire Map (S16, reference application)
 

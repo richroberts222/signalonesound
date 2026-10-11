@@ -1,10 +1,10 @@
 # S17 Event location picker
 
-**Status: SPEC FOR THE OWNER'S APPROVAL (written 2026-10-11 from the owner's idea: organizers should place their gathering by searching or tapping a real map, never by typing latitude and longitude; MapTiler's free plan to start). Nothing here is built. Web first.**
+**Status: APPROVED to build (the owner, 2026-10-11: "keep developing"; the idea: organizers place their gathering by searching or tapping a real map, never by typing latitude and longitude; MapTiler's free plan to start). Built in steps: (1) data and server rules (pin, country, region, checks), then (2) the picker on the form. Web first.**
 
 ## Why this slice exists
 
-The Fire Map and the radius search place an event by its coordinates. Today the church portal saves events **without** coordinates ("Location not found yet") because the address lookup was always planned for later (`s3-events-church-portal.md`: the geocoder is a port with no adapter). So a real event entered today would never appear on the Fire Map. This slice closes that gap, and it must also work for small towns and villages anywhere in the world, where an address lookup fails or guesses wrong.
+The Fire Map and the radius search place an event by its coordinates. Today the church portal locates a **United States** address by the center of its ZIP area (or city), from Census data shipped with the app (`lib/places/geocoder.ts`). That is approximate (within a few miles of the true spot, not the street) and it knows only the United States: an event anywhere else, or one whose ZIP is not found, is saved without coordinates ("Location not found yet") and never appears on the Fire Map. This slice adds an **exact pin** the organizer places on a real map, and makes places anywhere in the world, including small towns and villages, work. (This paragraph corrects an earlier version that said no lookup existed; it does, for the United States only. The ZIP lookup is now used only for United States addresses, so a postal code abroad can never place an event in the wrong country.)
 
 **A fire never depends on our own map knowing the place.** The flame goes where the event's coordinates say, and its label is the name the organizer typed.
 
@@ -48,13 +48,19 @@ Filling the street address from the pin or the pin from the street address autom
 | Clear pin | `location-clear` | Click | Removes the pin (the event then carries the "no location" notice) |
 | Country | `event-country` | Choose | Sets the country and relaxes the state and ZIP outside the United States |
 | "No location" notice | `location-missing-notice` | View | States the consequence |
+| Pin status line | `location-status` | View | States the pin ("Pin set at 36.16270, -86.78160, near ...") or "No pin yet", and the last message |
+| "Map could not load" message | `location-map-problem` | View | Shown only when the map pictures fail to load |
+| Region (outside the United States) | `event-region-input` | Type | The state, province or region as free text |
+| Event list badge | (badge text) | View | "No map pin: not on the Fire Map yet" beside an event with no pin |
 
 ## Data and security
 
 * **Database Design Checkpoint required before building:** the event needs a `country` (a two-letter code, default US) and a looser state field for places outside the United States; latitude and longitude already exist. This is a migration, applied only through the documented process (`/docs/database.md`) and only with the owner's approval; production only through the manual Migrate production workflow.
 * The geocoder port in the events service gets a real adapter, or the form sends the pin directly; the server remains authoritative and re-validates every coordinate (AC4).
 * The browser key is public by nature, so it is restricted by website address at the vendor, never relied on as a secret, and never committed (`CLAUDE.md` section 18).
-* Library: MapLibre GL JS (open source) is the expected way to draw the MapTiler map; adding it is a dependency decision to be confirmed in the pull request description (`CLAUDE.md` section 14).
+* Library: **Leaflet** (open source, BSD-2, about 40 KB) draws the map: the picker needs flat map pictures and one draggable pin, not vector styling, so it was chosen over MapLibre GL for size and simplicity (recorded in `docs/stack.md`). It is loaded only on the organizer form.
+* Until the owner supplies a MapTiler key, the map pictures and place search default to OpenStreetMap's free servers (credit line shown, searched only when Search is pressed, never as you type). Settings: `docs/environment.md`.
+* The event's `state` column holds a US state, or outside the United States the free-text `region`; the API takes `country`, `state` (US states or empty), `region` and `zip` (see `docs/api.md`).
 
 ## Owner decisions and steps
 

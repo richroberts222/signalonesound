@@ -102,7 +102,7 @@ export function EventsList({ orgId, initialFilter }: { orgId: string; initialFil
                   <h2 className="font-semibold">{e.title}</h2>
                   <Badge data-testid={`event-status-${i}`}>{STATUS_LABELS[e.status] ?? e.status}</Badge>
                   {e.seriesId && <Badge variant="outline">Repeats</Badge>}
-                  {!e.hasLocation && <Badge variant="outline">Location not found yet</Badge>}
+                  {!e.hasLocation && <Badge variant="outline">No map pin: not on the Fire Map yet</Badge>}
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {when(e)} &middot; {e.venueName}, {e.city}, {e.state}

@@ -67,6 +67,38 @@ export const organization = pgTable("organization", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// S18 FIND A CHURCH (docs/features/s18-find-a-church.md): a church's public profile (where it is) and its regular weekly
+// service times. Public information (T0), kept in their own tables so the organization table is untouched. Outside the
+// United States `state` holds the free-text region and `zip` may be empty; `lat` and `lng` are the map pin.
+export const churchProfile = pgTable("church_profile", {
+  orgId: uuid("org_id").primaryKey(),
+  street: text("street").notNull().default(""),
+  city: text("city").notNull(),
+  state: text("state").notNull().default(""),
+  zip: text("zip").notNull().default(""),
+  country: text("country").notNull().default("US"),
+  lat: doublePrecision("lat"),
+  lng: doublePrecision("lng"),
+  timeZone: text("time_zone").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const churchService = pgTable(
+  "church_service",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id").notNull(),
+    /** 0 is Sunday to 6 is Saturday. */
+    weekday: integer("weekday").notNull(),
+    /** "HH:MM", 24 hour, in the church's time zone. */
+    startTime: text("start_time").notNull(),
+    label: text("label").notNull(),
+    note: text("note").notNull().default(""),
+    position: integer("position").notNull(),
+  },
+  (t) => [unique("church_service_position_unique").on(t.orgId, t.position), index("church_service_org_idx").on(t.orgId)],
+);
+
 export const organizationLink = pgTable(
   "organization_link",
   {
@@ -147,6 +179,8 @@ export const event = pgTable(
     city: text("city").notNull(),
     state: text("state").notNull(),
     zip: text("zip").notNull(),
+    // Two-letter country code (S17). Outside the United States the state and ZIP are empty text and the place is the city and country.
+    country: text("country").notNull().default("US"),
     lat: doublePrecision("lat"),
     lng: doublePrecision("lng"),
     speakers: text("speakers"),

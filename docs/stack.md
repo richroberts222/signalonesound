@@ -43,6 +43,7 @@ Web, Android, and iPhone are clients of one backend. Clients never import Drizzl
 | **Neon (PostgreSQL)** | Hosts the data, one branch/database per environment. Owns storage, not business rules. `/docs/database.md` | external |
 | **Drizzle ORM** | Typed schema and queries, plus SQL migration generation (`drizzle-kit generate`). Server-only. | `apps/web/db`, `drizzle/` |
 | **Zod** | Runtime validation of untrusted input at the boundary and of environment variables. Types are inferred from schemas. | `packages/validation`, `packages/shared` |
+| **Leaflet** | Open-source (BSD-2) map library for the event location picker on the signed-in organizer form (S17, `docs/features/s17-event-location.md`); loaded only on that form, never on public pages. Chosen over MapLibre GL for its size and simplicity: the picker needs flat map pictures and one draggable pin, not 3D or vector styling. The map pictures and place search come from a service chosen in settings (`docs/environment.md`). | `apps/web/components/events/location-picker.tsx` |
 | **Vitest** | Unit, integration, and acceptance test runner. | all workspaces |
 | **Playwright** | Browser end-to-end tests of the web app (native Playwright, not a wrapper). | `apps/web/e2e`, `playwright.config.ts` |
 | **Vercel** | Hosts the web app and API; Preview = QA, Production = PROD. `/docs/deployment.md` | external |

@@ -39,6 +39,9 @@ export default function Home() {
             <Button variant="outline" size="lg" className="h-11 px-5 text-base" nativeButton={false} render={<Link href="/events" data-testid="home-discover-button" />}>
               Browse all upcoming events
             </Button>
+            <Button variant="outline" size="lg" className="h-11 px-5 text-base" nativeButton={false} render={<Link href="/churches" data-testid="home-find-church" />}>
+              Find a Church
+            </Button>
             <Show when="signed-out">
               <SignInButton>
                 <Button variant="ghost" size="lg" className="h-11 px-4 text-base">

@@ -106,6 +106,20 @@
       "when": 1791669529910,
       "tag": "0014_stripe_checkout",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1791701600848,
+      "tag": "0015_event_country",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1791733190937,
+      "tag": "0016_church_profile_services",
+      "breakpoints": true
     }
   ]
 }
