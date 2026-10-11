@@ -8,7 +8,7 @@ The same discovery experience on iPhone and Android, using the same API and cont
 
 ## Scope (in)
 
-* Tabs: Discover (map and list), Saved (placeholder until S6), Alerts (placeholder until S7), Account.
+* Tabs: Discover (map and list), Saved (the member's saved list, S6: built; sign-in needed), Alerts (placeholder until S7), Account.
 * Discover: place search, "use my location" (permission asked on tap), radius, date, revival types, map and list, result cards, event details screen.
 * Share through the native share sheet; deep links and universal links open the event screen; add to calendar; open directions in the device map app.
 * Sign in with Clerk (from S0); Account tab shows profile, export, delete, policy links (from S1).

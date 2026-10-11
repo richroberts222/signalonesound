@@ -29,12 +29,15 @@ export function ActionButton({
   onPress,
   testID,
   disabled,
+  selected,
   tone = "primary",
 }: {
   label: string;
   onPress: () => void;
   testID?: string;
   disabled?: boolean;
+  /** For a toggle (such as Save): whether it is on, told to a screen reader as well as shown in the label. */
+  selected?: boolean;
   tone?: "primary" | "plain";
 }): ReactNode {
   const theme = useTheme();
@@ -45,7 +48,7 @@ export function ActionButton({
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
-      accessibilityState={{ disabled: !!disabled }}
+      accessibilityState={{ disabled: !!disabled, ...(selected === undefined ? {} : { selected }) }}
       testID={testID}
       style={({ pressed }) => [styles.button, { borderColor: theme.border, backgroundColor: primary ? theme.primary : theme.background, opacity: feedbackOpacity({ pressed, disabled }) }]}
     >

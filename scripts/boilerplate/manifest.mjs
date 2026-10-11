@@ -208,6 +208,8 @@ export const PROOF_PATHS = [
   "apps/mobile/src/account",
   "apps/mobile/src/api.ts",
   "apps/mobile/src/discover",
+  "apps/mobile/src/saved",
+  "apps/mobile/src/auth/TokenBridge.tsx",
   "apps/web/lib/brand-name.test.ts",
   "apps/web/app/accept-terms",
   "apps/web/app/account/settings",
