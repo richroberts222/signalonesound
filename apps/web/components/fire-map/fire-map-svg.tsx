@@ -22,6 +22,8 @@ export function FireMapSvg({ view, fires }: { view: View; fires: Fire[] }) {
   const regions = (view === "world" ? world : usStates) as Region[];
   const size = view === "world" ? WORLD_SIZE : US_SIZE;
   const outlines = outlinePath(view, regions);
+  // The world map draws the United States as one country; its state borders are added as faint lines (drawing only, the counts still use countries).
+  const usStateLines = view === "world" ? outlinePath("world", usStates as Region[]) : "";
   const placed = fires.map((f) => {
     const p = project(view, f.lat, f.lng);
     const real = GLOW_MILES * pixelsPerMile(view, f.lat);
@@ -80,6 +82,7 @@ export function FireMapSvg({ view, fires }: { view: View; fires: Fire[] }) {
         </filter>
       </defs>
       <path d={outlines} className="fill-card" stroke="#9aa0ab" strokeWidth={view === "world" ? 0.6 : 0.8} strokeLinejoin="round" />
+      {view === "world" && <path d={usStateLines} fill="none" stroke="#9aa0ab" strokeWidth={0.35} strokeLinejoin="round" />}
       <path d={outlines} fill="#f5c04a" fillOpacity={0.3} mask={`url(#${id("land-light")})`} />
       <g mask={`url(#${id("outline-light")})`}>
         <path d={outlines} fill="none" stroke="#f5c04a" strokeWidth={view === "world" ? 1.4 : 1.8} strokeLinejoin="round" />
