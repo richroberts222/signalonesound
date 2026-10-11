@@ -38,6 +38,8 @@ New features, marketing campaigns, paid plans for users.
 * **AC12** Store submissions are accepted for review; test accounts work.
 * **AC13** The incident runbook, secret rotation steps, and on-call expectations are documented and the owner has read them.
 * **AC14** Every scheduled job (S3 expiry, S6 and S7 retention purges, S7 matching and digest) runs in production on its schedule and its last run time is visible on the admin overview; a job that misses two runs raises an alert. [Fable]
+* **AC15** Event locations work end to end for real organizers: S17 (`s17-event-location.md`) is built and approved, and a gathering entered through the church portal, including one in a small town or a village outside the United States, appears on the Fire Map and in nearby searches at the pin the organizer placed. Without this a real event never reaches the map, so launch is blocked until it passes. (Owner, 2026-10-11)
+* **AC16** The map service used by the location picker is on a plan whose terms allow commercial use, approved by the owner (S17 owner decision 3; the free plan is for personal and non-commercial use), and the map key in production is restricted to our website addresses.
 
 ## Controls inventory
 
