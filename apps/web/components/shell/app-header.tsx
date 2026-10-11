@@ -70,15 +70,20 @@ export function AppHeader() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-2 px-4 sm:gap-6 sm:px-6">
+    <>
+      {/* The logo comes first, centered above the navigation on every page, larger on the home page. */}
+      <div className="flex justify-center px-4 pt-3 pb-2 sm:px-6">
         <Link
           href="/"
           aria-label="Signal One Sound home"
           className="rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
         >
-          <BrandWordmark />
+          <BrandWordmark size={pathname === "/" ? "large" : "compact"} />
         </Link>
+      </div>
+    <header className="sticky top-0 z-40 border-y bg-background/80 backdrop-blur">
+      <div className="mx-auto grid h-12 w-full max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 sm:px-6">
+        <div aria-hidden className="hidden sm:block" />
 
         <nav aria-label="Primary" className="hidden sm:block">
           <Show when="signed-out">
@@ -89,7 +94,7 @@ export function AppHeader() {
           </Show>
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="col-start-3 flex items-center justify-end gap-2">
           <Show when="signed-out">
             <SignInButton>
               <Button variant="ghost">Sign in</Button>
@@ -129,5 +134,6 @@ export function AppHeader() {
         </nav>
       )}
     </header>
+    </>
   );
 }
