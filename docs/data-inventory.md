@@ -135,6 +135,23 @@ New tables are added to the schema and to this table in the same pull request.
 | event.zip | T0 | Public ZIP code | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
 | event.lat | T0 | Latitude of the venue (never a person's location), for distance search | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
 | event.lng | T0 | Longitude of the venue, for distance search | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
+| church_profile.org_id | T0 | Which church this public profile belongs to | Until the church is removed | Removed with the organization |
+| church_profile.street | T0 | Public street address of the church (may be blank so a house church shows only its city) | Until the church is removed | Removed with the organization |
+| church_profile.city | T0 | Public city of the church, for search and display | Until the church is removed | Removed with the organization |
+| church_profile.state | T0 | Public US state code, or the free-text region outside the United States | Until the church is removed | Removed with the organization |
+| church_profile.zip | T0 | Public ZIP or postal code of the church (optional outside the United States) | Until the church is removed | Removed with the organization |
+| church_profile.country | T0 | Public two-letter country code of the church (default US) | Until the church is removed | Removed with the organization |
+| church_profile.lat | T0 | Latitude of the church (never a person's location), for distance search | Until the church is removed | Removed with the organization |
+| church_profile.lng | T0 | Longitude of the church, for distance search | Until the church is removed | Removed with the organization |
+| church_profile.time_zone | T0 | The church's own time zone, so service times read correctly | Until the church is removed | Removed with the organization |
+| church_profile.updated_at | T0 | When the profile last changed | Until the church is removed | Removed with the organization |
+| church_service.id | T0 | Identifier of one regular service time | Until the church is removed | Removed with the organization |
+| church_service.org_id | T0 | Which church holds this service | Until the church is removed | Removed with the organization |
+| church_service.weekday | T0 | Day of the week of a regular service (0 Sunday to 6 Saturday) | Until the church is removed | Removed with the organization |
+| church_service.start_time | T0 | Start time of a regular service (HH:MM, in the church's time zone) | Until the church is removed | Removed with the organization |
+| church_service.label | T0 | Public name of the service, for example "Sunday worship" | Until the church is removed | Removed with the organization |
+| church_service.note | T0 | Optional public note about the service | Until the church is removed | Removed with the organization |
+| church_service.position | T0 | Display order of the services | Until the church is removed | Removed with the organization |
 | event.speakers | T0 | Speakers named by the organizer (plain text); must not name minors or private individuals | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
 | event.directions | T0 | Directions note (plain text) | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |
 | event.version | T0 | Edit counter used to detect two people editing at once | Until the event is deleted by the organization; soft-deleted rows are kept for the audit trail | Hidden on delete; removed only by an admin or with the organization |

@@ -6,6 +6,7 @@ const LINKS = [
   { href: "/terms", label: "Terms", testId: "footer-terms" },
   { href: "/privacy", label: "Privacy", testId: "footer-privacy" },
   { href: "/fire-map", label: "Fire Map", testId: "footer-fire-map" },
+  { href: "/churches", label: "Find a Church", testId: "footer-churches" },
   { href: "/about", label: "About", testId: "footer-about" },
   { href: "/services", label: "Services", testId: "footer-services" },
   { href: "/faq", label: "FAQ", testId: "footer-faq" },

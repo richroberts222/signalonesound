@@ -18,6 +18,8 @@ import { createFireMapService, type FireMapService } from "./services/fire-map";
 import { siteUrl } from "./site";
 import { createSitemapService, type SitemapService } from "./services/sitemap";
 import { createEventsService, type EventsService } from "./services/events";
+import { createChurchesService, type ChurchesService } from "./services/churches";
+import { createChurchesRepo } from "../db/churches";
 import { searchPlaces } from "./places/gazetteer";
 import { gazetteerGeocoder } from "./places/geocoder";
 import { createMemberService, type MemberService } from "./services/member";
@@ -234,4 +236,18 @@ let sitemap: SitemapService | undefined;
 
 export function getSitemapService(): SitemapService {
   return (sitemap ??= createSitemapService({ repo: createEventsRepo(getDb()), siteUrl }));
+}
+
+let churches: ChurchesService | undefined;
+
+export function getChurchesService(): ChurchesService {
+  const organizationsRepo = createOrganizationsRepo(getDb());
+  return (churches ??= createChurchesService({
+    repo: createChurchesRepo(getDb()),
+    getPublicOrganization: (orgId) => getOrganizationsService().getPublic(orgId),
+    isManager: (orgId, userId) => organizationsRepo.isApprovedManager(orgId, userId),
+    admins: createAdminDirectory(getServerEnv().adminUserIds),
+    requireAccepted: (userId) => getMemberService().requireActiveMember(userId),
+    geocoder: gazetteerGeocoder,
+  }));
 }

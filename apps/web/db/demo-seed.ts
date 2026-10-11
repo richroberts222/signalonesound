@@ -129,10 +129,53 @@ export function demoStatements(): string[] {
   return out;
 }
 
+// Sample regular services for the sample churches (S18): four weekly patterns, handed out in turn. Fictional, like the rest.
+const SERVICE_PATTERNS: readonly (readonly { weekday: number; time: string; label: string; note: string }[])[] = [
+  [
+    { weekday: 0, time: "10:00", label: "Sunday worship", note: "" },
+    { weekday: 3, time: "19:00", label: "Midweek prayer", note: "Childcare provided" },
+  ],
+  [
+    { weekday: 0, time: "09:00", label: "Early worship", note: "" },
+    { weekday: 0, time: "11:00", label: "Sunday worship", note: "Also online" },
+    { weekday: 3, time: "18:30", label: "Bible study", note: "" },
+  ],
+  [
+    { weekday: 0, time: "10:30", label: "Sunday worship", note: "" },
+    { weekday: 5, time: "19:00", label: "Youth night", note: "Grades 7 to 12" },
+  ],
+  [
+    { weekday: 0, time: "08:30", label: "Sunday worship", note: "" },
+    { weekday: 0, time: "10:30", label: "Sunday worship", note: "Same message as 8:30" },
+    { weekday: 3, time: "19:00", label: "Prayer meeting", note: "" },
+    { weekday: 6, time: "09:00", label: "Men's breakfast", note: "First Saturday of the month" },
+  ],
+];
+
+export function demoChurchProfileStatements(): string[] {
+  const out: string[] = [];
+  DEMO_ORGS.forEach((o, i) => {
+    out.push(
+      `INSERT INTO church_profile (org_id, street, city, state, zip, country, lat, lng, time_zone) VALUES (${id("org", i)}, ${q(o.street)}, ${q(o.city)}, ${q(o.state)}, ${q(o.zip)}, 'US', ${o.lat}, ${o.lng}, ${q(o.zone)}) ON CONFLICT DO NOTHING`,
+    );
+    SERVICE_PATTERNS[i % SERVICE_PATTERNS.length].forEach((svc, position) => {
+      out.push(
+        `INSERT INTO church_service (org_id, weekday, start_time, label, note, position) VALUES (${id("org", i)}, ${svc.weekday}, ${q(svc.time)}, ${q(svc.label)}, ${q(svc.note)}, ${position}) ON CONFLICT DO NOTHING`,
+      );
+    });
+  });
+  return out;
+}
+
 export const DEMO_SEEDS: readonly Seed[] = [
   {
     id: "demo-churches-and-events-v3",
     description: "Thirteen sample churches (including three in the Boise area) and about forty upcoming sample events, for demonstrations.",
     statements: demoStatements(),
+  },
+  {
+    id: "demo-church-profiles-v1",
+    description: "Addresses and weekly service times for the sample churches, so Find a Church has something to show.",
+    statements: demoChurchProfileStatements(),
   },
 ];

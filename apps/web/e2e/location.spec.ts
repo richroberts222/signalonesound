@@ -13,7 +13,7 @@ const MAP_HOSTS = /(^|\.)(openstreetmap\.org|maptiler\.com|mapbox\.com|maps\.goo
 test.describe("Event location picker", () => {
   test.skip(!ready, SKIP_REASON);
 
-  for (const path of ["/", "/events", "/fire-map", "/fire-map?sample=1", "/about", "/faq", "/privacy"]) {
+  for (const path of ["/", "/events", "/churches", "/fire-map", "/fire-map?sample=1", "/about", "/faq", "/privacy"]) {
     test(`AC7 ${path} makes no request to a map service`, async ({ page }) => {
       const contacted: string[] = [];
       page.on("request", (request) => {

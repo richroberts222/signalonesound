@@ -15,7 +15,7 @@ const ready = process.env.E2E_READY === "1";
 const SKIP_REASON = "E2E environment not configured (see playwright.config.ts)";
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
-const PUBLIC_PAGES = ["/", "/events", "/discover", "/fire-map", "/fire-map?sample=1", "/about", "/services", "/faq", "/contact", "/privacy", "/terms", "/sign-in", "/sign-up"];
+const PUBLIC_PAGES = ["/", "/events", "/discover", "/fire-map", "/fire-map?sample=1", "/churches", "/churches?place=Boise%2C+ID", "/about", "/services", "/faq", "/contact", "/privacy", "/terms", "/sign-in", "/sign-up"];
 const SIGNED_IN_PAGES = ["/account", "/saved", "/alerts", "/dashboard", "/claim-church"];
 
 async function violations(page: Page, path: string): Promise<string[]> {
