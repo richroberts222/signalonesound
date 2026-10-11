@@ -39,6 +39,13 @@ jobs:
       - name: Install the browser
         run: pnpm --filter web exec playwright install --with-deps chromium
 
+      - name: Build the app
+        # The tests serve this production build (playwright.config.ts). Only the public Clerk key is needed to build
+        # (it is written into the pages); no secret is given to this step.
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.E2E_CLERK_PUBLISHABLE_KEY }}
+        run: pnpm --filter web exec next build
+
       - name: Run the browser tests
         # The secrets are given to this one step only, not to installs or third-party actions.
         env:
@@ -50,7 +57,13 @@ jobs:
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.E2E_CLERK_PUBLISHABLE_KEY }}
           E2E_CLERK_USER_EMAIL: tester+clerk_test@example.com
           CONTACT_FORM_ENABLED: "on"
-        run: pnpm --filter web exec playwright test
+        # A memory reading is printed every 20 seconds, so if the runner is ever killed partway (as happened before this
+        # setup), the log shows whether it ran out of memory. The reading is stopped when the tests end.
+        run: |
+          ( while true; do echo "[memory $(date +%T)] $(free -m | awk 'NR==2 {print "used " $3 " MB of " $2 " MB, free " $4 " MB"}')"; sleep 20; done ) &
+          watcher=$!
+          trap 'kill $watcher 2>/dev/null' EXIT
+          pnpm --filter web exec playwright test
 
       - name: Remove the test messages
         if: always()
