@@ -57,6 +57,13 @@ Accessibility suite in CI; staged security run; production configuration check; 
 
 Domain purchase; Clerk production instance; Apple and Google accounts; any paid plan (Neon, Vercel, map, email, error tracking, uptime); attorney review budget; the go or no-go decision itself.
 
+**Rate limits on public endpoints (decision brief, 2026-10-11).** Today no public endpoint is rate limited (`docs/api.md`, the reserved `rate_limited` code); per-member limits exist where a feature needs them (saved events, alerts, invites, reports). Two ways to limit the public ones:
+
+* **A. Vercel Firewall rate-limit rules (recommended).** Set by the owner in the Vercel dashboard for the Pro account, in front of the app: no code, and we never store a visitor's address (an IP address counts as personal data, which this approach avoids). Suggested starting rules: about 120 requests a minute per address for the whole site, and about 20 a minute for `/api/v1/contact`, `/api/v1/places/search`, `/api/v1/events` and `/api/v1/fire-map` taken together, with a short block when exceeded. Whether Pro includes enough rate-limit rules, and any extra cost, must be checked in the dashboard before enabling; the owner decides (rule 8).
+* **B. Our own limiter in the database.** Counts per hashed address in Neon with a purge job. More code and more personal data to protect (the hash is still tied to a visitor), and every public request pays a database round trip.
+
+Either way the proof for AC "rate limits on every public endpoint" is a test that hammers an endpoint past the limit and sees `429` (A is proved on the staging deployment, B in code).
+
 ## Done checklist
 
 Every AC ticked with linked evidence; owner go decision recorded; first-week checklist scheduled.
