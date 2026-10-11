@@ -1,16 +1,21 @@
+import Image from "next/image";
+
 import { cn } from "@/lib/utils";
 
 /**
- * Brand mark for Signal One Sound: the text name. The small SOS gradient icon is not shown here (the owner finds it
- * redundant beside the name); its file stays in public/brand to be placed somewhere else later.
- * The one place the product name is styled; the logo assets live in public/brand (docs/ui.md section 25).
+ * The Signal One Sound logo: the fire S, the people and cross, and the sound-wave S with the dove, lined up on the
+ * same top and bottom, with the name and "Holy, United, Awakened" beneath. The one place the brand mark is drawn;
+ * the asset lives in public/brand (docs/ui.md section 25). `large` is for the home page, `compact` for the rest.
  */
-export function BrandWordmark({ className }: { className?: string }) {
+export function BrandWordmark({ size = "compact", className }: { size?: "large" | "compact"; className?: string }) {
   return (
-    <span className={cn("font-heading inline-flex items-center text-base font-bold tracking-tight whitespace-nowrap", className)}>
-      <span>
-        Signal One <span className="text-gradient-gold">Sound</span>
-      </span>
-    </span>
+    <Image
+      src="/brand/signal-one-sound-logo.png"
+      alt=""
+      width={1004}
+      height={586}
+      priority
+      className={cn("h-auto", size === "large" ? "w-64 sm:w-80" : "w-36 sm:w-44", className)}
+    />
   );
 }

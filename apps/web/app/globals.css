@@ -122,7 +122,8 @@
 }
 
 @utility text-gradient-gold {
-  background-image: linear-gradient(100deg, var(--highlight), var(--primary) 45%, var(--ember));
+  /* Fire to gold to white, left to right: the red of the fire melting into gold, then into white (the logo's order). */
+  background-image: linear-gradient(100deg, var(--ember), var(--primary) 50%, oklch(0.97 0.04 95));
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;

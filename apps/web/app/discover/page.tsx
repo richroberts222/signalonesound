@@ -14,7 +14,7 @@ export default function DiscoverPage() {
       <section className="bg-hero-glow border-b text-hero-foreground">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-12 sm:px-6 sm:py-16">
           <h1 className="font-heading max-w-2xl text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl">
-            Find the fire <span className="text-gradient-gold">near you.</span>
+            Discover the fire <span className="text-gradient-gold">near you.</span>
           </h1>
           <p className="max-w-xl text-base text-hero-foreground/80 sm:text-lg">
             Revival gatherings, tent meetings, worship nights, and prayer: discover what God is
