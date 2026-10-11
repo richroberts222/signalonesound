@@ -8,6 +8,8 @@ export * from "./profile-client";
 export * from "./organization";
 export * from "./organization-client";
 // S3 events (docs/features/s3-events-church-portal.md)
+export * from "./church";
+export * from "./church-client";
 export * from "./countries";
 export * from "./event";
 export * from "./event-client";
