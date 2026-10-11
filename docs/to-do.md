@@ -109,6 +109,10 @@ Needed for the iPhone app. Costs money, so it is your decision (question Q-011).
     - Organization needs a D-U-N-S number, which is free but takes time to obtain.
 2. Tell Claude your choice. Claude then gives the sign-up steps.
 
+### Task 7c: Decide how to rate limit the public site before launch (about 10 minutes, not needed for the demo)
+
+A rate limit stops one visitor from hammering the site. Nothing limits the public pages today. The recommended way is Vercel's built-in Firewall (you set it in the Vercel dashboard, no code, and we never store visitors' addresses). Read the short brief in `docs/features/s9-launch-gate.md` ("Rate limits on public endpoints"), check that your Pro plan includes rate limit rules and what they cost, and tell Claude A (Vercel Firewall) or B (our own, in the database). If you choose A, Claude gives you the exact rules to enter and checks them afterwards.
+
 ### Task 7b: Choose a dependable map service before launch (about $25 per month)
 
 The event location picker (spec: `docs/features/s17-event-location.md`) starts on MapTiler's free plan, which is for personal and non-commercial use. Before real users arrive, decide on a paid plan (MapTiler's commercial plan was $25 a month when checked on 2026-10-11) or another service. Not needed for the partner demo. Tell Claude your choice; nothing is bought until you say yes.
