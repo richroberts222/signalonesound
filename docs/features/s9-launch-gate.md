@@ -24,7 +24,7 @@ New features, marketing campaigns, paid plans for users.
 
 ## Acceptance criteria
 
-* **AC1** Axe reports zero serious or critical violations on every page and state; the manual keyboard and screen-reader passes are logged.
+* **AC1** Axe reports zero serious or critical violations on every page and state; the manual keyboard and screen-reader passes are logged. *Automated part built (`e2e/accessibility.spec.ts`): every public page on a desktop and a phone screen, plus the signed-in pages; it found and fixed the Fire Map link size. Pages that need a church to manage (the manage pages and the event form with its map picker) are scanned once the browser tests have an organizer account. The keyboard-only and screen-reader passes remain manual, with the owner.*
 * **AC2** The hostile-payload suite and security header tests pass against the staging deployment.
 * **AC3** `pnpm audit` shows no high or critical issue without a dated, owner-signed exception.
 * **AC4** Restore drill: a Neon branch restored to a point in time, verified by row counts, logged with date and duration in `/docs/database.md`.
