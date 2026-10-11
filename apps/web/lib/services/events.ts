@@ -1,5 +1,7 @@
 import {
+  addressProblems,
   MAX_START_AHEAD_DAYS,
+  storedState,
   type CreateEventInput,
   type CreatedEvent,
   type EventList,
@@ -35,9 +37,12 @@ import type { AdminDirectory } from "./organizations";
 //   * every change is written to the audit log in the same atomic step.
 // Framework-free; the repo, the manager check, the geocoder and the clock are injected.
 
-/** Turns an address into coordinates. The real adapter arrives with search (S4); until then none is set. */
+/**
+ * Turns an address into coordinates. There is no real adapter: organizers place a pin with the location picker
+ * (S17), which sends the coordinates directly. The port stays for an address lookup later.
+ */
 export type Geocoder = {
-  geocode(address: { street: string; city: string; state: string; zip: string }): Promise<{ lat: number; lng: number } | null>;
+  geocode(address: { street: string; city: string; state: string; zip: string; country: string }): Promise<{ lat: number; lng: number } | null>;
 };
 export const noGeocoder: Geocoder = { geocode: async () => null };
 
@@ -88,7 +93,9 @@ function toView(e: EventFull): EventView {
     city: e.city,
     state: e.state,
     zip: e.zip,
+    country: e.country,
     hasLocation: e.lat !== null && e.lng !== null,
+    location: e.lat !== null && e.lng !== null ? { lat: e.lat, lng: e.lng } : null,
     revivalTypes: e.revivalTypes,
     speakers: e.speakers,
     directions: e.directions,
@@ -179,7 +186,13 @@ export function createEventsService({ repo, isManager, admins, requireAccepted, 
         throw conflict("A similar event already exists at this venue and time. Add a reason to create it anyway.");
       }
 
-      const where = await geocoder.geocode({ street: input.street, city: input.city, state: input.state, zip: input.zip });
+      // A pin from the location picker wins; no pin at all (null) stays without one; otherwise try the address lookup.
+      const where =
+        input.location !== undefined
+          ? input.location
+          : input.country === "US"
+            ? await geocoder.geocode({ street: input.street, city: input.city, state: input.state, zip: input.zip, country: input.country })
+            : null; // the address lookup knows only US ZIP codes and cities: elsewhere it could place an event in the wrong country
       const seriesId = dates.length > 1 ? randomUUID() : null;
       const events: NewEvent[] = dates.map((date) => {
         const startParts = parseLocalDateTime(`${date}T${start.time}`)!;
@@ -197,8 +210,9 @@ export function createEventsService({ repo, isManager, admins, requireAccepted, 
           venueName: input.venueName,
           street: input.street,
           city: input.city,
-          state: input.state,
+          state: storedState(input.country, input.state, input.region),
           zip: input.zip,
+          country: input.country,
           lat: where?.lat ?? null,
           lng: where?.lng ?? null,
           speakers: input.speakers ?? null,
@@ -265,15 +279,32 @@ export function createEventsService({ repo, isManager, admins, requireAccepted, 
       const endLocal = patch.endLocal ?? (current.endsAt ? utcToLocalString(current.endsAt, current.timeZone) : undefined);
       const { startsAt, endsAt } = moments(startLocal, endLocal, timeZone, { allowPast: false });
 
-      const addressChanged = ["street", "city", "state", "zip"].some((k) => patch[k as "street"] !== undefined && patch[k as "street"] !== current[k as "street"]);
-      const where = addressChanged
+      const country = patch.country ?? current.country;
+      const countryChanged = country !== current.country;
+      // The state column holds a US state, or a free-text region elsewhere; changing the country clears what does not carry over.
+      const stateTouched = patch.state !== undefined || patch.region !== undefined || countryChanged;
+      const nextState =
+        country === "US"
+          ? (patch.state ?? (current.country === "US" ? current.state : ""))
+          : (patch.region ?? (current.country !== "US" && !countryChanged ? current.state : ""));
+      const addressChanged =
+        countryChanged || ["street", "city", "zip"].some((k) => patch[k as "street"] !== undefined && patch[k as "street"] !== current[k as "street"]) || (stateTouched && nextState !== current.state);
+      if (addressChanged) {
+        const problems = addressProblems({ country, state: nextState, zip: patch.zip ?? current.zip });
+        if (problems) throw validationFailed("Check the address", problems);
+      }
+      // A pin from the picker wins (null removes it). Otherwise a changed address is looked up again, but a failed
+      // lookup never removes a pin the organizer already placed.
+      const found = addressChanged && patch.location === undefined && country === "US"
         ? await geocoder.geocode({
             street: patch.street ?? current.street,
             city: patch.city ?? current.city,
-            state: patch.state ?? current.state,
+            state: nextState,
             zip: patch.zip ?? current.zip,
+            country,
           })
         : undefined;
+      const where = patch.location !== undefined ? patch.location : found ?? undefined;
 
       const venueName = patch.venueName ?? current.venueName;
       const timeChanged = patch.startLocal !== undefined || patch.endLocal !== undefined || patch.timeZone !== undefined;
@@ -291,8 +322,9 @@ export function createEventsService({ repo, isManager, admins, requireAccepted, 
         ...(patch.venueName !== undefined ? { venueName: patch.venueName } : {}),
         ...(patch.street !== undefined ? { street: patch.street } : {}),
         ...(patch.city !== undefined ? { city: patch.city } : {}),
-        ...(patch.state !== undefined ? { state: patch.state } : {}),
+        ...(stateTouched ? { state: nextState } : {}),
         ...(patch.zip !== undefined ? { zip: patch.zip } : {}),
+        ...(patch.country !== undefined ? { country: patch.country } : {}),
         ...(patch.speakers !== undefined ? { speakers: patch.speakers } : {}),
         ...(patch.directions !== undefined ? { directions: patch.directions } : {}),
         ...(where !== undefined ? { lat: where?.lat ?? null, lng: where?.lng ?? null } : {}),

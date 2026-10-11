@@ -30,6 +30,7 @@ export type NewEvent = {
   city: string;
   state: string;
   zip: string;
+  country?: string;
   lat: number | null;
   lng: number | null;
   speakers: string | null;
@@ -44,7 +45,7 @@ export type EventUpdate = {
   fields: Partial<
     Pick<
       EventRow,
-      "title" | "description" | "startsAt" | "endsAt" | "timeZone" | "venueName" | "street" | "city" | "state" | "zip" | "lat" | "lng" | "speakers" | "directions" | "isException"
+      "title" | "description" | "startsAt" | "endsAt" | "timeZone" | "venueName" | "street" | "city" | "state" | "zip" | "country" | "lat" | "lng" | "speakers" | "directions" | "isException"
     >
   >;
   types?: string[];
@@ -56,6 +57,9 @@ export type Cursor = { startsAt: Date; id: string };
 
 /** An event without an end is assumed to last this long when looking for overlaps. */
 export const DEFAULT_DURATION_MS = 3 * 60 * 60 * 1000;
+
+/** A fire on the Fire Map as stored: the place in parts, so the service can name it for the country (S17). */
+export type MapEventRow = { id: string; title: string; city: string; state: string; country: string; lat: number; lng: number };
 
 /** The pages the sitemap lists, with when each last changed (S9). */
 export type SitemapRows = { events: { id: string; updatedAt: Date }[]; churches: { id: string; updatedAt: Date }[] };
@@ -112,6 +116,7 @@ export function createEventsRepo(db: Database) {
       city: e.city,
       state: e.state,
       zip: e.zip,
+      country: e.country ?? "US",
       lat: e.lat,
       lng: e.lng,
       speakers: e.speakers,
@@ -330,10 +335,10 @@ export function createEventsRepo(db: Database) {
      * The fires on the public Fire Map (S16): published, not cancelled, held by a published listing of an approved
      * organization, with a place, and not yet over (the end, or the start plus the default duration when there is no end).
      */
-    listMapEvents: (now: Date): Promise<{ id: string; title: string; place: string; lat: number; lng: number }[]> =>
+    listMapEvents: (now: Date): Promise<MapEventRow[]> =>
       withDbErrors("event.listMapEvents", async () => {
         const rows = await db
-          .select({ id: event.id, title: event.title, city: event.city, state: event.state, lat: event.lat, lng: event.lng })
+          .select({ id: event.id, title: event.title, city: event.city, state: event.state, country: event.country, lat: event.lat, lng: event.lng })
           .from(event)
           .innerJoin(organization, eq(organization.id, event.orgId))
           .where(
@@ -347,7 +352,7 @@ export function createEventsRepo(db: Database) {
             ),
           )
           .orderBy(asc(event.startsAt), asc(event.id));
-        return rows.flatMap((r) => (r.lat === null || r.lng === null ? [] : [{ id: r.id, title: r.title, place: `${r.city}, ${r.state}`, lat: r.lat, lng: r.lng }]));
+        return rows.flatMap((r) => (r.lat === null || r.lng === null ? [] : [{ id: r.id, title: r.title, city: r.city, state: r.state, country: r.country, lat: r.lat, lng: r.lng }]));
       }),
 
     /**

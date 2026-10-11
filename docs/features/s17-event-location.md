@@ -1,10 +1,10 @@
 # S17 Event location picker
 
-**Status: SPEC FOR THE OWNER'S APPROVAL (written 2026-10-11 from the owner's idea: organizers should place their gathering by searching or tapping a real map, never by typing latitude and longitude; MapTiler's free plan to start). Nothing here is built. Web first.**
+**Status: APPROVED to build (the owner, 2026-10-11: "keep developing"; the idea: organizers place their gathering by searching or tapping a real map, never by typing latitude and longitude; MapTiler's free plan to start). Built in steps: (1) data and server rules (pin, country, region, checks), then (2) the picker on the form. Web first.**
 
 ## Why this slice exists
 
-The Fire Map and the radius search place an event by its coordinates. Today the church portal saves events **without** coordinates ("Location not found yet") because the address lookup was always planned for later (`s3-events-church-portal.md`: the geocoder is a port with no adapter). So a real event entered today would never appear on the Fire Map. This slice closes that gap, and it must also work for small towns and villages anywhere in the world, where an address lookup fails or guesses wrong.
+The Fire Map and the radius search place an event by its coordinates. Today the church portal locates a **United States** address by the center of its ZIP area (or city), from Census data shipped with the app (`lib/places/geocoder.ts`). That is approximate (within a few miles of the true spot, not the street) and it knows only the United States: an event anywhere else, or one whose ZIP is not found, is saved without coordinates ("Location not found yet") and never appears on the Fire Map. This slice adds an **exact pin** the organizer places on a real map, and makes places anywhere in the world, including small towns and villages, work. (This paragraph corrects an earlier version that said no lookup existed; it does, for the United States only. The ZIP lookup is now used only for United States addresses, so a postal code abroad can never place an event in the wrong country.)
 
 **A fire never depends on our own map knowing the place.** The flame goes where the event's coordinates say, and its label is the name the organizer typed.
 

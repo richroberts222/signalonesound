@@ -201,6 +201,18 @@ describe("fire map events against the real database (S16)", () => {
     expect(ids).toContain(ongoing.id);
     for (const e of [over, noPlace, draft, heldOrgEvent]) expect(ids).not.toContain(e.id);
   });
+
+  it("S17 keeps the country, region and pin of an event outside the United States, and an event with no country is a US event", async () => {
+    const orgId = await newApprovedOrg("approved");
+    const village = make(orgId, { title: `${PREFIX}village`, city: "Kibera", state: "Nairobi County", zip: "", country: "KE", lat: -1.3133, lng: 36.7881 });
+    const plain = make(orgId, { title: `${PREFIX}plain`, lat: 36.16, lng: -86.78 });
+    for (const e of [village, plain]) await create(e);
+    const fires = await repo.listMapEvents(new Date());
+    expect(fires.find((f) => f.id === village.id)).toMatchObject({ city: "Kibera", state: "Nairobi County", country: "KE", lat: -1.3133, lng: 36.7881 });
+    expect(fires.find((f) => f.id === plain.id)).toMatchObject({ country: "US", state: "TN" });
+    const stored = await repo.getById(village.id);
+    expect(stored).toMatchObject({ country: "KE", zip: "" });
+  });
 });
 
 describe("the sitemap against the real database (S9)", () => {

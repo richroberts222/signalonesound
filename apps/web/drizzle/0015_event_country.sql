@@ -1,0 +1,1 @@
+ALTER TABLE "event" ADD COLUMN "country" text DEFAULT 'US' NOT NULL;
