@@ -215,13 +215,13 @@ export function FireMapCanvas({ view, size, outlines, stateLines, fires }: Props
         ))}
       </svg>
       <div className="absolute top-2 right-2 flex flex-col gap-1">
-        <Button type="button" size="icon" variant="secondary" aria-label="Zoom in" data-testid="fire-map-zoom-in" disabled={cam.zoom >= MAX_ZOOM} onClick={() => zoomButton(ZOOM_STEP)}>
+        <Button type="button" size="icon" variant="secondary" aria-label="Zoom in" data-testid={`fire-map-zoom-in-${view}`} disabled={cam.zoom >= MAX_ZOOM} onClick={() => zoomButton(ZOOM_STEP)}>
           <Plus aria-hidden />
         </Button>
-        <Button type="button" size="icon" variant="secondary" aria-label="Zoom out" data-testid="fire-map-zoom-out" disabled={cam.zoom <= MIN_ZOOM} onClick={() => zoomButton(1 / ZOOM_STEP)}>
+        <Button type="button" size="icon" variant="secondary" aria-label="Zoom out" data-testid={`fire-map-zoom-out-${view}`} disabled={cam.zoom <= MIN_ZOOM} onClick={() => zoomButton(1 / ZOOM_STEP)}>
           <Minus aria-hidden />
         </Button>
-        <Button type="button" size="icon" variant="secondary" aria-label="Reset the map" data-testid="fire-map-zoom-reset" disabled={!zoomed} onClick={() => setCam(wholeMap(size))}>
+        <Button type="button" size="icon" variant="secondary" aria-label="Reset the map" data-testid={`fire-map-zoom-reset-${view}`} disabled={!zoomed} onClick={() => setCam(wholeMap(size))}>
           <RotateCcw aria-hidden />
         </Button>
       </div>

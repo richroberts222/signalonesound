@@ -78,9 +78,9 @@ Importing events or locations from other organizations (Healing Rooms, houses of
 
 | Control | Test id | Action | Effect |
 | --- | --- | --- | --- |
-| Zoom in | `fire-map-zoom-in` | Click | Zooms in one step |
-| Zoom out | `fire-map-zoom-out` | Click | Zooms out one step |
-| Reset | `fire-map-zoom-reset` | Click | Returns to the whole map |
+| Zoom in | `fire-map-zoom-in-world`, `fire-map-zoom-in-us` | Click | Zooms in one step |
+| Zoom out | `fire-map-zoom-out-world`, `fire-map-zoom-out-us` | Click | Zooms out one step |
+| Reset | `fire-map-zoom-reset-world`, `fire-map-zoom-reset-us` | Click | Returns to the whole map |
 | The map | `fire-map-world`, `fire-map-us` | Pinch, scroll, drag, arrow keys | Zooms and pans |
 
 ## Sample fires

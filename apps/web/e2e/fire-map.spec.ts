@@ -45,23 +45,23 @@ test.describe("Fire Map", () => {
     await page.goto("/fire-map?sample=1");
     const map = page.getByTestId("fire-map-world");
     const whole = await map.getAttribute("viewBox");
-    await expect(page.getByTestId("fire-map-zoom-out")).toBeDisabled();
-    await expect(page.getByTestId("fire-map-zoom-reset")).toBeDisabled();
-    await page.getByTestId("fire-map-zoom-in").click();
+    await expect(page.getByTestId("fire-map-zoom-out-world")).toBeDisabled();
+    await expect(page.getByTestId("fire-map-zoom-reset-world")).toBeDisabled();
+    await page.getByTestId("fire-map-zoom-in-world").click();
     await expect(map).not.toHaveAttribute("viewBox", whole ?? "");
-    await page.getByTestId("fire-map-zoom-out").click();
+    await page.getByTestId("fire-map-zoom-out-world").click();
     await expect(map).toHaveAttribute("viewBox", whole ?? "");
-    for (let i = 0; i < 12; i++) if (await page.getByTestId("fire-map-zoom-in").isEnabled()) await page.getByTestId("fire-map-zoom-in").click();
-    await expect(page.getByTestId("fire-map-zoom-in")).toBeDisabled();
-    await page.getByTestId("fire-map-zoom-reset").click();
+    for (let i = 0; i < 12; i++) if (await page.getByTestId("fire-map-zoom-in-world").isEnabled()) await page.getByTestId("fire-map-zoom-in-world").click();
+    await expect(page.getByTestId("fire-map-zoom-in-world")).toBeDisabled();
+    await page.getByTestId("fire-map-zoom-reset-world").click();
     await expect(map).toHaveAttribute("viewBox", whole ?? "");
   });
 
   test("AC16 dragging a zoomed map moves it and cannot move it off the map", async ({ page }) => {
     await page.goto("/fire-map?sample=1");
     const map = page.getByTestId("fire-map-world");
-    await page.getByTestId("fire-map-zoom-in").click();
-    await page.getByTestId("fire-map-zoom-in").click();
+    await page.getByTestId("fire-map-zoom-in-world").click();
+    await page.getByTestId("fire-map-zoom-in-world").click();
     const before = await map.getAttribute("viewBox");
     const box = await map.boundingBox();
     if (!box) throw new Error("map has no size");
@@ -79,7 +79,7 @@ test.describe("Fire Map", () => {
   test("AC17 a fire is still a link after zooming, and zooming does not change the numbers", async ({ page }) => {
     await page.goto("/fire-map?sample=1");
     const count = await page.getByTestId("fire-map-count-world").innerText();
-    await page.getByTestId("fire-map-zoom-in").click();
+    await page.getByTestId("fire-map-zoom-in-world").click();
     await expect(page.getByTestId("fire-map-count-world")).toHaveText(count);
     await expect(page.getByTestId("fire-0").first()).toHaveAttribute("href", /^\/events\/sample-1$/);
   });
