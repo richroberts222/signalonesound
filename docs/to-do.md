@@ -87,7 +87,7 @@ The sign-in card says "Sign in to signalOneSound" with a lowercase s. That name 
 
 ### Waiting, no action yet: the next Android build
 
-Do not build yet. The free Expo plan allows 15 builds a month, so the next build waits for a big batch of phone changes (owner, 2026-10-11). It will carry: the new app icon (your phone still shows the green Android robot until then) and the Signal One Sound name styling. Tell Claude when you want it; Claude will not start a build on its own.
+Do not build yet. The free Expo plan allows 15 builds a month, so the next build waits for a big batch of phone changes (owner, 2026-10-11). It will carry: the new app icon (your phone still shows the green Android robot until then), the Saved tab and the Save button on events (both already work through the dev server without a build), and anything else we add for the phone before then. Tell Claude when you want it; Claude will not start a build on its own.
 
 ---
 
