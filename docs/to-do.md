@@ -23,6 +23,7 @@ Claude wrote the words on the public pages from the product plan. You and Amy sh
     - `www.signalonesound.com/about`
     - `www.signalonesound.com/faq` (click each question to open its answer)
     - `www.signalonesound.com/contact`
+    - `www.signalonesound.com/privacy` (after the map location picker ships, it has one new paragraph under "Who it is shared with" about the map service; check it says what you are comfortable promising)
 2. Note anything that sounds wrong, is untrue, or is missing.
     - Does it sound like Signal One Sound?
     - Is every promise true today? (Claude kept them cautious: "free during early access", "coming", "being switched on".)

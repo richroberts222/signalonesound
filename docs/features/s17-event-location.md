@@ -48,13 +48,19 @@ Filling the street address from the pin or the pin from the street address autom
 | Clear pin | `location-clear` | Click | Removes the pin (the event then carries the "no location" notice) |
 | Country | `event-country` | Choose | Sets the country and relaxes the state and ZIP outside the United States |
 | "No location" notice | `location-missing-notice` | View | States the consequence |
+| Pin status line | `location-status` | View | States the pin ("Pin set at 36.16270, -86.78160, near ...") or "No pin yet", and the last message |
+| "Map could not load" message | `location-map-problem` | View | Shown only when the map pictures fail to load |
+| Region (outside the United States) | `event-region-input` | Type | The state, province or region as free text |
+| Event list badge | (badge text) | View | "No map pin: not on the Fire Map yet" beside an event with no pin |
 
 ## Data and security
 
 * **Database Design Checkpoint required before building:** the event needs a `country` (a two-letter code, default US) and a looser state field for places outside the United States; latitude and longitude already exist. This is a migration, applied only through the documented process (`/docs/database.md`) and only with the owner's approval; production only through the manual Migrate production workflow.
 * The geocoder port in the events service gets a real adapter, or the form sends the pin directly; the server remains authoritative and re-validates every coordinate (AC4).
 * The browser key is public by nature, so it is restricted by website address at the vendor, never relied on as a secret, and never committed (`CLAUDE.md` section 18).
-* Library: MapLibre GL JS (open source) is the expected way to draw the MapTiler map; adding it is a dependency decision to be confirmed in the pull request description (`CLAUDE.md` section 14).
+* Library: **Leaflet** (open source, BSD-2, about 40 KB) draws the map: the picker needs flat map pictures and one draggable pin, not vector styling, so it was chosen over MapLibre GL for size and simplicity (recorded in `docs/stack.md`). It is loaded only on the organizer form.
+* Until the owner supplies a MapTiler key, the map pictures and place search default to OpenStreetMap's free servers (credit line shown, searched only when Search is pressed, never as you type). Settings: `docs/environment.md`.
+* The event's `state` column holds a US state, or outside the United States the free-text `region`; the API takes `country`, `state` (US states or empty), `region` and `zip` (see `docs/api.md`).
 
 ## Owner decisions and steps
 
