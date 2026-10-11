@@ -189,6 +189,17 @@ export const PROOF_PATHS = [
   "apps/web/lib/services/contact.ts",
   "packages/validation/src/contact.ts",
   "packages/validation/src/contact-client.ts",
+  // S16 fire map (docs/features/s16-fire-map.md): product code of the reference app.
+  "apps/web/app/api/v1/fire-map",
+  "apps/web/app/fire-map",
+  "apps/web/components/fire-map",
+  "apps/web/e2e/fire-map.spec.ts",
+  "apps/web/lib/api/fire-map.ts",
+  "apps/web/lib/api/fire-map.acceptance.test.ts",
+  "apps/web/lib/fire-map",
+  "apps/web/lib/services/fire-map.ts",
+  "packages/validation/src/fire-map.ts",
+  "packages/validation/src/fire-map-client.ts",
   // S5 mobile discover (docs/features/s5-discover-mobile.md): the reference app's screens. A generated app keeps app/_layout.tsx and
   // app/index.tsx, which are overwritten from scripts/boilerplate/templates.
   "apps/mobile/app/(tabs)",

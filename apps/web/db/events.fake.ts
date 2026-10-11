@@ -172,6 +172,19 @@ export function createFakeEventsRepo(
       return after.slice(0, p.limit + 1);
     },
 
+    async listMapEvents(at) {
+      const rows = [];
+      for (const e of events.values()) {
+        const org = orgInfo(e.orgId);
+        if (!org || org.status !== "approved") continue;
+        if (e.status !== "published" || e.moderationState !== "published" || e.lat === null || e.lng === null) continue;
+        const end = e.endsAt ?? new Date(e.startsAt.getTime() + DEFAULT_DURATION_MS);
+        if (end < at) continue;
+        rows.push(e);
+      }
+      return rows.sort(byStart).map((e) => ({ id: e.id, title: e.title, lat: e.lat as number, lng: e.lng as number }));
+    },
+
     async getManyWithOrg(ids) {
       return ids.flatMap((id) => {
         const e = events.get(id);

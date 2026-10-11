@@ -324,6 +324,30 @@ export function createEventsRepo(db: Database) {
       }),
 
     /**
+     * The fires on the public Fire Map (S16): published, not cancelled, held by a published listing of an approved
+     * organization, with a place, and not yet over (the end, or the start plus the default duration when there is no end).
+     */
+    listMapEvents: (now: Date): Promise<{ id: string; title: string; lat: number; lng: number }[]> =>
+      withDbErrors("event.listMapEvents", async () => {
+        const rows = await db
+          .select({ id: event.id, title: event.title, lat: event.lat, lng: event.lng })
+          .from(event)
+          .innerJoin(organization, eq(organization.id, event.orgId))
+          .where(
+            and(
+              eq(event.status, "published"),
+              eq(event.moderationState, "published"),
+              eq(organization.status, "approved"),
+              isNotNull(event.lat),
+              isNotNull(event.lng),
+              sql`coalesce(${event.endsAt}, ${event.startsAt} + (${DEFAULT_DURATION_MS / 1000} * interval '1 second')) >= ${now.toISOString()}::timestamptz`,
+            ),
+          )
+          .orderBy(asc(event.startsAt), asc(event.id));
+        return rows.flatMap((r) => (r.lat === null || r.lng === null ? [] : [{ id: r.id, title: r.title, lat: r.lat, lng: r.lng }]));
+      }),
+
+    /**
      * Events by id together with their organization's name and standing, whatever their state, for a
      * member's own saved list. The caller decides what may be shown (a held or deleted event is shown
      * only as removed).

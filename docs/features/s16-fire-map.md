@@ -9,7 +9,7 @@ Show, honestly and beautifully, where revival is happening right now: a dark wor
 ## Scope (in)
 
 * A public page `/fire-map` with a **World** view and a **United States** view (switch with tabs), readable without an account.
-* Every **published**, **not cancelled**, **not past** event that has a place (latitude and longitude) is a **fire**. A past event is one whose end (or, with no end, whose start plus 6 hours) is before now.
+* Every **published**, **not cancelled**, **not past** event that has a place (latitude and longitude) is a **fire**. A past event is one whose end (or, with no end, whose start plus 3 hours, the default event length) is before now.
 * Each fire is a link to that event's page (`/events/{id}`); its light has a true radius of **10 miles** with a minimum visible size so it can be seen when zoomed out.
 * Outlines (countries for the world, states for the United States) are silver; the part of an outline inside a fire's light is gold.
 * A **tracker** with two honest numbers per view: **land under fire** (the share of the land area that lies within 10 miles of at least one fire) and **regions with a fire** (countries for the world, states plus the District of Columbia for the United States, as "N of M"), plus the **count of fires**.
@@ -26,7 +26,7 @@ Importing events or locations from other organizations (Healing Rooms, houses of
 ## Acceptance criteria
 
 * **AC1** `GET /api/v1/fire-map` is public (no sign-in) and returns only events that are published, not cancelled, not past and have both latitude and longitude; draft, cancelled, deleted, past and no-place events never appear.
-* **AC2** The response has, for the world and for the United States, the number of fires, the regions with a fire as "with" and "total", and the land under fire as a percentage with two decimals; totals are 177 or more countries for the world and 51 for the United States (50 states plus DC) from the bundled outlines.
+* **AC2** The response has, for the world and for the United States, the number of fires, the regions with a fire as "with" and "total", and the land under fire as a percentage with up to four decimals; totals are 177 or more countries for the world and 51 for the United States (50 states plus DC) from the bundled outlines.
 * **AC3** One fire alone covers about 314 square miles of light: for a single fire on land the land-under-fire percentage equals that area divided by the land area, within 5 percent of the true circle area, and two fires that overlap are not counted twice.
 * **AC4** A fire on the ocean (not inside any country) counts as a fire and adds no land area and no region.
 * **AC5** Regions with a fire are found by the event's coordinates inside the outlines; an event in a state counts toward the United States numbers and toward its country in the world numbers.
@@ -44,12 +44,12 @@ Importing events or locations from other organizations (Healing Rooms, houses of
 | Control | Test id | Action | Effect |
 | --- | --- | --- | --- |
 | World / United States tabs | `fire-map-tab-world`, `fire-map-tab-us` | Click | Switches the view |
-| The map | `fire-map` | View | Dark map, silver and gold outlines |
+| The map | `fire-map-world`, `fire-map-us` | View | Dark map, silver and gold outlines |
 | A fire | `fire-N` | Click, Enter | Opens the event page |
-| Tracker numbers | `fire-map-count`, `fire-map-regions`, `fire-map-land` | View | Shows the three numbers |
+| Tracker numbers | `fire-map-count-world`, `fire-map-regions-world`, `fire-map-land-world` and the same with `-us` | View | Shows the three numbers |
 | How we count | `fire-map-method` | Click | Opens or closes the explanation |
-| Text list of regions | `fire-map-list` | View, click a link | Opens the event page |
-| Navigation and footer links | `nav-fire-map`, `footer-fire-map` | Click | Opens `/fire-map` |
+| Text list of regions | `fire-map-list`, `fire-map-region-link` | View, click a link | Opens the event page |
+| Footer link (the navigation link is the Fire Map item of the main navigation) | `footer-fire-map` | Click | Opens `/fire-map` |
 
 ## Owner decisions still open
 

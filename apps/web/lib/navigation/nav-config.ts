@@ -22,6 +22,7 @@ export type NavItem = {
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: "Home", href: "/", exact: true },
   { label: "Discover", href: "/discover" },
+  { label: "Fire Map", href: "/fire-map" },
   { label: "Dashboard", href: "/dashboard", signedInOnly: true },
   { label: "Account", href: "/account", signedInOnly: true },
   { label: "Admin", href: "/admin", signedInOnly: true },

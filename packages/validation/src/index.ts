@@ -28,6 +28,9 @@ export * from "./billing-client";
 // S15 public pages: the contact form and the admin Messages inbox (docs/features/s15-public-pages.md)
 export * from "./contact";
 export * from "./contact-client";
+// S16 fire map (docs/features/s16-fire-map.md)
+export * from "./fire-map";
+export * from "./fire-map-client";
 // proof-only (removed by the boilerplate init; see /docs/boilerplate.md)
 export * from "./proof-item";
 export * from "./proof-item-client";
