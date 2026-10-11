@@ -6,6 +6,8 @@ import { z } from "zod";
 export const fireSchema = z.object({
   id: z.string(),
   title: z.string(),
+  /** "City, ST", shown beside the fire. */
+  place: z.string(),
   lat: z.number(),
   lng: z.number(),
 });

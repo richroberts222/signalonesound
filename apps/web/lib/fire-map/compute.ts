@@ -8,7 +8,7 @@ import { indexRegions, landAreaSquareMiles, landUnderFireSquareMiles, locate, ty
 // public-domain Natural Earth data (lib/fire-map/data/SOURCES.md), simplified, so the figures are approximate
 // and are described that way on the page.
 
-export type MapEvent = { id: string; title: string; lat: number; lng: number };
+export type MapEvent = { id: string; title: string; place: string; lat: number; lng: number };
 
 const worldRegions = indexRegions(world as Region[]);
 const usRegions = indexRegions(usStates as Region[]);
@@ -38,7 +38,7 @@ export function computeFireMap(events: MapEvent[], now: Date): FireMap {
   const usEvents = events.filter((e) => locate(usRegions, e.lat, e.lng));
   return {
     asOf: now.toISOString(),
-    fires: events.map((e) => ({ id: e.id, title: e.title, lat: e.lat, lng: e.lng })),
+    fires: events.map((e) => ({ id: e.id, title: e.title, place: e.place, lat: e.lat, lng: e.lng })),
     world: { ...view(events, worldRegions, worldLandSquareMiles), fires: events.length },
     us: view(usEvents, usRegions, usLandSquareMiles),
   };

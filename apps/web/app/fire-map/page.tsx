@@ -47,6 +47,9 @@ function Panel({ id, label, regionNoun, view, fires }: { id: "world" | "us"; lab
       <Tracker id={id} view={view} label={label} regionNoun={regionNoun} />
       {view.fires === 0 && <p className="text-muted-foreground">No fires yet. When a gathering is published, it will light up here.</p>}
       <FireMapSvg view={id} fires={fires} />
+      <p className="text-sm text-muted-foreground">
+        The glow is drawn large so you can see it. The percentage counts the true 10 mile reach of each fire, shown as the thin ring.
+      </p>
     </div>
   );
 }

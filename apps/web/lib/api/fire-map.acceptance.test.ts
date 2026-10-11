@@ -98,6 +98,7 @@ describe("S16 fire map acceptance criteria (API boundary)", () => {
       expect(v.landPercent).toBeGreaterThan(0);
     }
     expect(data.asOf).toBe(clock.toISOString());
+    expect(data.fires[0].place).toBe("Nashville, TN");
   });
 
   it("AC3 one fire covers about 314 square miles and overlapping fires are not counted twice", async () => {
