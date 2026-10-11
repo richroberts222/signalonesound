@@ -14,6 +14,9 @@ import { outlinePath, pixelsPerMile, project, US_SIZE, WORLD_SIZE, type View } f
 const MIN_GLOW_PX: Record<View, number> = { world: 20, us: 30 };
 const HAZE_FACTOR = 2.2;
 const LABEL_GAP_PX = 46;
+// A flame with a flicker on each side, drawn about the point where it meets the ground (0, 16), with a white-hot core.
+const FLAME_OUTER = "M0 -30 C4 -22 12 -16 13 -4 C14 8 8 16 0 16 C-8 16 -14 8 -13 -3 C-12 -9 -8 -12 -7 -19 C-4 -15 -3 -12 -2 -9 C-1 -17 -3 -24 0 -30 Z";
+const FLAME_CORE = "M0 -14 C2 -9 7 -6 7 2 C7 9 4 12 0 12 C-4 12 -7 9 -7 3 C-7 -1 -4 -4 -3 -8 C-1 -6 0 -9 0 -14 Z";
 
 export function FireMapSvg({ view, fires }: { view: View; fires: Fire[] }) {
   const regions = (view === "world" ? world : usStates) as Region[];
@@ -41,8 +44,8 @@ export function FireMapSvg({ view, fires }: { view: View; fires: Fire[] }) {
       <defs>
         <radialGradient id={id("glow")}>
           <stop offset="0" stopColor="#ffd36b" stopOpacity="0.85" />
-          <stop offset="0.35" stopColor="#ffa828" stopOpacity="0.45" />
-          <stop offset="1" stopColor="#ff6d1f" stopOpacity="0" />
+          <stop offset="0.35" stopColor="#ffc23a" stopOpacity="0.45" />
+          <stop offset="1" stopColor="#ffb02e" stopOpacity="0" />
         </radialGradient>
         <radialGradient id={id("fade")}>
           <stop offset="0" stopColor="white" stopOpacity="1" />
@@ -59,6 +62,22 @@ export function FireMapSvg({ view, fires }: { view: View; fires: Fire[] }) {
             <circle key={f.id} cx={f.x} cy={f.y} r={f.glow * 1.3} fill={`url(#${id("fade")})`} />
           ))}
         </mask>
+        <path id={id("flame")} d={FLAME_OUTER} />
+        <path id={id("flame-core")} d={FLAME_CORE} />
+        <linearGradient id={id("flame-body")} x1="0" y1="-30" x2="0" y2="16" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#ffd36b" stopOpacity="0.95" />
+          <stop offset="0.45" stopColor="#ffac2a" />
+          <stop offset="1" stopColor="#e8801a" />
+        </linearGradient>
+        <filter id={id("flame-crisp")} x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="0.45" />
+        </filter>
+        <filter id={id("flame-bloom")} x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="3.2" />
+        </filter>
+        <filter id={id("flame-core-soft")} x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="1.4" />
+        </filter>
       </defs>
       <path d={outlines} className="fill-card" stroke="#9aa0ab" strokeWidth={view === "world" ? 0.6 : 0.8} strokeLinejoin="round" />
       <path d={outlines} fill="#f5c04a" fillOpacity={0.3} mask={`url(#${id("land-light")})`} />
@@ -75,13 +94,11 @@ export function FireMapSvg({ view, fires }: { view: View; fires: Fire[] }) {
         <a key={f.id} href={`/events/${f.id}`} className="group outline-none" data-testid={`fire-${i}`} aria-label={`${f.title}, ${f.place}: open this event`}>
           <title>{`${f.title} (${f.place})`}</title>
           <circle cx={f.x} cy={f.y} r={10} fill="transparent" className="stroke-transparent group-focus-visible:stroke-white" strokeWidth={1.5} />
-          <path
-            transform={`translate(${f.x} ${f.y}) scale(0.95)`}
-            d="M0 -8 C2 -5 5 -3 5 1 C5 5 2.5 7 0 7 C-2.5 7 -5 5 -5 1 C-5 -1 -3 -3 -2 -5 C-1 -3 0 -4 0 -8 Z"
-            fill="#ffd36b"
-            stroke="#ff6d1f"
-            strokeWidth={1}
-          />
+          <g transform={`translate(${f.x} ${f.y + 4}) scale(0.58)`}>
+            <use href={`#${id("flame")}`} fill="#ffb02e" opacity={0.75} filter={`url(#${id("flame-bloom")})`} />
+            <use href={`#${id("flame")}`} fill={`url(#${id("flame-body")})`} filter={`url(#${id("flame-crisp")})`} />
+            <use href={`#${id("flame-core")}`} fill="#fff0c4" opacity={0.7} filter={`url(#${id("flame-core-soft")})`} />
+          </g>
         </a>
       ))}
       {labeled.map((f) => (
