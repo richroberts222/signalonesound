@@ -327,10 +327,10 @@ export function createEventsRepo(db: Database) {
      * The fires on the public Fire Map (S16): published, not cancelled, held by a published listing of an approved
      * organization, with a place, and not yet over (the end, or the start plus the default duration when there is no end).
      */
-    listMapEvents: (now: Date): Promise<{ id: string; title: string; lat: number; lng: number }[]> =>
+    listMapEvents: (now: Date): Promise<{ id: string; title: string; place: string; lat: number; lng: number }[]> =>
       withDbErrors("event.listMapEvents", async () => {
         const rows = await db
-          .select({ id: event.id, title: event.title, lat: event.lat, lng: event.lng })
+          .select({ id: event.id, title: event.title, city: event.city, state: event.state, lat: event.lat, lng: event.lng })
           .from(event)
           .innerJoin(organization, eq(organization.id, event.orgId))
           .where(
@@ -344,7 +344,7 @@ export function createEventsRepo(db: Database) {
             ),
           )
           .orderBy(asc(event.startsAt), asc(event.id));
-        return rows.flatMap((r) => (r.lat === null || r.lng === null ? [] : [{ id: r.id, title: r.title, lat: r.lat, lng: r.lng }]));
+        return rows.flatMap((r) => (r.lat === null || r.lng === null ? [] : [{ id: r.id, title: r.title, place: `${r.city}, ${r.state}`, lat: r.lat, lng: r.lng }]));
       }),
 
     /**

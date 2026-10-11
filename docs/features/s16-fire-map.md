@@ -11,7 +11,7 @@ Show, honestly and beautifully, where revival is happening right now: a dark wor
 * A public page `/fire-map` with a **World** view and a **United States** view (switch with tabs), readable without an account.
 * Every **published**, **not cancelled**, **not past** event that has a place (latitude and longitude) is a **fire**. A past event is one whose end (or, with no end, whose start plus 3 hours, the default event length) is before now.
 * Each fire is a link to that event's page (`/events/{id}`); its light has a true radius of **10 miles** with a minimum visible size so it can be seen when zoomed out.
-* Outlines (countries for the world, states for the United States) are silver; the part of an outline inside a fire's light is gold.
+* Outlines (countries for the world, states for the United States) are silver. Around each fire the land glows gold and the outline turns gold, and the light fades smoothly into the dark; the glow is drawn large enough to see, and a thin ring inside it shows the true 10 mile reach that the numbers count. On the United States map each fire carries its city name (skipping a name that would overlap another).
 * A **tracker** with two honest numbers per view: **land under fire** (the share of the land area that lies within 10 miles of at least one fire) and **regions with a fire** (countries for the world, states plus the District of Columbia for the United States, as "N of M"), plus the **count of fires**.
 * A **How we count** note on the page that explains the method, the "as of" time and the accuracy of the simplified outlines.
 * A text alternative: a list of regions that have fires with links to their events, usable by keyboard and screen reader.
