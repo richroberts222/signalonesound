@@ -202,3 +202,46 @@ describe("fire map events against the real database (S16)", () => {
     for (const e of [over, noPlace, draft, heldOrgEvent]) expect(ids).not.toContain(e.id);
   });
 });
+
+describe("the sitemap against the real database (S9)", () => {
+  const newOrg2 = async (status: "approved" | "pending") => {
+    const id = newOrg();
+    await db.insert(organization).values({ id, name: `${PREFIX}church`, nameKey: `${PREFIX}${id}`, status });
+    return id;
+  };
+
+  it("lists upcoming published events of approved churches and approved churches, and nothing hidden, draft, past or unapproved", async () => {
+    const good = await newOrg2("approved");
+    const held = await newOrg2("pending");
+    const shown = make(good, { title: `${PREFIX}sm-shown` });
+    const ongoing = make(good, { title: `${PREFIX}sm-ongoing`, startsAt: hours(-1), endsAt: hours(1) });
+    const over = make(good, { title: `${PREFIX}sm-over`, startsAt: hours(-5), endsAt: hours(-4) });
+    const draft = make(good, { title: `${PREFIX}sm-draft`, status: "draft" });
+    const heldOrgEvent = make(held, { title: `${PREFIX}sm-held-org` });
+    const hidden = make(good, { title: `${PREFIX}sm-hidden` });
+    for (const e of [shown, ongoing, over, draft, heldOrgEvent, hidden]) await create(e);
+    await db.update(event).set({ moderationState: "hidden" }).where(inArray(event.id, [hidden.id]));
+
+    const rows = await repo.listSitemap(new Date(), 10_000);
+    const eventIds = rows.events.map((r) => r.id);
+    expect(eventIds).toContain(shown.id);
+    expect(eventIds).toContain(ongoing.id);
+    for (const e of [over, draft, heldOrgEvent, hidden]) expect(eventIds).not.toContain(e.id);
+    const churchIds = rows.churches.map((c) => c.id);
+    expect(churchIds).toContain(good);
+    expect(churchIds).not.toContain(held);
+    expect(rows.events.every((r) => r.updatedAt instanceof Date)).toBe(true);
+  });
+
+  it("stops at the limit, soonest event first", async () => {
+    const orgId = await newOrg2("approved");
+    const soon = make(orgId, { title: `${PREFIX}sm-soon`, startsAt: hours(1), endsAt: hours(2) });
+    const later = make(orgId, { title: `${PREFIX}sm-later`, startsAt: hours(400), endsAt: hours(401) });
+    for (const e of [soon, later]) await create(e);
+    const rows = await repo.listSitemap(new Date(), 1);
+    expect(rows.events).toHaveLength(1);
+    expect(rows.churches.length).toBeLessThanOrEqual(1);
+    const all = await repo.listSitemap(new Date(), 10_000);
+    expect(all.events.findIndex((r) => r.id === soon.id)).toBeLessThan(all.events.findIndex((r) => r.id === later.id));
+  });
+});
