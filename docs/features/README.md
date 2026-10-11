@@ -35,5 +35,6 @@ The specifications below are the Phase 1 slices in `/docs/product/blueprint.md`.
 | S11 | `s11-stripe-checkout-and-webhooks.md` |
 | S14 | `s14-email-sending.md` |
 | S15 | `s15-public-pages.md` |
+| S16 | `s16-fire-map.md` |
 
 **Owner decisions recorded 2026-10-09 (apply to all specifications):** (1) analytics are private and server-side, counts only, no user identifiers, no phone SDK; (2) no session replay or heatmaps on signed-in screens; (3) error tracking and log redaction before launch, vendor chosen later with the owner's approval; (4) attendee privacy: anonymous browsing, minimal saves, coarse location; (5) organizer verification: a Church/Ministry is claimed and approved before it can publish. Items the source plan marks UNDECIDED stay undecided.
