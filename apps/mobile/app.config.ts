@@ -22,12 +22,15 @@ const config: ExpoConfig = {
   extra: { eas: { projectId: "95bb0df7-18b3-4ba9-96fa-a4ac4d1ad3df" } },
   orientation: "portrait",
   userInterfaceStyle: "dark",
+  // App icon (assets/icon.png) and Android adaptive icon: the gradient S, matching the web tab icon.
+  icon: "./assets/icon.png",
   ios: {
     bundleIdentifier: "com.example.signalone",
     supportsTablet: true,
   },
   android: {
     package: "com.example.signalone",
+    adaptiveIcon: { foregroundImage: "./assets/adaptive-icon.png", backgroundColor: "#0c0a09" },
   },
 };
 
