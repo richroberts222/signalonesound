@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import { REVIVAL_TYPE_SLUGS } from "@signalone/validation";
 
-import { DEMO_EVENTS, DEMO_ORGS, DEMO_SEEDS, demoStatements } from "./demo-seed";
+import { DEMO_EVENTS, DEMO_ORGS, DEMO_SEEDS, demoChurchProfileStatements, demoStatements } from "./demo-seed";
 
 // The demo data is fictional and safe to show: sample names only, real revival types, plausible places, no
 // person or secret. These tests keep it that way as it grows.
@@ -73,8 +73,16 @@ describe("demo seed data", () => {
     }
   });
 
-  it("is one seed with a stable id, so the ledger runs it once", () => {
-    expect(DEMO_SEEDS).toHaveLength(1);
-    expect(DEMO_SEEDS[0].id).toBe("demo-churches-and-events-v3");
+  it("is two seeds with stable ids, so the ledger runs each once", () => {
+    expect(DEMO_SEEDS.map((s) => s.id)).toEqual(["demo-churches-and-events-v3", "demo-church-profiles-v1"]);
+  });
+
+  it("S18 gives every sample church an address and weekly services, all marked as sample data and none with a person named", () => {
+    const sql = demoChurchProfileStatements().join(" ");
+    expect((sql.match(/INSERT INTO church_profile/g) ?? []).length).toBe(DEMO_ORGS.length);
+    expect((sql.match(/INSERT INTO church_service/g) ?? []).length).toBeGreaterThanOrEqual(DEMO_ORGS.length * 2);
+    expect(sql).not.toMatch(/DELETE|DROP|UPDATE|TRUNCATE/i); // it only ever adds, and never overwrites
+    expect(sql).not.toMatch(/@|\b\d{3}[-. ]\d{3}[-. ]\d{4}\b/); // no email or phone number
+    for (const statement of demoChurchProfileStatements()) expect(statement).toMatch(/ON CONFLICT DO NOTHING$/);
   });
 });

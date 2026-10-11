@@ -255,6 +255,17 @@ Every admin route answers `404` to anyone who is not an admin (`401` signed out)
 
 Mobile token verification has not been exercised end to end (no Clerk-authenticated live call in CI); rate limiting; CORS; request IDs and a real logging system; idempotency keys; pagination conventions beyond `Paginated<T>`; OpenAPI generation; path parameters in the adapter (the proof uses a query-string `id`).
 
+## Find a Church (S18, reference application)
+
+`docs/features/s18-find-a-church.md`. A church's public profile (address, pin, time zone) and its regular weekly services. All church text is public (tier T0) and plain. Contracts in `packages/validation/src/church.ts`; routes in `lib/api/churches.ts`; every one answers with the standard envelope.
+
+| Endpoint | Auth | Purpose |
+| --- | --- | --- |
+| `GET /api/v1/churches?q=&lat=&lng=&radius=&cursor=&limit=` | public | Search approved churches that have a profile. By `q` (words matched against the church name or city; a typed `%` or `_` is matched as itself), or by `lat` and `lng` (both or neither) within `radius` miles (1 to 500, default 25), nearest first with `distanceMiles`; churches without a pin appear only in a text search. Keyset-paged (`limit` 1 to 50, default 20, `nextCursor`). Each result has `nextServices` (up to 3, from now, in the church's own time zone) and `serviceCount` |
+| `GET /api/v1/churches/:id` | public | One approved church with its `profile` (street, city, state or region, zip, country, timeZone, pin; null until added) and its `services` (Sunday first, then by time). Anything not approved is `404` |
+| `PUT /api/v1/organizations/:id/profile` | approved manager or admin | Save the address, pin and time zone with the same address rules as an event (`country` default `US`; US needs `state` and `zip`; elsewhere `region` is free text). `street` may be blank (a house church). A `location` left out keeps the pin if the address is unchanged, otherwise a United States address is placed by its ZIP area; `null` removes it. Anyone else gets `404` |
+| `PUT /api/v1/organizations/:id/services` | approved manager or admin | Replace the whole list of weekly services in one atomic step (at most 20; each has `weekday` 0 to 6, `startTime` `HH:MM`, `label` 1 to 60 and an optional `note` up to 200; the same service twice is refused). Audited. Anyone else gets `404` |
+
 ## Fire Map (S16, reference application)
 
 | Endpoint | Auth | Purpose |

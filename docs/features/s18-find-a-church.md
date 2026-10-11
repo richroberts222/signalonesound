@@ -72,3 +72,11 @@ Weekly service times only for now (recommended); whether a house church may leav
 ## Done checklist
 
 Each acceptance criterion and control above is ticked off with its test (or listed as not automated with the reason) in the pull request that finishes the slice.
+
+## Build notes (2026-10-11)
+
+* **Built:** the two new tables (migration `0016_church_profile_services`, applied to development only), the shared contracts and pure logic (`packages/validation/src/church.ts`: validation, time formatting, ordering, "next services" in the church's own time zone), the repo with a real-database test, the service and API (`lib/services/churches.ts`, `lib/api/churches.ts`), the public Find a Church page and church page, the manager's profile editor and the "Complete your church profile" card, the menu, footer and home links, the sitemap entry, sample churches with addresses and service times in the demo seed (`demo-church-profiles-v1`), browser tests and accessibility scans.
+* **A church with no pin** is placed by its ZIP area when it is a United States address (the same lookup events use, which runs for the United States only); anywhere else it stays without a pin until the manager places one, and is found by name or city meanwhile.
+* **The "entry point when a church joins" (Amy's request):** the card on the church's events page, shown until the church has service times, with a link to the editor. The claim form itself is unchanged.
+* **Not built (as scoped):** phone screens, denominations, reviews, non-weekly patterns.
+* **Release:** the church page reads the new tables, so this ships with the production database update (Migrate production), together with S17 (`docs/database.md`, "coordinated release"). Until then the pull request stays a draft.

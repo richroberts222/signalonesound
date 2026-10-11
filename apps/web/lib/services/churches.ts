@@ -13,6 +13,7 @@ import {
 
 import type { ChurchCursor, ChurchProfileRow, ChurchServiceRow, ChurchesRepo } from "../../db/churches";
 import type { ServiceContext } from "./context";
+import { noGeocoder, type Geocoder } from "./events";
 import { notFound, validationFailed } from "./errors";
 import type { AdminDirectory } from "./organizations";
 
@@ -29,6 +30,8 @@ export type ChurchesServiceDeps = {
   isManager: (orgId: string, userId: string) => Promise<boolean>;
   admins: AdminDirectory;
   requireAccepted: (userId: string) => Promise<void>;
+  /** Places a United States address by its ZIP area when no pin is given (the same lookup events use). */
+  geocoder?: Geocoder;
   now?: () => Date;
 };
 
@@ -57,7 +60,7 @@ const profileView = (row: ChurchProfileRow): ChurchProfile => ({
 
 const serviceView = (s: ChurchServiceRow) => ({ weekday: s.weekday, startTime: s.startTime, label: s.label, note: s.note });
 
-export function createChurchesService({ repo, getPublicOrganization, isManager, admins, requireAccepted, now = () => new Date() }: ChurchesServiceDeps) {
+export function createChurchesService({ repo, getPublicOrganization, isManager, admins, requireAccepted, geocoder = noGeocoder, now = () => new Date() }: ChurchesServiceDeps) {
   const mayManage = async (ctx: ServiceContext, orgId: string): Promise<boolean> => admins.isAdmin(ctx.actor.userId) || (await isManager(orgId, ctx.actor.userId));
 
   return {
@@ -112,12 +115,24 @@ export function createChurchesService({ repo, getPublicOrganization, isManager, 
       await requireAccepted(ctx.actor.userId);
       if (!(await mayManage(ctx, orgId))) throw notFound();
       const existing = await repo.getProfile(orgId);
-      const pin = input.location !== undefined ? input.location : existing && existing.lat !== null && existing.lng !== null ? { lat: existing.lat, lng: existing.lng } : null;
+      const state = storedState(input.country, input.state, input.region);
+      const kept = existing && existing.lat !== null && existing.lng !== null ? { lat: existing.lat, lng: existing.lng } : null;
+      const addressUnchanged = existing !== null && existing.street === input.street && existing.city === input.city && existing.state === state && existing.zip === input.zip && existing.country === input.country;
+      // A pin from the picker wins (null removes it). With none given, an unchanged address keeps its pin; otherwise a
+      // United States address is placed by its ZIP area, and anywhere else stays without a pin until the manager places one.
+      const pin =
+        input.location !== undefined
+          ? input.location
+          : addressUnchanged
+            ? kept
+            : input.country === "US"
+              ? await geocoder.geocode({ street: input.street, city: input.city, state: input.state, zip: input.zip, country: input.country })
+              : null;
       const row = {
         orgId,
         street: input.street,
         city: input.city,
-        state: storedState(input.country, input.state, input.region),
+        state,
         zip: input.zip,
         country: input.country,
         lat: pin?.lat ?? null,

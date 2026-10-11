@@ -18,6 +18,7 @@ export const STATIC_PAGES: { path: string; changeFrequency: SitemapEntry["change
   { path: "/events", changeFrequency: "daily", priority: 0.9 },
   { path: "/discover", changeFrequency: "daily", priority: 0.8 },
   { path: "/fire-map", changeFrequency: "daily", priority: 0.8 },
+  { path: "/churches", changeFrequency: "daily", priority: 0.8 },
   { path: "/about", changeFrequency: "monthly", priority: 0.5 },
   { path: "/services", changeFrequency: "monthly", priority: 0.5 },
   { path: "/faq", changeFrequency: "monthly", priority: 0.5 },
