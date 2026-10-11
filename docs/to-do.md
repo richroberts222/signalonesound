@@ -73,6 +73,18 @@ These are free for a public repository. They watch for known-vulnerable packages
 
 Nothing to prepare: say "start the phone server" in the chat, and Claude starts the web and phone code servers. Then reopen the app on your Android phone. You should see the dark theme, buttons that dim when pressed, and the search status right under the buttons. Send Claude anything that looks wrong.
 
+### Task 7: Fix the app name on the sign-in and sign-up pages (about 2 minutes)
+
+The sign-in card says "Sign in to signalOneSound" with a lowercase s. That name comes from Clerk, not from our code, so only you can change it.
+
+1. Go to dashboard.clerk.com and sign in.
+2. Open the Signal One Sound application.
+3. At the top of the page, switch to the **Production** instance (not Development).
+4. In the left menu, open **Configure**, then **Customization**, then **Branding**. Clerk sometimes moves menu items; if you cannot find it, use the dashboard search box and type "Application name".
+5. Change **Application name** to `Signal One Sound` (capital S, spaces) and save.
+6. Reload the sign-in page on www.signalonesound.com to check it. Clerk may take a minute to show the change.
+7. Tell Claude it is done and this task will be removed. If there is also a Development instance, change it the same way so it matches.
+
 ---
 
 ==================================================

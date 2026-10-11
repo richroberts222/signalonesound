@@ -5,6 +5,8 @@ import type { Fire, FireView } from "@signalone/validation";
 import { FireMapSvg } from "@/components/fire-map/fire-map-svg";
 import { FireMapTabs } from "@/components/fire-map/fire-map-tabs";
 import { getFireMapService } from "@/lib/composition";
+import { computeFireMap } from "@/lib/fire-map/compute";
+import { SAMPLE_FIRES } from "@/lib/fire-map/sample";
 
 // The public Fire Map (S16, docs/features/s16-fire-map.md): where revival is happening, with honest numbers.
 // Computed on the server from the same events the search shows; readable without JavaScript.
@@ -82,8 +84,9 @@ function RegionList({ title, view }: { title: string; view: FireView }) {
   );
 }
 
-export default async function FireMapPage() {
-  const map = await getFireMapService().getFireMap();
+export default async function FireMapPage({ searchParams }: { searchParams: Promise<{ sample?: string }> }) {
+  const sample = (await searchParams).sample === "1";
+  const map = sample ? computeFireMap(SAMPLE_FIRES, new Date()) : await getFireMapService().getFireMap();
   const usIds = new Set(map.us.regions.flatMap((r) => r.events.map((e) => e.id)));
   const usFires = map.fires.filter((f) => usIds.has(f.id));
   return (
@@ -96,6 +99,12 @@ export default async function FireMapPage() {
           Every revival gathering that is on now or coming up is a fire. Where its light falls, the darkness lifts.
         </p>
       </header>
+
+      {sample && (
+        <p data-testid="fire-map-sample-note" className="rounded-xl border border-primary p-3 text-sm">
+          Sample fires: these are made-up gatherings so you can see how the map looks. Real gatherings appear here once they are published.
+        </p>
+      )}
 
       <FireMapTabs
         world={<Panel id="world" label="World" regionNoun="Countries" view={map.world} fires={map.fires} />}
