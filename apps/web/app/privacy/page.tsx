@@ -42,6 +42,11 @@ export default function PrivacyPage() {
         Only the services that run the platform (hosting, sign-in and the database). They may use it only to provide
         their service to us. We may share information when the law requires it.
       </p>
+      <p>
+        When a church or ministry adds a gathering, the page where it chooses the place on a map uses a map service. The
+        service receives the place that was searched for and the part of the map being viewed, as any map does. We send it
+        nothing else about the person, and the pages everyone else sees never contact it.
+      </p>
       <h2>Adults only</h2>
       <p>Signal One Sound is for people 18 and older. We do not knowingly collect information from children.</p>
       <h2>Changes</h2>

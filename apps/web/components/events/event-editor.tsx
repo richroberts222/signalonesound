@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { localToUtc, parseLocalDateTime } from "@signalone/shared";
 import {
+  COUNTRIES,
   EVENT_LINK_MAX,
   REVIVAL_TYPES,
   US_STATES,
@@ -11,6 +12,7 @@ import {
   createEventClient,
   type CreateEventInput,
   type EventView,
+  type Pin,
 } from "@signalone/validation";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +21,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 
+import { addressFromEvent, addressPayload, emptyAddress } from "@/lib/location/address";
+
+import { LocationPicker } from "./location-picker";
 import { EVENT_TIME_ZONES, defaultTimeZone } from "./time-zones";
 
 type Props = { orgId: string; event?: EventView };
@@ -41,8 +46,9 @@ export function EventEditor({ orgId, event }: Props) {
   const [venueName, setVenueName] = useState(event?.venueName ?? "");
   const [street, setStreet] = useState(event?.street ?? "");
   const [city, setCity] = useState(event?.city ?? "");
-  const [state, setState] = useState(event?.state ?? "");
-  const [zip, setZip] = useState(event?.zip ?? "");
+  const [address, setAddress] = useState(() => (event ? addressFromEvent(event) : emptyAddress()));
+  const setAddressField = (field: keyof typeof address, value: string) => setAddress((a) => ({ ...a, [field]: value }));
+  const [pin, setPin] = useState<Pin | null>(event?.location ?? null);
   const [types, setTypes] = useState<string[]>(event?.revivalTypes ?? []);
   const [links, setLinks] = useState<string[]>(event?.links.length ? event.links : [""]);
   const [speakers, setSpeakers] = useState(event?.speakers ?? "");
@@ -79,9 +85,8 @@ export function EventEditor({ orgId, event }: Props) {
       venueName,
       street,
       city,
-      country: "US",
-      state: state as CreateEventInput["state"],
-      zip,
+      ...(addressPayload(address) as Pick<CreateEventInput, "country" | "state" | "zip" | "region">),
+      location: pin,
       revivalTypes: types,
       links: links.map((l) => l.trim()).filter((l) => l !== ""),
       ...(speakers.trim() ? { speakers } : {}),
@@ -196,30 +201,59 @@ export function EventEditor({ orgId, event }: Props) {
             <Input id="event-street" value={street} onChange={(e) => setStreet(e.target.value)} autoComplete="street-address" data-testid="event-street-input" />
             {fieldError("street") && <p className="text-sm text-destructive">{fieldError("street")}</p>}
           </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="event-country">Country</Label>
+            <NativeSelect id="event-country" value={address.country} onChange={(e) => setAddressField("country", e.target.value)} autoComplete="country" data-testid="event-country-select">
+              {COUNTRIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.name}
+                </option>
+              ))}
+            </NativeSelect>
+            {fieldError("country") && <p className="text-sm text-destructive">{fieldError("country")}</p>}
+          </div>
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="event-city">City</Label>
+              <Label htmlFor="event-city">{address.country === "US" ? "City" : "City, town or village"}</Label>
               <Input id="event-city" value={city} onChange={(e) => setCity(e.target.value)} data-testid="event-city-input" />
               {fieldError("city") && <p className="text-sm text-destructive">{fieldError("city")}</p>}
             </div>
+            {address.country === "US" ? (
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="event-state">State</Label>
+                <NativeSelect id="event-state" value={address.state} onChange={(e) => setAddressField("state", e.target.value)} data-testid="event-state-select">
+                  <option value="">Choose</option>
+                  {US_STATES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </NativeSelect>
+                {fieldError("state") && <p className="text-sm text-destructive">{fieldError("state")}</p>}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="event-region">State, province or region (optional)</Label>
+                <Input id="event-region" value={address.region} onChange={(e) => setAddressField("region", e.target.value)} autoComplete="address-level1" data-testid="event-region-input" />
+                {fieldError("region") && <p className="text-sm text-destructive">{fieldError("region")}</p>}
+              </div>
+            )}
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="event-state">State</Label>
-              <NativeSelect id="event-state" value={state} onChange={(e) => setState(e.target.value)} data-testid="event-state-select">
-                <option value="">Choose</option>
-                {US_STATES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </NativeSelect>
-              {fieldError("state") && <p className="text-sm text-destructive">{fieldError("state")}</p>}
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="event-zip">ZIP code</Label>
-              <Input id="event-zip" value={zip} onChange={(e) => setZip(e.target.value)} inputMode="numeric" autoComplete="postal-code" data-testid="event-zip-input" />
+              <Label htmlFor="event-zip">{address.country === "US" ? "ZIP code" : "Postal code (optional)"}</Label>
+              <Input
+                id="event-zip"
+                value={address.zip}
+                onChange={(e) => setAddressField("zip", e.target.value)}
+                inputMode={address.country === "US" ? "numeric" : "text"}
+                autoComplete="postal-code"
+                data-testid="event-zip-input"
+              />
               {fieldError("zip") && <p className="text-sm text-destructive">{fieldError("zip")}</p>}
             </div>
           </div>
+
+          <LocationPicker value={pin} onChange={setPin} searchSeed={[street, city].map((s) => s.trim()).filter(Boolean).join(", ")} />
+          {fieldError("location") && <p className="text-sm text-destructive">{fieldError("location")}</p>}
 
           <fieldset className="flex flex-col gap-2">
             <legend className="text-sm">Kind of gathering (choose at least one)</legend>
