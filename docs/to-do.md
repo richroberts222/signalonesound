@@ -74,22 +74,6 @@ These are free for a public repository. They watch for known-vulnerable packages
 
 Nothing to prepare: say "start the phone server" in the chat, and Claude starts the web and phone code servers. Then reopen the app on your Android phone. You should see the dark theme, buttons that dim when pressed, and the search status right under the buttons. Send Claude anything that looks wrong.
 
-### Task 7: Fix the app name on the sign-in and sign-up pages (about 2 minutes)
-
-The sign-in card says "Sign in to signalOneSound" with a lowercase s. That name comes from Clerk, not from our code, so only you can change it.
-
-1. Go to dashboard.clerk.com and sign in.
-2. Open the Signal One Sound application.
-3. At the top of the page, switch to the **Production** instance (not Development).
-4. In the left menu, open **Configure**, then **Customization**, then **Branding**. Clerk sometimes moves menu items; if you cannot find it, use the dashboard search box and type "Application name".
-5. Change **Application name** to `Signal One Sound` (capital S, spaces) and save.
-6. Reload the sign-in page on www.signalonesound.com to check it. Clerk may take a minute to show the change.
-7. Tell Claude it is done and this task will be removed. If there is also a Development instance, change it the same way so it matches.
-
-### Task 8: Run the production database update when Claude tells you (about 5 minutes)
-
-Claude has a pull request ready that adds a country to events (the first half of the event location work, S17). It is deliberately not merged yet: the live site would break between the merge and the database update. When you are at the PC or phone with a few minutes, tell Claude "ready for the database update". Claude merges it, then you run **Migrate production**: GitHub, **Actions**, **Migrate production**, **Run workflow**, branch `main`, type `migrate-production`, then open the run, **Review deployments**, tick `production`, **Approve and deploy** (full steps: `docs/how-to.md` section 6f). Check the log ends with `pending=0`, and tell Claude.
-
 ### Waiting, no action yet: the next Android build
 
 Do not build yet. The free Expo plan allows 15 builds a month, so the next build waits for a big batch of phone changes (owner, 2026-10-11). It will carry: the new app icon (your phone still shows the green Android robot until then), the Saved tab and the Save button on events (both already work through the dev server without a build), and anything else we add for the phone before then. Tell Claude when you want it; Claude will not start a build on its own.
@@ -113,6 +97,10 @@ Needed for the iPhone app. Costs money, so it is your decision (question Q-011).
 1. Decide between **Individual** and **Organization**.
     - Organization needs a D-U-N-S number, which is free but takes time to obtain.
 2. Tell Claude your choice. Claude then gives the sign-up steps.
+
+### Optional: remove "Secured by Clerk" (Clerk Pro, paid)
+
+Clerk shows a small "Secured by Clerk" line on its sign-in cards. Removing it is a paid Clerk Pro feature (the switch is under Configure, Settings, Branding). It does not affect how anything works and most visitors will not care, so it can wait until money is coming in. Tell Claude if you want it; nothing is bought without your yes.
 
 ### Task 7c: Decide how to rate limit the public site before launch (about 10 minutes, not needed for the demo)
 
