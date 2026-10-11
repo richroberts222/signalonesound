@@ -252,3 +252,9 @@ Every admin route answers `404` to anyone who is not an admin (`401` signed out)
 ## Not decided yet
 
 Mobile token verification has not been exercised end to end (no Clerk-authenticated live call in CI); rate limiting; CORS; request IDs and a real logging system; idempotency keys; pagination conventions beyond `Paginated<T>`; OpenAPI generation; path parameters in the adapter (the proof uses a query-string `id`).
+
+## Fire Map (S16, reference application)
+
+| Endpoint | Auth | Purpose |
+| --- | --- | --- |
+| `GET /api/v1/fire-map` | public | The fires (published, not cancelled, not past events with a place) and, for the world and the United States, the fire count, the regions with a fire as "with" and "total", the land under fire as a percentage (up to four decimals), and the regions with their events. Computed on the server from simplified Natural Earth outlines (public domain); no database change |

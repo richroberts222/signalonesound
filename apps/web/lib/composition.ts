@@ -13,6 +13,7 @@ import { createProofItemRepo } from "../db/proof-items";
 import { clerkIdentityAdmin } from "./auth/clerk-identity-admin";
 import { getDb } from "../db";
 import { createDiscoverService, type DiscoverService } from "./services/discover";
+import { createFireMapService, type FireMapService } from "./services/fire-map";
 import { createEventsService, type EventsService } from "./services/events";
 import { searchPlaces } from "./places/gazetteer";
 import { gazetteerGeocoder } from "./places/geocoder";
@@ -85,6 +86,12 @@ export function getDiscoverService(): DiscoverService {
     repo: { searchPublic: (query) => repo().searchPublic(query), getPublic: (id) => repo().getPublic(id) },
     places: searchPlaces,
   }));
+}
+
+let fireMap: FireMapService | undefined;
+
+export function getFireMapService(): FireMapService {
+  return (fireMap ??= createFireMapService({ repo: createEventsRepo(getDb()) }));
 }
 
 let saved: SavedService | undefined;

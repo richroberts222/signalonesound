@@ -4,7 +4,7 @@ import { afterAll, describe, expect, it } from "vitest";
 
 import { createDb } from "./client";
 import { createEventsRepo, type NewEvent } from "./events";
-import { auditLog, event, eventLink, eventRevivalType, eventSeries, idempotencyRecord } from "./schema";
+import { auditLog, event, eventLink, organization, eventRevivalType, eventSeries, idempotencyRecord } from "./schema";
 
 // Database-backed integration tests for events (S3, /docs/automation/integration.md). They run ONLY
 // via `pnpm --filter web test:integration`, never in `pnpm test`, and are fail-closed: DATABASE_ENV
@@ -74,6 +74,7 @@ afterAll(async () => {
       await db.delete(idempotencyRecord).where(inArray(idempotencyRecord.eventId, eventIds));
     }
     await db.delete(event).where(inArray(event.orgId, ids));
+  await db.delete(organization).where(like(organization.nameKey, `${PREFIX}%`));
     await db.delete(eventSeries).where(inArray(eventSeries.orgId, ids));
   }
   await db.delete(auditLog).where(like(auditLog.subject, `%${PREFIX}%`));
@@ -174,5 +175,30 @@ describe("events against the real database", () => {
     expect(await repo.findOverlap(orgId, "Overlap Hall", hours(504), hours(506), [])).toBeNull();
     await repo.setStatus({ id: e.id, from: ["published"], to: "cancelled", audit: { actorId: user, action: "event.cancel", subject: `${PREFIX}${e.id}` } });
     expect(await repo.findOverlap(orgId, "Overlap Hall", hours(501), hours(502), [])).toBeNull();
+  });
+});
+
+describe("fire map events against the real database (S16)", () => {
+  const newApprovedOrg = async (status: "approved" | "pending") => {
+    const id = newOrg();
+    await db.insert(organization).values({ id, name: `${PREFIX}church`, nameKey: `${PREFIX}${id}`, status });
+    return id;
+  };
+
+  it("lists only published events with a place that are not over, of approved organizations", async () => {
+    const good = await newApprovedOrg("approved");
+    const held = await newApprovedOrg("pending");
+    const place = { lat: 36.16, lng: -86.78 };
+    const shown = make(good, { title: `${PREFIX}shown`, ...place });
+    const ongoing = make(good, { title: `${PREFIX}ongoing`, startsAt: hours(-1), endsAt: hours(1), ...place });
+    const over = make(good, { title: `${PREFIX}over`, startsAt: hours(-5), endsAt: hours(-4), ...place });
+    const noPlace = make(good, { title: `${PREFIX}noplace` });
+    const draft = make(good, { title: `${PREFIX}draft`, status: "draft", ...place });
+    const heldOrgEvent = make(held, { title: `${PREFIX}held`, ...place });
+    for (const e of [shown, ongoing, over, noPlace, draft, heldOrgEvent]) await create(e);
+    const ids = (await repo.listMapEvents(new Date())).map((r) => r.id);
+    expect(ids).toContain(shown.id);
+    expect(ids).toContain(ongoing.id);
+    for (const e of [over, noPlace, draft, heldOrgEvent]) expect(ids).not.toContain(e.id);
   });
 });

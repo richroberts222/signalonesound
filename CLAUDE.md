@@ -19,6 +19,7 @@ Guidance for Claude Code in the Signal One repository. This file is the entry po
 11. **Workflow files, repository settings and security configuration** change only through a reviewed pull request or by the owner.
 12. **Every problem becomes a rule.** When a defect or mistake is found, add a guard (preferred) or a rule in the owning document in the same pull request, and log it in `/docs/lessons.md`. A repeat is a process failure: widen the guard. A fix pull request must add or change a test, or log a lesson (CI enforces this).
 13. **Surface conflicts.** If instructions, documents and the repository disagree, say what was assumed, what exists and why it matters; stop and ask if the difference is material.
+14. **Keep shell commands short.** One purpose per command; never a long chain, a large inline heredoc or a multi-line inline script. Put multi-line code in a file with the file-writing tool and run that file. If a command is rejected as malformed, split it; do not retry it unchanged (`/docs/lessons.md`).
 
 ---
 
