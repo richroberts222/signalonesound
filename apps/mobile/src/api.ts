@@ -2,6 +2,7 @@ import { createApiClient, createDiscoverClient } from "@signalone/validation";
 
 import { currentToken } from "./auth/TokenBridge";
 import { getMobileEnv } from "./config/env";
+import { createMobileProfileClient } from "./account/profileClient";
 import { createMobileSavedClient } from "./saved/savedClient";
 
 // The phone's one door to the API for discovery: the same shared client the web uses, with the base URL from
@@ -19,4 +20,11 @@ let saved: ReturnType<typeof createMobileSavedClient> | undefined;
 
 export function getSavedClient() {
   return (saved ??= createMobileSavedClient({ getToken: currentToken }));
+}
+
+// The member's own profile, policy acceptance, data export and account deletion (S1): the same shared client.
+let profile: ReturnType<typeof createMobileProfileClient> | undefined;
+
+export function getProfileClient() {
+  return (profile ??= createMobileProfileClient({ getToken: currentToken }));
 }

@@ -61,3 +61,9 @@ Apple Developer Program and Google Play developer accounts (paid; asked and appr
 ## Done checklist
 
 AC1 to AC12 and controls ticked [Fable]; device checklist completed on one iPhone and one Android phone; `pnpm validate` clean; CI green; docs updated.
+
+## Build notes: the phone Account tab (2026-10-11)
+
+* **Signed-in Account tab** (`apps/mobile/src/auth/SignedInScreen.tsx`, wording and rules in `src/account/accountText.ts`): display name, email preference, the **Download my data** share sheet (the member's export as text), **Delete my account** (two steps: the word DELETE typed, then signed out; the App Store and Google Play both require deletion inside the app), **Invite a friend** (S6: a random link through the share sheet, no contact list, nothing about who it is for), links to the Terms and Privacy Policy, and Sign out.
+* **The re-accept dialog (AC11)** is a card on the Account tab shown when the member has not accepted the current Terms and Privacy Policy: read both, confirm 18 or older, Accept. Other screens that get `403 policy_reacceptance_required` say so in words (the Save button and the Saved list show the failure line). A modal that appears on any screen is not built; the card plus the plain message cover the rule today.
+* The same shared client and API as the web; the session token goes as a bearer token (`TokenBridge`). Logic is covered by phone logic tests; the screens are not exercised on a device in CI (`docs/mobile.md`). They load through the running dev server with no new build.
