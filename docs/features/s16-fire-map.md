@@ -51,6 +51,42 @@ Importing events or locations from other organizations (Healing Rooms, houses of
 | Text list of regions | `fire-map-list`, `fire-map-region-link` | View, click a link | Opens the event page |
 | Footer link (the navigation link is the Fire Map item of the main navigation) | `footer-fire-map` | Click | Opens `/fire-map` |
 
+## Addition S16b: zoom and pan (requested by the owner on 2026-10-11 ("great idea!!!"); spec written, build awaits the owner's go)
+
+**Why.** At the whole-map view one fire's glow has to be drawn large to be seen, so one fire seems to cover a state. Zooming in shows the true size.
+
+**In scope.**
+
+* Zoom and pan on both maps: pinch and two-finger drag on a phone, scroll wheel (or trackpad pinch) and drag on a computer, and **Zoom in**, **Zoom out** and **Reset** buttons for people who cannot pinch or drag. The keyboard can use the buttons and the arrow keys when the map has focus.
+* As the map zooms in, each fire's glow shrinks toward its true 10 mile size (it is never smaller than the true size); the thin true ring and the flame icon stay a readable size. At the most zoomed-out view nothing changes from today.
+* Zoom is limited to a sensible range (about 1 times to 12 times) and the map cannot be dragged off the page.
+* Flames stay links to their events while zoomed. City names on the United States map show more of the cities with fires as there is room.
+* Zoom is a progressive extra: without JavaScript the map looks and works as it does today. No new map vendor, no external request, no tracking. No change to the API, the numbers or the database.
+
+**Out of scope for S16b (a possible S16c, to be decided after the owner sees S16b).** Finer outline detail that loads only when zoomed in; county or town lines; showing every fire's name on the map.
+
+**Acceptance criteria.**
+
+* **AC14** The map has Zoom in, Zoom out and Reset buttons; each changes the view as named, Zoom out and Reset never go past the whole-map view, and Zoom in stops at the maximum.
+* **AC15** Zooming in on a fire makes its glow smaller on screen than at the whole-map view and never smaller than its true 10 mile ring; at the whole-map view the glow size is unchanged from before.
+* **AC16** Dragging cannot move the map completely off the page, and Reset returns to the whole-map view.
+* **AC17** Fires remain links with the same accessible names and keyboard behavior while zoomed; the tracker numbers and the text list do not change with zoom.
+* **AC18** Without JavaScript the maps render exactly as before and every existing test still passes; with reduced motion set, zooming does not animate.
+* **AC19** The zoom math (the visible window, the clamps and the glow size at a zoom level) is a pure function with unit tests, including a test that fails if the glow could shrink below the true ring.
+
+**Controls added.**
+
+| Control | Test id | Action | Effect |
+| --- | --- | --- | --- |
+| Zoom in | `fire-map-zoom-in` | Click | Zooms in one step |
+| Zoom out | `fire-map-zoom-out` | Click | Zooms out one step |
+| Reset | `fire-map-zoom-reset` | Click | Returns to the whole map |
+| The map | `fire-map-world`, `fire-map-us` | Pinch, scroll, drag, arrow keys | Zooms and pans |
+
+## Sample fires
+
+Opening `/fire-map?sample=1` shows 18 invented, clearly labeled sample fires so the map can be seen before real gatherings exist. Nothing is stored; the ordinary page is unchanged. (This is not the "(Sample) events in production" listed out of scope above, which would put fake events in the database.)
+
 ## Owner decisions still open
 
 The long title ("Holy Spirit Fires Blazing") versus the button name "Fire Map" for the page heading; the plan's separate community feature also called "Fire-Map" (people pinning community needs) needs a different name when it is built (`naming-conventions.md`); whether to add clearly labeled "(Sample)" events for the demo (they would be development data only, never in production numbers); permission and approach for any outside source of events (Healing Rooms, houses of prayer).
