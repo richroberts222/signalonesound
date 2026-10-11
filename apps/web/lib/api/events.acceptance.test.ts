@@ -334,6 +334,125 @@ describe("S3 events acceptance criteria (API boundary)", () => {
     expect(moved.json.data.hasLocation).toBe(false);
   });
 
+  // S17 event location (docs/features/s17-event-location.md): AC2 a pin is stored and puts the event on the map, AC3 no pin
+  // never blocks, AC4 coordinates are checked on the server, AC5 countries and regions.
+  it("S17 AC2 a pin from the location picker is stored, echoed back, and puts a published event on the Fire Map", async () => {
+    const geocode = vi.fn(async () => ({ lat: 1, lng: 1 }));
+    const s = setup({ geocode });
+    const { event } = await made(s, { publish: true, location: { lat: 36.16, lng: -86.78 } });
+    expect(event.hasLocation).toBe(true);
+    expect(event.location).toEqual({ lat: 36.16, lng: -86.78 });
+    expect(geocode).not.toHaveBeenCalled(); // the pin wins; the address is not looked up
+    const fires = await s.repo.listMapEvents(new Date("2026-10-09T12:00:00Z"));
+    expect(fires).toHaveLength(1);
+    expect(fires[0]).toMatchObject({ lat: 36.16, lng: -86.78, city: "Nashville", country: "US" });
+  });
+
+  it("S17 AC3 an event without a pin still saves and publishes, says so, and is not on the Fire Map", async () => {
+    const s = setup();
+    const { event } = await made(s, { publish: true });
+    expect(event.status).toBe("published");
+    expect(event.hasLocation).toBe(false);
+    expect(event.location).toBeNull();
+    expect(await s.repo.listMapEvents(new Date("2026-10-09T12:00:00Z"))).toHaveLength(0);
+    const explicitNone = await made(s, { location: null });
+    expect(explicitNone.event.hasLocation).toBe(false);
+  });
+
+  it("S17 AC4 coordinates out of range, half given or not numbers are refused on create and on edit", async () => {
+    const s = setup();
+    const api = s.as(await s.newUser());
+    for (const location of [{ lat: 91, lng: 0 }, { lat: -91, lng: 0 }, { lat: 0, lng: 181 }, { lat: 0, lng: -181 }, { lat: 5 }, { lng: 5 }, { lat: "36.1", lng: "-86.7" }, { lat: null, lng: null }, { lat: 1, lng: 2, extra: 3 }, "36,-86"]) {
+      const r = await api.create(org, body({ location }));
+      expect(r.status, JSON.stringify(location)).toBe(400);
+      expect(r.json.error?.code).toBe("validation_failed");
+    }
+    const { event, api: owner } = await made(s);
+    expect((await owner.patch(event.id, { version: 1, location: { lat: 100, lng: 0 } })).status).toBe(400);
+    expect((await owner.get(event.id)).json.data.hasLocation).toBe(false);
+  });
+
+  it("S17 AC4 the edge values are accepted", async () => {
+    const s = setup();
+    for (const location of [{ lat: 90, lng: 180 }, { lat: -90, lng: -180 }, { lat: 0, lng: 0 }]) {
+      const r = await s.as(await s.newUser()).create(org, body({ location }));
+      expect(r.status, JSON.stringify(location)).toBe(200);
+    }
+  });
+
+  it("S17 AC5 an event outside the United States needs no state or ZIP, keeps its region, and a US event still needs both", async () => {
+    const s = setup();
+    const api = s.as(await s.newUser());
+    const village = await api.create(org, body({ country: "KE", state: "", zip: "", region: "Nairobi County", city: "Kibera", street: "Chief's camp road", location: { lat: -1.3133, lng: 36.7881 } }));
+    expect(village.status, JSON.stringify(village.json)).toBe(200);
+    expect(village.json.data.event).toMatchObject({ country: "KE", state: "Nairobi County", zip: "", city: "Kibera", hasLocation: true });
+    const noRegion = await api.create(org, body({ country: "KE", state: "", zip: "", city: "Kibera" }));
+    expect(noRegion.status).toBe(200);
+    const noState = await api.create(org, body({ state: "" }));
+    expect(noState.status).toBe(400);
+    expect(noState.json.error?.fieldErrors?.state).toBeDefined();
+    const noZip = await api.create(org, body({ zip: "" }));
+    expect(noZip.status).toBe(400);
+    expect(noZip.json.error?.fieldErrors?.zip).toBeDefined();
+    expect((await api.create(org, body({ country: "ZZ" }))).status).toBe(400);
+    expect((await api.create(org, body({ country: "usa" }))).status).toBe(400);
+  });
+
+  it("an edit that sends only one field leaves every other field alone (description, links, address, country)", async () => {
+    const s = setup();
+    const { api, event } = await made(s, { description: "Keep this text.", links: ["https://sample-church.example"], speakers: "A. Speaker" });
+    const edited = await api.patch(event.id, { version: 1, title: "A new title" });
+    expect(edited.status, JSON.stringify(edited.json)).toBe(200);
+    expect(edited.json.data).toMatchObject({
+      title: "A new title",
+      description: "Keep this text.",
+      links: ["https://sample-church.example"],
+      speakers: "A. Speaker",
+      country: "US",
+      state: "TN",
+      zip: "37201",
+    });
+  });
+
+  it("S17 an event with no country given is a United States event", async () => {
+    const s = setup();
+    const { event } = await made(s);
+    expect(event.country).toBe("US");
+  });
+
+  it("S17 an organizer can set a pin on an event that has none, move it, and remove it", async () => {
+    const s = setup();
+    const { api, event } = await made(s);
+    const set = await api.patch(event.id, { version: 1, location: { lat: 36.1, lng: -86.7 } });
+    expect(set.status, JSON.stringify(set.json)).toBe(200);
+    expect(set.json.data).toMatchObject({ hasLocation: true, location: { lat: 36.1, lng: -86.7 } });
+    const moved = await api.patch(event.id, { version: 2, location: { lat: 36.2, lng: -86.8 } });
+    expect(moved.json.data.location).toEqual({ lat: 36.2, lng: -86.8 });
+    const cleared = await api.patch(event.id, { version: 3, location: null });
+    expect(cleared.json.data).toMatchObject({ hasLocation: false, location: null });
+  });
+
+  it("S17 editing the address does not remove a pin the organizer placed", async () => {
+    const s = setup();
+    const { api, event } = await made(s, { location: { lat: 36.16, lng: -86.78 } });
+    const moved = await api.patch(event.id, { version: 1, street: "456 New Street", city: "Franklin" });
+    expect(moved.status).toBe(200);
+    expect(moved.json.data).toMatchObject({ city: "Franklin", hasLocation: true, location: { lat: 36.16, lng: -86.78 } });
+  });
+
+  it("S17 changing the country on an edit re-checks the address", async () => {
+    const s = setup();
+    const { api, event } = await made(s);
+    const abroad = await api.patch(event.id, { version: 1, country: "GB", region: "England" });
+    expect(abroad.status, JSON.stringify(abroad.json)).toBe(200);
+    expect(abroad.json.data).toMatchObject({ country: "GB", state: "England" });
+    const back = await api.patch(event.id, { version: 2, country: "US" });
+    expect(back.status).toBe(400);
+    expect(back.json.error?.fieldErrors?.state).toBeDefined();
+    const fixed = await api.patch(event.id, { version: 2, country: "US", state: "TN", zip: "37201" });
+    expect(fixed.json.data).toMatchObject({ country: "US", state: "TN", zip: "37201" });
+  });
+
   it("paging returns each event once, in order, with no gaps", async () => {
     const s = setup();
     const api = s.as(await s.newUser());

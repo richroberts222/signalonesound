@@ -56,6 +56,7 @@ export function createFakeEventsRepo(
           city: e.city,
           state: e.state,
           zip: e.zip,
+          country: e.country ?? "US",
           lat: e.lat,
           lng: e.lng,
           speakers: e.speakers,
@@ -182,7 +183,7 @@ export function createFakeEventsRepo(
         if (end < at) continue;
         rows.push(e);
       }
-      return rows.sort(byStart).map((e) => ({ id: e.id, title: e.title, place: `${e.city}, ${e.state}`, lat: e.lat as number, lng: e.lng as number }));
+      return rows.sort(byStart).map((e) => ({ id: e.id, title: e.title, city: e.city, state: e.state, country: e.country ?? "US", lat: e.lat as number, lng: e.lng as number }));
     },
 
     async getManyWithOrg(ids) {

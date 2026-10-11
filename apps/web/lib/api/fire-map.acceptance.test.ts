@@ -122,6 +122,18 @@ describe("S16 fire map acceptance criteria (API boundary)", () => {
     expect(((await apart.get()).json.data.us.landPercent as number) / single).toBeGreaterThan(1.9);
   });
 
+  it("S17 AC5 a gathering in a village outside the United States is a fire, named 'Place, Country' from what the organizer typed", async () => {
+    const s = setup();
+    const village = await s.add({ city: "Kibera", state: "Nairobi County", zip: "", country: "KE", at: { lat: -1.3133, lng: 36.7881 } });
+    const us = await s.add();
+    const r = await s.get();
+    expect(r.status).toBe(200);
+    const fires = r.json.data.fires as { id: string; place: string }[];
+    expect(fires.find((f) => f.id === village.id)?.place).toBe("Kibera, Kenya");
+    expect(fires.find((f) => f.id === us.id)?.place).toBe("Nashville, TN");
+    expect(r.json.data.world.regions.map((x: { name: string }) => x.name)).toContain("Kenya");
+  });
+
   it("AC4 a fire on the ocean counts as a fire and adds no land and no region", async () => {
     const s = setup();
     await s.add({ at: ATLANTIC });

@@ -1,4 +1,4 @@
-import type { FireMap } from "@signalone/validation";
+import { placeLabel, type FireMap } from "@signalone/validation";
 
 import type { EventsRepo } from "../../db/events";
 import { computeFireMap } from "../fire-map/compute";
@@ -16,7 +16,11 @@ export function createFireMapService({ repo, now = () => new Date() }: FireMapSe
   return {
     async getFireMap(): Promise<FireMap> {
       const at = now();
-      return computeFireMap(await repo.listMapEvents(at), at);
+      const rows = await repo.listMapEvents(at);
+      return computeFireMap(
+        rows.map((r) => ({ id: r.id, title: r.title, place: placeLabel(r.city, r.state, r.country), lat: r.lat, lng: r.lng })),
+        at,
+      );
     },
   };
 }

@@ -147,6 +147,8 @@ export const event = pgTable(
     city: text("city").notNull(),
     state: text("state").notNull(),
     zip: text("zip").notNull(),
+    // Two-letter country code (S17). Outside the United States the state and ZIP are empty text and the place is the city and country.
+    country: text("country").notNull().default("US"),
     lat: doublePrecision("lat"),
     lng: doublePrecision("lng"),
     speakers: text("speakers"),

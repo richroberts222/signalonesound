@@ -1,6 +1,6 @@
 # S17 Event location picker
 
-**Status: SPEC FOR THE OWNER'S APPROVAL (written 2026-10-11 from the owner's idea: organizers should place their gathering by searching or tapping a real map, never by typing latitude and longitude; MapTiler's free plan to start). Nothing here is built. Web first.**
+**Status: APPROVED to build (the owner, 2026-10-11: "keep developing"; the idea: organizers place their gathering by searching or tapping a real map, never by typing latitude and longitude; MapTiler's free plan to start). Built in steps: (1) data and server rules (pin, country, region, checks), then (2) the picker on the form. Web first.**
 
 ## Why this slice exists
 

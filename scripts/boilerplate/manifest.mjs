@@ -70,6 +70,8 @@ export const PROOF_PATHS = [
   "apps/web/lib/api/events.acceptance.test.ts",
   "apps/web/lib/services/events.ts",
   "packages/validation/src/event.ts",
+  "packages/validation/src/event.test.ts",
+  "packages/validation/src/countries.ts",
   "packages/validation/src/event-client.ts",
   // S4 discover (docs/features/s4-discover-web.md): product code of the reference app.
   "apps/web/app/churches",

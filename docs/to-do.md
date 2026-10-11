@@ -85,6 +85,10 @@ The sign-in card says "Sign in to signalOneSound" with a lowercase s. That name 
 6. Reload the sign-in page on www.signalonesound.com to check it. Clerk may take a minute to show the change.
 7. Tell Claude it is done and this task will be removed. If there is also a Development instance, change it the same way so it matches.
 
+### Task 8: Run the production database update when Claude tells you (about 5 minutes)
+
+Claude has a pull request ready that adds a country to events (the first half of the event location work, S17). It is deliberately not merged yet: the live site would break between the merge and the database update. When you are at the PC or phone with a few minutes, tell Claude "ready for the database update". Claude merges it, then you run **Migrate production**: GitHub, **Actions**, **Migrate production**, **Run workflow**, branch `main`, type `migrate-production`, then open the run, **Review deployments**, tick `production`, **Approve and deploy** (full steps: `docs/how-to.md` section 6f). Check the log ends with `pending=0`, and tell Claude.
+
 ### Waiting, no action yet: the next Android build
 
 Do not build yet. The free Expo plan allows 15 builds a month, so the next build waits for a big batch of phone changes (owner, 2026-10-11). It will carry: the new app icon (your phone still shows the green Android robot until then) and the Signal One Sound name styling. Tell Claude when you want it; Claude will not start a build on its own.

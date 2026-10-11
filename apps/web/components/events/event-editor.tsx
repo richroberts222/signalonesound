@@ -79,6 +79,7 @@ export function EventEditor({ orgId, event }: Props) {
       venueName,
       street,
       city,
+      country: "US",
       state: state as CreateEventInput["state"],
       zip,
       revivalTypes: types,
