@@ -39,6 +39,7 @@ export function BillingConsole() {
   const [newPlan, setNewPlan] = useState({ accountType: "member" as AccountType, name: "", interval: "month" as "month" | "year", amount: "" });
   const [priceEdits, setPriceEdits] = useState<Record<string, string>>({});
   const [newCoupon, setNewCoupon] = useState({ code: "", kind: "percent" as "percent" | "amount", value: "", expires: "", limit: "" });
+  const [flagship, setFlagship] = useState({ used: 0, limit: 50, organizationId: "", reason: "" });
   const [trial, setTrial] = useState({ userId: "", days: "30", reason: "" });
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +53,8 @@ export function BillingConsole() {
     if (p.ok) setPlans(p.data.items);
     if (c.ok) setCoupons(c.data.items);
     if (a.ok) setAudit(a.data.items);
+    const fl = await client.getFlagship();
+    if (fl.ok) setFlagship((prev) => ({ ...prev, used: fl.data.used, limit: fl.data.limit }));
   }, [client]);
 
   useEffect(() => {
@@ -93,6 +96,10 @@ export function BillingConsole() {
     const amountMinor = parseDollarsToMinor(priceEdits[plan.id] ?? "");
     if (amountMinor === null || !plan.price) return setError("Enter the new price in dollars, like 3 or 3.50 (up to $10,000).");
     void act(() => client.updatePlan(plan.id, { price: { interval: plan.price!.interval, amountMinor, currency: plan.price!.currency } }), "New price saved. Current subscribers keep the price they bought.").then(() => setPriceEdits({ ...priceEdits, [plan.id]: "" }));
+  }
+
+  function changeFlagship(enabled: boolean) {
+    void act(() => client.setFlagship({ organizationId: flagship.organizationId.trim(), enabled, reason: flagship.reason }), enabled ? "Free for life: place given." : "Free for life: place removed.").then(() => setFlagship((prev) => ({ ...prev, organizationId: "", reason: "" })));
   }
 
   function grantTrial() {
@@ -313,6 +320,31 @@ export function BillingConsole() {
             <div className="flex items-end">
               <Button disabled={busy} onClick={createCoupon} data-testid="coupon-new">
                 Create coupon
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Free for life (flagship churches and ministries)</CardTitle>
+            <CardDescription data-testid="flagship-count">{flagship.used} of {flagship.limit} places used. A church or ministry with a place never pays. One that already pays cannot be given a place. The reason is recorded.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-2">
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="flagship-org">Church or ministry id</Label>
+              <Input id="flagship-org" value={flagship.organizationId} onChange={(e) => setFlagship({ ...flagship, organizationId: e.target.value })} data-testid="flagship-org" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="flagship-reason">Reason (required)</Label>
+              <Input id="flagship-reason" value={flagship.reason} onChange={(e) => setFlagship({ ...flagship, reason: e.target.value })} data-testid="flagship-reason" />
+            </div>
+            <div className="flex gap-2">
+              <Button disabled={busy} onClick={() => changeFlagship(true)} data-testid="flagship-enable">
+                Give a place
+              </Button>
+              <Button variant="outline" disabled={busy} onClick={() => changeFlagship(false)} data-testid="flagship-disable">
+                Remove the place
               </Button>
             </div>
           </CardContent>

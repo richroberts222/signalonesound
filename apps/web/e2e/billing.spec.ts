@@ -99,3 +99,30 @@ test.describe("Membership (S13)", () => {
     await expect(page).toHaveURL(/sign-in/);
   });
 });
+
+// S14 (docs/features/s14-church-plans.md): church plans and the free-for-life places.
+test.describe("Church plans (S14)", () => {
+  test.skip(!ready, SKIP_REASON);
+  const church = "00000000-0000-4000-8000-000000000001";
+
+  test("AC1 AC7 signed out, every church plan route and the flagship route answer 401", async ({ request }) => {
+    expect((await request.get(`/api/v1/organizations/${church}/entitlement`)).status()).toBe(401);
+    expect((await request.post(`/api/v1/organizations/${church}/checkout`, { data: { planId: church } })).status()).toBe(401);
+    expect((await request.post(`/api/v1/organizations/${church}/billing-portal`)).status()).toBe(401);
+    expect((await request.get("/api/v1/admin/billing/flagship")).status()).toBe(401);
+    expect((await request.put("/api/v1/admin/billing/flagship", { data: { organizationId: church, enabled: true, reason: "test" } })).status()).toBe(401);
+  });
+
+  test("AC1 AC7 a member who manages no such church, and who is not an admin, is told 'not found'", async ({ page }) => {
+    await signIn(page);
+    expect((await page.request.get(`/api/v1/organizations/${church}/entitlement`)).status()).toBe(404);
+    expect((await page.request.post(`/api/v1/organizations/${church}/billing-portal`)).status()).toBe(404);
+    expect((await page.request.get("/api/v1/admin/billing/flagship")).status()).toBe(404);
+    expect((await page.request.put("/api/v1/admin/billing/flagship", { data: { organizationId: church, enabled: true, reason: "test" } })).status()).toBe(404);
+  });
+
+  test("the church membership page sends a signed-out visitor to sign in", async ({ page }) => {
+    await page.goto(`/manage/${church}/membership`);
+    await expect(page).toHaveURL(/sign-in/);
+  });
+});

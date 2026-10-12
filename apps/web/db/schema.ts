@@ -475,9 +475,11 @@ export const billingSubscription = pgTable(
     // happened, so an old notification never overwrites a newer state (S11).
     providerCustomerRef: text("provider_customer_ref"),
     providerEventAt: timestamp("provider_event_at", { withTimezone: true }),
+    // A flagship church or ministry (free for life, S14) holds one of 50 numbered places; the unique place number is what keeps the limit at 50.
+    flagshipSlot: smallint("flagship_slot"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [unique("billing_subscription_account_unique").on(t.accountType, t.accountId), index("billing_subscription_ref_idx").on(t.providerRef)],
+  (t) => [unique("billing_subscription_account_unique").on(t.accountType, t.accountId), index("billing_subscription_ref_idx").on(t.providerRef), unique("billing_subscription_flagship_slot_unique").on(t.flagshipSlot), check("billing_subscription_flagship_slot_range", sql`${t.flagshipSlot} is null or ${t.flagshipSlot} between 1 and 50`)],
 );
 
 // S11: the ids of payment notifications already applied, so a replay is ignored (docs/payments.md rule 4). Only

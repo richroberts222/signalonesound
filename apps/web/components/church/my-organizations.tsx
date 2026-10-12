@@ -62,6 +62,11 @@ export function MyOrganizationsList() {
                     Manage events
                   </Link>
                 )}
+                {item.membership === "approved" && (
+                  <Link href={`/manage/${item.id}/membership`} className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit" })} data-testid={`orgs-membership-${item.id}`}>
+                    Membership
+                  </Link>
+                )}
               </CardContent>
             </Card>
           </li>

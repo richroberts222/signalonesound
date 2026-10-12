@@ -68,7 +68,7 @@ describe("S13 trial grants (API boundary)", () => {
   it("AC3: a running trial, an ended trial and a cancelled subscription all get the new end", async () => {
     const s = setup();
     for (const status of ["trialing", "cancelled"]) {
-      s.world.subscriptions.set(`member:${member}`, { id: "row", accountType: "member", accountId: member, planId: null, priceId: null, status, trialEndsAt: new Date(s.clock.getTime() - 5 * DAY), providerRef: null, providerCustomerRef: null, providerEventAt: null, createdAt: s.clock });
+      s.world.subscriptions.set(`member:${member}`, { id: "row", accountType: "member", accountId: member, planId: null, priceId: null, status, trialEndsAt: new Date(s.clock.getTime() - 5 * DAY), providerRef: null, providerCustomerRef: null, providerEventAt: null, flagshipSlot: null, createdAt: s.clock });
       const res = await s.as(admin).grant({ ...good, days: 7 });
       expect(res.status).toBe(200);
       expect(res.json.data.status).toBe("trialing");
@@ -79,7 +79,7 @@ describe("S13 trial grants (API boundary)", () => {
   it("AC4: a member who has paid (active or past due) is refused and nothing changes", async () => {
     const s = setup();
     for (const status of ["active", "past_due"]) {
-      s.world.subscriptions.set(`member:${member}`, { id: "row", accountType: "member", accountId: member, planId: null, priceId: null, status, trialEndsAt: null, providerRef: "sub_1", providerCustomerRef: null, providerEventAt: null, createdAt: s.clock });
+      s.world.subscriptions.set(`member:${member}`, { id: "row", accountType: "member", accountId: member, planId: null, priceId: null, status, trialEndsAt: null, providerRef: "sub_1", providerCustomerRef: null, providerEventAt: null, flagshipSlot: null, createdAt: s.clock });
       const res = await s.as(admin).grant(good);
       expect(res.status).toBe(409);
       expect(s.world.subscriptions.get(`member:${member}`)?.status).toBe(status);

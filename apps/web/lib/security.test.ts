@@ -173,11 +173,13 @@ describe("committed files contain no real secrets", () => {
     // fixture that does is accepted; anything else key-shaped in a test file is an offender.
     const FAKE_MARKER = /SECRET|REPLACE|FAKE|PLACEHOLDER|dummy|example|\.invalid|localhost|:(?:p|pw)@|@host\b/i;
     const testFiles = walk(repo).filter((f) => isTest(f) && /\.tsx?$/.test(f));
-    const scan = (f: string, tolerateFakes: boolean) =>
-      patterns.flatMap(([name, re]) => {
-        const hits = [...read(f).matchAll(new RegExp(re.source, "g"))].map((m) => m[0]);
+    const scan = (f: string, tolerateFakes: boolean) => {
+      const text = read(f); // once per file, not once per pattern: the scan reads every committed text file
+      return patterns.flatMap(([name, re]) => {
+        const hits = [...text.matchAll(new RegExp(re.source, "g"))].map((m) => m[0]);
         return hits.filter((h) => !(tolerateFakes && FAKE_MARKER.test(h))).length > 0 ? [`${rel(f)}: ${name}`] : [];
       });
+    };
     const offenders = [...textFiles.flatMap((f) => scan(f, false)), ...testFiles.flatMap((f) => scan(f, true))];
     expect(offenders).toEqual([]);
     // The scan reads every committed text file, so it grows with the repository: allow 30 seconds, not 5.

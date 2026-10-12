@@ -98,7 +98,7 @@ export function createFakeBillingRepo(world: BillingWorld, now: () => Date = () 
     startTrial: async ({ accountType, accountId, trialEndsAt }) => {
       const existing = world.subscriptions.get(key(accountType, accountId));
       if (existing) return existing;
-      const row: SubscriptionRow = { id: randomUUID(), accountType, accountId, planId: null, priceId: null, status: "trialing", trialEndsAt, providerRef: null, providerCustomerRef: null, providerEventAt: null, createdAt: now() };
+      const row: SubscriptionRow = { id: randomUUID(), accountType, accountId, planId: null, priceId: null, status: "trialing", trialEndsAt, providerRef: null, providerCustomerRef: null, providerEventAt: null, flagshipSlot: null, createdAt: now() };
       world.subscriptions.set(key(accountType, accountId), row);
       return row;
     },
@@ -107,13 +107,35 @@ export function createFakeBillingRepo(world: BillingWorld, now: () => Date = () 
       const k = key("member", userId);
       const existing = world.subscriptions.get(k);
       if (existing && (existing.status === "active" || existing.status === "past_due")) return false;
-      world.subscriptions.set(k, existing ? { ...existing, status: "trialing", trialEndsAt } : { id: randomUUID(), accountType: "member", accountId: userId, planId: null, priceId: null, status: "trialing", trialEndsAt, providerRef: null, providerCustomerRef: null, providerEventAt: null, createdAt: now() });
+      world.subscriptions.set(k, existing ? { ...existing, status: "trialing", trialEndsAt } : { id: randomUUID(), accountType: "member", accountId: userId, planId: null, priceId: null, status: "trialing", trialEndsAt, providerRef: null, providerCustomerRef: null, providerEventAt: null, flagshipSlot: null, createdAt: now() });
       record(actorId, "billing.trial.grant", `member:${userId}`, detail);
+      return true;
+    },
+    flagshipUsed: async () => [...world.subscriptions.values()].filter((s) => s.flagshipSlot !== null).length,
+    enableFlagship: async ({ organizationId, actorId, detail }) => {
+      const k = key("organization", organizationId);
+      const existing = world.subscriptions.get(k);
+      if (existing?.providerRef) return false;
+      let slot = existing?.flagshipSlot ?? null;
+      if (slot === null) {
+        const taken = new Set([...world.subscriptions.values()].map((s) => s.flagshipSlot).filter((n): n is number => n !== null));
+        for (let n = 1; n <= 50; n++) if (!taken.has(n)) { slot = n; break; }
+        if (slot === null) return false;
+      }
+      world.subscriptions.set(k, { id: existing?.id ?? randomUUID(), accountType: "organization", accountId: organizationId, planId: null, priceId: null, status: "active", trialEndsAt: null, providerRef: null, providerCustomerRef: null, providerEventAt: existing?.providerEventAt ?? null, flagshipSlot: slot, createdAt: existing?.createdAt ?? now() });
+      record(actorId, "billing.flagship.enable", `organization:${organizationId}`, detail);
+      return true;
+    },
+    disableFlagship: async ({ organizationId, actorId, detail }) => {
+      const k = key("organization", organizationId);
+      if (world.subscriptions.get(k)?.flagshipSlot == null) return false;
+      world.subscriptions.delete(k);
+      record(actorId, "billing.flagship.disable", `organization:${organizationId}`, detail);
       return true;
     },
     saveSubscription: async (input) => {
       const k = key(input.accountType, input.accountId);
-      const row: SubscriptionRow = { id: world.subscriptions.get(k)?.id ?? randomUUID(), ...input, trialEndsAt: null, providerCustomerRef: null, providerEventAt: null, createdAt: world.subscriptions.get(k)?.createdAt ?? now() };
+      const row: SubscriptionRow = { id: world.subscriptions.get(k)?.id ?? randomUUID(), ...input, trialEndsAt: null, providerCustomerRef: null, providerEventAt: null, flagshipSlot: world.subscriptions.get(k)?.flagshipSlot ?? null, createdAt: world.subscriptions.get(k)?.createdAt ?? now() };
       world.subscriptions.set(k, row);
       return row;
     },
@@ -122,8 +144,9 @@ export function createFakeBillingRepo(world: BillingWorld, now: () => Date = () 
     applyCheckoutCompleted: async ({ accountType, accountId, planId, priceId, subscriptionRef, customerRef, at }) => {
       const k = key(accountType, accountId);
       const existing = world.subscriptions.get(k);
+      if (existing?.flagshipSlot != null) return; // a flagship church is never changed by a provider event
       if (existing?.providerEventAt && existing.providerEventAt.getTime() > at.getTime()) return; // a newer notification already set it
-      world.subscriptions.set(k, { id: existing?.id ?? randomUUID(), accountType, accountId, planId, priceId, status: "active", trialEndsAt: null, providerRef: subscriptionRef, providerCustomerRef: customerRef, providerEventAt: at, createdAt: existing?.createdAt ?? now() });
+      world.subscriptions.set(k, { id: existing?.id ?? randomUUID(), accountType, accountId, planId, priceId, status: "active", trialEndsAt: null, providerRef: subscriptionRef, providerCustomerRef: customerRef, providerEventAt: at, flagshipSlot: null, createdAt: existing?.createdAt ?? now() });
     },
     setStatusByProviderRef: async (ref, status, at) => {
       const row = [...world.subscriptions.values()].find((r) => r.providerRef === ref);
