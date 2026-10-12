@@ -22,7 +22,7 @@ export default function Home() {
             <Flame aria-hidden className="size-4" /> Revival discovery
           </p>
           <h1 className="font-heading max-w-5xl text-5xl leading-[1.02] font-extrabold tracking-tight sm:text-7xl">
-            Discover the fire <span className="text-gradient-gold">near you.</span>
+            <span className="text-gradient-gold">Discover the fire near you.</span>
           </h1>
           <p className="max-w-xl text-lg text-muted-foreground sm:text-xl">
             Revival gatherings, tent meetings, worship nights, and prayer. Discover what God is doing in your area.
@@ -66,14 +66,14 @@ export default function Home() {
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-14 px-4 py-12 sm:px-6 sm:py-16">
         <section aria-labelledby="problem-heading" className="max-w-3xl">
           <h2 id="problem-heading" className="font-heading text-2xl font-bold tracking-tight sm:text-3xl">
-            One place for what is happening, <span className="text-gradient-gold">across every denomination.</span>
+            <span className="text-gradient-gold">One place for what is happening, across every denomination.</span>
           </h2>
           <p className="mt-3 text-muted-foreground sm:text-lg">{PROBLEM}</p>
         </section>
 
         <section aria-labelledby="how-heading" className="flex flex-col gap-4">
           <h2 id="how-heading" className="font-heading text-2xl font-bold tracking-tight sm:text-3xl">
-            How it works
+            <span className="text-gradient-gold">How it works</span>
           </h2>
           <ol className="grid gap-4 sm:grid-cols-3">
             {HOW_IT_WORKS.map((step, i) => {
@@ -96,7 +96,7 @@ export default function Home() {
         <section aria-labelledby="examples-heading" className="flex flex-col gap-4">
           <div className="flex items-end justify-between gap-3">
             <h2 id="examples-heading" className="font-heading text-2xl font-bold tracking-tight sm:text-3xl">
-              What you will find
+              <span className="text-gradient-gold">What you will find</span>
             </h2>
             <Link href="/events" className="text-sm font-medium text-primary hover:underline">
               Search real events

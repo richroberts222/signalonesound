@@ -239,6 +239,7 @@ export const PROOF_PATHS = [
   "apps/mobile/src/auth/TokenBridge.tsx",
   "apps/mobile/src/auth/SignedInScreen.tsx",
   "apps/web/lib/brand-name.test.ts",
+  "apps/web/components/brand/heading-gradient.test.ts",
   "apps/web/app/accept-terms",
   "apps/web/app/account/settings",
   "apps/web/app/contact",
