@@ -9,6 +9,7 @@ import { FireToggle } from "../fire/FireToggle";
 import { SaveToggle } from "../saved/SaveToggle";
 import { useTheme } from "../theme";
 import { ActionButton } from "../ui";
+import { calendarLink } from "./calendarLink";
 import { isEventId } from "./deep-link";
 import { formatWhen } from "./format";
 
@@ -94,6 +95,7 @@ function EventDetails({ event }: { event: PublicEvent }) {
         <SaveToggle eventId={event.id} />
         <FireToggle eventId={event.id} total={event.fireCount} />
         <ActionButton label="Share" onPress={share} testID="event-share" />
+        <ActionButton label="Add to calendar" tone="plain" testID="event-calendar" onPress={() => void Linking.openURL(calendarLink(event))} />
         <ActionButton
           label="Directions"
           tone="plain"
