@@ -208,7 +208,7 @@ Every admin write needs a non-empty reason and is written to the audit log in th
 | `GET /api/v1/me/alerts`, `POST /api/v1/me/alerts` | member (create: policy accepted) | The caller's alerts; create one (`place` as a ZIP or `City, ST`, `radius` 1 to the radius setting or `any`, `timeframeDays` 7, 14 or 30, `types`, `immediate`). At most 10. The place becomes a point rounded to about 1 km with its label; an unknown place is `400` |
 | `PATCH /api/v1/me/alerts/:id`, `DELETE /api/v1/me/alerts/:id` | member | Edit, pause (`paused`) or delete; another member's alert is `404` |
 | `POST /api/v1/me/push-tokens`, `DELETE /api/v1/me/push-tokens/:id` | member | Register a phone's push address (a phone belongs to one member at a time); forget it |
-| `GET /api/v1/me/notification-settings`, `PUT` | member | Reminders for saved events on or off |
+| `GET /api/v1/me/notification-settings`, `PUT` | member | Reminders for saved events on or off, and the member's quiet hours as `quietStartHour` and `quietEndHour` (hours 0 to 23 on their own clock; default 21 and 8). `PUT` changes only what is sent; the two hours go together and must differ, otherwise `400` |
 | `PUT/DELETE /api/v1/me/organization-mutes/:orgId` | member | Stop (or resume) hearing about one church; always succeeds |
 | `POST /api/v1/unsubscribe/:token` | public (signed link) | One-tap unsubscribe: mutes the church or pauses the alert the link was made for; a forged, altered or expired link is `404`; with no `UNSUBSCRIBE_SECRET` configured it is `400` |
 | `GET /api/v1/internal/jobs/notifications` | scheduler secret | Queues reminders, sends what is due (quiet hours, caps and the monthly ceiling apply) and removes rows 30 days after they finish |

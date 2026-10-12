@@ -79,3 +79,7 @@ AC1 to AC11 and controls ticked; real-device push verified on iPhone and Android
 * **Who is told about a change:** members who saved the event. The hook runs after publish, edit (time or place), cancel, delete and hide, and never fails the action that caused it.
 * **Unsubscribe** needs `UNSUBSCRIBE_SECRET` (at least 32 characters, never changed afterwards); the links are for the email and for in-app messages that carry one. Push messages carry no link.
 * **Screens:** `/alerts` (create, pause, delete, reminders) and `/unsubscribe/<link>`. Mobile alert screens arrive in S5.
+
+## Quiet hours the member can change (built 2026-10-12)
+
+Quiet hours still default to 9 pm to 8 am on the member's own clock, and the member can now choose their own window (`quiet-hours-start`, `quiet-hours-end` on the Alerts page, hours 0 to 23). A window may cross midnight or sit inside one day; the two hours must differ. They are stored as two empty-by-default columns on the member's profile (`user_profile.quiet_start_hour`, `quiet_end_hour`; migration `0018_quiet_hours`, T1, deleted with the profile) and are used when a message is planned and again when the job sends it, so a message still waits until the end of the member's window. The settings route keeps accepting `{ reminders }` alone, so existing phone builds are unaffected. Tests: `lib/notifications/policy.test.ts`, `lib/services/notifier.test.ts` (AC4), `lib/api/alerts.acceptance.test.ts` and the real-database `db/notifications.integration.test.ts`. The phone screen for quiet hours comes with the phone Alerts tab.

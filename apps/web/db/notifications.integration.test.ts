@@ -179,6 +179,18 @@ describe("the notification queue against the real database", () => {
   });
 });
 
+describe("quiet hours", () => {
+  it("are empty until the member chooses, then stored as the pair, and only for that member", async () => {
+    const chooser = await newUser();
+    const other = await newUser();
+    expect(await repo.quietHoursOf(chooser)).toBeNull();
+    expect(await repo.setQuietHours(chooser, { start: 22, end: 6 })).toBe(true);
+    expect(await repo.quietHoursOf(chooser)).toEqual({ start: 22, end: 6 });
+    expect(await repo.quietHoursOf(other)).toBeNull();
+    expect(await repo.setQuietHours(`user_${PREFIX}nobody`, { start: 22, end: 6 })).toBe(false);
+  });
+});
+
 describe("account deletion removes alerts, phones and queued messages", () => {
   it("export holds the person's own rows (a phone only by kind), and erase removes them", async () => {
     const alice = await newUser();

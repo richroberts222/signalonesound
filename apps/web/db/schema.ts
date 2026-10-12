@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, check, doublePrecision, index, integer, pgTable, primaryKey, text, timestamp, unique, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { boolean, check, doublePrecision, index, integer, pgTable, primaryKey, smallint, text, timestamp, unique, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 // Domain-free. Signal One schema design has not been established yet.
 // `migration_proof` exists only to prove the migration workflow (Issue 43); it
@@ -38,6 +38,9 @@ export const userProfile = pgTable("user_profile", {
   suspended: boolean("suspended").notNull().default(false),
   // Reminders for saved events (a day before and two hours before). On by default; the member can turn them off.
   reminders: boolean("reminders").notNull().default(true),
+  // Quiet hours as hours of the day (0 to 23) on the member's own clock; both null means the default 9 pm to 8 am (S7).
+  quietStartHour: smallint("quiet_start_hour"),
+  quietEndHour: smallint("quiet_end_hour"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

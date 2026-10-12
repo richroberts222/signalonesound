@@ -71,9 +71,21 @@ export const pushTokenParamsSchema = z.object({ id: z.string().uuid() });
 export const pushTokenSchema = z.object({ id: z.string().uuid() });
 export const revokedSchema = z.object({ revoked: z.boolean() });
 
-export const notificationSettingsSchema = z.object({ reminders: z.boolean() });
+/** Quiet hours default to 9 pm to 8 am on the member's own clock; the member can change them (S7). */
+export const DEFAULT_QUIET_START_HOUR = 21;
+export const DEFAULT_QUIET_END_HOUR = 8;
+const hourOfDay = z.number().int().min(0).max(23);
+
+export const notificationSettingsSchema = z.object({ reminders: z.boolean(), quietStartHour: hourOfDay, quietEndHour: hourOfDay });
 export type NotificationSettings = z.infer<typeof notificationSettingsSchema>;
-export const putNotificationSettingsSchema = z.object({ reminders: z.boolean() }).strict();
+/** Send only what changes. The two quiet hours go together, and they must differ (a window of no length is not a window). */
+export const putNotificationSettingsSchema = z
+  .object({ reminders: z.boolean().optional(), quietStartHour: hourOfDay.optional(), quietEndHour: hourOfDay.optional() })
+  .strict()
+  .refine((v) => (v.quietStartHour === undefined) === (v.quietEndHour === undefined), { message: "Give both the start and the end of quiet hours", path: ["quietStartHour"] })
+  .refine((v) => v.quietStartHour === undefined || v.quietStartHour !== v.quietEndHour, { message: "Quiet hours must start and end at different times", path: ["quietEndHour"] })
+  .refine((v) => v.reminders !== undefined || v.quietStartHour !== undefined, { message: "Nothing to change", path: ["reminders"] });
+export type PutNotificationSettings = z.infer<typeof putNotificationSettingsSchema>;
 
 export const orgMuteParamsSchema = z.object({ orgId: z.string().uuid() });
 export const muteResultSchema = z.object({ orgId: z.string().uuid(), muted: z.boolean() });

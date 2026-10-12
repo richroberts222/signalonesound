@@ -193,6 +193,8 @@ New tables are added to the schema and to this table in the same pull request.
 | report_rate_limit.address_hash | T2 | A keyed hash of the sender's network address, only to stop one address flooding the form; it cannot be turned back into an address and is not linked to any report | 24 hours | Deleted by the daily retention job |
 | report_rate_limit.created_at | T1 | When it was sent (for the daily limit) | 24 hours | Deleted by the daily retention job |
 | user_profile.reminders | T1 | Whether the member wants reminders for the events they save | Until the account is deleted | Deleted with the profile |
+| user_profile.quiet_start_hour | T1 | The hour of the day (0 to 23) the member's quiet hours start; empty means the default 9 pm | Until the account is deleted | Deleted with the profile |
+| user_profile.quiet_end_hour | T1 | The hour of the day (0 to 23) the member's quiet hours end; empty means the default 8 am | Until the account is deleted | Deleted with the profile |
 | alert_rule.id | T1 | Row identity | Until the member deletes the alert or the account | Deleted with the alert or the account |
 | alert_rule.user_id | T3 | Whose alert this is (interest in a place and in kinds of gatherings is sensitive) | Until the account is deleted | Deleted on account deletion (S1 path) |
 | alert_rule.place_label | T3 | The place the member typed, for display (a chosen place, not where they are) | Until the alert is deleted | Deleted with the alert; replaced when the place is edited (no history) |

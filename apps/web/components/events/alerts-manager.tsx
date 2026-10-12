@@ -8,6 +8,8 @@ import {
   REVIVAL_TYPES,
   createAlertsClient,
   createApiClient,
+  DEFAULT_QUIET_END_HOUR,
+  DEFAULT_QUIET_START_HOUR,
   type Alert,
 } from "@signalone/validation";
 
@@ -19,6 +21,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 
+const HOURS = Array.from({ length: 24 }, (_, h) => h);
+/** 0 is "12:00 AM", 12 is "12:00 PM", 21 is "9:00 PM". */
+const hourLabel = (h: number) => `${h % 12 === 0 ? 12 : h % 12}:00 ${h < 12 ? "AM" : "PM"}`;
+
 const typeLabel = (slug: string) => REVIVAL_TYPES.find((t) => t.slug === slug)?.label ?? slug;
 
 // The member's alerts (S7): where, how far, how soon and which kinds of gathering to be told about.
@@ -29,6 +35,8 @@ export function AlertsManager() {
   const client = useMemo(() => createAlertsClient(createApiClient({ baseUrl: "" })), []);
   const [alerts, setAlerts] = useState<Alert[] | null>(null);
   const [reminders, setReminders] = useState(true);
+  const [quietStart, setQuietStart] = useState<number>(DEFAULT_QUIET_START_HOUR);
+  const [quietEnd, setQuietEnd] = useState<number>(DEFAULT_QUIET_END_HOUR);
   const [adding, setAdding] = useState(false);
   const [place, setPlace] = useState("");
   const [radius, setRadius] = useState("25");
@@ -43,7 +51,11 @@ export function AlertsManager() {
     const [list, settings] = await Promise.all([client.list(), client.settings()]);
     if (list.ok) setAlerts(list.data.items);
     else setError(list.error.message);
-    if (settings.ok) setReminders(settings.data.reminders);
+    if (settings.ok) {
+      setReminders(settings.data.reminders);
+      setQuietStart(settings.data.quietStartHour);
+      setQuietEnd(settings.data.quietEndHour);
+    }
   }, [client]);
 
   useEffect(() => {
@@ -83,10 +95,22 @@ export function AlertsManager() {
     else setError(result.error?.message ?? "Something went wrong");
   }
 
+  /** Quiet hours go to the server as a pair; if it refuses (for example the same hour twice) the screen shows the real setting again. */
+  async function changeQuiet(start: number, end: number) {
+    setQuietStart(start);
+    setQuietEnd(end);
+    setError(null);
+    const result = await client.updateSettings({ quietStartHour: start, quietEndHour: end });
+    if (!result.ok) {
+      setError(result.error.fieldErrors ? Object.values(result.error.fieldErrors)[0]?.[0] ?? result.error.message : result.error.message);
+      await load();
+    }
+  }
+
   return (
     <div className="flex w-full max-w-2xl flex-col gap-5">
       <p className="text-sm text-muted-foreground">
-        You will hear about new events that match, in one digest each morning at 9 (or as they happen, at most one a day, if you choose). Nothing is sent between 9 pm and 8 am.
+        You will hear about new events that match, in one digest each morning at 9 (or as they happen, at most one a day, if you choose). Nothing is sent between {hourLabel(quietStart)} and {hourLabel(quietEnd)}, your quiet hours.
       </p>
 
       {error && !adding && (
@@ -201,11 +225,34 @@ export function AlertsManager() {
           onCheckedChange={(v) => {
             const next = v === true;
             setReminders(next);
-            void change(() => client.updateSettings(next));
+            void change(() => client.updateSettings({ reminders: next }));
           }}
           data-testid="reminder-toggle"
         />
         <Label htmlFor="reminders">Remind me a day before and two hours before the events I save</Label>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="quiet-start">Quiet hours start</Label>
+          <NativeSelect id="quiet-start" value={String(quietStart)} onChange={(e) => void changeQuiet(Number(e.target.value), quietEnd)} data-testid="quiet-hours-start">
+            {HOURS.map((h) => (
+              <option key={h} value={String(h)}>
+                {hourLabel(h)}
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="quiet-end">Quiet hours end</Label>
+          <NativeSelect id="quiet-end" value={String(quietEnd)} onChange={(e) => void changeQuiet(quietStart, Number(e.target.value))} data-testid="quiet-hours-end">
+            {HOURS.map((h) => (
+              <option key={h} value={String(h)}>
+                {hourLabel(h)}
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
       </div>
     </div>
   );

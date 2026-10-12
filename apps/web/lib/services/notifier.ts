@@ -1,7 +1,7 @@
 import type { EventsRepo, PublicRow } from "../../db/events";
 import type { NewQueueItem, NotificationsRepo, QueueRow } from "../../db/notifications";
 import { matchesRule } from "../notifications/matching";
-import { DEFAULT_TIME_ZONE, inQuietHours, nextLocalHour, planDelivery, QUIET_END_HOUR, sendTimeAfterQuietHours, startOfLocalDay } from "../notifications/policy";
+import { DEFAULT_QUIET, DEFAULT_TIME_ZONE, inQuietHours, nextLocalHour, planDelivery, sendTimeAfterQuietHours, startOfLocalDay } from "../notifications/policy";
 import type { PushMessage, PushPort } from "../notifications/push";
 
 // The notifier (S7, docs/features/s7-alerts-and-push.md): queues messages when an event is published or
@@ -52,6 +52,7 @@ export function createNotifier({ repo, events, push, onProblem = () => {}, month
           immediate: person.immediate,
           now: at,
           timeZone: person.timeZone,
+          quiet: (await repo.quietHoursOf(userId)) ?? undefined,
           immediateSentToday: await repo.immediateSentSince(userId, startOfLocalDay(at, person.timeZone)),
           orgSentThisWeek: await repo.orgNewEventsSince(userId, event.orgId, new Date(at.getTime() - 7 * DAY_MS)),
         });
@@ -124,9 +125,10 @@ export function createNotifier({ repo, events, push, onProblem = () => {}, month
 
       for (const [userId, rows] of byUser) {
         const timeZone = (await repo.timeZoneOf(userId)) ?? DEFAULT_TIME_ZONE;
-        if (inQuietHours(at, timeZone)) {
-          // The job ran at night for this member: wait for morning without counting an attempt.
-          const morning = nextLocalHour(at, timeZone, QUIET_END_HOUR);
+        const quiet = (await repo.quietHoursOf(userId)) ?? DEFAULT_QUIET;
+        if (inQuietHours(at, timeZone, quiet)) {
+          // The job ran in this member's quiet hours: wait for the end of them without counting an attempt.
+          const morning = nextLocalHour(at, timeZone, quiet.end);
           for (const row of rows) await repo.reschedule(row.id, morning, row.attempts);
           continue;
         }
