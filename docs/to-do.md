@@ -102,6 +102,10 @@ Needed for the iPhone app. Costs money, so it is your decision (question Q-011).
 
 Clerk shows a small "Secured by Clerk" line on its sign-in cards. Removing it is a paid Clerk Pro feature (the switch is under Configure, Settings, Branding). It does not affect how anything works and most visitors will not care, so it can wait until money is coming in. Tell Claude if you want it; nothing is bought without your yes.
 
+### Go-live: turn the production database approval back on
+
+Until launch the owner has switched off "Required reviewers" on the GitHub production environment (Settings, Environments, production) so Claude can merge database changes and run Migrate production without waiting for a tap. This was agreed on 2026-10-12 to speed up early development, while no real user data exists. Before go-live: tick "Required reviewers" again, add yourself, save, and tell Claude so the hold on production database changes returns.
+
 ### Task 7c: Decide how to rate limit the public site before launch (about 10 minutes, not needed for the demo)
 
 A rate limit stops one visitor from hammering the site. Nothing limits the public pages today. The recommended way is Vercel's built-in Firewall (you set it in the Vercel dashboard, no code, and we never store visitors' addresses). Read the short brief in `docs/features/s9-launch-gate.md` ("Rate limits on public endpoints"), check that your Pro plan includes rate limit rules and what they cost, and tell Claude A (Vercel Firewall) or B (our own, in the database). If you choose A, Claude gives you the exact rules to enter and checks them afterwards.
