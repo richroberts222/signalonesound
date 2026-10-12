@@ -80,3 +80,12 @@ Each acceptance criterion and control above is ticked off with its test (or list
 * **The "entry point when a church joins" (Amy's request):** the card on the church's events page, shown until the church has service times, with a link to the editor. The claim form itself is unchanged.
 * **Not built (as scoped):** phone screens, denominations, reviews, non-weekly patterns.
 * **Release:** the church page reads the new tables, so this ships with the production database update (Migrate production), together with S17 (`docs/database.md`, "coordinated release"). Until then the pull request stays a draft.
+
+## Phone screens (added 2026-10-12)
+
+The phone follow-up named above is built as the same read-only feature on the phone, using the same shared client and no new server code.
+
+* **Churches tab** (`tab-churches`): search by place (typed, or "Use my location" asked only when tapped) with a distance, or by church name or city; results show the church, where it is, how far, and its next services; each opens the church screen. Only a rounded position is sent.
+* **Church screen**: the address with Directions and Share, the regular services Sunday first, a plain line when none were added, and a plain message when the church is not public or the link is malformed.
+* **Tests:** the request (rounded position, radius only with a position, trimmed words) and the wording are in `apps/mobile/src/churches/churches.test.ts`. The screens are checked by the type checker and, on a phone, by the owner's exploratory check. No server or database change, so no production database update is needed.
+* **Still out:** the manager's profile editor on the phone, and a phone build (the next Android build waits for a bigger batch).

@@ -1,4 +1,4 @@
-import { createApiClient, createDiscoverClient } from "@signalone/validation";
+import { createApiClient, createChurchClient, createDiscoverClient } from "@signalone/validation";
 
 import { currentToken } from "./auth/TokenBridge";
 import { getMobileEnv } from "./config/env";
@@ -12,6 +12,13 @@ let discover: ReturnType<typeof createDiscoverClient> | undefined;
 
 export function getDiscoverClient() {
   return (discover ??= createDiscoverClient(createApiClient({ baseUrl: getMobileEnv().apiBaseUrl })));
+}
+
+// Find a Church (S18): the same shared client, public reads only, so no token and no identifier.
+let churches: ReturnType<typeof createChurchClient> | undefined;
+
+export function getChurchClient() {
+  return (churches ??= createChurchClient(createApiClient({ baseUrl: getMobileEnv().apiBaseUrl })));
 }
 
 // The member's saved events (S6): the same shared client, with the session token as a bearer token. Used only
