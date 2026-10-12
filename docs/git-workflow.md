@@ -443,7 +443,20 @@ The Git tag `signal-one-foundation-v1` marks the known-good Signal One foundatio
 
 <!-- boilerplate:reference:end -->
 
-# 24. Guiding Principle
+# 24. Be Gentle With GitHub (Rate Limits)
+
+GitHub refuses a burst of requests with a "secondary rate limit" (HTTP 403 or 429). It cannot be switched off; the rule is to stay well under it and to stop when it hits.
+
+1. **Wait with one command, not a loop.** Watch checks with `gh pr checks <n> --watch --interval 30` (never shorter than 30 seconds). Do not poll `gh pr view`, `gh run view` or `gh api` in a repeating loop.
+2. **One request per question.** Ask for every field at once (`--json a,b,c`) instead of several calls. Do not list or fetch in a loop (every PR, every run); ask for one page and filter it.
+3. **No parallel bursts.** Send GitHub commands one at a time, not many at once.
+4. **Write slowly.** Do not create, edit or merge several pull requests, comments or runs in quick succession; merge one at a time (already required by section 20) and let one finish before the next.
+5. **When GitHub says "rate limit" or "Retry-After":** stop all GitHub calls, wait the time it names (at least a few minutes if it names none), then retry **once**. Do not retry in a hurry: that extends the wait. A second refusal means stop and tell the owner (operating rule 15).
+6. **Never work around it** with another account, token or tool. Do not share the request ID or error text outside the project.
+
+---
+
+# 25. Guiding Principle
 
 Git should make the development process **safer and easier to understand**, not more complicated.
 
