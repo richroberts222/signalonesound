@@ -28,14 +28,14 @@ export type DiscoverServiceDeps = {
 };
 
 const encodeCursor = (c: SearchCursor): string =>
-  Buffer.from(JSON.stringify({ d: c.distance, s: c.startsAt.toISOString(), i: c.id })).toString("base64url");
+  Buffer.from(JSON.stringify({ d: c.distance, s: c.startsAt.toISOString(), i: c.id, f: c.fires })).toString("base64url");
 
 function decodeCursor(value: string): SearchCursor {
   try {
-    const raw = JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as { d: number | null; s: string; i: string };
+    const raw = JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as { d: number | null; s: string; i: string; f?: number };
     const startsAt = new Date(raw.s);
-    if (Number.isNaN(startsAt.getTime()) || !/^[0-9a-f-]{36}$/.test(raw.i) || (raw.d !== null && typeof raw.d !== "number")) throw new Error("bad cursor");
-    return { distance: raw.d, startsAt, id: raw.i };
+    if (Number.isNaN(startsAt.getTime()) || !/^[0-9a-f-]{36}$/.test(raw.i) || (raw.d !== null && typeof raw.d !== "number") || (raw.f !== undefined && !Number.isInteger(raw.f))) throw new Error("bad cursor");
+    return { distance: raw.d, startsAt, id: raw.i, fires: raw.f };
   } catch {
     throw validationFailed("Invalid cursor");
   }
@@ -82,6 +82,7 @@ export function createDiscoverService({ repo, places, analytics = noopAnalytics,
         to: query.to,
         types: query.types,
         organizationId: query.organizationId,
+        sort: query.sort,
         cursor: query.cursor ? decodeCursor(query.cursor) : null,
         limit: query.limit,
       });
@@ -90,7 +91,7 @@ export function createDiscoverService({ repo, places, analytics = noopAnalytics,
       const last = page[page.length - 1];
       return {
         items: page.map(toPublicEvent),
-        nextCursor: rows.length > query.limit && last ? encodeCursor({ distance: last.distance, startsAt: last.startsAt, id: last.id }) : null,
+        nextCursor: rows.length > query.limit && last ? encodeCursor({ distance: last.distance, startsAt: last.startsAt, id: last.id, fires: last.fireCount }) : null,
       };
     },
 

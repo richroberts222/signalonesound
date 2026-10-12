@@ -31,6 +31,7 @@ export function DiscoverSearch({ initialPlace = "" }: { initialPlace?: string } 
   const [choices, setChoices] = useState<Place[]>([]);
   const [radius, setRadius] = useState("25");
   const [preset, setPreset] = useState<DatePreset>("any");
+  const [sort, setSort] = useState<"soonest" | "fire">("soonest");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [types, setTypes] = useState<string[]>([]);
@@ -50,6 +51,7 @@ export function DiscoverSearch({ initialPlace = "" }: { initialPlace?: string } 
       ...(chosen ? { lat: roundPosition(chosen.lat), lng: roundPosition(chosen.lng), radius: radius === "any" ? ("any" as const) : Number(radius) } : {}),
       ...dates,
       types,
+      sort,
       ...(cursor ? { cursor } : {}),
     });
     if (result.ok) {
@@ -172,6 +174,13 @@ export function DiscoverSearch({ initialPlace = "" }: { initialPlace?: string } 
               ))}
             </NativeSelect>
           </div>
+        </div>
+        <div className="flex flex-col gap-1.5 sm:max-w-xs">
+          <Label htmlFor="discover-sort">Order by</Label>
+          <NativeSelect id="discover-sort" value={sort} onChange={(e) => setSort(e.target.value as "soonest" | "fire")} data-testid="discover-sort-select">
+            <option value="soonest">Nearest or soonest</option>
+            <option value="fire">Most fire</option>
+          </NativeSelect>
         </div>
         {preset === "custom" && (
           <div className="grid gap-4 sm:grid-cols-2">

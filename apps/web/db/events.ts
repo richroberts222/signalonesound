@@ -66,7 +66,7 @@ export type SitemapRows = { events: { id: string; updatedAt: Date }[]; churches:
 
 /** One public search result: the event, its organization's name and the distance when a position was given. */
 export type PublicRow = EventFull & { orgName: string; distance: number | null };
-export type SearchCursor = { distance: number | null; startsAt: Date; id: string };
+export type SearchCursor = { distance: number | null; startsAt: Date; id: string; /** Fire total of the last row; used only by the "fire" sort. */ fires?: number };
 export type PublicSearch = {
   now: Date;
   position: { lat: number; lng: number } | null;
@@ -77,6 +77,8 @@ export type PublicSearch = {
   to?: string;
   types: string[];
   organizationId?: string;
+  /** "fire" orders by the public fire total, then start time, then id. */
+  sort?: "soonest" | "fire";
   cursor: SearchCursor | null;
   limit: number;
 };
@@ -317,7 +319,13 @@ export function createEventsRepo(db: Database) {
           );
         }
         if (p.organizationId) where.push(eq(event.orgId, p.organizationId));
-        if (p.cursor) {
+        const fires = sql<number>`(select count(*) from event_fire f where f.event_id = ${event.id})::int`;
+        const byFire = p.sort === "fire";
+        if (p.cursor && byFire) {
+          where.push(
+            sql`((${fires} < ${p.cursor.fires ?? 0}) or (${fires} = ${p.cursor.fires ?? 0} and (${event.startsAt}, ${event.id}) > (${p.cursor.startsAt.toISOString()}::timestamptz, ${p.cursor.id}::uuid)))`,
+          );
+        } else if (p.cursor) {
           where.push(
             pos
               ? sql`(${distance}, ${event.startsAt}, ${event.id}) > (${p.cursor.distance ?? 0}::float8, ${p.cursor.startsAt.toISOString()}::timestamptz, ${p.cursor.id}::uuid)`
@@ -329,7 +337,7 @@ export function createEventsRepo(db: Database) {
           .from(event)
           .innerJoin(organization, eq(organization.id, event.orgId))
           .where(and(...where))
-          .orderBy(...(pos ? [asc(distance), asc(event.startsAt), asc(event.id)] : [asc(event.startsAt), asc(event.id)]))
+          .orderBy(...(byFire ? [desc(fires), asc(event.startsAt), asc(event.id)] : pos ? [asc(distance), asc(event.startsAt), asc(event.id)] : [asc(event.startsAt), asc(event.id)]))
           .limit(p.limit + 1);
         const full = await attach(rows.map((r) => r.row));
         return rows.map((r, i) => ({ ...full[i], orgName: r.orgName, distance: r.distance ?? null }));

@@ -15,7 +15,7 @@ Let a signed-in member give an event a fire, a one-tap recommendation, and let e
 
 ## Out of scope
 
-Sorting or filtering by fires (a later slice), comments, reviews, a fire count for churches, notifications about fires, any list of who fired.
+Filtering by fires, comments, reviews, a fire count for churches, notifications about fires, any list of who fired.
 
 ## Acceptance criteria
 
@@ -26,6 +26,7 @@ Sorting or filtering by fires (a later slice), comments, reviews, a fire count f
 * **AC5** An event that is a draft, deleted, held by moderation or from a church that is not approved cannot be given a fire (`404`).
 * **AC6** A member can give at most 100 new fires in any 24 hours (`429` after that), so scripted counts cannot be inflated.
 * **AC7** Fires on an event are removed 30 days after it ended by the daily retention job; deleting the account deletes the member's fires; the export includes them (the S1 export and delete tests cover the new table).
+* **AC9** The public search takes `sort=fire` (default `soonest`): events are ordered by their fire total, most first, then by start time, then id, and paging returns each event once. An unknown sort is `400`. The Find events page offers it as "Order by: Most fire" (`discover-sort-select`). With `sort=fire` the order ignores distance (the distance is still shown when a position is given).
 * **AC8** The button is keyboard reachable, has a text label, and reports its on/off state to screen readers; the count has a text equivalent ("3 fires").
 
 ## Controls

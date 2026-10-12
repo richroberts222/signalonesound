@@ -24,6 +24,9 @@ export const roundPosition = (value: number): number => {
 
 const localDate = z.string().refine((v) => parseDate(v) !== null, "Enter a real date");
 
+export const EVENT_SORTS = ["soonest", "fire"] as const;
+export type EventSort = (typeof EVENT_SORTS)[number];
+
 /** Search query. Position and radius go together; "any" means no distance limit. */
 export const eventSearchQuerySchema = z
   .object({
@@ -40,6 +43,8 @@ export const eventSearchQuerySchema = z
       .transform((v) => (v ? v.split(",").map((s) => s.trim()).filter(Boolean) : []))
       .refine((v) => v.length <= REVIVAL_TYPE_SLUGS.length && v.every((s) => (REVIVAL_TYPE_SLUGS as string[]).includes(s)), "Unknown revival type"),
     organizationId: z.string().uuid().optional(),
+    /** "fire" puts the most recommended events first (S19); the default keeps distance, then start time. */
+    sort: z.enum(EVENT_SORTS).default("soonest"),
     cursor: z.string().max(300).optional(),
     limit: z.coerce.number().int().min(1).max(SEARCH_LIMIT_MAX).default(SEARCH_LIMIT_DEFAULT),
   })
