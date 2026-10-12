@@ -167,6 +167,19 @@ There is a rule for each kind of account: **Churches and ministries**, and membe
 3. Optionally set **Expires** and **Most uses in total**.
 4. Turn a coupon on or off at any time (**Coupon turned on.** / **Coupon turned off.**).
 
+
+### 6.4 Give one member another free trial
+
+Use this when a member asks for another look, or you want to treat someone kindly.
+
+1. In **Give a free trial**, enter the **Member id** (it starts with `user_`).
+2. Enter **Days of trial** (1 to 365).
+3. Enter a **Reason (required)** and select **Give trial**. The page says **Trial given.**
+4. The new trial ends that many days from now and replaces any earlier trial end.
+5. A member who is already paying (or whose payment is late) cannot be given one: the page tells you so and nothing changes.
+6. The grant appears in the change history with your reason.
+
+To turn the automatic first trial off for everyone, set **Free trial (days)** to 0 in the billing rule.
 Every billing change is listed at the bottom as a change history. **No changes yet** means nothing has been changed.
 
 ---

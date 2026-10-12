@@ -175,3 +175,48 @@ describe("payment notifications (real database, S11)", () => {
   });
 });
 
+
+describe("trial grants (real database, S13)", () => {
+  const grantee = `user_${PREFIX}grantee`;
+  const stranger = `user_${PREFIX}nobody`;
+  const at = (days: number) => new Date(Date.UTC(2026, 9, 12, 12, 0, 0) + days * 24 * 3600 * 1000);
+  const grant = (userId: string, days: number) => repo.grantTrial({ userId, trialEndsAt: at(days), actorId: admin, detail: { days, reason: "itest" } });
+  const auditCount = async () => (await db.select().from(auditLog).where(eq(auditLog.subject, `member:${grantee}`))).length;
+
+  afterAll(async () => {
+    await db.delete(billingSubscription).where(eq(billingSubscription.accountId, grantee));
+    await db.delete(auditLog).where(eq(auditLog.subject, `member:${grantee}`));
+    await createMemberRepo(db).eraseAll(grantee);
+  });
+
+  it("S13 AC5 only a member with a profile exists for a grant", async () => {
+    expect(await repo.memberExists(stranger)).toBe(false);
+    await createMemberRepo(db).ensureProfile(grantee);
+    expect(await repo.memberExists(grantee)).toBe(true);
+  });
+
+  it("S13 AC3 a grant creates a trial, and a second grant replaces its end", async () => {
+    expect(await grant(grantee, 10)).toBe(true);
+    expect((await repo.getSubscription("member", grantee))?.trialEndsAt?.getTime()).toBe(at(10).getTime());
+    expect(await grant(grantee, 20)).toBe(true);
+    const row = await repo.getSubscription("member", grantee);
+    expect(row?.status).toBe("trialing");
+    expect(row?.trialEndsAt?.getTime()).toBe(at(20).getTime());
+  });
+
+  it("S13 AC6 each grant wrote exactly one audit entry in the same statement", async () => {
+    expect(await auditCount()).toBe(2);
+  });
+
+  it("S13 AC4 an active or past-due subscription is left alone and writes no audit entry", async () => {
+    for (const status of ["active", "past_due"]) {
+      await db.update(billingSubscription).set({ status, trialEndsAt: null }).where(eq(billingSubscription.accountId, grantee));
+      const before = await auditCount();
+      expect(await grant(grantee, 5)).toBe(false);
+      const row = await repo.getSubscription("member", grantee);
+      expect(row?.status).toBe(status);
+      expect(row?.trialEndsAt).toBeNull();
+      expect(await auditCount()).toBe(before);
+    }
+  });
+});

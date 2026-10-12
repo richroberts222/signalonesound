@@ -39,6 +39,7 @@ export function BillingConsole() {
   const [newPlan, setNewPlan] = useState({ accountType: "member" as AccountType, name: "", interval: "month" as "month" | "year", amount: "" });
   const [priceEdits, setPriceEdits] = useState<Record<string, string>>({});
   const [newCoupon, setNewCoupon] = useState({ code: "", kind: "percent" as "percent" | "amount", value: "", expires: "", limit: "" });
+  const [trial, setTrial] = useState({ userId: "", days: "30", reason: "" });
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -92,6 +93,12 @@ export function BillingConsole() {
     const amountMinor = parseDollarsToMinor(priceEdits[plan.id] ?? "");
     if (amountMinor === null || !plan.price) return setError("Enter the new price in dollars, like 3 or 3.50 (up to $10,000).");
     void act(() => client.updatePlan(plan.id, { price: { interval: plan.price!.interval, amountMinor, currency: plan.price!.currency } }), "New price saved. Current subscribers keep the price they bought.").then(() => setPriceEdits({ ...priceEdits, [plan.id]: "" }));
+  }
+
+  function grantTrial() {
+    const days = Number(trial.days);
+    if (trial.days.trim() === "" || !Number.isInteger(days)) return setError("Days must be a whole number from 1 to 365.");
+    void act(() => client.grantTrial({ userId: trial.userId.trim(), days, reason: trial.reason }), "Trial given.").then(() => setTrial({ userId: "", days: "30", reason: "" }));
   }
 
   function createCoupon() {
@@ -306,6 +313,32 @@ export function BillingConsole() {
             <div className="flex items-end">
               <Button disabled={busy} onClick={createCoupon} data-testid="coupon-new">
                 Create coupon
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Give a free trial</CardTitle>
+            <CardDescription>Give one member a fresh free trial, for example when they ask for another look. It replaces any earlier trial end. A member who has paid cannot be given one. The reason is recorded.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-2">
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="trial-grant-user">Member id (starts with user_)</Label>
+              <Input id="trial-grant-user" value={trial.userId} onChange={(e) => setTrial({ ...trial, userId: e.target.value })} data-testid="trial-grant-user" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="trial-grant-days">Days of trial (1 to 365)</Label>
+              <Input id="trial-grant-days" inputMode="numeric" value={trial.days} onChange={(e) => setTrial({ ...trial, days: e.target.value })} data-testid="trial-grant-days" />
+            </div>
+            <div className="flex flex-col gap-1 sm:col-span-2">
+              <Label htmlFor="trial-grant-reason">Reason (required)</Label>
+              <Input id="trial-grant-reason" value={trial.reason} onChange={(e) => setTrial({ ...trial, reason: e.target.value })} data-testid="trial-grant-reason" />
+            </div>
+            <div className="flex items-end">
+              <Button disabled={busy} onClick={grantTrial} data-testid="trial-grant-submit">
+                Give trial
               </Button>
             </div>
           </CardContent>

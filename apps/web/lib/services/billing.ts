@@ -7,6 +7,7 @@ import type {
   CreateCouponInput,
   CreatePlanInput,
   Entitlement,
+  GrantTrialInput,
   Plan,
   UpdateBillingRuleInput,
   UpdateCouponInput,
@@ -177,6 +178,20 @@ export function createBillingService({ repo, admins, provider, now = () => new D
       if (input.expiresAt !== undefined) change.expiresAt = input.expiresAt === null ? null : new Date(input.expiresAt);
       if (input.maxRedemptions !== undefined) change.maxRedemptions = input.maxRedemptions;
       return toCoupon(await repo.updateCoupon(id, change, ctx.actor.userId, before));
+    },
+
+    /**
+     * An admin gives one member a fresh free trial ending `days` from now, replacing any earlier trial end. Refused
+     * while the member has paid (active or late-paying); an unknown member is "not found". The reason is recorded
+     * in the audit log in the same step as the change.
+     */
+    async grantTrial(ctx: ServiceContext, input: GrantTrialInput): Promise<Entitlement> {
+      requireAdmin(ctx);
+      if (!(await repo.memberExists(input.userId))) throw notFound("That member was not found");
+      const trialEndsAt = new Date(now().getTime() + input.days * DAY_MS);
+      const granted = await repo.grantTrial({ userId: input.userId, trialEndsAt, actorId: ctx.actor.userId, detail: { days: input.days, reason: input.reason, trialEndsAt: trialEndsAt.toISOString() } });
+      if (!granted) throw conflict("This member already has a paid plan, so a trial cannot be given");
+      return entitlementFor("member", input.userId);
     },
 
     async listAudit(ctx: ServiceContext, limit: number): Promise<{ items: BillingAuditEntry[] }> {

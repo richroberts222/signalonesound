@@ -74,3 +74,28 @@ test.describe("Payments (S11): closed and safe by default", () => {
   });
 });
 
+
+// S13 (docs/features/s13-membership-and-trial-grants.md): the Membership page and the trial grant.
+test.describe("Membership (S13)", () => {
+  test.skip(!ready, SKIP_REASON);
+
+  test("AC1 a signed-out caller is refused and a normal member is told 'not found' by the trial-grant route", async ({ page, request }) => {
+    const body = { userId: "user_0000000000", days: 7, reason: "test" };
+    expect((await request.put("/api/v1/admin/billing/trials", { data: body })).status()).toBe(401);
+    await signIn(page);
+    expect((await page.request.put("/api/v1/admin/billing/trials", { data: body })).status()).toBe(404);
+  });
+
+  test("AC8 the Membership page says membership is free while payment is off, with no plans to choose", async ({ page }) => {
+    await signIn(page);
+    await page.goto("/account/membership");
+    await expect(page.getByTestId("membership-status")).toContainText("free for everyone");
+    await expect(page.getByTestId("membership-manage")).toHaveCount(0);
+    await expect(page.getByTestId("plan-choose-0")).toHaveCount(0);
+  });
+
+  test("the Membership page sends a signed-out visitor to sign in", async ({ page }) => {
+    await page.goto("/account/membership");
+    await expect(page).toHaveURL(/sign-in/);
+  });
+});
