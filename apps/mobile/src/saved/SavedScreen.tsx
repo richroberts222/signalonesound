@@ -114,7 +114,7 @@ export function SavedScreen() {
             <Text style={{ color: theme.foreground }}>{status.text}</Text>
             <ActionButton label={status.actionLabel} onPress={() => router.push("/discover")} testID="saved-find-events" />
           </View>
-        ) : null
+        ) : undefined
       }
       renderItem={({ item, index }) => <SavedRow item={item} index={index} onRemove={() => void remove(item.eventId)} onOpen={() => router.push(`/event/${item.eventId}`)} />}
     />

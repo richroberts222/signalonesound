@@ -174,7 +174,7 @@ export function ChurchesScreen() {
           <View style={{ paddingTop: 12 }}>
             <ActionButton label="Show more" tone="plain" onPress={() => void search(cursor)} testID="churches-more" />
           </View>
-        ) : null
+        ) : undefined
       }
       style={{ backgroundColor: theme.background }}
     />

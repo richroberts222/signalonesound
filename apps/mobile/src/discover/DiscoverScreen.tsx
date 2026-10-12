@@ -185,7 +185,7 @@ export function DiscoverScreen() {
           <View style={{ paddingTop: 12 }}>
             <ActionButton label="Show more" tone="plain" onPress={() => void search(cursor)} testID="discover-more" />
           </View>
-        ) : null
+        ) : undefined
       }
       style={{ backgroundColor: theme.background }}
     />
