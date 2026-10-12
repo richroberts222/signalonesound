@@ -102,12 +102,13 @@ Needed for the iPhone app. Costs money, so it is your decision (question Q-011).
 
 Clerk shows a small "Secured by Clerk" line on its sign-in cards. Removing it is a paid Clerk Pro feature (the switch is under Configure, Settings, Branding). It does not affect how anything works and most visitors will not care, so it can wait until money is coming in. Tell Claude if you want it; nothing is bought without your yes.
 
-### Two decisions Claude needs from you (no rush; nothing is blocked)
+### Three decisions Claude needs from you (no rush; nothing is blocked)
 
 Claude kept building other things while these wait.
 
 1. **The "Discover" menu item opens a mock page.** The menu's Discover goes to `/discover`, the interactive design mock with fictional churches and a "mock" banner. The real search (real events, real Fire totals, the new "Order by" choice) is at `/events` and is not in the menu. Choose: **A)** point the menu's Discover at the real search and keep the mock for reference, **B)** build the mock's look (map, filters) onto the real data, then replace it (larger), or **C)** leave it as it is until launch. Claude recommends A now, then B.
 2. **Search-engine event markup needs a small exception to a security rule.** Google shows events as rich results when a page carries schema.org "Event" markup (a block of JSON in a script tag). Our rule `react/no-danger` forbids injecting raw HTML, and a JSON script tag needs exactly that. Claude can add one tiny, tested component that escapes the data and carries a single, documented exception for this one use. Say yes if you want it; Claude will not change the rule without your yes.
+3. **Phase 2 (the Prayer Movement) is not started.** The product plan lists the 24/7 Prayer Chain, the Prayer Calendar, the Revival Countdown for churches and the Prayer Wall as Phase 2 and marks them "Not authorized". The simple event countdown is built. Everything else in Phase 1 that is not undecided or paid is built too, so this is what is left. Tell Claude if you want Phase 2 started and in what order. Claude recommends the Prayer Chain first (members choose a weekly hour; a "Prayer happening right now" count), because it needs no user-written text. The Prayer Wall is last: prayer requests are user-written and can be sensitive (health, family), so it needs moderation, a privacy decision and a new data tier first.
 
 ### Go-live: turn the production database approval back on
 
