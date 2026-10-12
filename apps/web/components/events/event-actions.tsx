@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { PublicEvent } from "@signalone/validation";
 
 import { buildIcs } from "@/lib/ics";
+import { shareLink, shareNotice } from "@/lib/share";
 import { Button, buttonVariants } from "@/components/ui/button";
 
 // Share, add to calendar, and directions for one event (S4). Sharing uses the phone's own share sheet
@@ -14,17 +15,11 @@ export function EventActions({ event }: { event: PublicEvent }) {
   const address = `${event.venueName}, ${event.street}, ${event.city}, ${event.state} ${event.zip}`;
 
   async function share() {
-    const url = window.location.href;
-    try {
-      if (typeof navigator.share === "function") {
-        await navigator.share({ title: event.title, text: `${event.title} - ${event.organization.name}`, url });
-        return;
-      }
-      await navigator.clipboard.writeText(url);
-      setNotice("Link copied.");
-    } catch {
-      setNotice("Sharing was cancelled.");
-    }
+    const outcome = await shareLink(
+      { share: typeof navigator.share === "function" ? (d) => navigator.share(d) : undefined, clipboard: navigator.clipboard },
+      { title: event.title, text: `${event.title} - ${event.organization.name}`, url: window.location.href },
+    );
+    setNotice(shareNotice(outcome));
   }
 
   function addToCalendar() {

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { churchPlace, directionsUrl, eventSearchQuerySchema, formatServiceWhen } from "@signalone/validation";
 
+import { ChurchShare } from "@/components/churches/church-share";
 import { EventCard } from "@/components/events/event-card";
 import { ReportButton } from "@/components/events/report-button";
 import { getChurchesService, getDiscoverService } from "@/lib/composition";
@@ -48,6 +49,7 @@ export default async function ChurchPage({ params }: { params: Promise<{ id: str
         </p>
       )}
       {org.description && <p className="whitespace-pre-line leading-relaxed">{org.description}</p>}
+      <ChurchShare name={org.name} />
       <section aria-labelledby="church-services-heading" className="flex flex-col gap-2" data-testid="church-services">
         <h2 id="church-services-heading" className="font-heading text-xl font-bold">
           Regular services
