@@ -227,6 +227,11 @@ Every admin write needs a non-empty reason and is written to the audit log in th
 | `PUT /api/v1/admin/billing/trials` | admin | Gives one member a fresh free trial: body `{ userId, days (1 to 365), reason }`. Replaces any earlier trial end; refused (409) for an active or past-due subscription, not found for an unknown member; audited with the reason (S13) |
 | `GET /api/v1/admin/billing/flagship` | admin | How many of the 50 free-for-life places are used (S14) |
 | `PUT /api/v1/admin/billing/flagship` | admin | Gives a church or ministry a free-for-life place, or takes it back: body `{ organizationId, enabled, reason }`. At most 50; refused (409) when full or when the church has a paying plan; not found for an unapproved church; audited (S14) |
+| `GET /api/v1/admin/billing/perks` | admin | Lists every perk (a named benefit plans can include) (S20) |
+| `POST /api/v1/admin/billing/perks` | admin | Adds a perk: body `{ key, label, description?, accountType }`; the key is lowercase letters, numbers and underscores (3 to 40) and is unique; audited (S20) |
+| `PATCH /api/v1/admin/billing/perks/:id` | admin | Changes a perk's label, description or on/off switch; the key and account type never change; audited (S20) |
+| `GET /api/v1/admin/billing/plan-perks` | admin | Every plan's ticked perk ids (S20) |
+| `PUT /api/v1/admin/billing/plans/:id/perks` | admin | Replaces the perks a plan includes: body `{ perkIds }`; only perks of the plan's account type; one audit entry (S20) |
 | `GET /api/v1/organizations/:id/entitlement` | church manager, admin | The church's derived plan state (S14) |
 | `POST /api/v1/organizations/:id/checkout` | church manager, admin | Opens the payment provider's hosted checkout for an active church plan; the church, not the person, is the account. Closed unless payments are on (S14) |
 | `POST /api/v1/organizations/:id/billing-portal` | church manager, admin | The provider's customer page for a church with a subscription (S14) |

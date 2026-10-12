@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-import type { BillingAuditRow, BillingRepo, CouponRow, PlanRow, PriceInput, PriceRow, RuleRow, SubscriptionRow } from "./billing";
+import type { BillingAuditRow, BillingRepo, CouponRow, PerkRow, PlanRow, PriceInput, PriceRow, RuleRow, SubscriptionRow } from "./billing";
 import { DatabaseError } from "./errors";
 
 // In-memory billing repo that behaves like the real one (db/billing.ts): defaults when a rule is missing,
@@ -18,9 +18,12 @@ export type BillingWorld = {
   paymentEvents: Set<string>;
   /** Known members (sign-in ids) for the trial-grant existence check. */
   members: Set<string>;
+  perks: Map<string, PerkRow>;
+  /** plan id to the ids of the perks it includes (S20) */
+  planPerks: Map<string, Set<string>>;
 };
 
-export const emptyBillingWorld = (): BillingWorld => ({ rules: new Map(), plans: new Map(), prices: [], coupons: new Map(), uses: [], subscriptions: new Map(), audit: [], paymentEvents: new Set(), members: new Set() });
+export const emptyBillingWorld = (): BillingWorld => ({ rules: new Map(), plans: new Map(), prices: [], coupons: new Map(), uses: [], subscriptions: new Map(), audit: [], paymentEvents: new Set(), members: new Set(), perks: new Map(), planPerks: new Map() });
 
 export function createFakeBillingRepo(world: BillingWorld, now: () => Date = () => new Date()): BillingRepo {
   const noRule = (accountType: string): RuleRow => ({ accountType, paymentRequired: false, trialDays: 0, defaultPlanId: null });
@@ -62,6 +65,29 @@ export function createFakeBillingRepo(world: BillingWorld, now: () => Date = () 
       record(actorId, "billing.plan.update", `plan:${id}`, { before: { name: before.name, active: before.active, price: before.price && { interval: before.price.interval, amountMinor: before.price.amountMinor, currency: before.price.currency } }, after: change });
       return plan(id) as PlanRow;
     },
+    listPerks: async () => [...world.perks.values()].sort((a, b) => a.accountType.localeCompare(b.accountType) || a.createdAt.getTime() - b.createdAt.getTime() || a.key.localeCompare(b.key)),
+    getPerk: async (id) => world.perks.get(id) ?? null,
+    createPerk: async (input, actorId) => {
+      if ([...world.perks.values()].some((p) => p.key === input.key)) throw new DatabaseError("unique_violation", "billing.createPerk", null);
+      const row: PerkRow = { id: randomUUID(), ...input, active: true, createdAt: now() };
+      world.perks.set(row.id, row);
+      record(actorId, "billing.perk.create", `perk:${input.key}`, { after: input });
+      return row;
+    },
+    updatePerk: async (id, change, actorId, before) => {
+      const row = world.perks.get(id) as PerkRow;
+      Object.assign(row, change);
+      record(actorId, "billing.perk.update", `perk:${before.key}`, { before: { label: before.label, description: before.description, active: before.active }, after: change });
+      return row;
+    },
+    listPlanPerkIds: async () => [...world.planPerks].map(([planId, perkIds]) => ({ planId, perkIds: [...perkIds] })),
+    setPlanPerks: async (planId, perkIds, actorId) => {
+      world.planPerks.set(planId, new Set(perkIds));
+      record(actorId, "billing.plan.perks", `plan:${planId}`, { perkIds });
+    },
+    listActivePlanPerks: async () =>
+      [...world.planPerks].flatMap(([planId, ids]) => [...ids].map((id) => world.perks.get(id)).filter((p): p is PerkRow => !!p && p.active).map((p) => ({ planId, key: p.key, label: p.label, description: p.description }))),
+    listActivePerksOfType: async (accountType) => [...world.perks.values()].filter((p) => p.accountType === accountType && p.active),
     listCoupons: async () => [...world.coupons.values()].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).map(coupon),
     getCoupon: async (id) => {
       const row = world.coupons.get(id);

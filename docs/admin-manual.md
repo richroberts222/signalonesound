@@ -190,6 +190,18 @@ To turn the automatic first trial off for everyone, set **Free trial (days)** to
 5. A church that already pays cannot be given a place. When all 50 are used, the page says so.
 
 A church's managers see their plan on **My churches and ministries**, then **Membership**.
+
+### 6.6 Perks: what each plan includes
+
+A perk is a benefit that a plan can include, such as "No ads" or "Event promotion". You decide what exists and what each plan includes, and you can change it any time.
+
+1. In **Perks: what each plan includes**, fill in **Name people see**, a **Key**, who it is **for** (members, or churches and ministries) and an optional **Short description**.
+2. The **Key** is a short code: lowercase letters, numbers and underscores, 3 to 40 characters, starting with a letter. It cannot be changed later.
+3. Select **Add perk**. The page says **Perk added.**
+4. Under **What each plan includes**, tick the perks each plan gives, then select **Save what this plan includes**. Saving replaces that plan's list.
+5. Untick **Switched on** next to a perk to stop offering it everywhere without deleting it.
+6. While payment is not required, everyone has every perk that is switched on. A free trial gets the perks of the default plan (or every perk when no default plan is set). A free-for-life church gets every church perk.
+7. Nothing in the site is locked behind a perk yet. A feature only becomes paid when it is built to ask for a perk; until then these lists show what plans will include and change nothing else.
 Every billing change is listed at the bottom as a change history. **No changes yet** means nothing has been changed.
 
 ---

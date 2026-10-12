@@ -126,3 +126,32 @@ test.describe("Church plans (S14)", () => {
     await expect(page).toHaveURL(/sign-in/);
   });
 });
+
+// S20 (docs/features/s20-plan-perks.md): what plans include, set by admins.
+test.describe("Plan perks (S20)", () => {
+  test.skip(!ready, SKIP_REASON);
+  const plan = "00000000-0000-4000-8000-000000000001";
+  const perk = { key: "ad_free", label: "No ads", accountType: "member" };
+
+  test("AC1 signed out, every perk route answers 401", async ({ request }) => {
+    expect((await request.get("/api/v1/admin/billing/perks")).status()).toBe(401);
+    expect((await request.post("/api/v1/admin/billing/perks", { data: perk })).status()).toBe(401);
+    expect((await request.patch(`/api/v1/admin/billing/perks/${plan}`, { data: { active: false } })).status()).toBe(401);
+    expect((await request.get("/api/v1/admin/billing/plan-perks")).status()).toBe(401);
+    expect((await request.put(`/api/v1/admin/billing/plans/${plan}/perks`, { data: { perkIds: [] } })).status()).toBe(401);
+  });
+
+  test("AC1 a member who is not an admin is told 'not found' by every perk route", async ({ page }) => {
+    await signIn(page);
+    expect((await page.request.get("/api/v1/admin/billing/perks")).status()).toBe(404);
+    expect((await page.request.post("/api/v1/admin/billing/perks", { data: perk })).status()).toBe(404);
+    expect((await page.request.get("/api/v1/admin/billing/plan-perks")).status()).toBe(404);
+    expect((await page.request.put(`/api/v1/admin/billing/plans/${plan}/perks`, { data: { perkIds: [] } })).status()).toBe(404);
+  });
+
+  test("AC5 the member entitlement lists perks, derived on the server", async ({ page }) => {
+    await signIn(page);
+    const body = await (await page.request.get("/api/v1/me/entitlements")).json();
+    expect(Array.isArray(body.data.items[0].perks)).toBe(true);
+  });
+});

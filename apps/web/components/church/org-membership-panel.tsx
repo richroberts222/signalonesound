@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createApiClient, createBillingClient, type Entitlement, type Plan } from "@signalone/validation";
 
+import { PlanPerks } from "@/components/billing/plan-perks";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { canChoosePlan, canManageBilling, membershipStatusText } from "@/lib/billing/membership-text";
@@ -73,6 +74,7 @@ export function OrgMembershipPanel({ orgId }: { orgId: string }) {
               <li key={plan.id} className="rounded-xl border p-4" data-testid={`org-membership-plan-${i}`}>
                 <p className="font-medium">{plan.name}</p>
                 {plan.price && <p className="text-sm text-muted-foreground">{`${formatMinor(plan.price.amountMinor, plan.price.currency)} per ${plan.price.interval}`}</p>}
+                <PlanPerks plan={plan} />
                 <Button size="sm" className="mt-2" disabled={busy !== null} onClick={() => void go(plan.id, () => client.startCheckout(plan.id))} data-testid={`org-plan-choose-${i}`}>
                   {busy === plan.id ? "Opening checkout..." : "Choose this plan"}
                 </Button>

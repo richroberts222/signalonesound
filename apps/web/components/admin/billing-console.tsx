@@ -17,6 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
+import { PerksPanel } from "@/components/admin/perks-panel";
 import { formatMinor, parseDollarsToMinor } from "@/lib/billing/money";
 
 type Outcome = { ok: boolean; error?: { message: string; fieldErrors?: Record<string, string[]> } };
@@ -263,6 +264,8 @@ export function BillingConsole() {
           </CardContent>
         </Card>
       </section>
+
+      <PerksPanel plans={plans} onChanged={() => void load()} />
 
       <section aria-labelledby="coupons-heading" className="flex flex-col gap-3">
         <h2 id="coupons-heading" className="font-heading text-xl font-bold">

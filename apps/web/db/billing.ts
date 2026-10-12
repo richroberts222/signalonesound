@@ -2,7 +2,7 @@ import { and, asc, count, desc, eq, isNotNull, isNull, like, lte, or, sql } from
 
 import type { Database } from "./client";
 import { withDbErrors } from "./errors";
-import { auditLog, billingCoupon, billingCouponUse, billingPlan, billingPrice, billingRule, billingSubscription, paymentEvent, userProfile } from "./schema";
+import { auditLog, billingCoupon, billingCouponUse, billingPerk, billingPlan, billingPlanPerk, billingPrice, billingRule, billingSubscription, paymentEvent, userProfile } from "./schema";
 
 // Data access for billing (S10, docs/features/s10-payments-plans-and-switches.md). Server-only by
 // convention (like all of db/). Every admin change is written together with its audit entry in ONE
@@ -12,6 +12,7 @@ export type RuleRow = { accountType: string; paymentRequired: boolean; trialDays
 export type PriceRow = { id: string; planId: string; interval: string; amountMinor: number; currency: string; createdAt: Date };
 export type PlanRow = { id: string; accountType: string; name: string; active: boolean; createdAt: Date; price: PriceRow | null };
 export type CouponRow = typeof billingCoupon.$inferSelect & { redemptions: number };
+export type PerkRow = typeof billingPerk.$inferSelect;
 export type SubscriptionRow = typeof billingSubscription.$inferSelect;
 export type BillingAuditRow = typeof auditLog.$inferSelect;
 export type PriceInput = { interval: string; amountMinor: number; currency: string };
@@ -102,6 +103,65 @@ export function createBillingRepo(db: Database) {
         const [row] = await db.select().from(billingPlan).where(eq(billingPlan.id, id)).limit(1);
         return (await withPrice([row]))[0];
       }),
+
+    // ---- Perks (S20) ---------------------------------------------------------------------------------
+    listPerks: (): Promise<PerkRow[]> => withDbErrors("billing.listPerks", () => db.select().from(billingPerk).orderBy(asc(billingPerk.accountType), asc(billingPerk.createdAt), asc(billingPerk.key))),
+
+    getPerk: (id: string): Promise<PerkRow | null> =>
+      withDbErrors("billing.getPerk", async () => {
+        const [row] = await db.select().from(billingPerk).where(eq(billingPerk.id, id)).limit(1);
+        return row ?? null;
+      }),
+
+    /** A duplicate key is reported as a conflict by the shared database error mapping. */
+    createPerk: (input: { key: string; label: string; description: string; accountType: string }, actorId: string): Promise<PerkRow> =>
+      withDbErrors("billing.createPerk", async () => {
+        const id = crypto.randomUUID();
+        await db.batch([db.insert(billingPerk).values({ id, ...input, active: true }), audit(actorId, "billing.perk.create", `perk:${input.key}`, { after: input })]);
+        const [row] = await db.select().from(billingPerk).where(eq(billingPerk.id, id)).limit(1);
+        return row;
+      }),
+
+    updatePerk: (id: string, change: { label?: string; description?: string; active?: boolean }, actorId: string, before: PerkRow): Promise<PerkRow> =>
+      withDbErrors("billing.updatePerk", async () => {
+        await db.batch([
+          db.update(billingPerk).set(change).where(eq(billingPerk.id, id)),
+          audit(actorId, "billing.perk.update", `perk:${before.key}`, { before: { label: before.label, description: before.description, active: before.active }, after: change }),
+        ]);
+        const [row] = await db.select().from(billingPerk).where(eq(billingPerk.id, id)).limit(1);
+        return row;
+      }),
+
+    /** Every plan's ticked perk ids (switched-off perks included, so an admin sees every tick). */
+    listPlanPerkIds: (): Promise<{ planId: string; perkIds: string[] }[]> =>
+      withDbErrors("billing.listPlanPerkIds", async () => {
+        const rows = await db.select().from(billingPlanPerk);
+        const out = new Map<string, string[]>();
+        for (const row of rows) out.set(row.planId, [...(out.get(row.planId) ?? []), row.perkId]);
+        return [...out].map(([planId, perkIds]) => ({ planId, perkIds }));
+      }),
+
+    /** Replaces a plan's perks and writes the audit entry in the same batch. */
+    setPlanPerks: (planId: string, perkIds: string[], actorId: string): Promise<void> =>
+      withDbErrors("billing.setPlanPerks", async () => {
+        const writes = [db.delete(billingPlanPerk).where(eq(billingPlanPerk.planId, planId))];
+        if (perkIds.length > 0) writes.push(db.insert(billingPlanPerk).values(perkIds.map((perkId) => ({ planId, perkId }))) as unknown as (typeof writes)[number]);
+        await db.batch([...writes, audit(actorId, "billing.plan.perks", `plan:${planId}`, { perkIds })] as unknown as Parameters<typeof db.batch>[0]);
+      }),
+
+    /** The ACTIVE perks each plan includes, for showing on plans and deriving an account's perks. */
+    listActivePlanPerks: (): Promise<{ planId: string; key: string; label: string; description: string }[]> =>
+      withDbErrors("billing.listActivePlanPerks", () =>
+        db
+          .select({ planId: billingPlanPerk.planId, key: billingPerk.key, label: billingPerk.label, description: billingPerk.description })
+          .from(billingPlanPerk)
+          .innerJoin(billingPerk, eq(billingPerk.id, billingPlanPerk.perkId))
+          .where(eq(billingPerk.active, true))
+          .orderBy(asc(billingPerk.createdAt), asc(billingPerk.key)),
+      ),
+
+    listActivePerksOfType: (accountType: string): Promise<PerkRow[]> =>
+      withDbErrors("billing.listActivePerksOfType", () => db.select().from(billingPerk).where(and(eq(billingPerk.accountType, accountType), eq(billingPerk.active, true))).orderBy(asc(billingPerk.createdAt), asc(billingPerk.key))),
 
     listCoupons: (): Promise<CouponRow[]> =>
       withDbErrors("billing.listCoupons", async () => {
