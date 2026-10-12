@@ -242,6 +242,8 @@ export const PROOF_PATHS = [
   // app/index.tsx, which are overwritten from scripts/boilerplate/templates.
   "apps/mobile/app/(tabs)",
   "apps/mobile/app/event",
+  "apps/mobile/app/church",
+  "apps/mobile/src/churches",
   "apps/mobile/src/account",
   "apps/mobile/src/api.ts",
   "apps/mobile/src/discover",
