@@ -93,7 +93,7 @@ export default async function FireMapPage({ searchParams }: { searchParams: Prom
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6">
       <header className="flex flex-col gap-2">
         <h1 className="font-heading text-4xl font-extrabold tracking-tight sm:text-5xl">
-          Fire <span className="text-gradient-gold">Map</span>
+          <span className="text-gradient-gold">Fire Map</span>
         </h1>
         <p className="max-w-2xl text-lg text-muted-foreground">
           Every revival gathering that is on now or coming up is a fire. Where its light falls, the darkness lifts.
