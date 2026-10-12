@@ -103,7 +103,7 @@ When implementation and documentation disagree: identify the discrepancy, decide
 
 # 10. Git Workflow
 
-Inspect the issue, read the documents, inspect the implementation, work on the issue's branch, validate, commit, push, open or update the pull request, and report results. One issue is one canonical branch and one pull request. Do not make significant unreviewed changes to `main`. Detail and the merge-authorization rule: `/docs/git-workflow.md` and `/docs/issues.md`.
+Inspect the issue, read the documents, inspect the implementation, work on the issue's branch, validate, commit, push, open or update the pull request, and report results. One issue is one canonical branch and one pull request. Do not make significant unreviewed changes to `main`. Detail and the merge-authorization rule: `/docs/git-workflow.md` and `/docs/issues.md`. Pace GitHub requests gently and stop on a rate-limit reply (`/docs/git-workflow.md` §24).
 
 ---
 
