@@ -25,6 +25,32 @@ const base = (over: Partial<PlanInput> = {}): PlanInput => ({
   ...over,
 });
 
+describe("a member's own quiet hours", () => {
+  it("can cross midnight or sit inside one day", () => {
+    const night = { start: 22, end: 6 };
+    expect(inQuietHours(at("2026-10-15T03:30:00Z"), CHI, night)).toBe(true); // 10:30 PM
+    expect(inQuietHours(at("2026-10-15T02:30:00Z"), CHI, night)).toBe(false); // 9:30 PM, quiet for others but not for this member
+    expect(inQuietHours(at("2026-10-15T10:30:00Z"), CHI, night)).toBe(true); // 5:30 AM
+    expect(inQuietHours(at("2026-10-15T11:30:00Z"), CHI, night)).toBe(false); // 6:30 AM, after this member's window ends
+    const afternoon = { start: 13, end: 15 };
+    expect(inQuietHours(at("2026-10-15T18:30:00Z"), CHI, afternoon)).toBe(true); // 1:30 PM
+    expect(inQuietHours(at("2026-10-15T20:00:00Z"), CHI, afternoon)).toBe(false); // 3:00 PM
+    expect(inQuietHours(at("2026-10-15T03:30:00Z"), CHI, afternoon)).toBe(false); // 10:30 PM
+  });
+
+  it("hold a message until the member's own quiet hours end", () => {
+    const quiet = { start: 22, end: 6 };
+    const lateEvening = at("2026-10-15T04:00:00Z"); // 11 PM Chicago
+    expect(sendTimeAfterQuietHours(lateEvening, CHI, quiet)).toEqual(at("2026-10-15T11:00:00Z")); // 6 AM
+    expect(sendTimeAfterQuietHours(at("2026-10-15T02:30:00Z"), CHI, quiet)).toEqual(at("2026-10-15T02:30:00Z")); // 9:30 PM: allowed for this member
+  });
+
+  it("are used by the plan for an immediate alert", () => {
+    const plan = planDelivery(base({ immediate: true, now: at("2026-10-15T04:00:00Z"), quiet: { start: 22, end: 6 } }));
+    expect(plan).toEqual({ action: "send", at: at("2026-10-15T11:00:00Z"), channel: "now" });
+  });
+});
+
 describe("quiet hours (9 pm to 8 am on the member's clock)", () => {
   it("are on at night and early morning, and off during the day", () => {
     expect(inQuietHours(at("2026-10-15T02:00:00Z"), CHI)).toBe(true); // 9:00 PM

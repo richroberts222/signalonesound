@@ -12,8 +12,9 @@ export type NotificationWorld = {
   reminders: (from: Date, to: Date) => ReminderTarget[];
   timeZones: Map<string, string>;
   reminderOff: Set<string>;
+  quiet: Map<string, { start: number; end: number }>;
 };
-export const emptyNotificationWorld = (): NotificationWorld => ({ savers: () => [], reminders: () => [], timeZones: new Map(), reminderOff: new Set() });
+export const emptyNotificationWorld = (): NotificationWorld => ({ savers: () => [], reminders: () => [], timeZones: new Map(), reminderOff: new Set(), quiet: new Map() });
 
 export type FakeNotificationsRepo = NotificationsRepo & {
   queue: () => QueueRow[];
@@ -98,6 +99,13 @@ export function createFakeNotificationsRepo(world: NotificationWorld, now: () =>
     async setReminders(userId, reminders) {
       if (reminders) world.reminderOff.delete(userId);
       else world.reminderOff.add(userId);
+      return true;
+    },
+    async quietHoursOf(userId) {
+      return world.quiet.get(userId) ?? null;
+    },
+    async setQuietHours(userId, quiet) {
+      world.quiet.set(userId, { ...quiet });
       return true;
     },
     async timeZoneOf(userId) {

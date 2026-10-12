@@ -193,6 +193,19 @@ describe("delivery", () => {
     expect(await s.notifier.deliverDue()).toMatchObject({ sent: 1 });
   });
 
+  it("AC4 a member's own quiet hours decide: at 10 PM a member whose quiet hours start at 11 PM is messaged, and one on the default waits", async () => {
+    const s = setup();
+    await s.addUser("user_default", { immediate: true });
+    await s.addUser("user_late", { immediate: true });
+    await s.repo.setQuietHours("user_late", { start: 23, end: 6 });
+    await s.notifier.enqueueNewEvent((await s.addEvent()).id);
+    s.set(new Date("2026-10-15T03:00:00Z")); // 10 PM in Chicago
+    expect(await s.notifier.deliverDue()).toMatchObject({ sent: 1 });
+    expect(s.sent.map((m) => m.to)).toEqual(["ExponentPushToken[user_late]"]);
+    const waiting = s.repo.queue().find((q) => q.userId === "user_default");
+    expect(waiting).toMatchObject({ status: "pending", attempts: 0, sendAfter: new Date("2026-10-15T13:00:00Z") });
+  });
+
   it("AC8 a phone the push service no longer knows is removed, and a member with no phone is not messaged", async () => {
     const s = setup();
     await s.addUser("user_now", { immediate: true });

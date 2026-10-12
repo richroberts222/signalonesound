@@ -51,6 +51,7 @@ describe("S7 alerts acceptance criteria (API boundary)", () => {
         revokeToken: (id: string) => call(routes.pushToken.DELETE(send("DELETE"), ctx({ id }))),
         settings: () => call(routes.settings.GET(send("GET"))),
         setReminders: (reminders: unknown) => call(routes.settings.PUT(send("PUT", { reminders }))),
+        putSettings: (body: unknown) => call(routes.settings.PUT(send("PUT", body))),
         mute: (orgId: string) => call(routes.mute.PUT(send("PUT"), ctx({ orgId }))),
         unmute: (orgId: string) => call(routes.mute.DELETE(send("DELETE"), ctx({ orgId }))),
         unsubscribe: (token: string) => call(routes.unsubscribe.POST(send("POST"), ctx({ token }))),
@@ -165,10 +166,31 @@ describe("S7 alerts acceptance criteria (API boundary)", () => {
   it("reminders default to on and can be switched off and on", async () => {
     const s = setup();
     const api = s.as(await s.newUser());
-    expect((await api.settings()).json.data).toEqual({ reminders: true });
-    expect((await api.setReminders(false)).json.data).toEqual({ reminders: false });
-    expect((await api.settings()).json.data).toEqual({ reminders: false });
+    expect((await api.settings()).json.data).toMatchObject({ reminders: true });
+    expect((await api.setReminders(false)).json.data).toMatchObject({ reminders: false });
+    expect((await api.settings()).json.data).toMatchObject({ reminders: false });
     expect((await api.setReminders("no")).status).toBe(400);
+  });
+
+  it("AC4 quiet hours default to 9 pm to 8 am, the member can change them, and a change touches only what was sent", async () => {
+    const s = setup();
+    const userId = await s.newUser();
+    const api = s.as(userId);
+    expect((await api.settings()).json.data).toEqual({ reminders: true, quietStartHour: 21, quietEndHour: 8 });
+    const saved = await api.putSettings({ quietStartHour: 22, quietEndHour: 7 });
+    expect(saved.json.data).toEqual({ reminders: true, quietStartHour: 22, quietEndHour: 7 });
+    await api.setReminders(false); // changing reminders leaves the quiet hours alone
+    expect((await api.settings()).json.data).toEqual({ reminders: false, quietStartHour: 22, quietEndHour: 7 });
+    expect(await s.repo.quietHoursOf(userId)).toEqual({ start: 22, end: 7 });
+  });
+
+  it("AC4 quiet hours are refused when they are not a real window", async () => {
+    const s = setup();
+    const api = s.as(await s.newUser());
+    for (const bad of [{ quietStartHour: 9, quietEndHour: 9 }, { quietStartHour: 24, quietEndHour: 8 }, { quietStartHour: -1, quietEndHour: 8 }, { quietStartHour: 21 }, { quietEndHour: 8 }, { quietStartHour: 1.5, quietEndHour: 8 }, {}]) {
+      expect((await api.putSettings(bad)).status).toBe(400);
+    }
+    expect((await api.settings()).json.data).toEqual({ reminders: true, quietStartHour: 21, quietEndHour: 8 });
   });
 
   it("a church can be muted and unmuted by the member", async () => {

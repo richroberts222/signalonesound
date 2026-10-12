@@ -25,6 +25,8 @@ export function createFakeMemberRepo(): MemberRepo {
           timeZone: null,
           suspended: false,
           reminders: true,
+          quietStartHour: null,
+          quietEndHour: null,
           createdAt: new Date(Date.UTC(2026, 0, 1) + tick++ * 1000),
         });
       }

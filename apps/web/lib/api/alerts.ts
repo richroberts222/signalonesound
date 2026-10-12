@@ -40,7 +40,7 @@ export function alertRoutes(route: ReturnType<typeof createApiRoute>, getService
     },
     settings: {
       GET: route({ auth: "required", handle: (ctx) => getService().getSettings(ctx) }),
-      PUT: route({ auth: "required", input: { schema: putNotificationSettingsSchema }, handle: (ctx, input) => getService().updateSettings(ctx, input.reminders) }),
+      PUT: route({ auth: "required", input: { schema: putNotificationSettingsSchema }, handle: (ctx, input) => getService().updateSettings(ctx, input) }),
     },
     mute: {
       PUT: route({ auth: "required", params: { schema: orgMuteParamsSchema }, handle: (ctx, _input, _request, params) => getService().muteOrganization(ctx, params.orgId) }),

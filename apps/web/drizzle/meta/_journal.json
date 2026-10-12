@@ -127,6 +127,13 @@
       "when": 1791772049003,
       "tag": "0017_event_fire",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1791789375716,
+      "tag": "0018_quiet_hours",
+      "breakpoints": true
     }
   ]
 }

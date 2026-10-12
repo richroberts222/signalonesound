@@ -2,6 +2,7 @@ import { and, asc, count, eq, gte, inArray, lt, lte, sql } from "drizzle-orm";
 
 import type { Database } from "./client";
 import { withDbErrors } from "./errors";
+import type { QuietHours } from "../lib/notifications/policy";
 import { alertRule, notificationQueue, orgMute, pushToken, userProfile } from "./schema";
 
 // Data access for alerts, push tokens and the notification queue (S7, docs/features/s7-alerts-and-push.md).
@@ -112,6 +113,27 @@ export function createNotificationsRepo(db: Database) {
     setReminders: (userId: string, reminders: boolean): Promise<boolean> =>
       withDbErrors("settings.setReminders", async () => {
         const rows = await db.update(userProfile).set({ reminders }).where(eq(userProfile.clerkUserId, userId)).returning({ id: userProfile.id });
+        return rows.length > 0;
+      }),
+
+    /** The member's own quiet hours, or null when they have not chosen any (the default window applies). */
+    quietHoursOf: (userId: string): Promise<QuietHours | null> =>
+      withDbErrors("settings.quietHoursOf", async () => {
+        const [row] = await db
+          .select({ start: userProfile.quietStartHour, end: userProfile.quietEndHour })
+          .from(userProfile)
+          .where(eq(userProfile.clerkUserId, userId))
+          .limit(1);
+        return row && row.start !== null && row.end !== null ? { start: row.start, end: row.end } : null;
+      }),
+
+    setQuietHours: (userId: string, quiet: QuietHours): Promise<boolean> =>
+      withDbErrors("settings.setQuietHours", async () => {
+        const rows = await db
+          .update(userProfile)
+          .set({ quietStartHour: quiet.start, quietEndHour: quiet.end })
+          .where(eq(userProfile.clerkUserId, userId))
+          .returning({ id: userProfile.id });
         return rows.length > 0;
       }),
 

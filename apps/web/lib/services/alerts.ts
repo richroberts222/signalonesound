@@ -6,10 +6,12 @@ import {
   type CreateAlertInput,
   type NotificationSettings,
   type PatchAlertInput,
+  type PutNotificationSettings,
   type RegisterPushTokenInput,
 } from "@signalone/validation";
 
 import type { NotificationsRepo, RuleRow } from "../../db/notifications";
+import { DEFAULT_QUIET } from "../notifications/policy";
 import { verifyUnsubscribeToken } from "../notifications/unsubscribe";
 import type { ServiceContext } from "./context";
 import { conflict, notFound, validationFailed } from "./errors";
@@ -40,6 +42,11 @@ const toAlert = (r: RuleRow): Alert => ({
 });
 
 export function createAlertsService({ repo, places, requireAccepted, unsubscribeSecret, now = () => new Date() }: AlertsServiceDeps) {
+  async function readSettings(ctx: ServiceContext): Promise<NotificationSettings> {
+    const quiet = (await repo.quietHoursOf(ctx.actor.userId)) ?? DEFAULT_QUIET;
+    return { reminders: await repo.getReminders(ctx.actor.userId), quietStartHour: quiet.start, quietEndHour: quiet.end };
+  }
+
   /** Turns the typed place into a rounded point and a label, or says it was not found. */
   function locate(place: string) {
     const match = places(place, 1)[0];
@@ -100,14 +107,16 @@ export function createAlertsService({ repo, places, requireAccepted, unsubscribe
       return { revoked: true };
     },
 
-    async getSettings(ctx: ServiceContext): Promise<NotificationSettings> {
-      return { reminders: await repo.getReminders(ctx.actor.userId) };
-    },
+    getSettings: readSettings,
 
-    async updateSettings(ctx: ServiceContext, reminders: boolean): Promise<NotificationSettings> {
+    /** Changes only what was sent; the answer is the settings as they now stand. */
+    async updateSettings(ctx: ServiceContext, changes: PutNotificationSettings): Promise<NotificationSettings> {
       await requireAccepted(ctx.actor.userId);
-      await repo.setReminders(ctx.actor.userId, reminders);
-      return { reminders };
+      if (changes.reminders !== undefined) await repo.setReminders(ctx.actor.userId, changes.reminders);
+      if (changes.quietStartHour !== undefined && changes.quietEndHour !== undefined) {
+        await repo.setQuietHours(ctx.actor.userId, { start: changes.quietStartHour, end: changes.quietEndHour });
+      }
+      return readSettings(ctx);
     },
 
     /** Stop hearing about one church. Always succeeds, so it cannot be used to find out which churches exist. */
