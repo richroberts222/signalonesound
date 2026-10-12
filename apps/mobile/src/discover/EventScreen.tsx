@@ -1,3 +1,4 @@
+import { countdownText } from "@signalone/shared";
 import { isSafeLink, REVIVAL_TYPES, type PublicEvent } from "@signalone/validation";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
@@ -67,6 +68,7 @@ function EventDetails({ event }: { event: PublicEvent }) {
   const when = formatWhen(event.startLocal, event.endLocal);
   const address = `${event.venueName}, ${event.street}, ${event.city}, ${event.state} ${event.zip}`;
   const cancelled = event.status === "cancelled";
+  const countdown = countdownText({ startsAt: event.startsAt, endsAt: event.endsAt, cancelled }, new Date());
 
   function share() {
     // The link opens the event page on the web (and in the app when it is installed, once links are set up on the real domain).
@@ -85,6 +87,11 @@ function EventDetails({ event }: { event: PublicEvent }) {
         {event.title}
       </Text>
       <Text style={{ color: theme.muted }}>{event.organization.name}</Text>
+      {countdown && (
+        <Text style={{ color: theme.primary, fontWeight: "600" }} testID="event-countdown">
+          {countdown}
+        </Text>
+      )}
       <Text style={{ color: theme.foreground, fontSize: 16 }}>{when}</Text>
       <Text style={{ color: theme.foreground }}>{address}</Text>
       {event.revivalTypes.length > 0 && <Text style={{ color: theme.muted }}>{event.revivalTypes.map(typeLabel).join(", ")}</Text>}

@@ -86,3 +86,7 @@ AC1 to AC14 and controls ticked [Fable]; Preview reviewed; `pnpm validate` clean
 * **Sitemap and search-engine pages:** the event and church pages are server-rendered with share previews. The sitemap (`/sitemap.xml`: the public pages, upcoming published events and approved churches, built on each request) and `/robots.txt` (only production asks to be listed) are built now that the domain exists (S9); `lib/services/sitemap.ts`, `lib/seo/robots.ts`.
 * **Rate limits and the browser end-to-end test:** limits on every public endpoint arrive in the S9 gate; the end-to-end test needs the Clerk test environment.
 * **Speed (AC12):** proven against the dev database with 3,000 events (`apps/web/db/discover.integration.test.ts`; generous bound of 2 seconds including the network round trip to the hosted database).
+
+## Countdown (built 2026-10-12)
+
+The event page (web) and the event screen (phone) show how soon the event is in plain words ("Starts in 3 days", "Starts in 5 hours", "Starts in 20 minutes", "Happening now"), from the event's own start and end moments, so it is right wherever the viewer is. Nothing is shown for a cancelled or finished event. One shared rule (`packages/shared/src/countdown.ts`) serves both; it is the product plan's Phase 2 "Revival Countdown" in its simplest form (a church-built countdown page is not part of this). Tests: `countdown.test.ts` and the event-page browser test (`event-countdown`).
