@@ -18,6 +18,7 @@ test.describe("Discover events (public)", () => {
     await expect(page).toHaveURL(/\/events\/[0-9a-f-]{36}$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText(title.slice(0, 20));
     await expect(page.getByTestId("event-when")).toBeVisible();
+    await expect(page.getByTestId("event-countdown")).toContainText(/Starts in|Happening now/);
     await expect(page.getByTestId("event-church-link")).toContainText("(Sample)");
   });
 

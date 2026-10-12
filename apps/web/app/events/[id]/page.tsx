@@ -2,6 +2,7 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { countdownText } from "@signalone/shared";
 import { REVIVAL_TYPES } from "@signalone/validation";
 
 import { EventActions } from "@/components/events/event-actions";
@@ -46,6 +47,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
   const event = await load((await params).id);
   if (!event) notFound();
   const typeLabel = (slug: string) => REVIVAL_TYPES.find((t) => t.slug === slug)?.label ?? slug;
+  const countdown = countdownText({ startsAt: event.startsAt, endsAt: event.endsAt, cancelled: event.status === "cancelled" }, new Date());
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-4 py-8 sm:px-6">
@@ -58,6 +60,11 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
         {event.status === "cancelled" && <Badge variant="destructive">Cancelled</Badge>}
       </div>
       <h1 className="font-heading text-3xl font-extrabold tracking-tight">{event.title}</h1>
+      {countdown && (
+        <p className="font-medium text-primary" data-testid="event-countdown">
+          {countdown}
+        </p>
+      )}
       <Link href={`/churches/${event.organization.id}`} className="text-primary underline-offset-4 hover:underline" data-testid="event-church-link">
         {event.organization.name}
       </Link>
