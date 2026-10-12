@@ -244,6 +244,7 @@ export const PROOF_PATHS = [
   "apps/mobile/app/event",
   "apps/mobile/app/church",
   "apps/mobile/src/churches",
+  "apps/mobile/src/fire",
   "apps/mobile/src/account",
   "apps/mobile/src/api.ts",
   "apps/mobile/src/discover",

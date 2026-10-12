@@ -3,6 +3,7 @@ import { createApiClient, createChurchClient, createDiscoverClient } from "@sign
 import { currentToken } from "./auth/TokenBridge";
 import { getMobileEnv } from "./config/env";
 import { createMobileProfileClient } from "./account/profileClient";
+import { createMobileFireClient } from "./fire/fireClient";
 import { createMobileSavedClient } from "./saved/savedClient";
 
 // The phone's one door to the API for discovery: the same shared client the web uses, with the base URL from
@@ -19,6 +20,13 @@ let churches: ReturnType<typeof createChurchClient> | undefined;
 
 export function getChurchClient() {
   return (churches ??= createChurchClient(createApiClient({ baseUrl: getMobileEnv().apiBaseUrl })));
+}
+
+// The member's fires (S19): the same shared client, with the session token as a bearer token.
+let fires: ReturnType<typeof createMobileFireClient> | undefined;
+
+export function getFireClient() {
+  return (fires ??= createMobileFireClient({ getToken: currentToken }));
 }
 
 // The member's saved events (S6): the same shared client, with the session token as a bearer token. Used only

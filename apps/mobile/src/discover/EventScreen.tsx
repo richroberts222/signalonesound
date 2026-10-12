@@ -5,6 +5,7 @@ import { ActivityIndicator, Linking, ScrollView, Share, StyleSheet, Text, View }
 
 import { getDiscoverClient } from "../api";
 import { getMobileEnv } from "../config/env";
+import { FireToggle } from "../fire/FireToggle";
 import { SaveToggle } from "../saved/SaveToggle";
 import { useTheme } from "../theme";
 import { ActionButton } from "../ui";
@@ -91,6 +92,7 @@ function EventDetails({ event }: { event: PublicEvent }) {
       {event.directions && <Text style={{ color: theme.muted }}>Directions: {event.directions}</Text>}
       <View style={styles.actions}>
         <SaveToggle eventId={event.id} />
+        <FireToggle eventId={event.id} total={event.fireCount} />
         <ActionButton label="Share" onPress={share} testID="event-share" />
         <ActionButton
           label="Directions"

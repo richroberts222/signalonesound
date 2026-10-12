@@ -1,4 +1,4 @@
-import type { PublicEvent } from "@signalone/validation";
+import { formatFireCount, type PublicEvent } from "@signalone/validation";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { feedbackOpacity } from "../feedback";
@@ -17,7 +17,7 @@ export function EventCard({ event, onPress, testID }: { event: PublicEvent; onPr
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${cancelled ? "Cancelled. " : ""}${event.title}, ${event.organization.name}, ${when}, ${place}${distance ? `, ${distance}` : ""}`}
+      accessibilityLabel={`${cancelled ? "Cancelled. " : ""}${event.title}, ${event.organization.name}, ${when}, ${place}${distance ? `, ${distance}` : ""}${event.fireCount > 0 ? `, ${formatFireCount(event.fireCount)}` : ""}`}
       testID={testID}
       style={({ pressed }) => [styles.card, { backgroundColor: theme.card, borderColor: theme.border, opacity: feedbackOpacity({ pressed }) }]}
     >
@@ -29,6 +29,11 @@ export function EventCard({ event, onPress, testID }: { event: PublicEvent; onPr
         <Text style={{ color: theme.muted }}>{place}</Text>
         {distance && <Text style={{ color: theme.muted }}>{distance}</Text>}
       </View>
+      {event.fireCount > 0 && (
+        <Text style={{ color: theme.primary, fontWeight: "600" }} testID="event-card-fire-count">
+          {formatFireCount(event.fireCount)}
+        </Text>
+      )}
     </Pressable>
   );
 }
