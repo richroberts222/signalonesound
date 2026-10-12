@@ -37,7 +37,7 @@ export function PerksPanel({ plans, onChanged }: { plans: Plan[]; onChanged: () 
     void load();
   }, [load]);
 
-  async function act(run: () => Promise<Outcome>, message: string) {
+  async function act(run: () => Promise<Outcome>, message: string): Promise<boolean> {
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -51,10 +51,11 @@ export function PerksPanel({ plans, onChanged }: { plans: Plan[]; onChanged: () 
       setError((fields && Object.values(fields)[0]?.[0]) ?? result.error?.message ?? "Something went wrong");
     }
     setBusy(false);
+    return result.ok;
   }
 
   function createPerk() {
-    void act(() => client.createPerk({ key: draft.key.trim(), label: draft.label, description: draft.description, accountType: draft.accountType }), "Perk added. Tick it on the plans that should include it.").then(() => setDraft((d) => ({ ...d, key: "", label: "", description: "" })));
+    void act(() => client.createPerk({ key: draft.key.trim(), label: draft.label, description: draft.description, accountType: draft.accountType }), "Perk added. Tick it on the plans that should include it.").then((saved) => saved && setDraft((d) => ({ ...d, key: "", label: "", description: "" })));
   }
 
   function toggle(planId: string, perkId: string, on: boolean) {

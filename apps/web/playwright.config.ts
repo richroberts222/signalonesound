@@ -1,4 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
+import { execFileSync } from "node:child_process";
+
 import { config } from "dotenv";
 
 // Native Playwright (docs/automation/playwright.md). E2E runs the real app
@@ -33,6 +35,23 @@ if (e2eReady) {
     throw new Error("E2E: Clerk development (test) keys are required; refusing live keys.");
   }
   env.E2E_READY = "1";
+
+  // The admin test account (docs/automation/playwright.md): a second Clerk development user, found or created
+  // here, is made an admin for this test run only by giving its id to the test server. Skipped if already done
+  // (the test workers load this file again) or if Clerk cannot be reached; the admin tests then skip with a reason.
+  if (env.E2E_ADMIN_READY !== "1") {
+    const adminEmail = env.E2E_CLERK_ADMIN_EMAIL ?? "e2e-admin+clerk_test@example.com";
+    try {
+      const adminId = execFileSync(process.execPath, ["e2e/admin-account.mjs", adminEmail], { encoding: "utf8", input: env.CLERK_SECRET_KEY, timeout: 30_000 }).trim();
+      if (/^user_[A-Za-z0-9]+$/.test(adminId)) {
+        env.E2E_CLERK_ADMIN_EMAIL = adminEmail;
+        env.ADMIN_USER_IDS = [env.ADMIN_USER_IDS, adminId].filter(Boolean).join(",");
+        env.E2E_ADMIN_READY = "1";
+      }
+    } catch {
+      // leave E2E_ADMIN_READY unset
+    }
+  }
 }
 
 // E2E_PORT lets a local run reuse a dev server that is already running (Next allows only one per folder).

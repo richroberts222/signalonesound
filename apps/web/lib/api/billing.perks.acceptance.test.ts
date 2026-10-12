@@ -83,7 +83,9 @@ describe("S20 plan perks (API boundary)", () => {
     const s = setup();
     const a = s.as(admin);
     for (const key of ["", "ab", "Ad_Free", "1abc", "has space", "x".repeat(41), "bad-dash", "<b>hi</b>"]) expect((await a.createPerk(perk(key))).status, key).toBe(400);
-    expect((await a.createPerk(perk("fine_key", { label: "  " }))).status).toBe(400);
+    const noName = await a.createPerk(perk("fine_key", { label: "  " }));
+    expect(noName.status).toBe(400);
+    expect(JSON.stringify(noName.json)).toContain("A name is required"); // in words, never a raw validation message
     expect((await a.createPerk(perk("fine_key", { label: "x".repeat(61) }))).status).toBe(400);
     expect((await a.createPerk(perk("fine_key", { description: "x".repeat(301) }))).status).toBe(400);
     expect((await a.createPerk(perk("fine_key", { label: "bad\u0007label" }))).status).toBe(400);

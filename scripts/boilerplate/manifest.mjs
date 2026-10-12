@@ -235,6 +235,7 @@ export const PROOF_PATHS = [
   "apps/web/lib/services/sitemap.ts",
   "apps/web/lib/services/sitemap.test.ts",
   "apps/web/e2e/accessibility.spec.ts",
+  "apps/web/e2e/admin.spec.ts",
   "apps/web/lib/api/fire-map.ts",
   "apps/web/lib/api/fire-map.acceptance.test.ts",
   "apps/web/lib/fire-map",

@@ -6,10 +6,10 @@ import { expect, type Page } from "@playwright/test";
 // at production keys; playwright.config.ts refuses anything but dev/qa and Clerk test keys. A member who has
 // not yet accepted the current Terms and Privacy Policy is sent to the "Before you continue" step (S1), so
 // the helper asks the server and, the first time, accepts it; afterwards the choice is stored.
-export async function signIn(page: Page): Promise<void> {
+export async function signIn(page: Page, emailAddress: string = process.env.E2E_CLERK_USER_EMAIL!): Promise<void> {
   await setupClerkTestingToken({ page });
   await page.goto("/");
-  await clerk.signIn({ page, emailAddress: process.env.E2E_CLERK_USER_EMAIL! });
+  await clerk.signIn({ page, emailAddress });
 
   const accepted = async (): Promise<boolean> => {
     const res = await page.request.get("/api/v1/me");
@@ -27,3 +27,8 @@ export async function signIn(page: Page): Promise<void> {
   expect(await accepted(), "the test user has accepted the current terms").toBe(true);
   await page.goto("/");
 }
+
+// Signs in as the admin test account (a second Clerk development user that playwright.config.ts makes an admin for the
+// run). Only used by specs that first check `adminReady`.
+export const adminReady = process.env.E2E_ADMIN_READY === "1";
+export const signInAsAdmin = (page: Page): Promise<void> => signIn(page, process.env.E2E_CLERK_ADMIN_EMAIL!);
