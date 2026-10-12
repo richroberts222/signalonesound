@@ -43,6 +43,7 @@
             "not_found",
             "conflict",
             "rate_limited",
+            "unavailable",
             "policy_reacceptance_required",
             "internal"
           ]
@@ -116,6 +117,7 @@
                     "not_found",
                     "conflict",
                     "rate_limited",
+                    "unavailable",
                     "policy_reacceptance_required",
                     "internal"
                   ]
@@ -1156,7 +1158,6 @@
           "type": "string"
         },
         "description": {
-          "default": "",
           "type": "string"
         },
         "startLocal": {
@@ -1178,7 +1179,6 @@
           "type": "string"
         },
         "country": {
-          "default": "US",
           "type": "string",
           "enum": [
             "US",
@@ -1432,7 +1432,6 @@
           ]
         },
         "state": {
-          "default": "",
           "type": "string",
           "enum": [
             "AL",
@@ -1493,7 +1492,6 @@
           "type": "string"
         },
         "zip": {
-          "default": "",
           "type": "string"
         },
         "location": {
@@ -1552,7 +1550,6 @@
           "type": "string"
         },
         "links": {
-          "default": [],
           "maxItems": 3,
           "type": "array",
           "items": {
@@ -2388,6 +2385,11 @@
             "number",
             "null"
           ]
+        },
+        "fireCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
         }
       },
       "required": [
@@ -2412,7 +2414,8 @@
         "speakers",
         "directions",
         "links",
-        "distanceMiles"
+        "distanceMiles",
+        "fireCount"
       ],
       "additionalProperties": false
     },
@@ -2537,6 +2540,11 @@
                   "number",
                   "null"
                 ]
+              },
+              "fireCount": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
               }
             },
             "required": [
@@ -2561,7 +2569,8 @@
               "speakers",
               "directions",
               "links",
-              "distanceMiles"
+              "distanceMiles",
+              "fireCount"
             ],
             "additionalProperties": false
           }
@@ -2783,6 +2792,11 @@
                           "number",
                           "null"
                         ]
+                      },
+                      "fireCount": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
                       }
                     },
                     "required": [
@@ -2807,7 +2821,8 @@
                       "speakers",
                       "directions",
                       "links",
-                      "distanceMiles"
+                      "distanceMiles",
+                      "fireCount"
                     ],
                     "additionalProperties": false
                   },

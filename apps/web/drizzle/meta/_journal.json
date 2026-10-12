@@ -120,6 +120,13 @@
       "when": 1791733190937,
       "tag": "0016_church_profile_services",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1791772049003,
+      "tag": "0017_event_fire",
+      "breakpoints": true
     }
   ]
 }

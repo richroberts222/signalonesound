@@ -2,7 +2,7 @@ import { and, asc, eq, sql } from "drizzle-orm";
 
 import type { Database } from "./client";
 import { withDbErrors } from "./errors";
-import { alertRule, auditLog, billingCouponUse, billingSubscription, idempotencyRecord, inviteToken, notificationQueue, organizationMember, orgMute, policyAcceptance, proofItem, pushToken, savedEvent, userProfile } from "./schema";
+import { alertRule, auditLog, billingCouponUse, billingSubscription, eventFire, idempotencyRecord, inviteToken, notificationQueue, organizationMember, orgMute, policyAcceptance, proofItem, pushToken, savedEvent, userProfile } from "./schema";
 
 // Data access for the member's own data (S1, docs/features/s1-identity-and-policy.md). Server-only
 // by convention (like all of db/). It owns the Drizzle queries and DatabaseError wrapping and
@@ -15,7 +15,7 @@ export type AcceptanceRow = typeof policyAcceptance.$inferSelect;
  * deletion are built from this one list; a guard test fails if the schema gains a member-owned
  * table that is not listed here (docs/data-inventory.md, "Deletion path").
  */
-export const MEMBER_TABLES = ["user_profile", "policy_acceptance", "proof_item", "organization_member", "audit_log", "idempotency_record", "saved_event", "invite_token", "alert_rule", "push_token", "notification_queue", "org_mute"] as const;
+export const MEMBER_TABLES = ["user_profile", "policy_acceptance", "proof_item", "organization_member", "audit_log", "idempotency_record", "saved_event", "event_fire", "invite_token", "alert_rule", "push_token", "notification_queue", "org_mute"] as const;
 
 export type ProfilePatch = { displayName?: string; emailPref?: boolean; timeZone?: string };
 
@@ -62,7 +62,7 @@ export function createMemberRepo(db: Database) {
     /** Every row held about the member, keyed by table name (see MEMBER_TABLES). */
     exportAll: (userId: string): Promise<Record<string, Record<string, unknown>[]>> =>
       withDbErrors("member.exportAll", async () => {
-        const [profiles, acceptances, items, memberships, audit, keys, saves, invites, rules, tokens, queued, mutes] = await Promise.all([
+        const [profiles, acceptances, items, memberships, audit, keys, saves, fires, invites, rules, tokens, queued, mutes] = await Promise.all([
           db.select().from(userProfile).where(eq(userProfile.clerkUserId, userId)),
           db.select().from(policyAcceptance).where(eq(policyAcceptance.userId, userId)),
           db.select().from(proofItem).where(eq(proofItem.ownerId, userId)),
@@ -70,6 +70,7 @@ export function createMemberRepo(db: Database) {
           db.select().from(auditLog).where(eq(auditLog.actorId, userId)),
           db.select().from(idempotencyRecord).where(eq(idempotencyRecord.userId, userId)),
           db.select().from(savedEvent).where(eq(savedEvent.userId, userId)),
+          db.select().from(eventFire).where(eq(eventFire.userId, userId)),
           db.select().from(inviteToken).where(eq(inviteToken.createdBy, userId)),
           db.select().from(alertRule).where(eq(alertRule.userId, userId)),
           // A push address is a credential for sending to the person's phone: the export names the device kind and when it was added, not the token.
@@ -85,6 +86,7 @@ export function createMemberRepo(db: Database) {
           audit_log: audit,
           idempotency_record: keys,
           saved_event: saves,
+          event_fire: fires,
           invite_token: invites,
           alert_rule: rules,
           push_token: tokens,
@@ -112,6 +114,7 @@ export function createMemberRepo(db: Database) {
             subject = replace(subject, ${userId}, 'deleted') where actor_id = ${userId} or subject like ${"%" + userId + "%"}`),
           db.delete(idempotencyRecord).where(eq(idempotencyRecord.userId, userId)),
           db.delete(savedEvent).where(eq(savedEvent.userId, userId)),
+          db.delete(eventFire).where(eq(eventFire.userId, userId)),
           db.delete(inviteToken).where(eq(inviteToken.createdBy, userId)),
           db.delete(alertRule).where(eq(alertRule.userId, userId)),
           db.delete(pushToken).where(eq(pushToken.userId, userId)),

@@ -7,7 +7,12 @@ import { DEFAULT_DURATION_MS, type AuditEntry, type EventFull, type EventRow, ty
 // all-or-nothing and a reused key creates nothing, an edit applies only if the version matches (and
 // then to every row it names), a status change only from an allowed state, keyset paging by start
 // time and id, and an audit entry written with each change. Never used in application code.
-export type FakeEventsRepo = EventsRepo & { audit: (AuditEntry & { at: Date })[]; all: () => EventFull[] };
+export type FakeEventsRepo = EventsRepo & {
+  audit: (AuditEntry & { at: Date })[];
+  all: () => EventFull[];
+  /** Test helper: the public fire total that the real repo counts from the fire table (S19). */
+  setFireCount: (eventId: string, count: number) => void;
+};
 
 export type OrgInfo = { name: string; status: string };
 const miles = (a: { lat: number; lng: number }, b: { lat: number; lng: number }): number => {
@@ -29,6 +34,10 @@ export function createFakeEventsRepo(
   return {
     audit,
     all: () => [...events.values()].map(copy),
+    setFireCount(eventId, fireCount) {
+      const row = events.get(eventId);
+      if (row) events.set(eventId, { ...row, fireCount });
+    },
 
     async findIdempotent(userId, key, since) {
       return keys.find((k) => k.userId === userId && k.key === key && k.createdAt >= since)?.eventId ?? null;
@@ -67,6 +76,7 @@ export function createFakeEventsRepo(
           updatedAt: now(),
           revivalTypes: [...e.revivalTypes].sort(),
           links: [...e.links],
+          fireCount: 0,
         });
       }
       keys.push({ userId: input.userId, key: input.idempotencyKey, eventId: input.events[0].id, createdAt: now() });

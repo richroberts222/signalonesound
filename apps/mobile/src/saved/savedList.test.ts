@@ -29,6 +29,7 @@ const event = (n: number, over: Partial<PublicEvent> = {}): PublicEvent => ({
   directions: null,
   links: [],
   distanceMiles: null,
+  fireCount: 0,
   ...over,
 });
 const item = (n: number, state: SavedItem["state"] = "upcoming"): SavedItem => ({

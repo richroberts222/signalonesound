@@ -61,6 +61,7 @@ export function createFakeMemberRepo(): MemberRepo {
         audit_log: [],
         idempotency_record: [],
         saved_event: [],
+        event_fire: [],
         invite_token: [],
         alert_rule: [],
         push_token: [],

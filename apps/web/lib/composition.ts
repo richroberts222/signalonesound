@@ -2,6 +2,7 @@ import "server-only";
 
 import { createBillingRepo } from "../db/billing";
 import { createEventsRepo } from "../db/events";
+import { createFiresRepo } from "../db/fires";
 import { createMemberRepo } from "../db/member";
 import { createModerationRepo } from "../db/moderation";
 import { createNotificationsRepo } from "../db/notifications";
@@ -38,6 +39,7 @@ import { createLoggingEmail, type EmailPort } from "./messaging/email";
 import { createAllowlistedEmail, createSuppressingEmail } from "./messaging/guards";
 import { createSesEmail } from "./messaging/ses";
 import { createEmailSuppressionRepo, type EmailSuppressionRepo } from "../db/email-suppression";
+import { createFiresService, type FiresService } from "./services/fires";
 import { createSavedService, type SavedService } from "./services/saved";
 import { createProofItemService, type ProofItemService } from "./services/proof-items";
 
@@ -110,6 +112,16 @@ let saved: SavedService | undefined;
 export function getSavedService(): SavedService {
   return (saved ??= createSavedService({
     repo: createSavedRepo(getDb()),
+    events: createEventsRepo(getDb()),
+    requireAccepted: (userId) => getMemberService().requireAccepted(userId),
+  }));
+}
+
+let fires: FiresService | undefined;
+
+export function getFiresService(): FiresService {
+  return (fires ??= createFiresService({
+    repo: createFiresRepo(getDb()),
     events: createEventsRepo(getDb()),
     requireAccepted: (userId) => getMemberService().requireAccepted(userId),
   }));

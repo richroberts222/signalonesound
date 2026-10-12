@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, desc, eq, gt, gte, inArray, isNotNull, lt, ne, notInArray, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, gte, inArray, isNotNull, lt, ne, notInArray, or, sql } from "drizzle-orm";
 
 import type { Database } from "./client";
 import { withDbErrors } from "./errors";
-import { auditLog, event, eventLink, eventRevivalType, eventSeries, idempotencyRecord, organization } from "./schema";
+import { auditLog, event, eventFire, eventLink, eventRevivalType, eventSeries, idempotencyRecord, organization } from "./schema";
 
 // Data access for events (S3, docs/features/s3-events-church-portal.md). Server-only by convention
 // (like all of db/): it owns the Drizzle queries and DatabaseError wrapping and returns its own row
@@ -12,7 +12,7 @@ import { auditLog, event, eventLink, eventRevivalType, eventSeries, idempotencyR
 // random token and every dependent statement runs only if the token matches, so an edit that lost
 // the version race changes nothing at all.
 export type EventRow = typeof event.$inferSelect;
-export type EventFull = EventRow & { revivalTypes: string[]; links: string[] };
+export type EventFull = EventRow & { revivalTypes: string[]; links: string[]; fireCount: number };
 export type AuditEntry = { actorId: string; action: string; subject: string; detail?: string };
 
 export type NewEvent = {
@@ -89,14 +89,18 @@ export function createEventsRepo(db: Database) {
   async function attach(rows: EventRow[]): Promise<EventFull[]> {
     if (rows.length === 0) return [];
     const ids = rows.map((r) => r.id);
-    const [types, links] = await Promise.all([
+    const [types, links, fires] = await Promise.all([
       db.select().from(eventRevivalType).where(inArray(eventRevivalType.eventId, ids)),
       db.select().from(eventLink).where(inArray(eventLink.eventId, ids)).orderBy(asc(eventLink.position)),
+      // The public fire total (S19): one grouped count for the whole page, never who gave them.
+      db.select({ eventId: eventFire.eventId, n: count() }).from(eventFire).where(inArray(eventFire.eventId, ids)).groupBy(eventFire.eventId),
     ]);
+    const fireTotals = new Map(fires.map((f) => [f.eventId, Number(f.n)]));
     return rows.map((row) => ({
       ...row,
       revivalTypes: types.filter((t) => t.eventId === row.id).map((t) => t.typeSlug).sort(),
       links: links.filter((l) => l.eventId === row.id).map((l) => l.url),
+      fireCount: fireTotals.get(row.id) ?? 0,
     }));
   }
 
