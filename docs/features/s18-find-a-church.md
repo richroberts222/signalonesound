@@ -89,3 +89,7 @@ The phone follow-up named above is built as the same read-only feature on the ph
 * **Church screen**: the address with Directions and Share, the regular services Sunday first, a plain line when none were added, and a plain message when the church is not public or the link is malformed.
 * **Tests:** the request (rounded position, radius only with a position, trimmed words) and the wording are in `apps/mobile/src/churches/churches.test.ts`. The screens are checked by the type checker and, on a phone, by the owner's exploratory check. No server or database change, so no production database update is needed.
 * **Still out:** the manager's profile editor on the phone, and a phone build (the next Android build waits for a bigger batch).
+
+## Share a church (built 2026-10-12)
+
+The church page has a "Share this church" button (`church-share`): the device's share sheet when there is one, otherwise the link is copied. The event page's Share uses the same rule (`apps/web/lib/share.ts`, tested without a browser). Tests: `lib/share.test.ts` and the church page browser test.

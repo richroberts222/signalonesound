@@ -34,6 +34,7 @@ test.describe("Find a Church", () => {
     await expect(page.getByTestId("church-services")).toBeVisible();
     await expect(page.getByTestId("church-address")).toContainText("Boise");
     await expect(page.getByTestId("church-directions")).toHaveAttribute("href", /google\.com\/maps/);
+    await expect(page.getByTestId("church-share")).toBeVisible();
   });
 
   test("AC4 searching by name works without a place, and a name that matches nothing says so plainly", async ({ page }) => {
