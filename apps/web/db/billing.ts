@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, isNull, like, lte, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNotNull, isNull, like, lte, or, sql } from "drizzle-orm";
 
 import type { Database } from "./client";
 import { withDbErrors } from "./errors";
@@ -204,6 +204,52 @@ export function createBillingRepo(db: Database) {
         return result.rows.length > 0;
       }),
 
+    // ---- Flagship churches: free for life, at most 50 numbered places (S14) -----------------------------
+    flagshipUsed: (): Promise<number> =>
+      withDbErrors("billing.flagshipUsed", async () => {
+        const [row] = await db.select({ n: count() }).from(billingSubscription).where(isNotNull(billingSubscription.flagshipSlot));
+        return Number(row?.n ?? 0);
+      }),
+
+    /**
+     * Gives a church one of the 50 places (or keeps the one it has) and writes the audit entry in ONE statement. A church with a
+     * provider subscription is left alone. False means nothing changed (no place free, or the church is paying); a race for
+     * the last place ends in a unique-key conflict, so the limit cannot be exceeded.
+     */
+    enableFlagship: (input: { organizationId: string; actorId: string; detail: unknown }): Promise<boolean> =>
+      withDbErrors("billing.enableFlagship", async () => {
+        const result = await db.execute(sql`
+          with free as (
+            select g as slot from generate_series(1, 50) g
+            where not exists (select 1 from billing_subscription s where s.flagship_slot = g) order by g limit 1),
+          mine as (
+            select flagship_slot as slot from billing_subscription where account_type = 'organization' and account_id = ${input.organizationId} and flagship_slot is not null),
+          changed as (
+            insert into billing_subscription (account_type, account_id, status, flagship_slot)
+            select 'organization', ${input.organizationId}, 'active', coalesce((select slot from mine), (select slot from free))
+            where coalesce((select slot from mine), (select slot from free)) is not null
+            on conflict (account_type, account_id) do update set status = 'active', plan_id = null, price_id = null, trial_ends_at = null,
+              flagship_slot = coalesce(billing_subscription.flagship_slot, excluded.flagship_slot)
+              where billing_subscription.provider_ref is null
+            returning id)
+          insert into audit_log (actor_id, action, subject, detail)
+          select ${input.actorId}, 'billing.flagship.enable', ${`organization:${input.organizationId}`}, ${JSON.stringify(input.detail)} from changed
+          returning id`);
+        return result.rows.length > 0;
+      }),
+
+    /** Removes the church's flagship place (deleting its row, so the normal rule applies again) and audits it in ONE statement. */
+    disableFlagship: (input: { organizationId: string; actorId: string; detail: unknown }): Promise<boolean> =>
+      withDbErrors("billing.disableFlagship", async () => {
+        const result = await db.execute(sql`
+          with removed as (
+            delete from billing_subscription where account_type = 'organization' and account_id = ${input.organizationId} and flagship_slot is not null returning id)
+          insert into audit_log (actor_id, action, subject, detail)
+          select ${input.actorId}, 'billing.flagship.disable', ${`organization:${input.organizationId}`}, ${JSON.stringify(input.detail)} from removed
+          returning id`);
+        return result.rows.length > 0;
+      }),
+
     // ---- Payment notifications (S11) ---------------------------------------------------------------
     hasPaymentEvent: (eventId: string): Promise<boolean> =>
       withDbErrors("billing.hasPaymentEvent", async () => {
@@ -226,7 +272,7 @@ export function createBillingRepo(db: Database) {
           .onConflictDoUpdate({
             target: [billingSubscription.accountType, billingSubscription.accountId],
             set: { planId: input.planId, priceId: input.priceId, status: "active", trialEndsAt: null, providerRef: input.subscriptionRef, providerCustomerRef: input.customerRef, providerEventAt: input.at },
-            setWhere: or(isNull(billingSubscription.providerEventAt), lte(billingSubscription.providerEventAt, input.at)),
+            setWhere: and(isNull(billingSubscription.flagshipSlot), or(isNull(billingSubscription.providerEventAt), lte(billingSubscription.providerEventAt, input.at))), // a flagship church is never changed by a provider event
           });
       }),
 

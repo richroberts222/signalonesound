@@ -130,6 +130,16 @@ export const grantTrialSchema = z
   .strict();
 export type GrantTrialInput = z.infer<typeof grantTrialSchema>;
 
+// ---- Flagship churches: free for life, at most 50 (S14) ------------------------------------------------
+export const FLAGSHIP_LIMIT = 50;
+export const flagshipChangeSchema = z.object({ organizationId: z.uuid(), enabled: z.boolean(), reason: z.string().trim().min(1, "A reason is required").max(GRANT_REASON_MAX).refine((v) => !hasControlCharacter(v), "The reason must be plain text") }).strict();
+export type FlagshipChangeInput = z.infer<typeof flagshipChangeSchema>;
+export const flagshipStatusSchema = z.object({ used: z.number().int().min(0), limit: z.number().int() });
+export type FlagshipStatus = z.infer<typeof flagshipStatusSchema>;
+export const flagshipResultSchema = z.object({ organizationId: z.uuid(), enabled: z.boolean(), used: z.number().int().min(0), limit: z.number().int() });
+export type FlagshipResult = z.infer<typeof flagshipResultSchema>;
+export const organizationParamsSchema = z.object({ id: z.uuid() });
+
 // ---- Audit (every billing change; append-only) --------------------------------------------------------
 export const billingAuditEntrySchema = z.object({ id: z.uuid(), actorId: z.string(), action: z.string(), subject: z.string(), detail: z.string(), at: z.string() });
 export type BillingAuditEntry = z.infer<typeof billingAuditEntrySchema>;

@@ -134,6 +134,13 @@
       "when": 1791789375716,
       "tag": "0018_quiet_hours",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1791827682312,
+      "tag": "0019_flagship_slot",
+      "breakpoints": true
     }
   ]
 }

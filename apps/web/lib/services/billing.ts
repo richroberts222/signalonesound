@@ -7,6 +7,9 @@ import type {
   CreateCouponInput,
   CreatePlanInput,
   Entitlement,
+  FlagshipChangeInput,
+  FlagshipResult,
+  FlagshipStatus,
   GrantTrialInput,
   Plan,
   UpdateBillingRuleInput,
@@ -16,6 +19,7 @@ import type {
 
 import type { BillingAuditRow, BillingRepo, CouponRow, PlanRow, RuleRow } from "../../db/billing";
 import { WebhookSignatureError, type PaymentProvider, type ProviderEvent } from "../payments/port";
+import { FLAGSHIP_LIMIT } from "@signalone/validation";
 import type { ServiceContext } from "./context";
 import { conflict, notFound, validationFailed } from "./errors";
 import type { AdminDirectory } from "./organizations";
@@ -41,6 +45,8 @@ export type BillingServiceDeps = {
   paymentsEnabled?: () => boolean;
   /** Throws unless the member has accepted the current terms (S1). */
   requireAccepted?: (userId: string) => Promise<void>;
+  /** Church checks for S14 (who may buy for a church, which churches exist). Absent: church routes answer "not found". */
+  organizations?: { isApprovedManager(orgId: string, userId: string): Promise<boolean>; isApproved(orgId: string): Promise<boolean> };
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -75,7 +81,7 @@ export function discountMinor(amountMinor: number, coupon: { percentOff: number 
   return Math.min(Math.max(raw, 0), amountMinor);
 }
 
-export function createBillingService({ repo, admins, provider, now = () => new Date(), paymentsEnabled = () => false, requireAccepted = async () => undefined }: BillingServiceDeps) {
+export function createBillingService({ repo, admins, provider, now = () => new Date(), paymentsEnabled = () => false, requireAccepted = async () => undefined, organizations }: BillingServiceDeps) {
   const requireAdmin = (ctx: ServiceContext): void => {
     if (!admins.isAdmin(ctx.actor.userId)) throw notFound(); // admin tools do not reveal themselves
   };
@@ -115,6 +121,15 @@ export function createBillingService({ repo, admins, provider, now = () => new D
       return { accountType, entitled: live, reason: live ? "trialing" : "trial_ended", status: "trialing", trialEndsAt: iso(ends) };
     }
     return { accountType, entitled: false, reason: "payment_required", status: current.status as Entitlement["status"], trialEndsAt: null };
+  }
+
+  /** Which account a payment action is for: the signed-in member, or a church the person manages (or an admin). A stranger is told "not found". */
+  async function accountFor(ctx: ServiceContext, organizationId?: string): Promise<{ type: AccountType; id: string }> {
+    if (organizationId === undefined) return { type: "member", id: ctx.actor.userId };
+    if (!organizations) throw notFound();
+    const allowed = admins.isAdmin(ctx.actor.userId) || (await organizations.isApprovedManager(organizationId, ctx.actor.userId));
+    if (!allowed) throw notFound();
+    return { type: "organization", id: organizationId };
   }
 
   return {
@@ -244,34 +259,70 @@ export function createBillingService({ repo, admins, provider, now = () => new D
      * from our plan, never from the client. Closed (not found) unless payments are switched on. `origin` is where the
      * person is returned afterwards (our own site).
      */
-    async createCheckout(ctx: ServiceContext, input: { planId: string; origin: string }): Promise<{ url: string }> {
+    async createCheckout(ctx: ServiceContext, input: { planId: string; origin: string; organizationId?: string }): Promise<{ url: string }> {
       if (!paymentsEnabled()) throw notFound();
+      const account = await accountFor(ctx, input.organizationId);
       await requireAccepted(ctx.actor.userId);
       const plan = await repo.getPlan(input.planId);
-      if (!plan || !plan.active || plan.accountType !== "member" || !plan.price) throw notFound("That plan is not available");
-      const existing = await repo.getSubscription("member", ctx.actor.userId);
-      if (existing?.status === "active") throw conflict("You already have an active plan. Manage it from your account.");
+      if (!plan || !plan.active || plan.accountType !== account.type || !plan.price) throw notFound("That plan is not available");
+      const existing = await repo.getSubscription(account.type, account.id);
+      if (existing?.status === "active") throw conflict(account.type === "organization" ? "This church or ministry already has an active plan. Manage it from its membership page." : "You already have an active plan. Manage it from your account.");
       const origin = new URL(input.origin).origin;
+      const back = account.type === "organization" ? `${origin}/manage/${account.id}/membership` : `${origin}/services`;
       return provider.createCheckout({
-        accountType: "member",
-        accountId: ctx.actor.userId,
+        accountType: account.type,
+        accountId: account.id,
         planId: plan.id,
         priceId: plan.price.id,
         planName: plan.name,
         amountMinor: plan.price.amountMinor,
         currency: plan.price.currency,
         interval: plan.price.interval as "month" | "year",
-        successUrl: `${origin}/services?checkout=success`,
-        cancelUrl: `${origin}/services?checkout=cancelled`,
+        successUrl: `${back}?checkout=success`,
+        cancelUrl: `${back}?checkout=cancelled`,
       });
     },
 
-    /** Opens the provider's customer page (change card, cancel) for someone who has a subscription; anyone else is "not found". */
-    async createPortal(ctx: ServiceContext, input: { origin: string }): Promise<{ url: string }> {
+    /** Opens the provider's customer page (change card, cancel) for an account that has a subscription; anyone else is "not found". */
+    async createPortal(ctx: ServiceContext, input: { origin: string; organizationId?: string }): Promise<{ url: string }> {
       if (!paymentsEnabled()) throw notFound();
-      const sub = await repo.getSubscription("member", ctx.actor.userId);
+      const account = await accountFor(ctx, input.organizationId);
+      const sub = await repo.getSubscription(account.type, account.id);
       if (!sub?.providerCustomerRef) throw notFound();
-      return provider.createPortal({ customerRef: sub.providerCustomerRef, returnUrl: `${new URL(input.origin).origin}/services` });
+      const origin = new URL(input.origin).origin;
+      return provider.createPortal({ customerRef: sub.providerCustomerRef, returnUrl: account.type === "organization" ? `${origin}/manage/${account.id}/membership` : `${origin}/services` });
+    },
+
+    // ---- Churches and ministries (S14) --------------------------------------------------------------------
+    /** The derived answer for one church, for its approved managers and admins. */
+    async organizationEntitlement(ctx: ServiceContext, organizationId: string): Promise<Entitlement> {
+      const account = await accountFor(ctx, organizationId);
+      return entitlementFor(account.type, account.id);
+    },
+
+    /** How many of the 50 free-for-life places are used (admin). */
+    async flagshipStatus(ctx: ServiceContext): Promise<FlagshipStatus> {
+      requireAdmin(ctx);
+      return { used: await repo.flagshipUsed(), limit: FLAGSHIP_LIMIT };
+    },
+
+    /**
+     * An admin gives a church one of the 50 free-for-life places, or takes it back. A church that is not approved is "not found";
+     * a paying church, or a full list, is refused (409). The change and its audit entry are written in one step.
+     */
+    async setFlagship(ctx: ServiceContext, input: FlagshipChangeInput): Promise<FlagshipResult> {
+      requireAdmin(ctx);
+      if (!organizations || !(await organizations.isApproved(input.organizationId))) throw notFound("That church or ministry was not found");
+      const detail = { reason: input.reason };
+      if (input.enabled) {
+        if (!(await repo.enableFlagship({ organizationId: input.organizationId, actorId: ctx.actor.userId, detail }))) {
+          const sub = await repo.getSubscription("organization", input.organizationId);
+          throw conflict(sub?.providerRef ? "This church or ministry has a paying plan, so it cannot be made free for life" : `All ${FLAGSHIP_LIMIT} free-for-life places are in use`);
+        }
+      } else {
+        await repo.disableFlagship({ organizationId: input.organizationId, actorId: ctx.actor.userId, detail });
+      }
+      return { organizationId: input.organizationId, enabled: input.enabled, used: await repo.flagshipUsed(), limit: FLAGSHIP_LIMIT };
     },
 
     /**

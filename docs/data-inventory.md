@@ -90,6 +90,7 @@ New tables are added to the schema and to this table in the same pull request.
 | billing_subscription.id | T1 | Row identity | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
 | billing_subscription.account_type | T1 | Kind of account | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
 | billing_subscription.account_id | T2 | Which account holds the subscription (a member's user id or an organization id) | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
+| billing_subscription.flagship_slot | T1 | One of the 50 numbered free-for-life places a flagship church or ministry holds (empty for everyone else); the unique number keeps the limit at 50 | Kept while the place is held | Removed when an admin takes the place back (the row is deleted) |
 | billing_subscription.plan_id | T1 | The plan bought | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
 | billing_subscription.price_id | T1 | The price version bought | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
 | billing_subscription.status | T1 | Trialing, active, past due or cancelled | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |

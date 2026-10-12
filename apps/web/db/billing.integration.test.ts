@@ -220,3 +220,64 @@ describe("trial grants (real database, S13)", () => {
     }
   });
 });
+
+describe("flagship places (real database, S14)", () => {
+  const orgs = Array.from({ length: 4 }, () => crypto.randomUUID());
+  const filler: string[] = [];
+  const enable = (organizationId: string) => repo.enableFlagship({ organizationId, actorId: admin, detail: { reason: "itest" } });
+  const rowOf = (id: string) => repo.getSubscription("organization", id);
+  const auditFor = async (id: string) => (await db.select().from(auditLog).where(eq(auditLog.subject, `organization:${id}`))).length;
+
+  afterAll(async () => {
+    const ids = [...orgs, ...filler];
+    await db.delete(billingSubscription).where(inArray(billingSubscription.accountId, ids));
+    await db.delete(auditLog).where(inArray(auditLog.subject, ids.map((i) => `organization:${i}`)));
+  });
+
+  it("S14 AC9 enabling takes a numbered place, a repeat keeps the same place, and disabling removes the row", async () => {
+    expect(await enable(orgs[0])).toBe(true);
+    const first = await rowOf(orgs[0]);
+    expect(first).toMatchObject({ status: "active", providerRef: null, planId: null });
+    expect(first?.flagshipSlot).toBeGreaterThanOrEqual(1);
+    expect(await enable(orgs[0])).toBe(true);
+    expect((await rowOf(orgs[0]))?.flagshipSlot).toBe(first?.flagshipSlot);
+    expect(await repo.disableFlagship({ organizationId: orgs[0], actorId: admin, detail: { reason: "itest" } })).toBe(true);
+    expect(await rowOf(orgs[0])).toBeNull();
+    expect(await repo.disableFlagship({ organizationId: orgs[0], actorId: admin, detail: {} })).toBe(false); // nothing to remove, no audit entry
+  });
+
+  it("S14 AC11 each change wrote exactly one audit entry (enable twice, disable once)", async () => {
+    expect(await auditFor(orgs[0])).toBe(3);
+  });
+
+  it("S14 AC8 a church with a provider subscription is left alone", async () => {
+    await repo.applyCheckoutCompleted({ accountType: "organization", accountId: orgs[1], planId: crypto.randomUUID(), priceId: crypto.randomUUID(), subscriptionRef: `${PREFIX}org-sub-${crypto.randomUUID()}`, customerRef: "cus_itest", at: new Date() });
+    expect(await enable(orgs[1])).toBe(false);
+    expect((await rowOf(orgs[1]))?.flagshipSlot).toBeNull();
+    expect(await auditFor(orgs[1])).toBe(0);
+  });
+
+  it("S14 AC10 a provider event never changes a flagship church", async () => {
+    expect(await enable(orgs[2])).toBe(true);
+    await repo.applyCheckoutCompleted({ accountType: "organization", accountId: orgs[2], planId: crypto.randomUUID(), priceId: crypto.randomUUID(), subscriptionRef: `${PREFIX}stray-${crypto.randomUUID()}`, customerRef: null, at: new Date() });
+    expect(await rowOf(orgs[2])).toMatchObject({ providerRef: null, status: "active" });
+  });
+
+  it("S14 AC9 the 51st place is refused, and two admins racing for the last place cannot both win", async () => {
+    const used = await repo.flagshipUsed();
+    for (let i = used; i < 49; i++) {
+      const id = crypto.randomUUID();
+      filler.push(id);
+      expect(await enable(id)).toBe(true);
+    }
+    expect(await repo.flagshipUsed()).toBe(49);
+    const rival = crypto.randomUUID();
+    const late = crypto.randomUUID();
+    filler.push(rival, late);
+    const racers = await Promise.allSettled([enable(orgs[3]), enable(rival)]);
+    expect(await repo.flagshipUsed()).toBe(50);
+    expect(racers.filter((r) => r.status === "fulfilled" && r.value === true)).toHaveLength(1);
+    expect(await enable(late)).toBe(false);
+    expect(await repo.flagshipUsed()).toBe(50);
+  });
+});

@@ -1,0 +1,3 @@
+ALTER TABLE "billing_subscription" ADD COLUMN "flagship_slot" smallint;--> statement-breakpoint
+ALTER TABLE "billing_subscription" ADD CONSTRAINT "billing_subscription_flagship_slot_unique" UNIQUE("flagship_slot");--> statement-breakpoint
+ALTER TABLE "billing_subscription" ADD CONSTRAINT "billing_subscription_flagship_slot_range" CHECK ("billing_subscription"."flagship_slot" is null or "billing_subscription"."flagship_slot" between 1 and 50);

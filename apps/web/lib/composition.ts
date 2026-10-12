@@ -201,6 +201,10 @@ export function getBillingService(): BillingService {
     provider: stripeProvider(),
     paymentsEnabled: () => getServerEnv().paymentsProvider === "stripe",
     requireAccepted: (userId) => getMemberService().requireAccepted(userId),
+    organizations: {
+      isApprovedManager: (orgId, userId) => createOrganizationsRepo(getDb()).isApprovedManager(orgId, userId),
+      isApproved: async (orgId) => (await createOrganizationsRepo(getDb()).getWithLinks(orgId))?.status === "approved",
+    },
   }));
 }
 

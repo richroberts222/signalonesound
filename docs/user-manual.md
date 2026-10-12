@@ -169,6 +169,10 @@ Always give a reason if a box for one appears (override reason). It is recorded.
 
 ---
 
+### 8.6 Your church's membership
+
+Go to **My churches and ministries** and select **Membership** on an approved church. It shows the church's plan in plain words. While membership is free it says so and shows nothing to buy. When payment is on, **Choose this plan** opens the payment company's own secure page for the church, and **Manage billing** lets you change the card or cancel. Churches chosen as one of the first 50 flagship churches never pay.
+
 ## 9. Report a problem
 
 If an event or church page looks wrong, fake, harmful, or shows private information about someone:

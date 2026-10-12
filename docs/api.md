@@ -225,6 +225,11 @@ Every admin write needs a non-empty reason and is written to the audit log in th
 | `GET /api/v1/admin/billing/coupons`, `POST /api/v1/admin/billing/coupons` | admin | List coupons; create one (`percentOff` or `amountOffMinor` with `currency`, optional `expiresAt` and `maxRedemptions`; one use per account; a duplicate code is `409`) |
 | `PATCH /api/v1/admin/billing/coupons/:id` | admin | Turn on or off, change the expiry or the limit |
 | `PUT /api/v1/admin/billing/trials` | admin | Gives one member a fresh free trial: body `{ userId, days (1 to 365), reason }`. Replaces any earlier trial end; refused (409) for an active or past-due subscription, not found for an unknown member; audited with the reason (S13) |
+| `GET /api/v1/admin/billing/flagship` | admin | How many of the 50 free-for-life places are used (S14) |
+| `PUT /api/v1/admin/billing/flagship` | admin | Gives a church or ministry a free-for-life place, or takes it back: body `{ organizationId, enabled, reason }`. At most 50; refused (409) when full or when the church has a paying plan; not found for an unapproved church; audited (S14) |
+| `GET /api/v1/organizations/:id/entitlement` | church manager, admin | The church's derived plan state (S14) |
+| `POST /api/v1/organizations/:id/checkout` | church manager, admin | Opens the payment provider's hosted checkout for an active church plan; the church, not the person, is the account. Closed unless payments are on (S14) |
+| `POST /api/v1/organizations/:id/billing-portal` | church manager, admin | The provider's customer page for a church with a subscription (S14) |
 | `GET /api/v1/admin/billing/audit?limit=` | admin | Every billing change, newest first (who, when, from and to). Entries are append-only; the application offers no edit or delete |
 | `GET /api/v1/me/entitlements` | member | The server's derived answer for the caller: `entitled`, `reason`, `status`, `trialEndsAt`. It takes no input, so a client cannot claim entitlement |
 | `POST /api/v1/me/coupons/quote` | member | The price a coupon gives for an active member plan, in whole cents (rounded half up, never below zero). Read-only: records nothing. Refusals have distinct messages (inactive, expired, already used, limit reached) |

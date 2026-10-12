@@ -180,6 +180,16 @@ Use this when a member asks for another look, or you want to treat someone kindl
 6. The grant appears in the change history with your reason.
 
 To turn the automatic first trial off for everyone, set **Free trial (days)** to 0 in the billing rule.
+
+### 6.5 Free for life (the first 50 flagship churches and ministries)
+
+1. In **Free for life**, the line under the title shows how many of the 50 places are used.
+2. Enter the **Church or ministry id** (shown in the church's web address) and a **Reason (required)**.
+3. Select **Give a place**. The church never pays, whatever the billing rule says.
+4. **Remove the place** takes it back, and the normal billing rule applies again.
+5. A church that already pays cannot be given a place. When all 50 are used, the page says so.
+
+A church's managers see their plan on **My churches and ministries**, then **Membership**.
 Every billing change is listed at the bottom as a change history. **No changes yet** means nothing has been changed.
 
 ---
