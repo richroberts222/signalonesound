@@ -37,7 +37,8 @@ A feature is **done** when its checklist is complete and nothing else. The check
 1. **Scope fence.** The issue states what is in and what is out. Work beyond the fence is recommended in the pull request and not built.
 2. **Numbered acceptance criteria** (AC1, AC2, ...), each testable.
 3. **Controls inventory.** Every button, input, select, link and toggle, with its action and expected effect.
-4. **Proof for every item.** Each criterion and each control is ticked with the test (title carries the number) or the manual step that proves it. A criterion with no test is either automated or listed as not automated with the reason.
+4. **Proof for every item, and admin screens are driven as an admin.** An API test with a faked identity proves the rule, not the screen: every admin screen and control also gets a browser test signed in as the admin test account (`docs/automation/playwright.md`).
+   Detail: Each criterion and each control is ticked with the test (title carries the number) or the manual step that proves it. A criterion with no test is either automated or listed as not automated with the reason.
 4b. **Automation ships with the feature.** The tests for every criterion and every control are merged in the same pull request as the feature, not afterwards. "Manual only" is allowed for a criterion only with a recorded reason (for example a subjective visual check), and the human review steps are then written out. When the browser and integration job exists, it must be green for the feature's tests.
 5. **Every new test passed the breaker** (broken on purpose, failed, restored). The pull request reports the break and the result.
 6. **Layers.** The test plan (section 4) names the layers used and why.

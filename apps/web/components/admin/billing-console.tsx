@@ -50,7 +50,8 @@ export function BillingConsole() {
     const [r, p, c, a] = await Promise.all([client.listRules(), client.listPlans(), client.listCoupons(), client.listAudit(30)]);
     if (!r.ok) return setError(r.error.code === "not_found" ? "This page is only for platform admins." : r.error.message);
     setRules(r.data.items);
-    setDrafts(Object.fromEntries(r.data.items.map((rule) => [rule.accountType, draftOf(rule)])));
+    // A reload (after any save) keeps what is being typed in a settings box; only a box with no draft yet is filled from the server.
+    setDrafts((prev) => ({ ...Object.fromEntries(r.data.items.map((rule) => [rule.accountType, draftOf(rule)])), ...prev }));
     if (p.ok) setPlans(p.data.items);
     if (c.ok) setCoupons(c.data.items);
     if (a.ok) setAudit(a.data.items);
@@ -63,7 +64,7 @@ export function BillingConsole() {
     void load();
   }, [load]);
 
-  async function act(run: () => Promise<Outcome>, message: string) {
+  async function act(run: () => Promise<Outcome>, message: string): Promise<boolean> {
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -76,6 +77,7 @@ export function BillingConsole() {
       setError((fields && Object.values(fields)[0]?.[0]) ?? result.error?.message ?? "Something went wrong");
     }
     setBusy(false);
+    return result.ok;
   }
 
   const planName = (id: string | null) => plans.find((p) => p.id === id)?.name ?? "No default plan";
@@ -90,23 +92,23 @@ export function BillingConsole() {
   function createPlan() {
     const amountMinor = parseDollarsToMinor(newPlan.amount);
     if (amountMinor === null) return setError("Enter the price in dollars, like 3 or 3.50 (up to $10,000).");
-    void act(() => client.createPlan({ accountType: newPlan.accountType, name: newPlan.name, interval: newPlan.interval, amountMinor, currency: "usd" }), "Plan created. It is inactive until you turn it on.").then(() => setNewPlan({ ...newPlan, name: "", amount: "" }));
+    void act(() => client.createPlan({ accountType: newPlan.accountType, name: newPlan.name, interval: newPlan.interval, amountMinor, currency: "usd" }), "Plan created. It is inactive until you turn it on.").then((saved) => saved && setNewPlan({ ...newPlan, name: "", amount: "" }));
   }
 
   function changePrice(plan: Plan) {
     const amountMinor = parseDollarsToMinor(priceEdits[plan.id] ?? "");
     if (amountMinor === null || !plan.price) return setError("Enter the new price in dollars, like 3 or 3.50 (up to $10,000).");
-    void act(() => client.updatePlan(plan.id, { price: { interval: plan.price!.interval, amountMinor, currency: plan.price!.currency } }), "New price saved. Current subscribers keep the price they bought.").then(() => setPriceEdits({ ...priceEdits, [plan.id]: "" }));
+    void act(() => client.updatePlan(plan.id, { price: { interval: plan.price!.interval, amountMinor, currency: plan.price!.currency } }), "New price saved. Current subscribers keep the price they bought.").then((saved) => saved && setPriceEdits({ ...priceEdits, [plan.id]: "" }));
   }
 
   function changeFlagship(enabled: boolean) {
-    void act(() => client.setFlagship({ organizationId: flagship.organizationId.trim(), enabled, reason: flagship.reason }), enabled ? "Free for life: place given." : "Free for life: place removed.").then(() => setFlagship((prev) => ({ ...prev, organizationId: "", reason: "" })));
+    void act(() => client.setFlagship({ organizationId: flagship.organizationId.trim(), enabled, reason: flagship.reason }), enabled ? "Free for life: place given." : "Free for life: place removed.").then((saved) => saved && setFlagship((prev) => ({ ...prev, organizationId: "", reason: "" })));
   }
 
   function grantTrial() {
     const days = Number(trial.days);
     if (trial.days.trim() === "" || !Number.isInteger(days)) return setError("Days must be a whole number from 1 to 365.");
-    void act(() => client.grantTrial({ userId: trial.userId.trim(), days, reason: trial.reason }), "Trial given.").then(() => setTrial({ userId: "", days: "30", reason: "" }));
+    void act(() => client.grantTrial({ userId: trial.userId.trim(), days, reason: trial.reason }), "Trial given.").then((saved) => saved && setTrial({ userId: "", days: "30", reason: "" }));
   }
 
   function createCoupon() {
@@ -122,7 +124,7 @@ export function BillingConsole() {
           ...(limit !== undefined ? { maxRedemptions: limit } : {}),
         }),
       "Coupon created.",
-    ).then(() => setNewCoupon({ ...newCoupon, code: "", value: "", expires: "", limit: "" }));
+    ).then((saved) => saved && setNewCoupon({ ...newCoupon, code: "", value: "", expires: "", limit: "" }));
   }
 
   return (

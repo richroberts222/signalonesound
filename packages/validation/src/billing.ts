@@ -148,15 +148,15 @@ export const organizationParamsSchema = z.object({ id: z.uuid() });
 // ---- Perks: what plans include, set by admins (S20) ---------------------------------------------------
 export const PERK_LABEL_MAX = 60;
 export const PERK_DESCRIPTION_MAX = 300;
-const plainText = (max: number, min: number) => z.string().trim().min(min).max(max).refine((v) => !hasControlCharacter(v), "Use plain text");
+const plainText = (max: number, min: number, required = "A value is required") => z.string().trim().min(min, required).max(max, `Use at most ${max} characters`).refine((v) => !hasControlCharacter(v), "Use plain text");
 const perkKey = z.string().regex(/^[a-z][a-z0-9_]{2,39}$/, "A key is 3 to 40 lowercase letters, numbers or underscores, starting with a letter");
 export const perkSchema = z.object({ id: z.uuid(), key: z.string(), label: z.string(), description: z.string(), accountType: accountTypeSchema, active: z.boolean(), createdAt: z.string() });
 export type Perk = z.infer<typeof perkSchema>;
 export const perkListSchema = z.object({ items: z.array(perkSchema) });
-export const createPerkSchema = z.object({ key: perkKey, label: plainText(PERK_LABEL_MAX, 1), description: plainText(PERK_DESCRIPTION_MAX, 0).default(""), accountType: accountTypeSchema }).strict();
+export const createPerkSchema = z.object({ key: perkKey, label: plainText(PERK_LABEL_MAX, 1, "A name is required"), description: plainText(PERK_DESCRIPTION_MAX, 0).default(""), accountType: accountTypeSchema }).strict();
 export type CreatePerkInput = z.infer<typeof createPerkSchema>;
 export const updatePerkSchema = z
-  .object({ label: plainText(PERK_LABEL_MAX, 1).optional(), description: plainText(PERK_DESCRIPTION_MAX, 0).optional(), active: z.boolean().optional() })
+  .object({ label: plainText(PERK_LABEL_MAX, 1, "A name is required").optional(), description: plainText(PERK_DESCRIPTION_MAX, 0).optional(), active: z.boolean().optional() })
   .strict()
   .refine((v) => v.label !== undefined || v.description !== undefined || v.active !== undefined, "Change at least one thing");
 export type UpdatePerkInput = z.infer<typeof updatePerkSchema>;
