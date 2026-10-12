@@ -50,3 +50,7 @@ Filtering by fires, comments, reviews, a fire count for churches, notifications 
 * The total is counted with the event's other details in one grouped query, not one query per card.
 * `fired_at` is used for the daily limit and for nothing else.
 * A new table means a coordinated release: the change is merged only when the owner is ready to run Migrate production (`docs/database.md`).
+
+## Phone (added 2026-10-12)
+
+The event screen on the phone has the same Fire button as the web, on the same shared client with the Clerk token as a bearer token: "Fire this" and "Fired (tap to take back)" for a signed-in member, "Sign in to fire this" otherwise, the public total in words ("3 fires") for everyone, and its own message when the daily limit is reached. Result cards show the total when it is above zero. No server change. Tests: `apps/mobile/src/fire/fire.test.ts` (the request, the bearer token and the wording).
