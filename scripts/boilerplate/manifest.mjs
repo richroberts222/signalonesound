@@ -236,6 +236,9 @@ export const PROOF_PATHS = [
   "apps/web/lib/services/sitemap.test.ts",
   "apps/web/e2e/accessibility.spec.ts",
   "apps/web/e2e/admin.spec.ts",
+  "apps/web/lib/test-coverage.test.ts",
+  "scripts/audit-test-coverage.mjs",
+  "scripts/audit-test-coverage.d.mts",
   "apps/web/lib/api/fire-map.ts",
   "apps/web/lib/api/fire-map.acceptance.test.ts",
   "apps/web/lib/fire-map",
@@ -289,7 +292,7 @@ export const TEMPLATE_ONLY_PATHS = [
  * Signal One Sound product documentation: lives only in the reference app. Export
  * never copies it and init removes it, so both paths treat it identically.
  */
-export const REFERENCE_ONLY_PATHS = ["docs/naming-conventions.md", "docs/code-quality-audit.md", "docs/how-to.md", "docs/to-do.md", "docs/exploratory-testing.md", "docs/pricing.md", "docs/user-manual.md", "docs/admin-manual.md","docs/incident-response.md", "docs/product-development.md", "docs/features", "docs/product", "docs/audit"];
+export const REFERENCE_ONLY_PATHS = ["docs/naming-conventions.md", "docs/code-quality-audit.md", "docs/how-to.md", "docs/to-do.md", "docs/exploratory-testing.md", "docs/pricing.md", "docs/user-manual.md", "docs/admin-manual.md", "docs/test-coverage-map.md", "docs/test-coverage-baseline.json","docs/incident-response.md", "docs/product-development.md", "docs/features", "docs/product", "docs/audit"];
 
 /** Reference-app-only tooling and files; never copied into the standalone boilerplate. */
 export const EXPORT_EXCLUDED_PATHS = [
