@@ -8,7 +8,7 @@ The same discovery experience on iPhone and Android, using the same API and cont
 
 ## Scope (in)
 
-* Tabs: Discover (map and list), Saved (the member's saved list, S6: built; sign-in needed), Alerts (placeholder until S7), Account.
+* Tabs: Discover (map and list), Saved (the member's saved list, S6: built; sign-in needed), Alerts (built 2026-10-12 without phone notifications, see below), Account.
 * Discover: place search, "use my location" (permission asked on tap), radius, date, revival types, map and list, result cards, event details screen.
 * Share through the native share sheet; deep links and universal links open the event screen; add to calendar; open directions in the device map app.
 * Sign in with Clerk (from S0); Account tab shows profile, export, delete, policy links (from S1).
@@ -71,3 +71,7 @@ AC1 to AC12 and controls ticked [Fable]; device checklist completed on one iPhon
 ## Add to calendar (built 2026-10-12)
 
 The event screen's "Add to calendar" (`event-calendar`) opens a calendar page that already holds the event (title, start and end in UTC, details, address; a cancelled event is marked "CANCELLED:"; two hours when there is no end). It needs no calendar permission and no extra phone module, so it needs no new build. A downloadable `.ics` file on the phone is a later option if it needs a native module. Tests: `apps/mobile/src/discover/calendarLink.test.ts`.
+
+## Alerts tab (built 2026-10-12)
+
+The Alerts tab now manages the member's alerts on the phone with the same shared client as the web: list, add (place, distance, how soon, kinds, as-it-happens), pause or resume, delete (at most 10), the reminders switch, and quiet hours (an hour earlier or later at each end). Signed out, it says why it is empty and points to sign-in. The server owns every rule. **Not yet built:** the phone's own push permission and token (it needs a native notifications module, so it waits for the next app build); the screen says so. Tests: `apps/mobile/src/alerts/alerts.test.ts`.

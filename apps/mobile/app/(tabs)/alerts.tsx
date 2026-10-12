@@ -1,5 +1,3 @@
-import { PlaceholderScreen } from "../../src/account/PlaceholderScreen";
+import { AlertsScreen } from "../../src/alerts/AlertsScreen";
 
-export default function Alerts() {
-  return <PlaceholderScreen title="Alerts" text="Be told when a revival is coming near you. This arrives soon." />;
-}
+export default AlertsScreen;

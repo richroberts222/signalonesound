@@ -3,6 +3,7 @@ import { createApiClient, createChurchClient, createDiscoverClient } from "@sign
 import { currentToken } from "./auth/TokenBridge";
 import { getMobileEnv } from "./config/env";
 import { createMobileProfileClient } from "./account/profileClient";
+import { createMobileAlertsClient } from "./alerts/alertsClient";
 import { createMobileFireClient } from "./fire/fireClient";
 import { createMobileSavedClient } from "./saved/savedClient";
 
@@ -20,6 +21,13 @@ let churches: ReturnType<typeof createChurchClient> | undefined;
 
 export function getChurchClient() {
   return (churches ??= createChurchClient(createApiClient({ baseUrl: getMobileEnv().apiBaseUrl })));
+}
+
+// The member's alerts, reminders and quiet hours (S7): the same shared client, with the session token as a bearer token.
+let alerts: ReturnType<typeof createMobileAlertsClient> | undefined;
+
+export function getAlertsClient() {
+  return (alerts ??= createMobileAlertsClient({ getToken: currentToken }));
 }
 
 // The member's fires (S19): the same shared client, with the session token as a bearer token.
