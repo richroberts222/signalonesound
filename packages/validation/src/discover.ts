@@ -74,6 +74,8 @@ export const publicEventSchema = z.object({
   links: z.array(z.string()),
   /** Miles from the searched position, when one was given. */
   distanceMiles: z.number().nullable(),
+  /** How many fires (recommendations) the event has: a public total; who gave them is never shown (S19). */
+  fireCount: z.number().int().min(0),
 });
 export type PublicEvent = z.infer<typeof publicEventSchema>;
 

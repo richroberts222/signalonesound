@@ -246,6 +246,19 @@ export const savedEvent = pgTable(
   (t) => [primaryKey({ columns: [t.userId, t.eventId] }), index("saved_event_event_idx").on(t.eventId)],
 );
 
+// S19 fire (docs/features/s19-fire-recommend.md). A fire is a one-tap recommendation of an event. The
+// total is public; who gave a fire is T3 like a saved event: never shown, removed 30 days after the
+// event ended and with the account. `fired_at` is used for the daily limit and nothing else.
+export const eventFire = pgTable(
+  "event_fire",
+  {
+    userId: text("user_id").notNull(),
+    eventId: uuid("event_id").notNull(),
+    firedAt: timestamp("fired_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.eventId] }), index("event_fire_event_idx").on(t.eventId)],
+);
+
 // An invite link. Only the hash of the random token is kept, with who made it (so they can be limited
 // and so deleting their account removes it) and how many people arrived. Who was invited, and who
 // arrived, is never recorded.

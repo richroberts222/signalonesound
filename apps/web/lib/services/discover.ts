@@ -65,6 +65,7 @@ export function toPublicEvent(row: PublicRow): PublicEvent {
     directions: row.directions,
     links: row.links,
     distanceMiles: row.distance,
+    fireCount: row.fireCount,
   };
 }
 

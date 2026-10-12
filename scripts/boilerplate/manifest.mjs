@@ -111,6 +111,16 @@ export const PROOF_PATHS = [
   "apps/web/lib/services/saved.ts",
   "packages/validation/src/saved.ts",
   "packages/validation/src/saved-client.ts",
+  // S19 fire (docs/features/s19-fire-recommend.md): product code of the reference app.
+  "apps/web/db/fires.ts",
+  "apps/web/db/fires.fake.ts",
+  "apps/web/db/fires.integration.test.ts",
+  "apps/web/lib/api/fires.ts",
+  "apps/web/lib/api/fires.acceptance.test.ts",
+  "apps/web/lib/services/fires.ts",
+  "packages/validation/src/fire.ts",
+  "packages/validation/src/fire-client.ts",
+  "packages/validation/src/fire.test.ts",
   // S8 admin and moderation (docs/features/s8-admin-and-moderation.md): product code of the reference app.
   "apps/web/app/admin/audit",
   "apps/web/app/admin/moderation",

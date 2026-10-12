@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { Flame } from "lucide-react";
 import type { PublicEvent } from "@signalone/validation";
-import { REVIVAL_TYPES } from "@signalone/validation";
+import { formatFireCount, REVIVAL_TYPES } from "@signalone/validation";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,6 +38,13 @@ export function EventCard({ event, index }: { event: PublicEvent; index: number 
             {event.venueName}, {event.city}, {event.state}
             {event.distanceMiles !== null && ` · ${event.distanceMiles.toFixed(1)} mi`}
           </span>
+          {event.fireCount > 0 && (
+            <span className="flex items-center gap-1 text-sm font-medium text-primary" data-testid="event-card-fire-count">
+              <Flame className="size-4 fill-current" aria-hidden="true" />
+              <span aria-hidden="true">{event.fireCount}</span>
+              <span className="sr-only">{formatFireCount(event.fireCount)}</span>
+            </span>
+          )}
           <span className="flex flex-wrap gap-1.5">
             {event.revivalTypes.map((t) => (
               <Badge key={t} variant="outline">

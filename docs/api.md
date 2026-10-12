@@ -176,6 +176,9 @@ The radius "X" in the source plan is undecided: it is the single setting `RADIUS
 | `GET /api/v1/me/saved-events/:eventId` | member | Whether the caller saved this event |
 | `PUT /api/v1/me/saved-events/:eventId` | member, policy accepted | Save a **public** event (drafts, deleted and unknown ids are `404`); saving twice is once; at most 500 |
 | `DELETE /api/v1/me/saved-events/:eventId` | member | Remove it; removing one that is not saved succeeds |
+| `GET /api/v1/me/fires/:eventId` | member | Whether the caller gave this event a fire (S19). The public total is `fireCount` on every public event |
+| `PUT /api/v1/me/fires/:eventId` | member, policy accepted | Give a **public** event a fire (drafts, deleted and unknown ids are `404`); giving twice is once; at most 100 new fires in 24 hours (`429`) |
+| `DELETE /api/v1/me/fires/:eventId` | member | Take it back; taking back one that was not given succeeds |
 | `POST /api/v1/me/invites` | member, policy accepted | A random invite token (192 bits, shown once; only its hash is kept), valid 30 days; at most 10 a day |
 | `POST /api/v1/invites/:token/arrival` | public | Count one arrival from an invite link. Records nothing about the visitor |
 | `GET /api/v1/internal/jobs/retention` | scheduler secret | Daily: removes saved events 30 days after the event ended and expired invite links. Needs `Authorization: Bearer <CRON_SECRET>`; refused when no secret is configured |

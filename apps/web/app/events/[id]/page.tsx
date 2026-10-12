@@ -6,6 +6,7 @@ import { REVIVAL_TYPES } from "@signalone/validation";
 
 import { EventActions } from "@/components/events/event-actions";
 import { ReportButton } from "@/components/events/report-button";
+import { FireButton } from "@/components/events/fire-button";
 import { SaveButton } from "@/components/events/save-button";
 import { whenText } from "@/components/events/event-card";
 import { Badge } from "@/components/ui/badge";
@@ -98,7 +99,10 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
           ))}
         </ul>
       )}
-      <SaveButton eventId={event.id} />
+      <div className="flex flex-wrap items-start gap-4">
+        <FireButton eventId={event.id} initialCount={event.fireCount} />
+        <SaveButton eventId={event.id} />
+      </div>
       <EventActions event={event} />
       <ReportButton subjectType="event" subjectId={event.id} />
     </main>
