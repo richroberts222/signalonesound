@@ -7,12 +7,14 @@ import {
   couponListSchema,
   couponQuoteSchema,
   couponSchema,
+  entitlementSchema,
   entitlementsSchema,
   planListSchema,
   planSchema,
   type AccountType,
   type CreateCouponInput,
   type CreatePlanInput,
+  type GrantTrialInput,
   type UpdateBillingRuleInput,
   type UpdateCouponInput,
   type UpdatePlanInput,
@@ -22,6 +24,7 @@ import {
 // admin's sign-in; everyone else is told "not found". Entitlement is read here, never sent.
 export function createBillingClient(api: ApiClient) {
   return {
+    getPublicPlans: () => api.request({ method: "GET", path: "/api/v1/plans", schema: planListSchema }),
     getEntitlements: () => api.request({ method: "GET", path: "/api/v1/me/entitlements", schema: entitlementsSchema }),
     startCheckout: (planId: string) => api.request({ method: "POST", path: "/api/v1/me/checkout", body: { planId }, schema: checkoutResultSchema }),
     openBillingPortal: () => api.request({ method: "POST", path: "/api/v1/me/billing-portal", schema: checkoutResultSchema }),
@@ -35,6 +38,7 @@ export function createBillingClient(api: ApiClient) {
       listCoupons: () => api.request({ method: "GET", path: "/api/v1/admin/billing/coupons", schema: couponListSchema }),
       createCoupon: (input: CreateCouponInput) => api.request({ method: "POST", path: "/api/v1/admin/billing/coupons", body: input, schema: couponSchema }),
       updateCoupon: (id: string, input: UpdateCouponInput) => api.request({ method: "PATCH", path: `/api/v1/admin/billing/coupons/${id}`, body: input, schema: couponSchema }),
+      grantTrial: (input: GrantTrialInput) => api.request({ method: "PUT", path: "/api/v1/admin/billing/trials", body: input, schema: entitlementSchema }),
       listAudit: (limit = 50) => api.request({ method: "GET", path: "/api/v1/admin/billing/audit", query: { limit: String(limit) }, schema: billingAuditListSchema }),
     },
   };

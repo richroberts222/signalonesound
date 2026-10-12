@@ -2,7 +2,7 @@ import { and, asc, count, desc, eq, isNull, like, lte, or, sql } from "drizzle-o
 
 import type { Database } from "./client";
 import { withDbErrors } from "./errors";
-import { auditLog, billingCoupon, billingCouponUse, billingPlan, billingPrice, billingRule, billingSubscription, paymentEvent } from "./schema";
+import { auditLog, billingCoupon, billingCouponUse, billingPlan, billingPrice, billingRule, billingSubscription, paymentEvent, userProfile } from "./schema";
 
 // Data access for billing (S10, docs/features/s10-payments-plans-and-switches.md). Server-only by
 // convention (like all of db/). Every admin change is written together with its audit entry in ONE
@@ -176,6 +176,32 @@ export function createBillingRepo(db: Database) {
           .onConflictDoUpdate({ target: [billingSubscription.accountType, billingSubscription.accountId], set: { planId: input.planId, priceId: input.priceId, status: input.status, providerRef: input.providerRef, trialEndsAt: null } })
           .returning();
         return row;
+      }),
+
+    // ---- Trial grant (S13) --------------------------------------------------------------------------
+    memberExists: (userId: string): Promise<boolean> =>
+      withDbErrors("billing.memberExists", async () => {
+        const [row] = await db.select({ id: userProfile.id }).from(userProfile).where(eq(userProfile.clerkUserId, userId)).limit(1);
+        return row !== undefined;
+      }),
+
+    /**
+     * Gives a member a trial ending at `trialEndsAt` and writes its audit entry in ONE statement, so neither can
+     * happen without the other. An active or past-due subscription is left alone: False means nothing changed.
+     */
+    grantTrial: (input: { userId: string; trialEndsAt: Date; actorId: string; detail: unknown }): Promise<boolean> =>
+      withDbErrors("billing.grantTrial", async () => {
+        const result = await db.execute(sql`
+          with changed as (
+            insert into billing_subscription (account_type, account_id, status, trial_ends_at)
+            values ('member', ${input.userId}, 'trialing', ${input.trialEndsAt.toISOString()}::timestamptz)
+            on conflict (account_type, account_id) do update set status = 'trialing', trial_ends_at = excluded.trial_ends_at
+              where billing_subscription.status not in ('active', 'past_due')
+            returning id)
+          insert into audit_log (actor_id, action, subject, detail)
+          select ${input.actorId}, 'billing.trial.grant', ${`member:${input.userId}`}, ${JSON.stringify(input.detail)} from changed
+          returning id`);
+        return result.rows.length > 0;
       }),
 
     // ---- Payment notifications (S11) ---------------------------------------------------------------

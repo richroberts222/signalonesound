@@ -119,6 +119,17 @@ export const entitlementSchema = z.object({
 export type Entitlement = z.infer<typeof entitlementSchema>;
 export const entitlementsSchema = z.object({ items: z.array(entitlementSchema) });
 
+// ---- Trial grant (an admin gives one member a fresh free trial; S13) ----------------------------------
+export const GRANT_REASON_MAX = 300;
+export const grantTrialSchema = z
+  .object({
+    userId: z.string().trim().regex(/^user_[A-Za-z0-9]{10,64}$/, "Enter the member id (it starts with user_)"),
+    days: z.number().int("Days are a whole number").min(1, "Give at least 1 day").max(MAX_TRIAL_DAYS, `Give at most ${MAX_TRIAL_DAYS} days`),
+    reason: z.string().trim().min(1, "A reason is required").max(GRANT_REASON_MAX).refine((v) => !hasControlCharacter(v), "The reason must be plain text"),
+  })
+  .strict();
+export type GrantTrialInput = z.infer<typeof grantTrialSchema>;
+
 // ---- Audit (every billing change; append-only) --------------------------------------------------------
 export const billingAuditEntrySchema = z.object({ id: z.uuid(), actorId: z.string(), action: z.string(), subject: z.string(), detail: z.string(), at: z.string() });
 export type BillingAuditEntry = z.infer<typeof billingAuditEntrySchema>;

@@ -224,6 +224,7 @@ Every admin write needs a non-empty reason and is written to the audit log in th
 | `PATCH /api/v1/admin/billing/plans/:id` | admin | Rename, turn on or off, or change the price; a price change adds a new price version and subscribers keep the one they bought |
 | `GET /api/v1/admin/billing/coupons`, `POST /api/v1/admin/billing/coupons` | admin | List coupons; create one (`percentOff` or `amountOffMinor` with `currency`, optional `expiresAt` and `maxRedemptions`; one use per account; a duplicate code is `409`) |
 | `PATCH /api/v1/admin/billing/coupons/:id` | admin | Turn on or off, change the expiry or the limit |
+| `PUT /api/v1/admin/billing/trials` | admin | Gives one member a fresh free trial: body `{ userId, days (1 to 365), reason }`. Replaces any earlier trial end; refused (409) for an active or past-due subscription, not found for an unknown member; audited with the reason (S13) |
 | `GET /api/v1/admin/billing/audit?limit=` | admin | Every billing change, newest first (who, when, from and to). Entries are append-only; the application offers no edit or delete |
 | `GET /api/v1/me/entitlements` | member | The server's derived answer for the caller: `entitled`, `reason`, `status`, `trialEndsAt`. It takes no input, so a client cannot claim entitlement |
 | `POST /api/v1/me/coupons/quote` | member | The price a coupon gives for an active member plan, in whole cents (rounded half up, never below zero). Read-only: records nothing. Refusals have distinct messages (inactive, expired, already used, limit reached) |

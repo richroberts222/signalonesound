@@ -34,6 +34,9 @@ export default async function AccountPage() {
       <Link href="/saved" data-testid="account-saved-link" className={buttonVariants({ variant: "outline", className: "w-fit" })}>
         Saved events
       </Link>
+      <Link href="/account/membership" data-testid="account-membership-link" className={buttonVariants({ variant: "outline", className: "w-fit" })}>
+        My membership
+      </Link>
       <Link href="/account/invite" data-testid="account-invite-link" className={buttonVariants({ variant: "outline", className: "w-fit" })}>
         Invite a friend
       </Link>

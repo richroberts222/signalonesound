@@ -16,9 +16,11 @@ export type BillingWorld = {
   subscriptions: Map<string, SubscriptionRow>;
   audit: BillingAuditRow[];
   paymentEvents: Set<string>;
+  /** Known members (sign-in ids) for the trial-grant existence check. */
+  members: Set<string>;
 };
 
-export const emptyBillingWorld = (): BillingWorld => ({ rules: new Map(), plans: new Map(), prices: [], coupons: new Map(), uses: [], subscriptions: new Map(), audit: [], paymentEvents: new Set() });
+export const emptyBillingWorld = (): BillingWorld => ({ rules: new Map(), plans: new Map(), prices: [], coupons: new Map(), uses: [], subscriptions: new Map(), audit: [], paymentEvents: new Set(), members: new Set() });
 
 export function createFakeBillingRepo(world: BillingWorld, now: () => Date = () => new Date()): BillingRepo {
   const noRule = (accountType: string): RuleRow => ({ accountType, paymentRequired: false, trialDays: 0, defaultPlanId: null });
@@ -99,6 +101,15 @@ export function createFakeBillingRepo(world: BillingWorld, now: () => Date = () 
       const row: SubscriptionRow = { id: randomUUID(), accountType, accountId, planId: null, priceId: null, status: "trialing", trialEndsAt, providerRef: null, providerCustomerRef: null, providerEventAt: null, createdAt: now() };
       world.subscriptions.set(key(accountType, accountId), row);
       return row;
+    },
+    memberExists: async (userId) => world.members.has(userId),
+    grantTrial: async ({ userId, trialEndsAt, actorId, detail }) => {
+      const k = key("member", userId);
+      const existing = world.subscriptions.get(k);
+      if (existing && (existing.status === "active" || existing.status === "past_due")) return false;
+      world.subscriptions.set(k, existing ? { ...existing, status: "trialing", trialEndsAt } : { id: randomUUID(), accountType: "member", accountId: userId, planId: null, priceId: null, status: "trialing", trialEndsAt, providerRef: null, providerCustomerRef: null, providerEventAt: null, createdAt: now() });
+      record(actorId, "billing.trial.grant", `member:${userId}`, detail);
+      return true;
     },
     saveSubscription: async (input) => {
       const k = key(input.accountType, input.accountId);
