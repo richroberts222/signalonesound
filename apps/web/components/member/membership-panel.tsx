@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createApiClient, createBillingClient, type Entitlement, type Plan } from "@signalone/validation";
 
 import { PlanChooseButton } from "@/components/marketing/plan-choose-button";
+import { PlanPerks } from "@/components/billing/plan-perks";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { canChoosePlan, canManageBilling, membershipStatusText } from "@/lib/billing/membership-text";
@@ -74,6 +75,7 @@ export function MembershipPanel() {
               <li key={plan.id} className="rounded-xl border p-4" data-testid={`membership-plan-${i}`}>
                 <p className="font-medium">{plan.name}</p>
                 {plan.price && <p className="text-sm text-muted-foreground">{`${formatMinor(plan.price.amountMinor, plan.price.currency)} per ${plan.price.interval}`}</p>}
+                <PlanPerks plan={plan} />
                 <PlanChooseButton planId={plan.id} index={i} />
               </li>
             ))}

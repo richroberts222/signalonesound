@@ -114,7 +114,7 @@ describe("S10 payments: plans, switches and entitlement acceptance criteria (API
   it("AC3 with payment not required, every account is entitled and the provider is never asked", async () => {
     const s = setup();
     const r = await s.as(member).entitlements();
-    expect(r.json.data.items).toEqual([{ accountType: "member", entitled: true, reason: "not_required", status: "none", trialEndsAt: null }]);
+    expect(r.json.data.items).toEqual([{ accountType: "member", entitled: true, reason: "not_required", status: "none", trialEndsAt: null, perks: [] }]);
     expect(s.provider.started).toEqual([]);
     // a client cannot request the bypass or claim entitlement: the route takes no input at all
     const forged = await s.as(member).entitlements();

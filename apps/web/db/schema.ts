@@ -482,6 +482,24 @@ export const billingSubscription = pgTable(
   (t) => [unique("billing_subscription_account_unique").on(t.accountType, t.accountId), index("billing_subscription_ref_idx").on(t.providerRef), unique("billing_subscription_flagship_slot_unique").on(t.flagshipSlot), check("billing_subscription_flagship_slot_range", sql`${t.flagshipSlot} is null or ${t.flagshipSlot} between 1 and 50`)],
 );
 
+// S20: perks (named benefits an admin defines) and which plans include them (docs/features/s20-plan-perks.md).
+// No personal data. The key is the stable code the software asks for; it never changes after creation.
+export const billingPerk = pgTable(
+  "billing_perk",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    key: text("key").notNull().unique(),
+    label: text("label").notNull(),
+    description: text("description").notNull().default(""),
+    accountType: text("account_type").notNull(),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [check("billing_perk_key_shape", sql`${t.key} ~ '^[a-z][a-z0-9_]{2,39}$'`)],
+);
+
+export const billingPlanPerk = pgTable("billing_plan_perk", { planId: uuid("plan_id").notNull(), perkId: uuid("perk_id").notNull() }, (t) => [primaryKey({ columns: [t.planId, t.perkId] })]);
+
 // S11: the ids of payment notifications already applied, so a replay is ignored (docs/payments.md rule 4). Only
 // the provider's own event id and type are kept: no payload, no person.
 export const paymentEvent = pgTable("payment_event", {

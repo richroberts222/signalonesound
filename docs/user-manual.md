@@ -117,7 +117,7 @@ Go to Account in the menu, then **Account settings** (`/account/settings`).
 * **Delete my account.** Select the delete button, type the confirmation word it asks for, then confirm. This cannot be undone. Select cancel to stop.
 
 
-**My membership** (`/account/membership`, or Account, then **My membership**). Shows your membership in plain words. While membership is free for everyone it says so and shows nothing to buy. When payment is switched on you can **Choose this plan** (monthly or yearly price), which opens the payment company's own secure page. Your card details are never typed on our site. If you already pay, **Manage billing** opens the payment company's page where you change your card or cancel.
+**My membership** (`/account/membership`, or Account, then **My membership**). Shows your membership in plain words. While membership is free for everyone it says so and shows nothing to buy. When payment is switched on you can **Choose this plan** (monthly or yearly price), which opens the payment company's own secure page. Under each plan is a short list of what it includes. Your card details are never typed on our site. If you already pay, **Manage billing** opens the payment company's page where you change your card or cancel.
 **Invite a friend** (`/account/invite`). Select the invite button to create a personal link, then share or copy it. Someone who opens it sees a welcome page and can browse or sign up.
 
 ---
@@ -171,7 +171,7 @@ Always give a reason if a box for one appears (override reason). It is recorded.
 
 ### 8.6 Your church's membership
 
-Go to **My churches and ministries** and select **Membership** on an approved church. It shows the church's plan in plain words. While membership is free it says so and shows nothing to buy. When payment is on, **Choose this plan** opens the payment company's own secure page for the church, and **Manage billing** lets you change the card or cancel. Churches chosen as one of the first 50 flagship churches never pay.
+Go to **My churches and ministries** and select **Membership** on an approved church. It shows the church's plan in plain words. While membership is free it says so and shows nothing to buy. When payment is on, each plan lists what it includes, **Choose this plan** opens the payment company's own secure page for the church, and **Manage billing** lets you change the card or cancel. Churches chosen as one of the first 50 flagship churches never pay.
 
 ## 9. Report a problem
 

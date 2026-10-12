@@ -141,6 +141,13 @@
       "when": 1791827682312,
       "tag": "0019_flagship_slot",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1791841130134,
+      "tag": "0020_plan_perks",
+      "breakpoints": true
     }
   ]
 }

@@ -6,8 +6,12 @@ import {
   couponParamsSchema,
   couponQuoteRequestSchema,
   createCouponSchema,
+  createPerkSchema,
   createPlanSchema,
   flagshipChangeSchema,
+  perkParamsSchema,
+  setPlanPerksSchema,
+  updatePerkSchema,
   grantTrialSchema,
   organizationParamsSchema,
   planParamsSchema,
@@ -57,6 +61,17 @@ export function billingRoutes(route: ReturnType<typeof createApiRoute>, getServi
         input: { schema: updateCouponSchema },
         handle: (ctx, input, _request, params) => getService().updateCoupon(ctx, params.id, input),
       }),
+    },
+    perks: {
+      GET: route({ auth: "required", handle: (ctx) => getService().listPerks(ctx) }),
+      POST: route({ auth: "required", input: { schema: createPerkSchema }, handle: (ctx, input) => getService().createPerk(ctx, input) }),
+    },
+    perk: {
+      PATCH: route({ auth: "required", params: { schema: perkParamsSchema }, input: { schema: updatePerkSchema }, handle: (ctx, input, _request, params) => getService().updatePerk(ctx, params.id, input) }),
+    },
+    planPerks: { GET: route({ auth: "required", handle: (ctx) => getService().listPlanPerks(ctx) }) },
+    planPerksSet: {
+      PUT: route({ auth: "required", params: { schema: planParamsSchema }, input: { schema: setPlanPerksSchema }, handle: (ctx, input, _request, params) => getService().setPlanPerks(ctx, params.id, input) }),
     },
     trials: { PUT: route({ auth: "required", input: { schema: grantTrialSchema }, handle: (ctx, input) => getService().grantTrial(ctx, input) }) },
     flagship: {

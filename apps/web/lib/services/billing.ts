@@ -11,13 +11,19 @@ import type {
   FlagshipResult,
   FlagshipStatus,
   GrantTrialInput,
+  Perk,
   Plan,
+  PlanPerk,
+  PlanPerkIds,
+  SetPlanPerksInput,
+  UpdatePerkInput,
+  CreatePerkInput,
   UpdateBillingRuleInput,
   UpdateCouponInput,
   UpdatePlanInput,
 } from "@signalone/validation";
 
-import type { BillingAuditRow, BillingRepo, CouponRow, PlanRow, RuleRow } from "../../db/billing";
+import type { BillingAuditRow, BillingRepo, CouponRow, PerkRow, PlanRow, RuleRow } from "../../db/billing";
 import { WebhookSignatureError, type PaymentProvider, type ProviderEvent } from "../payments/port";
 import { FLAGSHIP_LIMIT } from "@signalone/validation";
 import type { ServiceContext } from "./context";
@@ -53,14 +59,16 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const iso = (d: Date | null): string | null => (d ? d.toISOString() : null);
 
 const toRule = (r: RuleRow): BillingRule => ({ accountType: r.accountType as AccountType, paymentRequired: r.paymentRequired, trialDays: r.trialDays, defaultPlanId: r.defaultPlanId });
-const toPlan = (p: PlanRow): Plan => ({
+const toPlan = (p: PlanRow, perks: PlanPerk[] = []): Plan => ({
   id: p.id,
   accountType: p.accountType as AccountType,
   name: p.name,
   active: p.active,
   price: p.price && { id: p.price.id, interval: p.price.interval as "month" | "year", amountMinor: p.price.amountMinor, currency: p.price.currency as "usd", createdAt: p.price.createdAt.toISOString() },
+  perks,
   createdAt: p.createdAt.toISOString(),
 });
+const toPerk = (p: PerkRow): Perk => ({ id: p.id, key: p.key, label: p.label, description: p.description, accountType: p.accountType as AccountType, active: p.active, createdAt: p.createdAt.toISOString() });
 const toCoupon = (c: CouponRow): Coupon => ({
   id: c.id,
   code: c.code,
@@ -103,7 +111,7 @@ export function createBillingService({ repo, admins, provider, now = () => new D
   }
 
   /** The derived answer: may this account use paid features? Starts the one-time trial when the rule has one. */
-  async function entitlementFor(accountType: AccountType, accountId: string): Promise<Entitlement> {
+  async function entitlementCore(accountType: AccountType, accountId: string): Promise<Omit<Entitlement, "perks">> {
     const rule = await repo.getRule(accountType);
     const sub = await repo.getSubscription(accountType, accountId);
     if (!rule.paymentRequired) {
@@ -121,6 +129,29 @@ export function createBillingService({ repo, admins, provider, now = () => new D
       return { accountType, entitled: live, reason: live ? "trialing" : "trial_ended", status: "trialing", trialEndsAt: iso(ends) };
     }
     return { accountType, entitled: false, reason: "payment_required", status: current.status as Entitlement["status"], trialEndsAt: null };
+  }
+
+  /** The derived answer plus the perks the account has right now (S20); a client never supplies either. */
+  async function entitlementFor(accountType: AccountType, accountId: string): Promise<Entitlement> {
+    const core = await entitlementCore(accountType, accountId);
+    return { ...core, perks: await perkKeysFor(core, accountType, accountId) };
+  }
+
+  /** Not entitled: none. Free for everyone, or a plan-less place (flagship): every active perk of the type. A trial: the default plan's. Paying: the plan's. */
+  async function perkKeysFor(core: Omit<Entitlement, "perks">, accountType: AccountType, accountId: string): Promise<string[]> {
+    if (!core.entitled) return [];
+    const everyPerk = async () => (await repo.listActivePerksOfType(accountType)).map((p) => p.key);
+    if (core.reason === "not_required") return everyPerk();
+    let planId = (await repo.getSubscription(accountType, accountId))?.planId ?? null;
+    if (core.reason === "trialing") planId = (await repo.getRule(accountType)).defaultPlanId;
+    if (!planId) return everyPerk();
+    return (await repo.listActivePlanPerks()).filter((p) => p.planId === planId).map((p) => p.key);
+  }
+
+  /** Plans with the active perks each includes. */
+  async function plansWithPerks(rows: PlanRow[]): Promise<Plan[]> {
+    const all = await repo.listActivePlanPerks();
+    return rows.map((row) => toPlan(row, all.filter((p) => p.planId === row.id).map(({ key, label, description }) => ({ key, label, description }))));
   }
 
   /** Which account a payment action is for: the signed-in member, or a church the person manages (or an admin). A stranger is told "not found". */
@@ -152,12 +183,12 @@ export function createBillingService({ repo, admins, provider, now = () => new D
     // ---- Admin: plans ----------------------------------------------------------------------------
     async listPlans(ctx: ServiceContext): Promise<{ items: Plan[] }> {
       requireAdmin(ctx);
-      return { items: (await repo.listPlans()).map(toPlan) };
+      return { items: await plansWithPerks(await repo.listPlans()) };
     },
 
     async createPlan(ctx: ServiceContext, input: CreatePlanInput): Promise<Plan> {
       requireAdmin(ctx);
-      return toPlan(await repo.createPlan({ accountType: input.accountType, name: input.name, price: { interval: input.interval, amountMinor: input.amountMinor, currency: input.currency } }, ctx.actor.userId));
+      return (await plansWithPerks([await repo.createPlan({ accountType: input.accountType, name: input.name, price: { interval: input.interval, amountMinor: input.amountMinor, currency: input.currency } }, ctx.actor.userId)]))[0];
     },
 
     /** A price change adds a NEW price version; subscribers keep the price they bought. */
@@ -165,7 +196,44 @@ export function createBillingService({ repo, admins, provider, now = () => new D
       requireAdmin(ctx);
       const before = await repo.getPlan(id);
       if (!before) throw notFound();
-      return toPlan(await repo.updatePlan(id, input, ctx.actor.userId, before));
+      return (await plansWithPerks([await repo.updatePlan(id, input, ctx.actor.userId, before)]))[0];
+    },
+
+    // ---- Admin: perks (S20) ----------------------------------------------------------------------
+    async listPerks(ctx: ServiceContext): Promise<{ items: Perk[] }> {
+      requireAdmin(ctx);
+      return { items: (await repo.listPerks()).map(toPerk) };
+    },
+
+    async createPerk(ctx: ServiceContext, input: CreatePerkInput): Promise<Perk> {
+      requireAdmin(ctx);
+      if ((await repo.listPerks()).some((p) => p.key === input.key)) throw conflict("A perk with that key already exists");
+      return toPerk(await repo.createPerk({ key: input.key, label: input.label, description: input.description, accountType: input.accountType }, ctx.actor.userId));
+    },
+
+    /** The key and the account type never change; only the words and the on/off switch. */
+    async updatePerk(ctx: ServiceContext, id: string, input: UpdatePerkInput): Promise<Perk> {
+      requireAdmin(ctx);
+      const before = await repo.getPerk(id);
+      if (!before) throw notFound();
+      return toPerk(await repo.updatePerk(id, input, ctx.actor.userId, before));
+    },
+
+    async listPlanPerks(ctx: ServiceContext): Promise<{ items: PlanPerkIds[] }> {
+      requireAdmin(ctx);
+      return { items: await repo.listPlanPerkIds() };
+    },
+
+    /** Replaces the perks a plan includes. Every perk must exist and be for the plan's account type, or nothing changes. */
+    async setPlanPerks(ctx: ServiceContext, planId: string, input: SetPlanPerksInput): Promise<PlanPerkIds> {
+      requireAdmin(ctx);
+      const plan = await repo.getPlan(planId);
+      if (!plan) throw notFound();
+      const perkIds = [...new Set(input.perkIds)];
+      const known = new Map((await repo.listPerks()).map((p) => [p.id, p]));
+      if (perkIds.some((id) => known.get(id)?.accountType !== plan.accountType)) throw validationFailed("Choose perks for this plan's account type", { perkIds: ["Choose perks for this plan's account type"] });
+      await repo.setPlanPerks(planId, perkIds, ctx.actor.userId);
+      return { planId, perkIds };
     },
 
     // ---- Admin: coupons --------------------------------------------------------------------------
@@ -217,7 +285,7 @@ export function createBillingService({ repo, admins, provider, now = () => new D
     // ---- Public ------------------------------------------------------------------------------------
     /** The plans anyone may see on the Services page: active plans that have a price. Inactive plans never appear. */
     async listPublicPlans(): Promise<{ items: Plan[] }> {
-      return { items: (await repo.listPlans()).filter((p) => p.active && p.price !== null).map(toPlan) };
+      return { items: await plansWithPerks((await repo.listPlans()).filter((p) => p.active && p.price !== null)) };
     },
 
     // ---- The signed-in person ----------------------------------------------------------------------
@@ -357,6 +425,17 @@ export function createBillingService({ repo, admins, provider, now = () => new D
       }
       await repo.recordPaymentEvent(event.eventId, event.kind === "ignored" ? event.type : event.kind); // after applying, so a crash in between is retried, never lost
       return { received: true };
+    },
+
+    /** The perk keys an account has right now. */
+    async perksFor(accountType: AccountType, accountId: string): Promise<string[]> {
+      return (await entitlementFor(accountType, accountId)).perks;
+    },
+
+    /** For a paid feature (S20): allows an account that has the perk, otherwise "not found". `organizationId` asks for a church the person manages. */
+    async requirePerk(ctx: ServiceContext, key: string, organizationId?: string): Promise<void> {
+      const account = await accountFor(ctx, organizationId);
+      if (!(await entitlementFor(account.type, account.id)).perks.includes(key)) throw notFound();
     },
 
     /** Used by tests and by organization checks (S13); exposed so other services ask one place. */

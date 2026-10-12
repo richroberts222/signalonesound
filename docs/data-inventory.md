@@ -91,6 +91,15 @@ New tables are added to the schema and to this table in the same pull request.
 | billing_subscription.account_type | T1 | Kind of account | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
 | billing_subscription.account_id | T2 | Which account holds the subscription (a member's user id or an organization id) | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
 | billing_subscription.flagship_slot | T1 | One of the 50 numbered free-for-life places a flagship church or ministry holds (empty for everyone else); the unique number keeps the limit at 50 | Kept while the place is held | Removed when an admin takes the place back (the row is deleted) |
+| billing_perk.id | T1 | Row identity | Kept until an admin changes it | Not personal data; kept as part of the product settings |
+| billing_perk.key | T1 | The stable code the software asks for (for example ad_free) | Kept until an admin changes it | Not personal data; kept as part of the product settings |
+| billing_perk.label | T1 | The name people see for the perk | Kept until an admin changes it | Not personal data; kept as part of the product settings |
+| billing_perk.description | T1 | A short explanation shown to people | Kept until an admin changes it | Not personal data; kept as part of the product settings |
+| billing_perk.account_type | T1 | Whether the perk is for members or for churches and ministries | Kept until an admin changes it | Not personal data; kept as part of the product settings |
+| billing_perk.active | T1 | Whether the perk is switched on | Kept until an admin changes it | Not personal data; kept as part of the product settings |
+| billing_perk.created_at | T1 | When the perk was added | Kept until an admin changes it | Not personal data; kept as part of the product settings |
+| billing_plan_perk.plan_id | T1 | Which plan includes the perk | Kept until an admin changes it | Not personal data; kept as part of the product settings |
+| billing_plan_perk.perk_id | T1 | Which perk the plan includes | Kept until an admin changes it | Not personal data; kept as part of the product settings |
 | billing_subscription.plan_id | T1 | The plan bought | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
 | billing_subscription.price_id | T1 | The price version bought | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |
 | billing_subscription.status | T1 | Trialing, active, past due or cancelled | Kept while the account exists | Deleted with the account (member deletion removes the member's rows) |

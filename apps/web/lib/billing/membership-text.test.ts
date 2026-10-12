@@ -3,7 +3,7 @@ import type { Entitlement } from "@signalone/validation";
 
 import { canChoosePlan, canManageBilling, membershipStatusText } from "./membership-text";
 
-const e = (over: Partial<Entitlement>): Entitlement => ({ accountType: "member", entitled: true, reason: "not_required", status: "none", trialEndsAt: null, ...over });
+const e = (over: Partial<Entitlement>): Entitlement => ({ accountType: "member", entitled: true, reason: "not_required", status: "none", trialEndsAt: null, perks: [], ...over });
 
 describe("membership wording", () => {
   it("says membership is free while payment is not required", () => {

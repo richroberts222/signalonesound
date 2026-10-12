@@ -52,7 +52,10 @@ export const billingRuleParamsSchema = z.object({ accountType: accountTypeSchema
 // ---- Plans and prices ---------------------------------------------------------------------------------
 export const priceSchema = z.object({ id: z.uuid(), interval: z.enum(BILLING_INTERVALS), amountMinor: moneyAmountSchema, currency: currencySchema, createdAt: z.string() });
 export type Price = z.infer<typeof priceSchema>;
-export const planSchema = z.object({ id: z.uuid(), accountType: accountTypeSchema, name: z.string(), active: z.boolean(), price: priceSchema.nullable(), createdAt: z.string() });
+/** What a plan includes, as people see it (S20). Only active perks are listed. */
+export const planPerkSchema = z.object({ key: z.string(), label: z.string(), description: z.string() });
+export type PlanPerk = z.infer<typeof planPerkSchema>;
+export const planSchema = z.object({ id: z.uuid(), accountType: accountTypeSchema, name: z.string(), active: z.boolean(), price: priceSchema.nullable(), perks: z.array(planPerkSchema), createdAt: z.string() });
 export type Plan = z.infer<typeof planSchema>;
 export const planListSchema = z.object({ items: z.array(planSchema) });
 
@@ -115,6 +118,8 @@ export const entitlementSchema = z.object({
   reason: z.enum(ENTITLEMENT_REASONS),
   status: z.enum([...SUBSCRIPTION_STATUSES, "none"]),
   trialEndsAt: z.string().nullable(),
+  /** The perk keys this account has right now (S20), derived on the server from the plan; empty when not entitled. */
+  perks: z.array(z.string()),
 });
 export type Entitlement = z.infer<typeof entitlementSchema>;
 export const entitlementsSchema = z.object({ items: z.array(entitlementSchema) });
@@ -139,6 +144,29 @@ export type FlagshipStatus = z.infer<typeof flagshipStatusSchema>;
 export const flagshipResultSchema = z.object({ organizationId: z.uuid(), enabled: z.boolean(), used: z.number().int().min(0), limit: z.number().int() });
 export type FlagshipResult = z.infer<typeof flagshipResultSchema>;
 export const organizationParamsSchema = z.object({ id: z.uuid() });
+
+// ---- Perks: what plans include, set by admins (S20) ---------------------------------------------------
+export const PERK_LABEL_MAX = 60;
+export const PERK_DESCRIPTION_MAX = 300;
+const plainText = (max: number, min: number) => z.string().trim().min(min).max(max).refine((v) => !hasControlCharacter(v), "Use plain text");
+const perkKey = z.string().regex(/^[a-z][a-z0-9_]{2,39}$/, "A key is 3 to 40 lowercase letters, numbers or underscores, starting with a letter");
+export const perkSchema = z.object({ id: z.uuid(), key: z.string(), label: z.string(), description: z.string(), accountType: accountTypeSchema, active: z.boolean(), createdAt: z.string() });
+export type Perk = z.infer<typeof perkSchema>;
+export const perkListSchema = z.object({ items: z.array(perkSchema) });
+export const createPerkSchema = z.object({ key: perkKey, label: plainText(PERK_LABEL_MAX, 1), description: plainText(PERK_DESCRIPTION_MAX, 0).default(""), accountType: accountTypeSchema }).strict();
+export type CreatePerkInput = z.infer<typeof createPerkSchema>;
+export const updatePerkSchema = z
+  .object({ label: plainText(PERK_LABEL_MAX, 1).optional(), description: plainText(PERK_DESCRIPTION_MAX, 0).optional(), active: z.boolean().optional() })
+  .strict()
+  .refine((v) => v.label !== undefined || v.description !== undefined || v.active !== undefined, "Change at least one thing");
+export type UpdatePerkInput = z.infer<typeof updatePerkSchema>;
+export const perkParamsSchema = z.object({ id: z.uuid() });
+export const setPlanPerksSchema = z.object({ perkIds: z.array(z.uuid()).max(100) }).strict();
+export type SetPlanPerksInput = z.infer<typeof setPlanPerksSchema>;
+/** The perk ids a plan includes (including switched-off perks, so an admin sees every tick). */
+export const planPerkIdsSchema = z.object({ planId: z.uuid(), perkIds: z.array(z.uuid()) });
+export type PlanPerkIds = z.infer<typeof planPerkIdsSchema>;
+export const planPerkIdsListSchema = z.object({ items: z.array(planPerkIdsSchema) });
 
 // ---- Audit (every billing change; append-only) --------------------------------------------------------
 export const billingAuditEntrySchema = z.object({ id: z.uuid(), actorId: z.string(), action: z.string(), subject: z.string(), detail: z.string(), at: z.string() });
