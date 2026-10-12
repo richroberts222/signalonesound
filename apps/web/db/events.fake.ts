@@ -168,6 +168,14 @@ export function createFakeEventsRepo(
         if (p.organizationId && e.orgId !== p.organizationId) continue;
         rows.push({ ...copy(e), orgName: org.name, distance });
       }
+      if (p.sort === "fire") {
+        rows.sort((a, b) => b.fireCount - a.fireCount || byStart(a, b));
+        const c = p.cursor;
+        const rest = c
+          ? rows.filter((r) => r.fireCount < (c.fires ?? 0) || (r.fireCount === (c.fires ?? 0) && (r.startsAt > c.startsAt || (r.startsAt.getTime() === c.startsAt.getTime() && r.id > c.id))))
+          : rows;
+        return rest.slice(0, p.limit + 1);
+      }
       rows.sort((a, b) => (a.distance ?? 0) - (b.distance ?? 0) || byStart(a, b));
       const after = p.cursor
         ? rows.filter((r) => {

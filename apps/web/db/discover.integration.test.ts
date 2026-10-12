@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { createDb } from "./client";
 import { createEventsRepo, type NewEvent, type PublicSearch } from "./events";
-import { auditLog, event, eventLink, eventRevivalType, idempotencyRecord, organization } from "./schema";
+import { auditLog, event, eventFire, eventLink, eventRevivalType, idempotencyRecord, organization } from "./schema";
 
 // Database-backed integration tests for the public search (S4, /docs/automation/integration.md). They
 // run ONLY via `pnpm --filter web test:integration`, never in `pnpm test`, and are fail-closed:
@@ -73,6 +73,7 @@ afterAll(async () => {
   const eventIds = rows.map((r) => r.id);
   for (let i = 0; i < eventIds.length; i += 500) {
     const chunk = eventIds.slice(i, i + 500);
+    await db.delete(eventFire).where(inArray(eventFire.eventId, chunk));
     await db.delete(eventRevivalType).where(inArray(eventRevivalType.eventId, chunk));
     await db.delete(eventLink).where(inArray(eventLink.eventId, chunk));
     await db.delete(idempotencyRecord).where(inArray(idempotencyRecord.eventId, chunk));
@@ -172,6 +173,29 @@ describe("public search against the real database", () => {
     expect(new Set(withPosition).size).toBe(withPosition.length);
     const withoutPosition = (await walk(null)).filter((id) => byTime.includes(id));
     expect(withoutPosition).toEqual(byTime);
+  });
+
+  it("S19 sort=fire orders by the public fire total, then start time, and pages each event once", async () => {
+    const group = [0, 1, 2, 3].map((i) => make({ startsAt: days(90 + i), venueName: `Fired ${i}` }));
+    await insert(group);
+    const give = async (e: NewEvent, n: number) => {
+      for (let i = 0; i < n; i++) await db.insert(eventFire).values({ userId: `user_${PREFIX}f${i}`, eventId: e.id });
+    };
+    await give(group[2], 3);
+    await give(group[0], 1);
+    await give(group[3], 1);
+    const expected = [group[2], group[0], group[3], group[1]].map((e) => e.id);
+    const seen: string[] = [];
+    let cursor: PublicSearch["cursor"] = null;
+    for (let page = 0; page < 60; page++) {
+      const rows = await search({ sort: "fire", from: "2000-01-01", cursor, limit: 2 });
+      const here = rows.slice(0, 2);
+      seen.push(...here.map((r) => r.id));
+      if (rows.length <= 2) break;
+      const last = here[here.length - 1];
+      cursor = { distance: last.distance, startsAt: last.startsAt, id: last.id, fires: last.fireCount };
+    }
+    expect(seen.filter((id) => expected.includes(id))).toEqual(expected);
   });
 
   it("stays fast with thousands of events", async () => {

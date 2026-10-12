@@ -192,6 +192,29 @@ describe("S4 discover acceptance criteria (API boundary)", () => {
     expect((await s.api.search("?cursor=garbage")).status).toBe(400);
   });
 
+  it("S19 AC9 sort=fire lists the most recommended first, ties by start time, and pages through every event once", async () => {
+    const s = setup();
+    const made = [];
+    for (let i = 0; i < 5; i++) made.push(await s.add());
+    const [a, b, c, d, e] = made;
+    s.repo.setFireCount(c.id, 9);
+    s.repo.setFireCount(e.id, 4);
+    s.repo.setFireCount(a.id, 4);
+    const expected = [c, a, e, b, d].map((x) => x.id);
+    expect(ids(await s.api.search("?sort=fire"))).toEqual(expected);
+    const seen: string[] = [];
+    let cursor: string | null = null;
+    for (let page = 0; page < 6; page++) {
+      const r: { json: Json } = await s.api.search(`?sort=fire&limit=2${cursor ? `&cursor=${cursor}` : ""}`);
+      seen.push(...ids(r));
+      cursor = r.json.data.nextCursor;
+      if (!cursor) break;
+    }
+    expect(seen).toEqual(expected);
+    expect(ids(await s.api.search())).toEqual(made.map((x) => x.id)); // the default is still soonest first
+    expect((await s.api.search("?sort=popular")).status).toBe(400);
+  });
+
   it("AC13 analytics receive only the name of the event", async () => {
     const s = setup();
     const e = await s.add();
