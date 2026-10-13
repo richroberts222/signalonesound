@@ -114,6 +114,14 @@ Claude kept building other things while these wait.
 
 Until launch the owner has switched off "Required reviewers" on the GitHub production environment (Settings, Environments, production) so Claude can merge database changes and run Migrate production without waiting for a tap. This was agreed on 2026-10-12 to speed up early development, while no real user data exists. Before go-live: tick "Required reviewers" again, add yourself, save, and tell Claude so the hold on production database changes returns.
 
+### Go-live: protect the production database (a spending decision, before real user data)
+
+Neon's production checklist email (2026-10-13) showed the production database is on the free plan with a **restore window of 0.3 days (about 7 hours)**. If data were deleted or damaged, you could only roll back that far. Before real members and churches are stored, decide on the paid plan and do these in the Neon console (Neon recommends at least 7 days):
+
+1. **Increase the restore window to 7 days.** This needs a paid plan; Neon links "Upgrade to a paid plan" from the email. Check Neon's current price first and set a spending limit if offered. The cost and the reason are recorded in `/docs/pricing.md` and `/docs/release.md` section 9.
+2. **Turn off scale to zero** on the production branch (also a paid-plan setting), so the first visitor after a quiet spell does not wait for the database to wake up.
+3. Leave the rest as is for now: the trusted-IP allow list is a paid extra we do not need (the database address is a secret kept out of the repository and the browser), there are no read replicas to add, and compute is already set to a minimum of 0.25 and a maximum of 2.
+4. Tell Claude when it is done, so the restore drill in `/docs/release.md` can be run against the new window.
 ### Task 7c: Decide how to rate limit the public site before launch (about 10 minutes, not needed for the demo)
 
 A rate limit stops one visitor from hammering the site. Nothing limits the public pages today. The recommended way is Vercel's built-in Firewall (you set it in the Vercel dashboard, no code, and we never store visitors' addresses). Read the short brief in `docs/features/s9-launch-gate.md` ("Rate limits on public endpoints"), check that your Pro plan includes rate limit rules and what they cost, and tell Claude A (Vercel Firewall) or B (our own, in the database). If you choose A, Claude gives you the exact rules to enter and checks them afterwards.
