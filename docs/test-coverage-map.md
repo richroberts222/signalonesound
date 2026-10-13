@@ -12,7 +12,7 @@
 | Browser tests (`apps/web/e2e`) | A person can do it: real sign-in, real screen, real database | Phones | about 80 tests |
 | Phone tests (`apps/mobile`) | The phone app's logic (formatting, queries, saved list) | Any screen, on any device | 76 checks, no screen tests |
 
-**How to read the gap measure.** Every control on a screen has a test id. `node scripts/audit-test-coverage.mjs` lists the ids no test file mentions. That does **not** mean the behaviour is untested (the rule behind it may be well proven below the screen); it means no test drives that control. On 2026-10-12: **399 controls, 220 not driven by any test (161 on the web, 59 on the phone)**, down from 292 after the journeys below.
+**How to read the gap measure.** Every control on a screen has a test id. `node scripts/audit-test-coverage.mjs` lists the ids no test file mentions. That does **not** mean the behaviour is untested (the rule behind it may be well proven below the screen); it means no test drives that control. On 2026-10-12: **399 controls, 208 not driven by any test (149 on the web, 59 on the phone)**, down from 292 after the journeys below.
 
 **The guard.** `apps/web/lib/test-coverage.test.ts` fails when a new control ships without a test that mentions it, and when a control in `docs/test-coverage-baseline.json` has been covered but not removed from the list. The list can only shrink.
 
@@ -22,8 +22,8 @@
 | --- | --- | --- | --- |
 | 1 Menu | n/a | Yes (menu, footer and home links) | None known |
 | 2 Create an account and sign in | Yes (member, policy acceptance) | Partly: signed-out redirects, API refusals. The sign-in form is Clerk's own | Sign-up itself and the terms step are exercised only by the test helper |
-| 3 Find events | Yes | Yes (search by place and name, empty states, no-JavaScript form) | None known |
-| 4 An event page | Yes (save, fire, report, share link) | **Yes (`e2e/member-journey.spec.ts`)**: save and unsave, light and put out a fire, report, invite link | Add to calendar and share buttons |
+| 3 Find events | Yes | Yes (search by place and name, empty states, no-JavaScript form), and every filter: distance, date window, order, kind, use my location (`discover-filters.spec.ts`) | None known |
+| 4 An event page | Yes (save, fire, report, share link) | **Yes (`e2e/member-journey.spec.ts`)**: save and unsave, light and put out a fire, report, invite link | None known (add to calendar, share and directions are driven in `discover-filters.spec.ts`) |
 | 5 Find a church | Yes | Yes (8 tests) | None known |
 | 6 Saved events, alerts, Fire Map | Yes (saved, alerts, fires) | Fire Map yes (7 tests); saved list and alerts (make, pause, remove) yes (`member-journey.spec.ts`) | Alert quiet hours, reminders and radius options; the saved list's load-more |
 | 7 Your account | Yes (profile, preferences, delete) | **Yes (`member-journey.spec.ts`)**: change name, email preference, download data, invite link, delete account (a throwaway member is deleted at the end) | The separate notification preferences screen |

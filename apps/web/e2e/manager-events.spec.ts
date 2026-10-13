@@ -67,6 +67,7 @@ test.describe("Manager events and free for life", () => {
     await expect.poll(used).toBe(before + 1);
     expect(await status()).toBe("active");
 
+    await expect(admin.getByTestId("flagship-org")).toHaveValue(""); // the form clears itself after a saved change; typing before that would be wiped
     await admin.getByTestId("flagship-org").fill(orgId);
     await admin.getByTestId("flagship-reason").fill("e2e flagship back");
     await admin.getByTestId("flagship-disable").click();
