@@ -12,7 +12,7 @@
 | Browser tests (`apps/web/e2e`) | A person can do it: real sign-in, real screen, real database | Phones | about 80 tests |
 | Phone tests (`apps/mobile`) | The phone app's logic (formatting, queries, saved list) | Any screen, on any device | 76 checks, no screen tests |
 
-**How to read the gap measure.** Every control on a screen has a test id. `node scripts/audit-test-coverage.mjs` lists the ids no test file mentions. That does **not** mean the behaviour is untested (the rule behind it may be well proven below the screen); it means no test drives that control. On 2026-10-12: **399 controls, 292 not driven by any test (233 on the web, 59 on the phone).**
+**How to read the gap measure.** Every control on a screen has a test id. `node scripts/audit-test-coverage.mjs` lists the ids no test file mentions. That does **not** mean the behaviour is untested (the rule behind it may be well proven below the screen); it means no test drives that control. On 2026-10-12: **399 controls, 266 not driven by any test (207 on the web, 59 on the phone)**, down from 292 after the church journey below.
 
 **The guard.** `apps/web/lib/test-coverage.test.ts` fails when a new control ships without a test that mentions it, and when a control in `docs/test-coverage-baseline.json` has been covered but not removed from the list. The list can only shrink.
 
@@ -27,7 +27,7 @@
 | 5 Find a church | Yes | Yes (8 tests) | None known |
 | 6 Saved events, alerts, Fire Map | Yes (saved, alerts, fires) | Fire Map yes (7 tests) | **Saved list and alerts screens: no browser test** |
 | 7 Your account | Yes (profile, preferences, delete) | Signed-out redirect only | **Settings, notification preferences, invite friends, delete account: no browser test** |
-| 8.1 to 8.5 Church manager | Yes (claim, profile, events, invites, revoke) | None; only the refusals for other people | **The whole manager journey has no browser test** |
+| 8.1 to 8.5 Church manager | Yes (claim, profile, events, invites, revoke) | **Yes, as one journey (`e2e/church-journey.spec.ts`)**: apply, approval, post an event, the public finds it, admin hides and restores it, cancel, delete | Editing a church profile and service times, repeating events, editing an existing event, invites and revoking another manager are not driven |
 | 8.6 Membership | Yes (S13, S14, S20) | Member page free message; church page signed-out redirect | **Choose a plan and Manage billing (needs Stripe test mode) not driven** |
 | 9 Report a problem | Yes (moderation, reports) | No | **Report button and the contact page flow beyond sending a message** |
 
@@ -36,8 +36,8 @@
 | Section | Rules proven below the screen | Driven in a browser as an admin | Gap |
 | --- | --- | --- | --- |
 | 1 Access and sub-menu | Yes | Yes (`e2e/admin.spec.ts`) | None |
-| 2 Manager requests | Yes (approve, reject, reasons) | The queue opens | **Approve and reject a real request** |
-| 3 Moderation | Yes (hide, restore, unpublish, suspend, reinstate, reports) | The screen opens; actions on a missing item are refused in words | **Hide or restore a real event or church, suspend a member, decide a report** |
+| 2 Manager requests | Yes (approve, reject, reasons) | Yes: reason required, approve removes the request from the queue (`church-journey.spec.ts`) | Reject a real request |
+| 3 Moderation | Yes (hide, restore, unpublish, suspend, reinstate, reports) | Yes for hiding and restoring a real event, checked from the public side; refusals for a missing item | Unpublish or restore a church, suspend or reinstate a member, decide a report |
 | 4 Audit log | Yes | Yes (search, no-match message, export button) | Export file contents |
 | 5 Messages | Yes | The inbox opens | **Reading a message and marking it done** |
 | 6.1 to 6.6 Billing | Yes | Yes: rules, plans, perks, coupons, trial grant, history. Refusals for free for life | **Giving a real church a free-for-life place** |
@@ -52,10 +52,10 @@
 
 ## Plan to close the gaps (proposed order, each a separate pull request)
 
-1. **Church journey, two people in one browser test.** A member claims a church; the admin approves it; the manager posts an event; it shows in search; the admin hides it and it disappears; the manager cancels another. This closes manager requests, moderation and 8.1 to 8.5 together. It needs seed churches and a cleanup step.
+1. **Done 2026-10-12: church journey, three people in one browser test** (member, admin, public). Cleanup of its church and events is in `db/tooling/e2e-cleanup.ts`.
 2. **Member journey.** Save an event, light a fire, report, set an alert, change preferences, create an invite link, delete a throwaway account.
 3. **Membership and checkout in Stripe test mode**, including the church page.
 4. **Phone screens**, after the tooling decision.
-5. **Free for life with a real church** (can ride on journey 1).
+5. **Free for life with a real church**, then the rest of journey 1: church profile and service times, editing an event, repeating events, invites, revoking a manager, rejecting a request, unpublishing a church, suspending a member.
 
 Each pull request removes the ids it now covers from `docs/test-coverage-baseline.json`; the guard enforces it.

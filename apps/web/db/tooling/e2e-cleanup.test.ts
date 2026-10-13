@@ -27,5 +27,8 @@ describe("browser test cleanup", () => {
     expect(at("delete from billing_price")).toBeLessThan(at("delete from billing_plan where"));
     expect(at("delete from billing_subscription where plan_id")).toBeLessThan(at("delete from billing_plan where"));
     expect(at("delete from billing_coupon_use")).toBeLessThan(at("delete from billing_coupon where"));
+    expect(at("delete from event where")).toBeLessThan(at("delete from organization where"));
+    expect(at("delete from organization_member")).toBeLessThan(at("delete from organization where"));
+    expect(at("delete from saved_event")).toBeLessThan(at("delete from event where"));
   });
 });
