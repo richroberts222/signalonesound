@@ -35,7 +35,7 @@ Last reviewed: 2026-10-10.
 
 | Service | What it is for | Expected cost | When it is needed | Notes |
 | --- | --- | --- | --- | --- |
-| Neon paid plan (Launch) | Longer restore window, always-on option, protected branches | Usage-based: about $0.106 per compute unit-hour and $0.35 per GB-month. For this app, roughly a few dollars up to about $20 per month depending on whether compute sleeps when idle | Before real user data is stored | Set a spending limit if offered. Tracked in `/docs/release.md` section 9 |
+| Neon paid plan (Launch) | Longer restore window (the free plan's is 0.3 days, about 7 hours; Neon recommends at least 7 days), turning off scale to zero (always-on), protected branches | Usage-based: about $0.106 per compute unit-hour and $0.35 per GB-month. For this app, roughly a few dollars up to about $20 per month depending on whether compute sleeps when idle | Before real user data is stored | Set a spending limit if offered. Tracked in `/docs/release.md` section 9 |
 | Email sending: Amazon SES (first adapter) | Alert digests, moderation notices, account emails | About $0.10 per 1,000 emails; reportedly about 3,000 a month free for the first year | Before launch | Needs an AWS account, DNS records and the sandbox lifted. The email connector is swappable (S14) |
 | Email sending: Resend (alternative) | Same | Free up to 3,000 a month and 100 a day; Pro about $20 per month for 50,000 | If SES proves a hassle | Simplest setup |
 | Email sending: Postmark (alternative) | Same | From about $15 per month for 10,000 (free plan is only 100 a month) | If deliverability becomes a problem | Strong reputation for reaching the inbox |
