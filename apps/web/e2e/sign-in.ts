@@ -33,4 +33,6 @@ export async function signIn(page: Page, emailAddress: string = process.env.E2E_
 export const adminReady = process.env.E2E_ADMIN_READY === "1";
 export const memberReady = process.env.E2E_MEMBER_READY === "1";
 export const signInAsThrowawayMember = (page: Page): Promise<void> => signIn(page, process.env.E2E_CLERK_MEMBER_EMAIL!);
+export const suspectReady = process.env.E2E_SUSPECT_READY === "1";
+export const signInAsSuspect = (page: Page): Promise<void> => signIn(page, process.env.E2E_CLERK_SUSPECT_EMAIL!);
 export const signInAsAdmin = (page: Page): Promise<void> => signIn(page, process.env.E2E_CLERK_ADMIN_EMAIL!);
