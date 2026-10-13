@@ -237,6 +237,7 @@ export const PROOF_PATHS = [
   "apps/web/e2e/accessibility.spec.ts",
   "apps/web/e2e/admin.spec.ts",
   "apps/web/e2e/church-journey.spec.ts",
+  "apps/web/e2e/member-journey.spec.ts",
   "apps/web/lib/test-coverage.test.ts",
   "scripts/audit-test-coverage.mjs",
   "scripts/audit-test-coverage.d.mts",
