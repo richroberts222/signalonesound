@@ -39,17 +39,29 @@ if (e2eReady) {
   // The admin test account (docs/automation/playwright.md): a second Clerk development user, found or created
   // here, is made an admin for this test run only by giving its id to the test server. Skipped if already done
   // (the test workers load this file again) or if Clerk cannot be reached; the admin tests then skip with a reason.
+  const ensureTestUser = (email: string, phone: string): string | null => {
+    try {
+      const id = execFileSync(process.execPath, ["e2e/admin-account.mjs", email, phone], { encoding: "utf8", input: env.CLERK_SECRET_KEY, timeout: 30_000 }).trim();
+      return /^user_[A-Za-z0-9]+$/.test(id) ? id : null;
+    } catch {
+      return null; // the specs that need this user skip with a reason
+    }
+  };
   if (env.E2E_ADMIN_READY !== "1") {
     const adminEmail = env.E2E_CLERK_ADMIN_EMAIL ?? "e2e-admin+clerk_test@example.com";
-    try {
-      const adminId = execFileSync(process.execPath, ["e2e/admin-account.mjs", adminEmail], { encoding: "utf8", input: env.CLERK_SECRET_KEY, timeout: 30_000 }).trim();
-      if (/^user_[A-Za-z0-9]+$/.test(adminId)) {
-        env.E2E_CLERK_ADMIN_EMAIL = adminEmail;
-        env.ADMIN_USER_IDS = [env.ADMIN_USER_IDS, adminId].filter(Boolean).join(",");
-        env.E2E_ADMIN_READY = "1";
-      }
-    } catch {
-      // leave E2E_ADMIN_READY unset
+    const adminId = ensureTestUser(adminEmail, "+12015550142");
+    if (adminId) {
+      env.E2E_CLERK_ADMIN_EMAIL = adminEmail;
+      env.ADMIN_USER_IDS = [env.ADMIN_USER_IDS, adminId].filter(Boolean).join(",");
+      env.E2E_ADMIN_READY = "1";
+    }
+  }
+  // A throwaway member for the member journey: it ends by deleting this account, and the next run creates it again.
+  if (env.E2E_MEMBER_READY !== "1") {
+    const memberEmail = env.E2E_CLERK_MEMBER_EMAIL ?? "e2e-member+clerk_test@example.com";
+    if (ensureTestUser(memberEmail, "+12015550143")) {
+      env.E2E_CLERK_MEMBER_EMAIL = memberEmail;
+      env.E2E_MEMBER_READY = "1";
     }
   }
 }

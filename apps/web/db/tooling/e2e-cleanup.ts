@@ -9,9 +9,10 @@ export const E2E_PERK_KEY_PREFIX = "e2e_perk_";
 export const E2E_COUPON_CODE_PREFIX = "E2E-";
 export const E2E_TRIAL_REASON_MARK = "e2e-trial";
 export const E2E_CHURCH_NAME_PREFIX = "e2e-church-";
+export const E2E_REPORT_DETAILS_PREFIX = "e2e-report";
 
 /** Every prefix a cleanup statement may be tied to. The test checks each statement uses one. */
-export const E2E_PREFIXES: readonly string[] = [E2E_CONTACT_NAME_PREFIX, E2E_PLAN_NAME_PREFIX, E2E_PERK_KEY_PREFIX, E2E_COUPON_CODE_PREFIX, E2E_TRIAL_REASON_MARK, E2E_CHURCH_NAME_PREFIX];
+export const E2E_PREFIXES: readonly string[] = [E2E_CONTACT_NAME_PREFIX, E2E_PLAN_NAME_PREFIX, E2E_PERK_KEY_PREFIX, E2E_COUPON_CODE_PREFIX, E2E_TRIAL_REASON_MARK, E2E_CHURCH_NAME_PREFIX, E2E_REPORT_DETAILS_PREFIX];
 
 const plans = `select id from billing_plan where name like '${E2E_PLAN_NAME_PREFIX}%'`;
 const perks = `select id from billing_perk where key like '${E2E_PERK_KEY_PREFIX}%'`;
@@ -23,6 +24,7 @@ const churchEvents = `select id from event where org_id in (${churches})`;
 // Children first, so no row is removed while another still points at it.
 export const E2E_CLEANUP_STATEMENTS: readonly string[] = [
   `delete from contact_message where name like '${E2E_CONTACT_NAME_PREFIX}%'`,
+  `delete from report where details like '${E2E_REPORT_DETAILS_PREFIX}%'`,
   `delete from notification_queue where org_id in (${churches})`,
   `delete from idempotency_record where event_id in (${churchEvents})`,
   `delete from event_link where event_id in (${churchEvents})`,

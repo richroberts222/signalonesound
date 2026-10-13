@@ -31,4 +31,6 @@ export async function signIn(page: Page, emailAddress: string = process.env.E2E_
 // Signs in as the admin test account (a second Clerk development user that playwright.config.ts makes an admin for the
 // run). Only used by specs that first check `adminReady`.
 export const adminReady = process.env.E2E_ADMIN_READY === "1";
+export const memberReady = process.env.E2E_MEMBER_READY === "1";
+export const signInAsThrowawayMember = (page: Page): Promise<void> => signIn(page, process.env.E2E_CLERK_MEMBER_EMAIL!);
 export const signInAsAdmin = (page: Page): Promise<void> => signIn(page, process.env.E2E_CLERK_ADMIN_EMAIL!);
