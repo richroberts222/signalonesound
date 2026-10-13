@@ -12,7 +12,7 @@
 | Browser tests (`apps/web/e2e`) | A person can do it: real sign-in, real screen, real database | Phones | about 80 tests |
 | Phone tests (`apps/mobile`) | The phone app's logic (formatting, queries, saved list) | Any screen, on any device | 76 checks, no screen tests |
 
-**How to read the gap measure.** Every control on a screen has a test id. `node scripts/audit-test-coverage.mjs` lists the ids no test file mentions. That does **not** mean the behaviour is untested (the rule behind it may be well proven below the screen); it means no test drives that control. On 2026-10-12: **399 controls, 236 not driven by any test (177 on the web, 59 on the phone)**, down from 292 after the church and member journeys below.
+**How to read the gap measure.** Every control on a screen has a test id. `node scripts/audit-test-coverage.mjs` lists the ids no test file mentions. That does **not** mean the behaviour is untested (the rule behind it may be well proven below the screen); it means no test drives that control. On 2026-10-12: **399 controls, 223 not driven by any test (164 on the web, 59 on the phone)**, down from 292 after the journeys below.
 
 **The guard.** `apps/web/lib/test-coverage.test.ts` fails when a new control ships without a test that mentions it, and when a control in `docs/test-coverage-baseline.json` has been covered but not removed from the list. The list can only shrink.
 
@@ -36,8 +36,8 @@
 | Section | Rules proven below the screen | Driven in a browser as an admin | Gap |
 | --- | --- | --- | --- |
 | 1 Access and sub-menu | Yes | Yes (`e2e/admin.spec.ts`) | None |
-| 2 Manager requests | Yes (approve, reject, reasons) | Yes: reason required, approve removes the request from the queue (`church-journey.spec.ts`) | Reject a real request |
-| 3 Moderation | Yes (hide, restore, unpublish, suspend, reinstate, reports) | Yes for hiding and restoring a real event (checked from the public side) and dismissing a report; refusals for a missing item | Unpublish or restore a church, suspend or reinstate a member, act on a report |
+| 2 Manager requests | Yes (approve, reject, reasons) | Yes: approve (`church-journey.spec.ts`) and reject, with the person seeing Not approved (`admin-actions.spec.ts`) | None known |
+| 3 Moderation | Yes (hide, restore, unpublish, suspend, reinstate, reports) | Yes: hide and restore an event, unpublish and restore a church (checked in the public finder and API), suspend and reinstate a member, an admin cannot suspend themselves, dismiss a report | Hide the member's events when suspending, "action" on a report |
 | 4 Audit log | Yes | Yes (search, no-match message, export button) | Export file contents |
 | 5 Messages | Yes | The inbox opens | **Reading a message and marking it done** |
 | 6.1 to 6.6 Billing | Yes | Yes: rules, plans, perks, coupons, trial grant, history. Refusals for free for life | **Giving a real church a free-for-life place** |
@@ -56,6 +56,6 @@
 2. **Done 2026-10-12: member journey** with a throwaway member who is deleted at the end (and the admin dismissing the report).
 3. **Membership and checkout in Stripe test mode**, including the church page.
 4. **Phone screens**, after the tooling decision.
-5. **Free for life with a real church**, then the rest of journey 1: church profile and service times, editing an event, repeating events, invites, revoking a manager, rejecting a request, unpublishing a church, suspending a member.
+5. **Done 2026-10-12: admin decisions** (reject, unpublish, restore, suspend, reinstate) and the church profile with service times in the public finder. **Still to do:** free for life with a real church, editing an event, repeating events, manager invites and revoking a manager.
 
 Each pull request removes the ids it now covers from `docs/test-coverage-baseline.json`; the guard enforces it.

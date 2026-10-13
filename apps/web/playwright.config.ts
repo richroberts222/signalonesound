@@ -64,6 +64,14 @@ if (e2eReady) {
       env.E2E_MEMBER_READY = "1";
     }
   }
+  // A member the admin tests suspend and reinstate (kept, not deleted, so the suspension tests never touch the main test user).
+  if (env.E2E_SUSPECT_READY !== "1") {
+    const suspectEmail = env.E2E_CLERK_SUSPECT_EMAIL ?? "e2e-suspect+clerk_test@example.com";
+    if (ensureTestUser(suspectEmail, "+12015550144")) {
+      env.E2E_CLERK_SUSPECT_EMAIL = suspectEmail;
+      env.E2E_SUSPECT_READY = "1";
+    }
+  }
 }
 
 // E2E_PORT lets a local run reuse a dev server that is already running (Next allows only one per folder).
