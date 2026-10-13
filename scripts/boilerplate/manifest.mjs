@@ -241,6 +241,7 @@ export const PROOF_PATHS = [
   "apps/web/e2e/admin-actions.spec.ts",
   "apps/web/e2e/manager-events.spec.ts",
   "apps/web/e2e/discover-filters.spec.ts",
+  "apps/web/e2e/admin-details.spec.ts",
   "apps/web/lib/test-coverage.test.ts",
   "scripts/audit-test-coverage.mjs",
   "scripts/audit-test-coverage.d.mts",
