@@ -12,7 +12,7 @@
 | Browser tests (`apps/web/e2e`) | A person can do it: real sign-in, real screen, real database | Phones | about 80 tests |
 | Phone tests (`apps/mobile`) | The phone app's logic (formatting, queries, saved list) | Any screen, on any device | 76 checks, no screen tests |
 
-**How to read the gap measure.** Every control on a screen has a test id. `node scripts/audit-test-coverage.mjs` lists the ids no test file mentions. That does **not** mean the behaviour is untested (the rule behind it may be well proven below the screen); it means no test drives that control. On 2026-10-12: **399 controls, 208 not driven by any test (149 on the web, 59 on the phone)**, down from 292 after the journeys below.
+**How to read the gap measure.** Every control on a screen has a test id. `node scripts/audit-test-coverage.mjs` lists the ids no test file mentions. That does **not** mean the behaviour is untested (the rule behind it may be well proven below the screen); it means no test drives that control. On 2026-10-12: **399 controls, 194 not driven by any test (135 on the web, 59 on the phone)**, down from 292 after the journeys below.
 
 **The guard.** `apps/web/lib/test-coverage.test.ts` fails when a new control ships without a test that mentions it, and when a control in `docs/test-coverage-baseline.json` has been covered but not removed from the list. The list can only shrink.
 
@@ -37,10 +37,10 @@
 | --- | --- | --- | --- |
 | 1 Access and sub-menu | Yes | Yes (`e2e/admin.spec.ts`) | None |
 | 2 Manager requests | Yes (approve, reject, reasons) | Yes: approve (`church-journey.spec.ts`) and reject, with the person seeing Not approved (`admin-actions.spec.ts`) | None known |
-| 3 Moderation | Yes (hide, restore, unpublish, suspend, reinstate, reports) | Yes: hide and restore an event, unpublish and restore a church (checked in the public finder and API), suspend and reinstate a member, an admin cannot suspend themselves, dismiss a report | Hide the member's events when suspending, "action" on a report |
-| 4 Audit log | Yes | Yes (search, no-match message, export button) | Export file contents |
-| 5 Messages | Yes | The inbox opens | **Reading a message and marking it done** |
-| 6.1 to 6.6 Billing | Yes | Yes: rules, plans, perks, coupons, trial grant, history, and giving a real church a free-for-life place and taking it back (`manager-events.spec.ts`) | None known |
+| 3 Moderation | Yes (hide, restore, unpublish, suspend, reinstate, reports) | Yes: hide and restore an event, unpublish and restore a church (checked in the public finder and API), suspend and reinstate a member, an admin cannot suspend themselves, dismiss a report | Hide-or-act buttons on a report about a real event or church (the choice to hide a suspended member's events is checked as sent, not on real events) |
+| 4 Audit log | Yes | Yes (search, the actor and date filters, no-match message, export button) | Export file contents |
+| 5 Messages | Yes | Yes: a visitor's message arrives; mark done, mark new again, delete (`admin-details.spec.ts`) | None known |
+| 6.1 to 6.6 Billing | Yes | Yes: rules (with a default plan), plans (yearly, church), perks, coupons (percent and fixed amount with expiry and limit), trial grant, history, and a free-for-life place (`manager-events.spec.ts`, `admin-details.spec.ts`) | A perk for churches |
 | 7 Practice screens | n/a | Yes (they open and say they are practice) | None |
 
 ## What this audit cannot see
