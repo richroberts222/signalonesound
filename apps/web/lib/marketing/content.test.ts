@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { ABOUT_PARAGRAPHS, EXAMPLE_EVENTS, FAQ, FOR_CHURCHES, FOR_PEOPLE, HOW_IT_WORKS, MISSION, PROBLEM, SCRIPTURE, SERVICES, VISION } from "./content";
+import { ABOUT_PARAGRAPHS, APPROVAL_NOTE, EXAMPLE_EVENTS, FAQ, FOR_CHURCHES, FOR_PEOPLE, HOW_IT_WORKS, IDENTITY, MISSION, PROBLEM, SCRIPTURE, SERVICES, VISION } from "./content";
 
 // Guards for the words on the public pages (S15). The pages may only say what the app does today or what the
 // product plan lists; planned things are labeled "coming"; example content is labeled "Example"; and there is
@@ -54,6 +54,14 @@ describe("public page content", () => {
     expect(SCRIPTURE.reference).toMatch(/Isaiah 40:3/);
     expect(PROBLEM).toMatch(/denominations and independent ministries/i);
     expect(ABOUT_PARAGRAPHS).toContain(PROBLEM);
+  });
+
+  it("the About page opens with the Christ centered statement and says listings must be Christ centered", () => {
+    expect(MISSION).toMatch(/using technology to build Kingdom networks/i);
+    expect(ABOUT_PARAGRAPHS[0]).toBe(IDENTITY);
+    expect(IDENTITY).toMatch(/Jesus Christ centered community of believers in the Holy Bible, the Father, Son and Holy Spirit/i);
+    expect(ABOUT_PARAGRAPHS).toContain(APPROVAL_NOTE);
+    expect(APPROVAL_NOTE).toMatch(/must be Christ centered to be approved/i);
   });
 
   it("S15 AC6 the FAQ has at least 12 distinct questions, each with a real answer", () => {

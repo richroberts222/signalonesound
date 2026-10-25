@@ -4,7 +4,9 @@
 // planned as "coming", never state a number of users, churches, events or ratings, and keep example content
 // labeled "Example". `content.test.ts` enforces these. The owner and partner review the wording before launch.
 
-export const MISSION = "Connect believers with churches, ministries, and revival gatherings while strengthening local churches and encouraging spiritual awakening through technology.";
+export const MISSION = "Connect believers with churches, ministries, and revival gatherings while strengthening local churches and encouraging spiritual awakening through using technology to build Kingdom networks.";
+export const IDENTITY = "Signal One Sound is a Jesus Christ centered community of believers in the Holy Bible, the Father, Son and Holy Spirit.";
+export const APPROVAL_NOTE = "Churches and ministries must be Christ centered to be approved, and a person reviews every listing before it appears.";
 export const VISION = "To be the largest Christian revival discovery platform in the U.S., and eventually around the world.";
 export const PROBLEM = "Revival gatherings, tent meetings and church events are shared in a hundred places, and the posts that announce them quickly disappear. There has been no widely used place that gathers them across denominations and independent ministries.";
 export const SCRIPTURE = { text: "A voice of one who cries: Prepare in the wilderness the way of the Lord [clear away the obstacles]; make straight and smooth in the desert a highway for our God!", reference: "Isaiah 40:3 (AMPC)" };
@@ -81,7 +83,8 @@ export const FAQ: readonly FaqItem[] = [
 ];
 
 export const ABOUT_PARAGRAPHS = [
+  IDENTITY,
   "Signal One Sound exists to help people find the gatherings where revival is happening, and to help churches and ministries be found.",
   PROBLEM,
-  "Search by place, distance, date and kind of gathering, save the events that matter to you, and be told when one is coming near you. Churches and ministries can list their events for free.",
+  APPROVAL_NOTE,
 ] as const;
