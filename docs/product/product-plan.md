@@ -27,7 +27,7 @@ Items tagged **[UNDECIDED]** or **[UNDECIDED/VOTE]** are preserved from the sour
 
 Signal One Sound could become much more than an event directory: potentially the largest digital hub for revival movements, churches, ministries, evangelists, prayer initiatives, and Christian events in North America. The source notes there is no widely adopted platform aggregating these events across denominations and independent ministries, and that many churches rely on Facebook posts that quickly disappear.
 
-* **Mission:** connect believers with churches, ministries, and revival gatherings while strengthening local churches and encouraging spiritual awakening through technology.
+* **Mission:** connect believers with churches, ministries, and revival gatherings while strengthening local churches and encouraging spiritual awakening through using technology to build Kingdom networks (wording from the owner's partner, approved by Rich 2026-10-25).
 * **Vision:** be the largest Christian revival discovery platform in the U.S. and eventually around the world.
 * **Key Scripture:** Isaiah 40:3 (AMPC): "A voice of one who cries: Prepare in the wilderness the way of the Lord [clear away the obstacles]; make straight and smooth in the desert a highway for our God!" Supporting: Matthew 3:3; Mark 1:3; Luke 3:4; John 1:23.
 
